@@ -57,11 +57,15 @@ export const layout = createSlice({
     toggleCollapseSidebar: (state) => {
       state.isCollapsed = !state.isCollapsed;
     },
-    toggleMobileSidebar: (state) => {
-      state.isMobileSidebarOpen = !state.isMobileSidebarOpen;
+    openMobileSidebar: (state) => {
+      state.isMobileSidebarOpen = true;
+    },
+    closeMobileSidebar: (state) => {
+      state.isMobileSidebarOpen = false;
     },
   },
 });
 
-export const { toggleCollapseSidebar, toggleMobileSidebar } = layout.actions;
+export const { toggleCollapseSidebar, closeMobileSidebar, openMobileSidebar } =
+  layout.actions;
 export default layout.reducer;
