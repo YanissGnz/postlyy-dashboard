@@ -1,8 +1,14 @@
 import "@/styles/globals.css";
 import { type Metadata } from "next";
-
+// font
 import { DM_Sans } from "next/font/google";
-import ReduxProvider from "./redux/provider";
+// providers
+import ReduxProvider from "../providers/redux-provider";
+import AuthProvider from "@/providers/auth-provider";
+import { ThemeProvider } from "@/providers/theme-provider";
+// components
+import NextTopLoader from "nextjs-toploader";
+import { Toaster } from "sonner";
 
 const rubik = DM_Sans({
   subsets: ["latin"],
@@ -10,8 +16,8 @@ const rubik = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Postlyy",
-  description: " Your Content, Planned, Analyzed & Supercharged.",
+  title: "Postlyy: Your Content, Planned, Analyzed & Supercharged.",
+  description: "Your Content, Planned, Analyzed & Supercharged.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
   keywords: [
     "postlyy",
@@ -28,6 +34,7 @@ export const metadata: Metadata = {
     "twitter",
     "linkedin",
   ],
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
@@ -36,9 +43,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`bg-background font-sans ${rubik.variable}`}>
-        <ReduxProvider>{children}</ReduxProvider>
+        <NextTopLoader color="#FF0000" showSpinner={false} />
+        <AuthProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <ReduxProvider>{children}</ReduxProvider>
+            <Toaster richColors closeButton />
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

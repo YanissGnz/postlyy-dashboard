@@ -1,11 +1,15 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 // next
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+// redux
+import { useAppSelector } from "@/redux/hooks";
 // components
 import Iconify from "../ui/icon";
 // utils
-import { type TNavItem } from "@/app/redux/slices/layoutSlice";
+import { type TNavItem } from "@/redux/slices/layoutSlice";
 import { cn } from "@/lib/utils";
 
 export default function NavItem({ icon, name, path }: TNavItem) {
@@ -13,18 +17,45 @@ export default function NavItem({ icon, name, path }: TNavItem) {
 
   const isActive = pathname?.includes(path);
 
+  const { isCollapsed } = useAppSelector((state) => state.layout);
+  const [showName, setShowName] = useState(true);
+
+  useEffect(() => {
+    if (isCollapsed) {
+      setTimeout(() => {
+        setShowName(false);
+      }, 500);
+    } else {
+      setShowName(true);
+    }
+  }, [isCollapsed]);
+
   return (
     <Link
       href={path}
       className={cn(
-        "flex w-full cursor-pointer flex-row items-center gap-2 rounded p-2 ",
+        "flex w-full cursor-pointer flex-row items-center gap-2 rounded p-2 transition-colors",
         isActive
-          ? "bg-gray-200/60 text-primary hover:bg-gray-200"
-          : "text-gray-600 hover:bg-gray-200/60",
+          ? "bg-primary/20 text-primary hover:bg-primary/30"
+          : "text-accent-foreground/80 hover:bg-accent",
+        !showName && "justify-center",
       )}
     >
-      <Iconify icon={icon} height={20} />
-      <span className={cn(isActive && "font-semibold")}>{name}</span>
+      <Iconify
+        icon={icon}
+        height={isCollapsed ? 26 : 20}
+        className="transition-all"
+      />
+      <span
+        className={cn(
+          "origin-left truncate",
+          isActive && "font-semibold",
+          isCollapsed ? "scale-0" : "scale-100",
+          showName ? "block" : "hidden",
+        )}
+      >
+        {name}
+      </span>
     </Link>
   );
 }

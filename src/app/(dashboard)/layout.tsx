@@ -1,4 +1,5 @@
 import Sidebar from "@/components/layout/Sidebar";
+import { LAYOUT } from "@/lib/constants";
 
 export default function DashboardLayout({
   children,
@@ -8,7 +9,13 @@ export default function DashboardLayout({
   return (
     <div>
       <Sidebar />
-      <main className="ml-64">{children}</main>
+      <main
+        style={{
+          paddingLeft: LAYOUT.MOBILE_SIDEBAR_WIDTH,
+        }}
+      >
+        {children}
+      </main>
     </div>
   );
 }
