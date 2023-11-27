@@ -25,7 +25,7 @@ export default function Sidebar() {
 
   return (
     <div
-      className="fixed left-0 top-0 flex h-screen flex-col border-r bg-white p-3 transition-all duration-500"
+      className="fixed left-0 top-0 flex h-screen flex-col border-r bg-card p-3 transition-all duration-500"
       style={{
         width: isCollapsed
           ? LAYOUT.COLLAPSED_SIDEBAR_WIDTH
@@ -33,7 +33,7 @@ export default function Sidebar() {
       }}
     >
       <Button
-        variant="secondary"
+        variant="outline"
         size="icon"
         onClick={handleToggleCollapse}
         className="absolute top-5 -translate-x-1/2 rounded-full border transition-all duration-500"
@@ -46,7 +46,7 @@ export default function Sidebar() {
         <Iconify
           icon="solar:double-alt-arrow-left-bold-duotone"
           className={cn(
-            "transition-all duration-500",
+            "transition-transform duration-500",
             isCollapsed ? "rotate-180" : "",
           )}
           fontSize={20}

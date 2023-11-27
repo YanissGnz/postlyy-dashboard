@@ -44,8 +44,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`bg-background font-sans ${rubik.variable}`}>
-        <NextTopLoader color="#FF0000" showSpinner={false} />
+      <body
+        className={`bg-background font-sans transition-colors ${rubik.variable}`}
+      >
+        <NextTopLoader color="#7E43A1" showSpinner={false} />
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <ReduxProvider>{children}</ReduxProvider>

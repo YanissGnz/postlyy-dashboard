@@ -21,6 +21,7 @@ export default function DashboardLayout({
     <div className="flex flex-col">
       {isMobile ? <Header /> : <Sidebar />}
       <main
+        className="transition-all duration-500"
         style={{
           paddingLeft: isMobile
             ? 0
