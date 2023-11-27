@@ -20,7 +20,7 @@ export default config({
   redirects: async () => [
     {
       source: "/",
-      destination: "/post",
+      destination: "/home",
       permanent: true,
     },
   ],

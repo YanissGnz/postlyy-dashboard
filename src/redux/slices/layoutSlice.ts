@@ -1,4 +1,4 @@
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 
 export type TNavItem = {
   name: string;
@@ -16,6 +16,11 @@ type LayoutState = {
 const initialState = {
   isCollapsed: false,
   navItems: [
+    {
+      name: "Home",
+      path: "/home",
+      icon: "solar:home-smile-bold-duotone",
+    },
     {
       name: "Post",
       path: "/post",
