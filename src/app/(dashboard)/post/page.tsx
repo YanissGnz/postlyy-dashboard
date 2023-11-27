@@ -1,3 +1,7 @@
 export default function PostPage() {
-  return <div className="p-2">Post page</div>;
+  return (
+    <div className="flex h-screen w-full flex-col items-center justify-center">
+      <h1 className="text-2xl font-semibold">Post page</h1>
+    </div>
+  );
 }

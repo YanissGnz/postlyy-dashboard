@@ -40,3 +40,9 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+
+# pwa
+sw.*
+workbox-*
+swe-worker-*

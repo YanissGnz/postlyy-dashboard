@@ -41,6 +41,11 @@ const initialState = {
       path: "/analytics",
       icon: "solar:pie-chart-2-bold-duotone",
     },
+    {
+      name: "Recurrent Posts",
+      path: "/settings",
+      icon: "solar:repeat-one-minimalistic-bold-duotone",
+    },
   ],
   isMobileSidebarOpen: false,
 } as LayoutState;
@@ -48,8 +53,19 @@ const initialState = {
 export const layout = createSlice({
   name: "layout",
   initialState,
-  reducers: {},
+  reducers: {
+    toggleCollapseSidebar: (state) => {
+      state.isCollapsed = !state.isCollapsed;
+    },
+    openMobileSidebar: (state) => {
+      state.isMobileSidebarOpen = true;
+    },
+    closeMobileSidebar: (state) => {
+      state.isMobileSidebarOpen = false;
+    },
+  },
 });
 
-export const {} = layout.actions;
+export const { toggleCollapseSidebar, closeMobileSidebar, openMobileSidebar } =
+  layout.actions;
 export default layout.reducer;

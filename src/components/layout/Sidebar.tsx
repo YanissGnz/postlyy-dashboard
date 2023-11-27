@@ -1,22 +1,63 @@
 "use client";
 
 import Image from "next/image";
+// redux
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+// constants
+import { LAYOUT } from "@/lib/constants";
+// components
+import { Button } from "../ui/button";
+import Iconify from "../ui/icon";
+import AccountPopover from "./AccountPopover";
 import NavItem from "./NavItem";
-import { useAppSelector } from "@/app/redux/hooks";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { useCallback } from "react";
+import { toggleCollapseSidebar } from "@/redux/slices/layoutSlice";
+import { cn } from "@/lib/utils";
 
 export default function Sidebar() {
-  const { navItems } = useAppSelector((state) => state.layout);
+  const { navItems, isCollapsed } = useAppSelector((state) => state.layout);
+
+  const dispatch = useAppDispatch();
+
+  const handleToggleCollapse = useCallback(() => {
+    dispatch(toggleCollapseSidebar());
+  }, []);
 
   return (
-    <div className="fixed left-0 top-0 flex h-screen w-64 flex-col border-r bg-white p-2">
-      <div className="mb-4 inline-flex  items-center gap-2">
+    <div
+      className="fixed left-0 top-0 flex h-screen flex-col border-r bg-card p-3 transition-all duration-500"
+      style={{
+        width: isCollapsed
+          ? LAYOUT.COLLAPSED_SIDEBAR_WIDTH
+          : LAYOUT.SIDEBAR_WIDTH,
+      }}
+    >
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={handleToggleCollapse}
+        className="absolute top-5 -translate-x-1/2 rounded-full border transition-all duration-500"
+        style={{
+          left: isCollapsed
+            ? LAYOUT.COLLAPSED_SIDEBAR_WIDTH
+            : LAYOUT.SIDEBAR_WIDTH,
+        }}
+      >
+        <Iconify
+          icon="solar:double-alt-arrow-left-bold-duotone"
+          className={cn(
+            "transition-transform duration-500",
+            isCollapsed ? "rotate-180" : "",
+          )}
+          fontSize={20}
+        />
+      </Button>
+      <div className="mb-4">
         <Image
           src="/icons/logo-transparent.png"
           alt="logo"
           width="64"
           height="64"
-          //   className="h-16 w-16"
         />
       </div>
       <div className="flex flex-1 flex-col gap-2">
@@ -24,16 +65,8 @@ export default function Sidebar() {
           <NavItem {...item} />
         ))}
       </div>
-      <div className="flex w-full cursor-pointer items-center gap-2 rounded border p-2 hover:bg-gray-200/60">
-        <Avatar>
-          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-          <AvatarFallback>CN</AvatarFallback>
-        </Avatar>
-        <div className="flex flex-col">
-          <span className="text-sm font-semibold">Ahmed Awad</span>
-          <span className="text-xs text-gray-500">@ahmed_awad</span>
-        </div>
-      </div>
+
+      <AccountPopover />
     </div>
   );
 }
