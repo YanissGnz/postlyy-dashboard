@@ -7,7 +7,7 @@ import ReduxProvider from "../providers/redux-provider";
 import AuthProvider from "@/providers/auth-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 // components
-import NextTopLoader from "nextjs-toploader";
+// import NextTopLoader from "nextjs-toploader";
 import { Toaster } from "sonner";
 
 const rubik = DM_Sans({
@@ -47,7 +47,7 @@ export default function RootLayout({
       <body
         className={`bg-background font-sans transition-colors ${rubik.variable}`}
       >
-        <NextTopLoader color="#7E43A1" showSpinner={false} />
+        {/* <NextTopLoader color="#1DA1F2" showSpinner={false}  /> */}
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <ReduxProvider>{children}</ReduxProvider>
