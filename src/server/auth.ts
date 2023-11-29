@@ -7,6 +7,7 @@ import {
 import TwitterProvider from "next-auth/providers/twitter";
 
 import { env } from "@/env";
+import { type TExternalLogin } from "@/types/TExternalLogin";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -19,7 +20,8 @@ declare module "next-auth" {
     user: {
       id: string;
       username: string;
-    } & DefaultSession["user"];
+    } & DefaultSession["user"] &
+      TExternalLogin;
   }
 
   interface User {
@@ -81,11 +83,22 @@ export const authOptions: NextAuthOptions = {
           },
         );
 
-        const data: any = await response.json();
-        console.log("🚀 ~ file: auth.ts:79 ~ jwt ~ data:", data);
+        if (!response.ok) throw new Error("Failed to login");
 
-        token.accessToken = account.access_token;
-        token.name = profile.data.name;
+        const data: TExternalLogin = (await response.json()) as TExternalLogin;
+
+        token.accessToken = data.token;
+        token.refreshToken = data.refreshToken;
+        token.fullName = data.fullName;
+        token.profilePicture = data.profilePicture;
+        token.hasChosenSubscription = data.hasChosenSubscription;
+        token.hasPaidSubscription = data.hasPaidSubscription;
+        token.hasToChangePassword = data.hasToChangePassword;
+        token.hasSetupEmail = data.hasSetupEmail;
+        token.isTrial = data.isTrial;
+        token.tier = data.tier;
+        token.userType = data.userType;
+        token.accounts = data.accounts;
         token.username = profile.data.username;
       }
       return token;
