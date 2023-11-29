@@ -30,9 +30,12 @@ export default function AccountPopover() {
 
   const { theme, setTheme } = useTheme();
 
-  const handleToggleTheme = useCallback(() => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  }, [theme]);
+  const handleToggleTheme = useCallback(
+    (newTheme: string) => () => {
+      setTheme(newTheme);
+    },
+    [theme],
+  );
 
   const handleLogout = useCallback(async () => {
     await signOut();
@@ -146,18 +149,51 @@ export default function AccountPopover() {
           </DropdownMenuSub>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleToggleTheme}>
-          <Iconify
-            icon={
-              theme === "dark"
-                ? "solar:moon-stars-bold-duotone"
-                : "solar:sun-2-bold-duotone"
-            }
-            fontSize={22}
-            className="mr-2 text-foreground/80"
-          />
-          Toggle {theme === "dark" ? "Light" : "Dark"} Mode
-        </DropdownMenuItem>
+        <DropdownMenuGroup>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <Iconify
+                icon={
+                  theme === "dark"
+                    ? "solar:moon-stars-bold-duotone"
+                    : "solar:sun-2-bold-duotone"
+                }
+                fontSize={22}
+                className="mr-2 text-foreground/80"
+              />
+              Change theme
+            </DropdownMenuSubTrigger>
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent>
+                <DropdownMenuItem onClick={handleToggleTheme("dark")}>
+                  <Iconify
+                    icon="solar:moon-stars-bold-duotone"
+                    fontSize={22}
+                    className="mr-2 text-foreground/80"
+                  />
+                  Dark
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleToggleTheme("light")}>
+                  <Iconify
+                    icon="solar:sun-2-bold-duotone"
+                    fontSize={22}
+                    className="mr-2 text-foreground/80"
+                  />
+                  Light
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleToggleTheme("system")}>
+                  <Iconify
+                    icon="solar:settings-minimalistic-bold-duotone"
+                    fontSize={22}
+                    className="mr-2 text-foreground/80"
+                  />
+                  System
+                </DropdownMenuItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
+          </DropdownMenuSub>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout}>
           <Iconify
             icon="solar:logout-3-bold-duotone"
