@@ -7,7 +7,7 @@ import {
 import TwitterProvider from "next-auth/providers/twitter";
 
 import { env } from "@/env";
-import { type TExternalLogin } from "@/types/TExternalLogin";
+import { type TApiUser } from "@/types/TApiUser";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -21,7 +21,7 @@ declare module "next-auth" {
       id: string;
       username: string;
     } & DefaultSession["user"] &
-      TExternalLogin;
+      TApiUser;
   }
 
   interface User {
@@ -76,7 +76,7 @@ export const authOptions: NextAuthOptions = {
             body,
           },
         )
-          .then((res) => res.json() as Promise<TExternalLogin>)
+          .then((res) => res.json() as Promise<TApiUser>)
           .catch((err) => {
             console.log("🚀 ~ file: auth.ts:80 ~ jwt ~ err", err);
             throw new Error("Failed to login");
