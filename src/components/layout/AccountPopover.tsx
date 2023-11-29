@@ -1,22 +1,28 @@
 "use client";
 
+import { useCallback } from "react";
+import { signOut, useSession } from "next-auth/react";
+import { useTheme } from "next-themes";
+// redux
 import { useAppSelector } from "@/redux/hooks";
+// components
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
+  DropdownMenuPortal,
   DropdownMenuSeparator,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
+  DropdownMenuSub,
 } from "../ui/dropdown-menu";
 import Iconify from "../ui/icon";
-import { cn } from "@/lib/utils";
-import { useTheme } from "next-themes";
-import { useCallback } from "react";
-import { signOut, useSession } from "next-auth/react";
 import { Skeleton } from "../ui/skeleton";
+// utils
+import { cn } from "@/lib/utils";
 
 export default function AccountPopover() {
   const { data: session, status } = useSession();
@@ -73,8 +79,6 @@ export default function AccountPopover() {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
-        <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <Iconify
@@ -101,6 +105,45 @@ export default function AccountPopover() {
             />
             Settings
           </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <Iconify
+                icon="solar:users-group-rounded-bold-duotone"
+                fontSize={22}
+                className="mr-2 text-foreground/80"
+              />
+              Accounts
+            </DropdownMenuSubTrigger>
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent>
+                {session?.user.accounts.map((account) => (
+                  <DropdownMenuItem key={account.id} className="font-medium">
+                    <Avatar className="mr-2 h-6 w-6">
+                      <AvatarImage
+                        src={account.photoUrl ?? ""}
+                        alt={`@${account.username}`}
+                      />
+                      <AvatarFallback>
+                        {account.username.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    @{account.username}
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuItem>
+                  <Iconify
+                    icon="solar:add-circle-bold-duotone"
+                    fontSize={22}
+                    className="mr-2 text-foreground/80"
+                  />
+                  Add account
+                </DropdownMenuItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
+          </DropdownMenuSub>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleToggleTheme}>
