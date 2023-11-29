@@ -8,12 +8,11 @@
     "dev": "next dev --port 3010",
     "lint": "next lint",
     "start": "next start",
-"build:digitalocean": "pnpm install --no-optional && pnpm build && rm -rf node_modules && pnpm install --prod"
-
-  },
+    "build:digitalocean": "yarn install --production=false && yarn run build && rm -rf node_modules && yarn install --production --frozen-lockfile"
+    },
   "engines": {
     "node": "18.x",
-    "pnpm": "8.x"
+    "yarn": "^1.22.19"
   },
   "dependencies": {
     "@iconify/react": "^4.1.1",
