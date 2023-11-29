@@ -56,13 +56,16 @@ declare module "next-auth" {
 export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, account, profile }) {
-      console.log(
-        "🚀 ~ file: auth.ts:57 ~ jwt ~ token, account, profile:",
-        token,
-        account,
-        profile,
-      );
       if (account && profile) {
+        const body = JSON.stringify({
+          provider: 0,
+          id: profile.data.id,
+          refreshToken: account.refresh_token,
+          accessToken: account.access_token,
+          email: "",
+          userName: profile.data.username,
+          picture: profile.data.profile_image_url,
+        });
         const response = await fetch(
           `${env.API_BASEURL}/api/Authentication/External`,
           {
@@ -70,35 +73,27 @@ export const authOptions: NextAuthOptions = {
             headers: {
               "Content-Type": "application/json",
             },
-
-            body: JSON.stringify({
-              provider: 0,
-              id: profile.data.id,
-              refreshToken: account.refresh_token,
-              accessToken: account.access_token,
-              email: "",
-              userName: profile.data.username,
-              picture: profile.data.profile_image_url,
-            }),
+            body,
           },
-        );
+        )
+          .then((res) => res.json() as Promise<TExternalLogin>)
+          .catch((err) => {
+            console.log("🚀 ~ file: auth.ts:80 ~ jwt ~ err", err);
+            throw new Error("Failed to login");
+          });
 
-        if (!response.ok) throw new Error("Failed to login");
-
-        const data: TExternalLogin = (await response.json()) as TExternalLogin;
-
-        token.accessToken = data.token;
-        token.refreshToken = data.refreshToken;
-        token.fullName = data.fullName;
-        token.profilePicture = data.profilePicture;
-        token.hasChosenSubscription = data.hasChosenSubscription;
-        token.hasPaidSubscription = data.hasPaidSubscription;
-        token.hasToChangePassword = data.hasToChangePassword;
-        token.hasSetupEmail = data.hasSetupEmail;
-        token.isTrial = data.isTrial;
-        token.tier = data.tier;
-        token.userType = data.userType;
-        token.accounts = data.accounts;
+        token.accessToken = response.token;
+        token.refreshToken = response.refreshToken;
+        token.fullName = response.fullName;
+        token.profilePicture = response.profilePicture;
+        token.hasChosenSubscription = response.hasChosenSubscription;
+        token.hasPaidSubscription = response.hasPaidSubscription;
+        token.hasToChangePassword = response.hasToChangePassword;
+        token.hasSetupEmail = response.hasSetupEmail;
+        token.isTrial = response.isTrial;
+        token.tier = response.tier;
+        token.userType = response.userType;
+        token.accounts = response.accounts;
         token.username = profile.data.username;
       }
       return token;
