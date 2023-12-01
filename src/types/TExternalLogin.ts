@@ -1,3 +1,5 @@
+import { type TAccount } from "./TAccount";
+
 export type TExternalLogin = {
   fullName: string;
   token: string;
@@ -10,10 +12,5 @@ export type TExternalLogin = {
   isTrial: boolean;
   tier: number;
   userType: number;
-  accounts: Array<{
-    id: string;
-    accountType: number;
-    username: string;
-    photoUrl: string;
-  }>;
+  accounts: Array<TAccount>;
 };

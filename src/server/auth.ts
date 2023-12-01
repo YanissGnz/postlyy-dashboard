@@ -8,6 +8,8 @@ import TwitterProvider from "next-auth/providers/twitter";
 
 import { env } from "@/env";
 import { type TExternalLogin } from "@/types/TExternalLogin";
+import { store } from "@/redux/store";
+import { setUser } from "@/redux/slices/authSlice";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -98,13 +100,21 @@ export const authOptions: NextAuthOptions = {
       }
       return token;
     },
-    session: ({ session, token }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        ...token,
-      },
-    }),
+    session: ({ session, token }) => {
+      store.dispatch(
+        setUser({
+          ...session.user,
+          ...token,
+        }),
+      );
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          ...token,
+        },
+      };
+    },
   },
   providers: [
     TwitterProvider({
@@ -113,8 +123,8 @@ export const authOptions: NextAuthOptions = {
       version: "2.0",
     }),
   ],
-  // pages: {
-  //   signIn: "/login",
-  // },
+  pages: {
+    // signIn: "/auth/login",
+  },
 };
 export const getServerAuthSession = () => getServerSession(authOptions);
