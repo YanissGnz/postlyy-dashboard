@@ -3,9 +3,10 @@ import { type Metadata } from "next";
 // font
 import { DM_Sans } from "next/font/google";
 // providers
-import ReduxProvider from "../providers/redux-provider";
+import ReduxProvider from "@/providers/redux-provider";
 import AuthProvider from "@/providers/auth-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
+import UserProvider from "@/providers/user-provider";
 // components
 // import NextTopLoader from "nextjs-toploader";
 import { Toaster } from "sonner";
@@ -37,7 +38,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -48,12 +49,14 @@ export default function RootLayout({
         className={`bg-background font-sans transition-colors ${rubik.variable}`}
       >
         {/* <NextTopLoader color="#1DA1F2" showSpinner={false}  /> */}
-        <AuthProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <ReduxProvider>{children}</ReduxProvider>
-            <Toaster richColors closeButton />
-          </ThemeProvider>
-        </AuthProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <ReduxProvider>
+            <AuthProvider>
+              <UserProvider>{children}</UserProvider>
+            </AuthProvider>
+          </ReduxProvider>
+          <Toaster richColors closeButton />
+        </ThemeProvider>
       </body>
     </html>
   );

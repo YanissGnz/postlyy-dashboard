@@ -1,9 +1,9 @@
 import { type TAccount } from "@/types/TAccount";
-import { type TExternalLogin } from "@/types/TExternalLogin";
+import { type TDBUser } from "@/types/TDBUser";
 import { type PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 export type TAuth = {
-  user: TExternalLogin | null;
+  user: TDBUser | null;
   currentAccount: TAccount | null;
 };
 
@@ -16,9 +16,9 @@ export const auth = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<TExternalLogin>) => {
+    setUser: (state, action: PayloadAction<TDBUser>) => {
       state.user = action.payload;
-      state.currentAccount = action.payload?.accounts[0] ?? null;
+      state.currentAccount = action.payload.accounts[0] ?? null;
     },
     setAccount: (state, action: PayloadAction<TAccount>) => {
       state.currentAccount = action.payload;
