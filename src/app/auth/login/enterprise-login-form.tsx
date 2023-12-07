@@ -67,6 +67,16 @@ export default function EnterpriseLoginForm() {
       });
     } else if (response?.error === "USER_NOT_CONFIRMED") {
       push(`${ROUTES.confirmEmail}?email=${email}`);
+    } else if (response?.error === "USER_NOT_FOUND") {
+      form.setError("email", {
+        type: "manual",
+        message: "User not found",
+      });
+    } else if (response?.error === "WRONG_PASS") {
+      form.setError("password", {
+        type: "manual",
+        message: "Wrong password",
+      });
     } else {
       alert("Something went wrong");
     }

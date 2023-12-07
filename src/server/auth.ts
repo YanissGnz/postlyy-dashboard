@@ -43,9 +43,42 @@ declare module "next-auth" {
   }
 }
 
+async function refreshAccessToken(token: string) {
+  try {
+    const response = await fetch(
+      `${env.API_BASEURL}/api/Authentication/RefreshToken`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        method: "GET",
+      },
+    );
+
+    const user = (await response.json()) as TDBUser;
+
+    if (!response.ok) {
+      throw user;
+    }
+
+    return user;
+  } catch (error) {
+    console.log(error);
+
+    return {
+      error: "RefreshAccessTokenError",
+    };
+  }
+}
+
 export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, account, profile, user }) {
+      console.log(
+        "🚀 ~ file: auth.ts:78 ~ jwt ~ { token, account, profile, user }:",
+        { token, account, profile, user },
+      );
       if (account)
         if (account.provider === "credentials") {
           return {
@@ -92,15 +125,50 @@ export const authOptions: NextAuthOptions = {
           token.username = profile?.data.username;
         }
 
+      console.log(
+        "🚀 ~ file: auth.ts:129 ~ jwt ~ Date.now() >= token?.exp!:",
+        Date.now() >= token?.exp!,
+      );
+      if (Date.now() >= token?.exp!) {
+        const refreshedUser = await refreshAccessToken(token?.refreshToken!);
+
+        if (refreshedUser.error) {
+          return {
+            ...token,
+            error: refreshedUser.error,
+          };
+        }
+
+        token.accessToken = refreshedUser.token;
+        token.refreshToken = refreshedUser.refreshToken;
+        token.fullName = refreshedUser.fullName;
+        token.profilePicture = refreshedUser.profilePicture;
+        token.hasChosenSubscription = refreshedUser.hasChosenSubscription;
+        token.hasPaidSubscription = refreshedUser.hasPaidSubscription;
+        token.hasToChangePassword = refreshedUser.hasToChangePassword;
+        token.hasSetupEmail = refreshedUser.hasSetupEmail;
+        token.isTrial = refreshedUser.isTrial;
+        token.tier = refreshedUser.tier;
+        token.userType = refreshedUser.userType;
+        token.accounts = refreshedUser.accounts;
+        token.username = refreshedUser.accounts[0]?.username ?? "";
+      }
+
       return token;
     },
-    session: ({ session, token }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        ...token,
-      },
-    }),
+    session: ({ session, token }) => {
+      console.log(
+        "🚀 ~ file: auth.ts:220 ~ export  authOptions: NextAuthOptions.callbacks.{ session, token }:",
+        { session, token },
+      );
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          ...token,
+        },
+      };
+    },
   },
   providers: [
     TwitterProvider({

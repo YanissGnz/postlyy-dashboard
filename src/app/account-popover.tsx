@@ -27,6 +27,8 @@ import { cn } from "@/lib/utils";
 import { type TAccount } from "@/types/TAccount";
 import { useDispatch } from "react-redux";
 import { setAccount } from "@/redux/slices/authSlice";
+import Link from "next/link";
+import { ROUTES } from "@/routes";
 
 export default function AccountPopover() {
   const { theme, setTheme } = useTheme();
@@ -118,13 +120,15 @@ export default function AccountPopover() {
             Billing
           </DropdownMenuItem>
 
-          <DropdownMenuItem>
-            <Iconify
-              icon="solar:settings-bold-duotone"
-              fontSize={22}
-              className="mr-2 text-foreground/80"
-            />
-            Settings
+          <DropdownMenuItem asChild>
+            <Link href={ROUTES.settings}>
+              <Iconify
+                icon="solar:settings-bold-duotone"
+                fontSize={22}
+                className="mr-2 text-foreground/80"
+              />
+              Settings
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

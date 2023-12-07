@@ -26,6 +26,10 @@ export default function DashboardLayout({
     redirect(ROUTES.setupSubscription);
   }
 
+  if (!session.data?.user.hasPaidSubscription) {
+    redirect(ROUTES.payment);
+  }
+
   return (
     <div className="flex flex-col">
       {isMobile ? <Header /> : <Sidebar />}

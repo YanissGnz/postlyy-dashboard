@@ -48,7 +48,7 @@ const initialState = {
     },
     {
       name: "Recurrent Posts",
-      path: "/settings",
+      path: "/recurrent-posts",
       icon: "solar:repeat-one-minimalistic-bold-duotone",
     },
   ],
