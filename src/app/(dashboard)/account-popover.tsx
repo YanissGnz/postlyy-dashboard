@@ -6,7 +6,7 @@ import { useTheme } from "next-themes";
 // redux
 import { useAppSelector } from "@/redux/hooks";
 // components
-import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,9 +18,9 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
   DropdownMenuSub,
-} from "../components/ui/dropdown-menu";
-import Iconify from "../components/ui/icon";
-import { Skeleton } from "../components/ui/skeleton";
+} from "@/components/ui/dropdown-menu";
+import Iconify from "@/components/ui/icon";
+import { Skeleton } from "@/components/ui/skeleton";
 // utils
 import { cn } from "@/lib/utils";
 // types
@@ -70,7 +70,8 @@ export default function AccountPopover() {
                 alt={`@${currentAccount?.username}`}
               />
               <AvatarFallback>
-                {currentAccount?.username?.slice(0, 2).toUpperCase()}
+                {currentAccount?.username?.slice(0, 2).toUpperCase() ??
+                  session?.user.fullName?.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
           )}
@@ -103,23 +104,6 @@ export default function AccountPopover() {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <Iconify
-              icon="solar:user-circle-bold-duotone"
-              fontSize={22}
-              className="mr-2 text-foreground/80"
-            />
-            Profile
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Iconify
-              icon="solar:bill-list-bold-duotone"
-              fontSize={22}
-              className="mr-2 text-foreground/80"
-            />
-            Billing
-          </DropdownMenuItem>
-
           <DropdownMenuItem asChild>
             <Link href={ROUTES.settings}>
               <Iconify
@@ -130,13 +114,35 @@ export default function AccountPopover() {
               Settings
             </Link>
           </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href={ROUTES.billing}>
+              <Iconify
+                icon="solar:bill-list-bold-duotone"
+                fontSize={22}
+                className="mr-2 text-foreground/80"
+              />
+              Billing
+            </Link>
+          </DropdownMenuItem>
+          {session?.user.userType === 0 && (
+            <DropdownMenuItem asChild>
+              <Link href={ROUTES.team}>
+                <Iconify
+                  icon="solar:users-group-rounded-bold-duotone"
+                  fontSize={22}
+                  className="mr-2 text-foreground/80"
+                />
+                Team
+              </Link>
+            </DropdownMenuItem>
+          )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
               <Iconify
-                icon="solar:users-group-rounded-bold-duotone"
+                icon="solar:user-circle-bold-duotone"
                 fontSize={22}
                 className="mr-2 text-foreground/80"
               />
@@ -166,13 +172,15 @@ export default function AccountPopover() {
                     @{account.username}
                   </DropdownMenuItem>
                 ))}
-                <DropdownMenuItem>
-                  <Iconify
-                    icon="solar:add-circle-bold-duotone"
-                    fontSize={22}
-                    className="mr-2 text-foreground/80"
-                  />
-                  Add account
+                <DropdownMenuItem asChild>
+                  <Link href={ROUTES.accounts}>
+                    <Iconify
+                      icon="solar:add-circle-bold-duotone"
+                      fontSize={22}
+                      className="mr-2 text-foreground/80"
+                    />
+                    Add account
+                  </Link>
                 </DropdownMenuItem>
               </DropdownMenuSubContent>
             </DropdownMenuPortal>

@@ -56,13 +56,28 @@ async function refreshAccessToken(token: string) {
       },
     );
 
-    const user = (await response.json()) as TDBUser;
-
     if (!response.ok) {
-      throw user;
+      throw Error("Failed");
     }
 
-    return user;
+    const user = (await response.json()) as TDBUser;
+
+    return {
+      accessToken: user.token,
+      refreshToken: user.refreshToken,
+      fullName: user.fullName,
+      profilePicture: user.profilePicture,
+      hasChosenSubscription: user.hasChosenSubscription,
+      hasPaidSubscription: user.hasPaidSubscription,
+      hasToChangePassword: user.hasToChangePassword,
+      hasSetupEmail: user.hasSetupEmail,
+      isTrial: user.isTrial,
+      tier: user.tier,
+      userType: user.userType,
+      accounts: user.accounts,
+      username: user?.accounts[0]?.username ?? "",
+      accessTokenExpires: Date.now() + 1000 * 60 * 24 * 30,
+    };
   } catch (error) {
     console.log(error);
 
@@ -83,6 +98,7 @@ export const authOptions: NextAuthOptions = {
         if (account.provider === "credentials") {
           return {
             ...user,
+            accessTokenExpires: Date.now() + 1000 * 60 * 24 * 30,
           };
         } else {
           const body = JSON.stringify({
@@ -123,44 +139,19 @@ export const authOptions: NextAuthOptions = {
           token.userType = response.userType;
           token.accounts = response.accounts;
           token.username = profile?.data.username;
+          token.accessTokenExpires = Date.now() + 1000 * 60 * 24 * 30;
         }
 
-      console.log(
-        "🚀 ~ file: auth.ts:129 ~ jwt ~ Date.now() >= token?.exp!:",
-        Date.now() >= token?.exp!,
-      );
-      if (Date.now() >= token?.exp!) {
-        const refreshedUser = await refreshAccessToken(token?.refreshToken!);
-
-        if (refreshedUser.error) {
-          return {
-            ...token,
-            error: refreshedUser.error,
-          };
-        }
-
-        token.accessToken = refreshedUser.token;
-        token.refreshToken = refreshedUser.refreshToken;
-        token.fullName = refreshedUser.fullName;
-        token.profilePicture = refreshedUser.profilePicture;
-        token.hasChosenSubscription = refreshedUser.hasChosenSubscription;
-        token.hasPaidSubscription = refreshedUser.hasPaidSubscription;
-        token.hasToChangePassword = refreshedUser.hasToChangePassword;
-        token.hasSetupEmail = refreshedUser.hasSetupEmail;
-        token.isTrial = refreshedUser.isTrial;
-        token.tier = refreshedUser.tier;
-        token.userType = refreshedUser.userType;
-        token.accounts = refreshedUser.accounts;
-        token.username = refreshedUser.accounts[0]?.username ?? "";
+      if (Date.now() < token.accessTokenExpires) {
+        return token;
       }
 
-      return token;
+      return {
+        ...token,
+        ...refreshAccessToken(token.refreshToken),
+      };
     },
     session: ({ session, token }) => {
-      console.log(
-        "🚀 ~ file: auth.ts:220 ~ export  authOptions: NextAuthOptions.callbacks.{ session, token }:",
-        { session, token },
-      );
       return {
         ...session,
         user: {

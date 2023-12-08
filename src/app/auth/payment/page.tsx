@@ -21,7 +21,7 @@ export default function Payment() {
         },
       })
         .then((res) => res.json())
-        .then((data) => {
+        .then((data: { data: { link: string } } | string[]) => {
           if (data?.data?.link) push(data.data.link);
           else if (data.includes("SUBSCRIPTION_PAID")) {
             push(ROUTES.home);

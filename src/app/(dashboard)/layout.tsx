@@ -6,11 +6,12 @@ import { LAYOUT } from "@/lib/constants";
 // hooks
 import { useMediaQuery } from "usehooks-ts";
 // components
-import Sidebar from "@/app/sidebar";
+import Sidebar from "@/app/(dashboard)/sidebar";
 import { useAppSelector } from "@/redux/hooks";
-import Header from "@/app/header";
+import Header from "@/app/(dashboard)/header";
 import { redirect } from "next/navigation";
 import { ROUTES } from "@/routes";
+import { Spinner } from "@/components/ui/Spinner";
 
 export default function DashboardLayout({
   children,
@@ -22,12 +23,24 @@ export default function DashboardLayout({
 
   const session = useSession();
 
-  if (!session.data?.user.hasChosenSubscription) {
+  if (session.status === "loading")
+    return (
+      <div className="flex h-screen w-screen items-center justify-center ">
+        <Spinner />
+      </div>
+    );
+
+  if (session.status === "unauthenticated") redirect(ROUTES.login);
+
+  if (
+    session.status === "authenticated" &&
+    !session.data?.user.hasChosenSubscription
+  ) {
     redirect(ROUTES.setupSubscription);
   }
 
   if (!session.data?.user.hasPaidSubscription) {
-    redirect(ROUTES.payment);
+    // redirect(ROUTES.payment);
   }
 
   return (

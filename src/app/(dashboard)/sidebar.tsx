@@ -6,8 +6,8 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 // constants
 import { LAYOUT } from "@/lib/constants";
 // components
-import { Button } from "../components/ui/button";
-import Iconify from "../components/ui/icon";
+import { Button } from "../../components/ui/button";
+import Iconify from "../../components/ui/icon";
 import AccountPopover from "./account-popover";
 import NavItem from "./nav-item";
 import { useCallback } from "react";

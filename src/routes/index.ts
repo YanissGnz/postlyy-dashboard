@@ -13,4 +13,7 @@ export const ROUTES = {
   payment: getPath("auth/payment"),
   home: getPath("home"),
   settings: getPath("settings"),
+  team: getPath("team"),
+  billing: getPath("billing"),
+  accounts: getPath("accounts"),
 };

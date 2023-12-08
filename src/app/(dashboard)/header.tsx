@@ -1,15 +1,16 @@
-import { LAYOUT } from "@/lib/constants";
 import React, { useCallback } from "react";
-import { Button } from "../components/ui/button";
-import Iconify from "../components/ui/icon";
 import Image from "next/image";
-import NavItem from "./nav-item";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import {
   openMobileSidebar,
   closeMobileSidebar,
 } from "@/redux/slices/layoutSlice";
-import { Sheet, SheetContent, SheetTrigger } from "../components/ui/sheet";
+import { LAYOUT } from "@/lib/constants";
+import { Button } from "../../components/ui/button";
+import Iconify from "../../components/ui/icon";
+import NavItem from "./nav-item";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { Sheet, SheetContent, SheetTrigger } from "../../components/ui/sheet";
+import MobileAccountPopover from "./mobile-account-popover";
 
 export default function Header() {
   const { navItems, isMobileSidebarOpen } = useAppSelector(
@@ -65,6 +66,7 @@ export default function Header() {
             </div>
           </SheetContent>
         </Sheet>
+        <MobileAccountPopover />
       </header>
     </>
   );

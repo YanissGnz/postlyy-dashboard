@@ -25,7 +25,19 @@ export const subscriptionApi = createApi({
       query: () => "/api/Subscription/get",
       providesTags: ["SubscriptionSettings"],
     }),
+    cancelSubscription: builder.mutation<
+      TResponse<TSubscriptionSettings>,
+      void
+    >({
+      query: () => ({
+        url: "/api/Subscription/cancel",
+        method: "POST",
+      }),
+    }),
   }),
 });
 
-export const { useGetSubscriptionSettingsQuery } = subscriptionApi;
+export const {
+  useGetSubscriptionSettingsQuery,
+  useCancelSubscriptionMutation,
+} = subscriptionApi;
