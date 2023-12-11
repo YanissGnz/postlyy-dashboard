@@ -43,14 +43,16 @@ declare module "next-auth" {
   }
 }
 
-async function refreshAccessToken(token: string) {
+async function refreshAccessToken(refetchToken: string) {
+  console.log("Refreshing access token");
+
   try {
     const response = await fetch(
       `${env.API_BASEURL}/api/Authentication/RefreshToken`,
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${refetchToken}`,
         },
         method: "GET",
       },
@@ -83,6 +85,50 @@ async function refreshAccessToken(token: string) {
 
     return {
       error: "RefreshAccessTokenError",
+    };
+  }
+}
+
+async function getUser(refetchToken: string) {
+  try {
+    const response = await fetch(
+      `${env.API_BASEURL}/api/Authentication/RefreshToken`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${refetchToken}`,
+        },
+        method: "GET",
+      },
+    );
+
+    if (!response.ok) {
+      return {
+        error: "GetUserError",
+      };
+    }
+
+    const user = (await response.json()) as TDBUser;
+    console.log("🚀 ~ file: auth.ts:112 ~ getUser ~ user:", user);
+
+    return {
+      fullName: user.fullName,
+      profilePicture: user.profilePicture,
+      hasChosenSubscription: user.hasChosenSubscription,
+      hasPaidSubscription: user.hasPaidSubscription,
+      hasToChangePassword: user.hasToChangePassword,
+      hasSetupEmail: user.hasSetupEmail,
+      isTrial: user.isTrial,
+      tier: user.tier,
+      userType: user.userType,
+      accounts: user.accounts,
+      username: user?.accounts ? user?.accounts[0]?.username : "",
+    };
+  } catch (error) {
+    console.log(error);
+
+    return {
+      error: "GetUserError",
     };
   }
 }
@@ -138,16 +184,24 @@ export const authOptions: NextAuthOptions = {
           token.accessTokenExpires = Date.now() + 1000 * 60 * 24 * 30;
         }
 
-      if (Date.now() < (token.accessTokenExpires as number)) {
-        return token;
+      if (Date.now() > token.accessTokenExpires) {
+        console.log("Access token has expired, refreshing...");
+
+        return {
+          ...token,
+          ...(await refreshAccessToken(token.refreshToken as string)),
+        };
       }
 
+      console.log("Refetching user");
+      const newUser = await getUser(token.refreshToken as string);
+      console.log("🚀 ~ file: auth.ts:198 ~ jwt ~ newUser:", newUser);
       return {
         ...token,
-        ...(await refreshAccessToken(token.refreshToken as string)),
+        ...newUser,
       };
     },
-    session: ({ session, token, user }) => {
+    session: ({ session, token }) => {
       return {
         ...session,
         user: {

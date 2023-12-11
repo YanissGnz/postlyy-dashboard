@@ -29,10 +29,13 @@ import { useDispatch } from "react-redux";
 import { setAccount } from "@/redux/slices/authSlice";
 import Link from "next/link";
 import { ROUTES } from "@/routes";
+import { useGetAccountsQuery } from "@/redux/api/user/account/apiSlice";
 
 export default function AccountPopover() {
   const { theme, setTheme } = useTheme();
   const { data: session, status } = useSession();
+
+  const { data: accounts, isLoading, isSuccess } = useGetAccountsQuery();
 
   const dispatch = useDispatch();
 
@@ -149,28 +152,35 @@ export default function AccountPopover() {
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
               <DropdownMenuSubContent>
-                {session?.user.accounts.map((account) => (
-                  <DropdownMenuItem
-                    key={account.id}
-                    className={cn(
-                      "font-medium",
-                      currentAccount?.username === account.username &&
-                        "bg-primary/20 hover:bg-primary/30",
-                    )}
-                    onClick={handleChangeAccount(account)}
-                  >
-                    <Avatar className="mr-2 h-6 w-6">
-                      <AvatarImage
-                        src={account.photoUrl ?? ""}
-                        alt={`@${account.username}`}
-                      />
-                      <AvatarFallback>
-                        {account.username.slice(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    @{account.username}
+                {isLoading ? (
+                  <DropdownMenuItem disabled>
+                    <Skeleton className="h-4 w-28" />
                   </DropdownMenuItem>
-                ))}
+                ) : (
+                  isSuccess &&
+                  accounts.data.map((account) => (
+                    <DropdownMenuItem
+                      key={account.id}
+                      className={cn(
+                        "font-medium",
+                        currentAccount?.username === account.username &&
+                          "bg-primary/20 hover:bg-primary/30",
+                      )}
+                      onClick={handleChangeAccount(account)}
+                    >
+                      <Avatar className="mr-2 h-6 w-6">
+                        <AvatarImage
+                          src={account.photoUrl ?? ""}
+                          alt={`@${account.username}`}
+                        />
+                        <AvatarFallback>
+                          {account.username.slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      @{account.username}
+                    </DropdownMenuItem>
+                  ))
+                )}
                 <DropdownMenuItem asChild>
                   <Link href={ROUTES.accounts}>
                     <Iconify

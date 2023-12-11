@@ -6,7 +6,7 @@ import { DM_Sans } from "next/font/google";
 import ReduxProvider from "@/providers/redux-provider";
 import AuthProvider from "@/providers/auth-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
-import UserProvider from "@/providers/user-provider";
+import UserProvider from "@/providers/token-provider";
 // components
 // import NextTopLoader from "nextjs-toploader";
 import { Toaster } from "sonner";
@@ -49,14 +49,14 @@ export default async function RootLayout({
         className={`bg-background font-sans transition-colors ${rubik.variable}`}
       >
         {/* <NextTopLoader color="#1DA1F2" showSpinner={false}  /> */}
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <ReduxProvider>
-            <AuthProvider>
+        <AuthProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <ReduxProvider>
               <UserProvider>{children}</UserProvider>
-            </AuthProvider>
-          </ReduxProvider>
-          <Toaster richColors closeButton />
-        </ThemeProvider>
+            </ReduxProvider>
+            <Toaster richColors closeButton />
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

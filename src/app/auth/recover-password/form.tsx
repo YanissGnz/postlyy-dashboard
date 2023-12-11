@@ -3,7 +3,7 @@
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 // components
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +21,7 @@ import Iconify from "@/components/ui/icon";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { useForgotPasswordMutation } from "@/redux/api/user/auth/apiSlice";
+import { ROUTES } from "@/routes";
 
 export const confirmEmailSchema = z.object({
   email: z.string().email(),
@@ -28,6 +29,8 @@ export const confirmEmailSchema = z.object({
 
 export default function RecoverPasswordForm() {
   const [forgetPassword, { isLoading }] = useForgotPasswordMutation();
+
+  const { push } = useRouter();
 
   const searchParams = useSearchParams();
 
@@ -46,6 +49,9 @@ export default function RecoverPasswordForm() {
       .unwrap()
       .then(() => {
         toast.success("Email sent successfully");
+        setTimeout(() => {
+          push(ROUTES.resetPassword);
+        }, 2000);
       })
       .catch((e) => {
         console.log("🚀 ~ file: form.tsx:51 ~ onSubmit ~ e:", e);

@@ -30,7 +30,10 @@ export default function DashboardLayout({
       </div>
     );
 
-  if (session.status === "unauthenticated") redirect(ROUTES.login);
+  if (session.status === "unauthenticated") {
+    localStorage.removeItem("token");
+    redirect(ROUTES.login);
+  }
 
   if (
     session.status === "authenticated" &&
@@ -40,7 +43,7 @@ export default function DashboardLayout({
   }
 
   if (!session.data?.user.hasPaidSubscription) {
-    // redirect(ROUTES.payment);
+    redirect(ROUTES.payment);
   }
 
   return (

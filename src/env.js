@@ -35,6 +35,9 @@ export const env = createEnv({
    */
   client: {
     NEXT_PUBLIC_API_BASEURL: z.string().url(),
+    NEXT_PUBLIC_AUTH_BASEURL: z.string().url(),
+    NEXT_PUBLIC_JWT_AUTH_SECRET_KEY: z.string(),
+    NEXT_PUBLIC_AUTH_SECRET_KEY: z.string(),
   },
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
@@ -46,6 +49,10 @@ export const env = createEnv({
     LINKEDIN_CLIENT_SECRET: process.env.LINKEDIN_CLIENT_SECRET,
     API_BASEURL: process.env.API_BASEURL,
     NEXT_PUBLIC_API_BASEURL: process.env.NEXT_PUBLIC_API_BASEURL,
+    NEXT_PUBLIC_AUTH_BASEURL: process.env.NEXT_PUBLIC_AUTH_BASEURL,
+    NEXT_PUBLIC_JWT_AUTH_SECRET_KEY:
+      process.env.NEXT_PUBLIC_JWT_AUTH_SECRET_KEY,
+    NEXT_PUBLIC_AUTH_SECRET_KEY: process.env.NEXT_PUBLIC_AUTH_SECRET_KEY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
