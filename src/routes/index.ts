@@ -8,6 +8,7 @@ export const ROUTES = {
   root: ROOT_PATH,
   login: getPath("auth/login"),
   register: getPath("auth/register"),
+  recoverPassword: getPath("auth/recover-password"),
   confirmEmail: getPath("auth/confirm-email"),
   setupSubscription: getPath("auth/setup-subscription"),
   payment: getPath("auth/payment"),

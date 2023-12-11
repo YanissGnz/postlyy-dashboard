@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useAppSelector } from "@/redux/hooks";
 import Image from "next/image";
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
+import { signIn } from "next-auth/react";
 
 export default function AccountsPage() {
   const { user } = useAppSelector((state) => state.auth);
@@ -26,6 +27,15 @@ export default function AccountsPage() {
     [user],
   );
 
+  const connect = useCallback(
+    (method: string) => async () => {
+      await signIn(method, { callbackUrl: "/accounts" }).then((res) => {
+        console.log(res);
+      });
+    },
+    [],
+  );
+
   return (
     <Card className="grid grid-cols-1 gap-5 p-4">
       <div className="flex items-center justify-between">
@@ -41,7 +51,9 @@ export default function AccountsPage() {
         <p>
           {isConnected(0) ? getAccountByType(0)?.username : "Not connected"}
         </p>
-        <Button variant="outline">Connect</Button>
+        <Button variant="outline" onClick={connect("twitter")}>
+          Connect
+        </Button>
       </div>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">

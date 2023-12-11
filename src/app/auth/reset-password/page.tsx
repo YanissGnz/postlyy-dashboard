@@ -1,7 +1,7 @@
 import React from "react";
-import ConfirmEmailForm from "./form";
+import ResetPasswordForm from "./form";
 
-export default function ConfirmEmail() {
+export default function ResetPassword() {
   return (
     <div className="grid h-screen w-screen grid-cols-12 items-center overflow-hidden">
       <div className="absolute -left-10 -top-10 -z-10 h-fit w-fit opacity-60 blur-2xl">
@@ -20,9 +20,9 @@ export default function ConfirmEmail() {
       </div>
 
       <div className="col-span-12 h-full px-2 py-10 md:col-span-6">
-        <div className="flex flex-col px-8 py-10 sm:px-16 md:px-16 lg:px-20">
-          <h6 className="mb-2 text-4xl font-bold">Confirm email</h6>
-          <ConfirmEmailForm />
+        <div className="flex h-full flex-col justify-center px-8 py-10 sm:px-16 md:px-16 lg:px-20">
+          <h6 className="mb-2 text-4xl font-bold">Reset password</h6>
+          <ResetPasswordForm />
         </div>
       </div>
       <div className=" hidden h-full p-8 md:col-span-6 md:block">

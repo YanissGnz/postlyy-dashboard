@@ -117,7 +117,16 @@ export default function EnterpriseLoginForm() {
             </FormItem>
           )}
         />
-
+        <div className="mt-2 text-end">
+          <p className="text-sm text-gray-500">
+            Forgot your password?{" "}
+            <Link href={ROUTES.recoverPassword}>
+              <Button variant="link" className="px-1" type="button">
+                Recover password
+              </Button>
+            </Link>
+          </p>
+        </div>
         <Button type="submit" disabled={isLoading}>
           {isLoading && (
             <Iconify
@@ -132,7 +141,9 @@ export default function EnterpriseLoginForm() {
         <p className="text-sm text-gray-500">
           Don't have an account?{" "}
           <Link href={ROUTES.register} className="font-medium text-primary">
-            Sign up
+            <Button variant="link" className="px-1" type="button">
+              Sign up
+            </Button>
           </Link>
         </p>
       </div>

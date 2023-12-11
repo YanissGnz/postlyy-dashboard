@@ -1,11 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useBoolean } from "usehooks-ts";
-import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 // components
 import { Button } from "@/components/ui/button";
 import {
@@ -18,73 +16,68 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Iconify from "@/components/ui/icon";
-import { ROUTES } from "@/routes";
-import { env } from "@/env";
+// utils
 
-export const registerSchema = z
+import { useEffect } from "react";
+import { toast } from "sonner";
+import { useResetForgottenPasswordMutation } from "@/redux/api/user/auth/apiSlice";
+import { ROUTES } from "@/routes";
+
+export const confirmEmailSchema = z
   .object({
-    fullName: z.string().min(2),
+    code: z.string().min(6),
     email: z.string().email(),
-    password: z.string().min(6).regex(/[a-z]/).regex(/[A-Z]/).regex(/[0-9]/),
+    newPassword: z.string().min(6).regex(/[a-z]/).regex(/[A-Z]/).regex(/[0-9]/),
     confirmPassword: z.string().min(6),
   })
-  .refine((data) => data.password === data.confirmPassword, {
+  .refine((data) => data.newPassword === data.confirmPassword, {
     message: "Password and confirm password must be same",
     path: ["confirmPassword"],
   });
 
-export default function RegisterForm() {
-  const { setFalse, setTrue, value: isLoading } = useBoolean(false);
+export default function ResetPasswordForm() {
+  const [resetForgottenPassword, { isLoading }] =
+    useResetForgottenPasswordMutation();
 
   const { push } = useRouter();
 
-  const form = useForm<z.infer<typeof registerSchema>>({
-    resolver: zodResolver(registerSchema),
+  const searchParams = useSearchParams();
+
+  const urlEmail = searchParams.get("email");
+  const urlCode = searchParams.get("code");
+
+  const form = useForm<z.infer<typeof confirmEmailSchema>>({
+    resolver: zodResolver(confirmEmailSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: urlEmail ?? "",
+      code: urlCode ?? "",
+      newPassword: "",
+      confirmPassword: "",
     },
   });
 
-  async function onSubmit(values: z.infer<typeof registerSchema>) {
-    const { email, password, fullName } = values;
-    setTrue();
-    const response = await fetch(
-      `${env.NEXT_PUBLIC_API_BASEURL}/api/Authentication/Register`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password, fullName }),
-      },
-    );
-
-    if (response.ok) {
-      push(`${ROUTES.confirmEmail}?email=${email}`);
-    } else {
-      alert("Something went wrong");
-    }
-
-    setFalse();
+  async function onSubmit(values: z.infer<typeof confirmEmailSchema>) {
+    const { email, code, newPassword } = values;
+    await resetForgottenPassword({ email, code, newPassword })
+      .unwrap()
+      .then(() => {
+        toast.success("Password reset successfully");
+        push(ROUTES.login);
+      })
+      .catch((e: { data: string[] }) => {
+        console.log("🚀 ~ file: form.tsx:51 ~ onSubmit ~ e:", e);
+        if (e.data.includes("InvalidToken")) toast.error("Invalid Code");
+        else toast.error("Something went wrong");
+      });
   }
+
+  useEffect(() => {
+    form.handleSubmit(onSubmit);
+  }, [urlEmail, urlCode]);
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
-        <FormField
-          control={form.control}
-          name="fullName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Full name</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter your full name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
         <FormField
           control={form.control}
           name="email"
@@ -97,35 +90,47 @@ export default function RegisterForm() {
               <FormMessage />
             </FormItem>
           )}
-        />
-
+        />{" "}
         <FormField
           control={form.control}
-          name="password"
+          name="code"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>Code</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter the code" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />{" "}
+        <FormField
+          control={form.control}
+          name="newPassword"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>New Password</FormLabel>
               <FormControl>
                 <Input
                   type="password"
-                  placeholder="Enter your password"
+                  placeholder="Enter the new password"
                   {...field}
                 />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
-        />
+        />{" "}
         <FormField
           control={form.control}
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Confirm password</FormLabel>
+              <FormLabel>Confirm Password</FormLabel>
               <FormControl>
                 <Input
                   type="password"
-                  placeholder="Confirm your password"
+                  placeholder="Confirm the new password"
                   {...field}
                 />
               </FormControl>
@@ -133,7 +138,6 @@ export default function RegisterForm() {
             </FormItem>
           )}
         />
-
         <Button type="submit" disabled={isLoading}>
           {isLoading && (
             <Iconify
@@ -141,19 +145,9 @@ export default function RegisterForm() {
               className="mr-2 h-4 w-4 animate-spin"
             />
           )}
-          Register
+          Reset Password
         </Button>
       </form>
-      <div className="mt-2 text-center">
-        <p className="text-sm text-gray-500">
-          Already have an account?{" "}
-          <Link href={ROUTES.login} className="font-medium text-primary">
-            <Button variant="link" className="px-1" type="button">
-              Login
-            </Button>
-          </Link>
-        </p>
-      </div>
     </Form>
   );
 }

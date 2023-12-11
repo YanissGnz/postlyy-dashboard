@@ -90,10 +90,6 @@ async function refreshAccessToken(token: string) {
 export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, account, profile, user }) {
-      console.log(
-        "🚀 ~ file: auth.ts:78 ~ jwt ~ { token, account, profile, user }:",
-        { token, account, profile, user },
-      );
       if (account)
         if (account.provider === "credentials") {
           return {
@@ -142,16 +138,16 @@ export const authOptions: NextAuthOptions = {
           token.accessTokenExpires = Date.now() + 1000 * 60 * 24 * 30;
         }
 
-      if (Date.now() < token.accessTokenExpires) {
+      if (Date.now() < (token.accessTokenExpires as number)) {
         return token;
       }
 
       return {
         ...token,
-        ...refreshAccessToken(token.refreshToken),
+        ...(await refreshAccessToken(token.refreshToken as string)),
       };
     },
-    session: ({ session, token }) => {
+    session: ({ session, token, user }) => {
       return {
         ...session,
         user: {

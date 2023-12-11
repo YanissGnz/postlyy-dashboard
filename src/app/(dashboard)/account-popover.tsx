@@ -91,13 +91,12 @@ export default function AccountPopover() {
             {status === "loading" ? (
               <Skeleton className="h-4 w-28" />
             ) : (
-              <span className="text-xs text-accent-foreground/60">
-                @
-                {currentAccount?.username &&
-                currentAccount?.username?.length > 0
-                  ? currentAccount?.username
-                  : "username"}
-              </span>
+              currentAccount?.username &&
+              currentAccount?.username?.length > 0 && (
+                <span className="text-xs text-accent-foreground/60">
+                  @{currentAccount?.username}
+                </span>
+              )
             )}
           </div>
         </div>

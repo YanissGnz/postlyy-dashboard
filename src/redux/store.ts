@@ -6,6 +6,8 @@ import { setup } from "./slices/setupSlice";
 import { profileApi } from "./api/user/profile/apiSlice";
 import { notificationsSettingsApi } from "./api/user/notifications-settings/apiSlice";
 import { subscriptionApi } from "./api/user/subscription/apiSlice";
+import { teamApi } from "./api/user/team/apiSlice";
+import { authApi } from "./api/user/auth/apiSlice";
 
 export const store = configureStore({
   reducer: {
@@ -15,13 +17,17 @@ export const store = configureStore({
     [profileApi.reducerPath]: profileApi.reducer,
     [notificationsSettingsApi.reducerPath]: notificationsSettingsApi.reducer,
     [subscriptionApi.reducerPath]: subscriptionApi.reducer,
+    [teamApi.reducerPath]: teamApi.reducer,
+    [authApi.reducerPath]: authApi.reducer,
   },
   devTools: process.env.NODE_ENV !== "production",
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({})
       .concat(profileApi.middleware)
       .concat(notificationsSettingsApi.middleware)
-      .concat(subscriptionApi.middleware),
+      .concat(subscriptionApi.middleware)
+      .concat(teamApi.middleware)
+      .concat(authApi.middleware),
 });
 
 setupListeners(store.dispatch);
