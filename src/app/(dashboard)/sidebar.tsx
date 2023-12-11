@@ -6,10 +6,10 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 // constants
 import { LAYOUT } from "@/lib/constants";
 // components
-import { Button } from "../ui/button";
-import Iconify from "../ui/icon";
-import AccountPopover from "./AccountPopover";
-import NavItem from "./NavItem";
+import { Button } from "../../components/ui/button";
+import Iconify from "../../components/ui/icon";
+import AccountPopover from "./account-popover";
+import NavItem from "./nav-item";
 import { useCallback } from "react";
 import { toggleCollapseSidebar } from "@/redux/slices/layoutSlice";
 import { cn } from "@/lib/utils";
@@ -62,7 +62,7 @@ export default function Sidebar() {
       </div>
       <div className="flex flex-1 flex-col gap-2">
         {navItems.map((item) => (
-          <NavItem {...item} />
+          <NavItem key={item.path} {...item} />
         ))}
       </div>
 

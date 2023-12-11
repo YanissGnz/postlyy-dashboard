@@ -6,7 +6,7 @@ import { useTheme } from "next-themes";
 // redux
 import { useAppSelector } from "@/redux/hooks";
 // components
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,23 +18,42 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
   DropdownMenuSub,
-} from "../ui/dropdown-menu";
-import Iconify from "../ui/icon";
-import { Skeleton } from "../ui/skeleton";
+} from "@/components/ui/dropdown-menu";
+import Iconify from "@/components/ui/icon";
+import { Skeleton } from "@/components/ui/skeleton";
 // utils
 import { cn } from "@/lib/utils";
+// types
+import { type TAccount } from "@/types/TAccount";
+import { useDispatch } from "react-redux";
+import { setAccount } from "@/redux/slices/authSlice";
+import Link from "next/link";
+import { ROUTES } from "@/routes";
+import { useGetAccountsQuery } from "@/redux/api/user/account/apiSlice";
 
 export default function AccountPopover() {
-  const { data: session, status } = useSession();
-  const { isCollapsed } = useAppSelector((state) => state.layout);
-
   const { theme, setTheme } = useTheme();
+  const { data: session, status } = useSession();
+
+  const { data: accounts, isLoading, isSuccess } = useGetAccountsQuery();
+
+  const dispatch = useDispatch();
+
+  const { isCollapsed } = useAppSelector((state) => state.layout);
+  const { currentAccount } = useAppSelector((state) => state.auth);
 
   const handleToggleTheme = useCallback(
     (newTheme: string) => () => {
       setTheme(newTheme);
     },
     [theme],
+  );
+
+  const handleChangeAccount = useCallback(
+    (account: TAccount) => () => {
+      dispatch(setAccount(account));
+    },
+    [],
   );
 
   const handleLogout = useCallback(async () => {
@@ -50,11 +69,12 @@ export default function AccountPopover() {
           ) : (
             <Avatar>
               <AvatarImage
-                src={session?.user.image ?? ""}
-                alt={`@${session?.user.username}`}
+                src={currentAccount?.photoUrl ?? ""}
+                alt={`@${currentAccount?.username}`}
               />
               <AvatarFallback>
-                {session?.user.name?.slice(0, 2).toUpperCase()}
+                {currentAccount?.username?.slice(0, 2).toUpperCase() ??
+                  session?.user.fullName?.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
           )}
@@ -68,53 +88,63 @@ export default function AccountPopover() {
               <Skeleton className="h-4 w-20" />
             ) : (
               <span className="text-sm font-semibold">
-                {session?.user.name}
+                {session?.user.fullName}
               </span>
             )}
             {status === "loading" ? (
               <Skeleton className="h-4 w-28" />
             ) : (
-              <span className="text-xs text-accent-foreground/60">
-                @{session?.user.username}
-              </span>
+              currentAccount?.username &&
+              currentAccount?.username?.length > 0 && (
+                <span className="text-xs text-accent-foreground/60">
+                  @{currentAccount?.username}
+                </span>
+              )
             )}
           </div>
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <Iconify
-              icon="solar:user-circle-bold-duotone"
-              fontSize={22}
-              className="mr-2 text-foreground/80"
-            />
-            Profile
+          <DropdownMenuItem asChild>
+            <Link href={ROUTES.settings}>
+              <Iconify
+                icon="solar:settings-bold-duotone"
+                fontSize={22}
+                className="mr-2 text-foreground/80"
+              />
+              Settings
+            </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Iconify
-              icon="solar:bill-list-bold-duotone"
-              fontSize={22}
-              className="mr-2 text-foreground/80"
-            />
-            Billing
+          <DropdownMenuItem asChild>
+            <Link href={ROUTES.billing}>
+              <Iconify
+                icon="solar:bill-list-bold-duotone"
+                fontSize={22}
+                className="mr-2 text-foreground/80"
+              />
+              Billing
+            </Link>
           </DropdownMenuItem>
-
-          <DropdownMenuItem>
-            <Iconify
-              icon="solar:settings-bold-duotone"
-              fontSize={22}
-              className="mr-2 text-foreground/80"
-            />
-            Settings
-          </DropdownMenuItem>
+          {session?.user.userType === 0 && (
+            <DropdownMenuItem asChild>
+              <Link href={ROUTES.team}>
+                <Iconify
+                  icon="solar:users-group-rounded-bold-duotone"
+                  fontSize={22}
+                  className="mr-2 text-foreground/80"
+                />
+                Team
+              </Link>
+            </DropdownMenuItem>
+          )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
               <Iconify
-                icon="solar:users-group-rounded-bold-duotone"
+                icon="solar:user-circle-bold-duotone"
                 fontSize={22}
                 className="mr-2 text-foreground/80"
               />
@@ -122,27 +152,44 @@ export default function AccountPopover() {
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
               <DropdownMenuSubContent>
-                {session?.user.accounts.map((account) => (
-                  <DropdownMenuItem key={account.id} className="font-medium">
-                    <Avatar className="mr-2 h-6 w-6">
-                      <AvatarImage
-                        src={account.photoUrl ?? ""}
-                        alt={`@${account.username}`}
-                      />
-                      <AvatarFallback>
-                        {account.username.slice(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    @{account.username}
+                {isLoading ? (
+                  <DropdownMenuItem disabled>
+                    <Skeleton className="h-4 w-28" />
                   </DropdownMenuItem>
-                ))}
-                <DropdownMenuItem>
-                  <Iconify
-                    icon="solar:add-circle-bold-duotone"
-                    fontSize={22}
-                    className="mr-2 text-foreground/80"
-                  />
-                  Add account
+                ) : (
+                  isSuccess &&
+                  accounts.data.map((account) => (
+                    <DropdownMenuItem
+                      key={account.id}
+                      className={cn(
+                        "font-medium",
+                        currentAccount?.username === account.username &&
+                          "bg-primary/20 hover:bg-primary/30",
+                      )}
+                      onClick={handleChangeAccount(account)}
+                    >
+                      <Avatar className="mr-2 h-6 w-6">
+                        <AvatarImage
+                          src={account.photoUrl ?? ""}
+                          alt={`@${account.username}`}
+                        />
+                        <AvatarFallback>
+                          {account.username.slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      @{account.username}
+                    </DropdownMenuItem>
+                  ))
+                )}
+                <DropdownMenuItem asChild>
+                  <Link href={ROUTES.accounts}>
+                    <Iconify
+                      icon="solar:add-circle-bold-duotone"
+                      fontSize={22}
+                      className="mr-2 text-foreground/80"
+                    />
+                    Add account
+                  </Link>
                 </DropdownMenuItem>
               </DropdownMenuSubContent>
             </DropdownMenuPortal>

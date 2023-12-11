@@ -1,13 +1,17 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 // constant
 import { LAYOUT } from "@/lib/constants";
 // hooks
 import { useMediaQuery } from "usehooks-ts";
 // components
-import Sidebar from "@/components/layout/Sidebar";
+import Sidebar from "@/app/(dashboard)/sidebar";
 import { useAppSelector } from "@/redux/hooks";
-import Header from "@/components/layout/Header";
+import Header from "@/app/(dashboard)/header";
+import { redirect } from "next/navigation";
+import { ROUTES } from "@/routes";
+import { Spinner } from "@/components/ui/Spinner";
 
 export default function DashboardLayout({
   children,
@@ -16,6 +20,31 @@ export default function DashboardLayout({
 }) {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const { isCollapsed } = useAppSelector((state) => state.layout);
+
+  const session = useSession();
+
+  if (session.status === "loading")
+    return (
+      <div className="flex h-screen w-screen items-center justify-center ">
+        <Spinner />
+      </div>
+    );
+
+  if (session.status === "unauthenticated") {
+    localStorage.removeItem("token");
+    redirect(ROUTES.login);
+  }
+
+  if (
+    session.status === "authenticated" &&
+    !session.data?.user.hasChosenSubscription
+  ) {
+    redirect(ROUTES.setupSubscription);
+  }
+
+  if (!session.data?.user.hasPaidSubscription) {
+    redirect(ROUTES.payment);
+  }
 
   return (
     <div className="flex flex-col">
