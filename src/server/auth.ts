@@ -224,6 +224,10 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
+        console.log(
+          "🚀 ~ file: auth.ts:227 ~ authorize ~ credentials:",
+          credentials,
+        );
         const response = await fetch(
           `${env.API_BASEURL}/api/Authentication/Login`,
           {
@@ -237,10 +241,10 @@ export const authOptions: NextAuthOptions = {
             }),
           },
         );
-        console.log("🚀 ~ file: auth.ts:241 ~ authorize ~ response:", response);
         console.log(
-          "🚀 ~ file: auth.ts:241 ~ authorize ~ await response.json():",
-          await response.json(),
+          "🚀 ~ file: auth.ts:241 ~ authorize ~ response:",
+          response,
+          response.url,
         );
 
         if (!response.ok) {
