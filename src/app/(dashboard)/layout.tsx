@@ -6,9 +6,9 @@ import { LAYOUT } from "@/lib/constants";
 // hooks
 import { useMediaQuery } from "usehooks-ts";
 // components
-import Sidebar from "@/app/(dashboard)/sidebar";
+import Sidebar from "@/app/(dashboard)/(layout)/sidebar";
 import { useAppSelector } from "@/redux/hooks";
-import Header from "@/app/(dashboard)/header";
+import Header from "@/app/(dashboard)/(layout)/header";
 import { redirect } from "next/navigation";
 import { ROUTES } from "@/routes";
 import { Spinner } from "@/components/ui/Spinner";

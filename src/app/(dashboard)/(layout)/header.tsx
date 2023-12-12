@@ -5,11 +5,15 @@ import {
   closeMobileSidebar,
 } from "@/redux/slices/layoutSlice";
 import { LAYOUT } from "@/lib/constants";
-import { Button } from "../../components/ui/button";
-import Iconify from "../../components/ui/icon";
+import { Button } from "../../../components/ui/button";
+import Iconify from "../../../components/ui/icon";
 import NavItem from "./nav-item";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { Sheet, SheetContent, SheetTrigger } from "../../components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "../../../components/ui/sheet";
 import MobileAccountPopover from "./mobile-account-popover";
 
 export default function Header() {

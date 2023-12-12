@@ -7,7 +7,7 @@ import Link from "next/link";
 // redux
 import { useAppSelector } from "@/redux/hooks";
 // components
-import Iconify from "../../components/ui/icon";
+import Iconify from "../../../components/ui/icon";
 // utils
 import { type TNavItem } from "@/redux/slices/layoutSlice";
 import { cn } from "@/lib/utils";
@@ -16,7 +16,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "../../components/ui/tooltip";
+} from "../../../components/ui/tooltip";
 
 export default function NavItem({ icon, name, path }: TNavItem) {
   const pathname = usePathname();
