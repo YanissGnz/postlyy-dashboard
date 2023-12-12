@@ -7,8 +7,8 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const notificationsSettingsApi = createApi({
   reducerPath: "notificationsSettingsApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: env.NEXT_PUBLIC_API_BASEURL,
-     prepareHeaders: (headers, { getState }) => {
+    baseUrl: env.NEXT_PUBLIC_API_BASE_URL,
+    prepareHeaders: (headers, { getState }) => {
       const token = (getState() as RootState).auth?.token;
 
       if (token) {

@@ -30,7 +30,7 @@ export default function SetupForm() {
   const handlePayment = useCallback(
     (tier: number) => async () => {
       setTrue();
-      await fetch(`${env.NEXT_PUBLIC_API_BASEURL}/api/Subscription/setup`, {
+      await fetch(`${env.NEXT_PUBLIC_API_BASE_URL}/api/Subscription/setup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

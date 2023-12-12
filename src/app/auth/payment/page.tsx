@@ -13,7 +13,7 @@ export default function Payment() {
 
   useEffect(() => {
     if (session.data?.user.token)
-      fetch(`${env.NEXT_PUBLIC_API_BASEURL}/api/Subscription/link`, {
+      fetch(`${env.NEXT_PUBLIC_API_BASE_URL}/api/Subscription/link`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

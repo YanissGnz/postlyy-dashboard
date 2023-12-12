@@ -48,7 +48,7 @@ export default function ConfirmEmailForm() {
     const { email, code } = values;
     setTrue();
     const response = await fetch(
-      `${env.NEXT_PUBLIC_API_BASEURL}/api/Authentication/EmailConfirmation`,
+      `${env.NEXT_PUBLIC_API_BASE_URL}/api/Authentication/EmailConfirmation`,
       {
         method: "POST",
         headers: {
@@ -79,7 +79,7 @@ export default function ConfirmEmailForm() {
     }
 
     const response = await fetch(
-      `${env.NEXT_PUBLIC_API_BASEURL}/api/Authentication/ResendConfirmation`,
+      `${env.NEXT_PUBLIC_API_BASE_URL}/api/Authentication/ResendConfirmation`,
       {
         method: "POST",
         headers: {

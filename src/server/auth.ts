@@ -48,7 +48,7 @@ async function refreshAccessToken(refetchToken: string) {
 
   try {
     const response = await fetch(
-      `${env.API_BASEURL}/api/Authentication/RefreshToken`,
+      `${env.API_BASE_URL}/api/Authentication/RefreshToken`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -92,7 +92,7 @@ async function refreshAccessToken(refetchToken: string) {
 async function getUser(refetchToken: string) {
   try {
     const response = await fetch(
-      `${env.API_BASEURL}/api/Authentication/RefreshToken`,
+      `${env.API_BASE_URL}/api/Authentication/RefreshToken`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -152,7 +152,7 @@ export const authOptions: NextAuthOptions = {
             picture: profile?.data.profile_image_url,
           });
           const response = await fetch(
-            `${env.API_BASEURL}/api/Authentication/External`,
+            `${env.API_BASE_URL}/api/Authentication/External`,
             {
               method: "POST",
               headers: {
@@ -229,7 +229,7 @@ export const authOptions: NextAuthOptions = {
           credentials,
         );
         const response = await fetch(
-          `${env.API_BASEURL}/api/Authentication/Login`,
+          `${env.API_BASE_URL}/api/Authentication/Login`,
           {
             method: "POST",
             headers: {

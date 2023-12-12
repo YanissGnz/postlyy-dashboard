@@ -25,7 +25,7 @@ export const env = createEnv({
     TWITTER_CLIENT_SECRET: z.string(),
     LINKEDIN_CLIENT_ID: z.string(),
     LINKEDIN_CLIENT_SECRET: z.string(),
-    API_BASEURL: z.string().url(),
+    API_BASE_URL: z.string().url(),
   },
 
   /**
@@ -34,7 +34,7 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
-    NEXT_PUBLIC_API_BASEURL: z.string().url(),
+    NEXT_PUBLIC_API_BASE_URL: z.string().url(),
     NEXT_PUBLIC_AUTH_BASEURL: z.string().url(),
     NEXT_PUBLIC_JWT_AUTH_SECRET_KEY: z.string(),
     NEXT_PUBLIC_AUTH_SECRET_KEY: z.string(),
@@ -47,8 +47,8 @@ export const env = createEnv({
     TWITTER_CLIENT_SECRET: process.env.TWITTER_CLIENT_SECRET,
     LINKEDIN_CLIENT_ID: process.env.LINKEDIN_CLIENT_ID,
     LINKEDIN_CLIENT_SECRET: process.env.LINKEDIN_CLIENT_SECRET,
-    API_BASEURL: process.env.API_BASEURL,
-    NEXT_PUBLIC_API_BASEURL: process.env.NEXT_PUBLIC_API_BASEURL,
+    API_BASE_URL: process.env.API_BASE_URL,
+    NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
     NEXT_PUBLIC_AUTH_BASEURL: process.env.NEXT_PUBLIC_AUTH_BASEURL,
     NEXT_PUBLIC_JWT_AUTH_SECRET_KEY:
       process.env.NEXT_PUBLIC_JWT_AUTH_SECRET_KEY,

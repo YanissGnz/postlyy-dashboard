@@ -50,7 +50,7 @@ export default function RegisterForm() {
     const { email, password, fullName } = values;
     setTrue();
     const response = await fetch(
-      `${env.NEXT_PUBLIC_API_BASEURL}/api/Authentication/Register`,
+      `${env.NEXT_PUBLIC_API_BASE_URL}/api/Authentication/Register`,
       {
         method: "POST",
         headers: {
