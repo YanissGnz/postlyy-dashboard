@@ -115,10 +115,6 @@ export default function AccountsPage() {
 
   const handleDeleteAccount = useCallback(
     (accountType: number) => () => {
-      console.log(
-        "🚀 ~ file: page.tsx:120 ~ AccountsPage ~ getAccountByType(accountType)?.id:",
-        getAccountByType(accountType)?.id,
-      );
       deleteAccount(getAccountByType(accountType)?.id ?? "")
         .unwrap()
         .then(() => {
@@ -142,12 +138,13 @@ export default function AccountsPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Image
-            src="/icons/providers/twitter-logo.png"
+            src="/icons/providers/x-logo.png"
             alt="logo"
             width="50"
             height="50"
+            className="rounded-full"
           />
-          <p className="font-medium">Twitter</p>
+          <p className="font-medium">X (Twitter)</p>
         </div>
         <p>
           {isConnected(0)
@@ -181,6 +178,7 @@ export default function AccountsPage() {
             alt="logo"
             width="50"
             height="50"
+            className="rounded-full"
           />
           <p className="font-medium">LinkedIn</p>
         </div>
