@@ -58,7 +58,7 @@ export default function SubscriptionForm() {
             <p className="col-span-2 font-semibold">
               {subscriptionSettings?.data.tier === 0
                 ? "Individual"
-                : subscriptionSettings?.data.tier === 2
+                : subscriptionSettings?.data.tier === 1
                   ? "SMB"
                   : "Enterprise"}
             </p>
@@ -66,8 +66,9 @@ export default function SubscriptionForm() {
           <div className="grid w-full grid-cols-3">
             <p>Price</p>
             <p className="col-span-2 font-semibold">
-              {subscriptionSettings?.data.subscriptionPrice} $
-              {subscriptionSettings?.data.isTrial && "(Free trail)"}
+              {Math.round(subscriptionSettings.data.subscriptionPrice * 100) /
+                100}{" "}
+              ${subscriptionSettings?.data.isTrial && "(Free trail)"}
             </p>
           </div>
           <div className="grid w-full grid-cols-3">
