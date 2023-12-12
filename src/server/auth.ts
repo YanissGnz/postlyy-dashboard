@@ -184,7 +184,7 @@ export const authOptions: NextAuthOptions = {
           token.accessTokenExpires = Date.now() + 1000 * 60 * 24 * 30;
         }
 
-      if (Date.now() > token.accessTokenExpires) {
+      if (Date.now() > (token.accessTokenExpires as number)) {
         console.log("Access token has expired, refreshing...");
 
         return {
