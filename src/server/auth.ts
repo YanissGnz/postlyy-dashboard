@@ -237,6 +237,7 @@ export const authOptions: NextAuthOptions = {
             }),
           },
         );
+        console.log("🚀 ~ file: auth.ts:241 ~ authorize ~ response:", response);
 
         if (!response.ok) {
           const error = (await response.json()) as string[];
