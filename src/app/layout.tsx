@@ -18,6 +18,11 @@ const rubik = DM_Sans({
 
 export const metadata: Metadata = {
   title: "Postlyy: Your Content, Planned, Analyzed & Supercharged.",
+  twitter: {
+    card: "summary_large_image",
+    site: "@postlyy",
+    creator: "@postlyy",
+  },
   description: "Your Content, Planned, Analyzed & Supercharged.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
   keywords: [
