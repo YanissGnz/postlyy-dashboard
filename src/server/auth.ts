@@ -109,7 +109,6 @@ async function getUser(refetchToken: string) {
     }
 
     const user = (await response.json()) as TDBUser;
-    console.log("🚀 ~ file: auth.ts:112 ~ getUser ~ user:", user);
 
     return {
       fullName: user.fullName,
@@ -185,17 +184,13 @@ export const authOptions: NextAuthOptions = {
         }
 
       if (Date.now() > (token.accessTokenExpires as number)) {
-        console.log("Access token has expired, refreshing...");
-
         return {
           ...token,
           ...(await refreshAccessToken(token.refreshToken as string)),
         };
       }
 
-      console.log("Refetching user");
       const newUser = await getUser(token.refreshToken as string);
-      console.log("🚀 ~ file: auth.ts:198 ~ jwt ~ newUser:", newUser);
       return {
         ...token,
         ...newUser,
