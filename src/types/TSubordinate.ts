@@ -4,4 +4,5 @@ export type TSubordinate = {
   photoUrl: string;
   userType: number;
   subbordinates: Array<unknown>;
+  email: string;
 };

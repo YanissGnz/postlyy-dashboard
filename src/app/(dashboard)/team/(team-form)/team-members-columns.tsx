@@ -47,15 +47,16 @@ export const teamMembersColumns: ColumnDef<TSubordinate>[] = [
             </AvatarFallback>
           </Avatar>
           <div>
-            <div className="text-sm font-medium text-gray-900">
-              {original.fullName}
-            </div>
+            <div className="text-sm font-medium">{original.fullName}</div>
           </div>
         </div>
       );
     },
   },
-
+  {
+    accessorKey: "email",
+    header: "Email",
+  },
   {
     id: "actions",
     cell: ({ row }) => {
