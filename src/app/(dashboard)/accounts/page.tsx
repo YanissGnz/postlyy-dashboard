@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { sentenceCase } from "change-case";
-import { decode } from "jsonwebtoken";
+import { type JwtPayload, decode } from "jsonwebtoken";
 import crypto from "crypto";
 // components
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import {
   useGetAccountsQuery,
 } from "@/redux/api/user/account/apiSlice";
 import { Spinner } from "@/components/ui/Spinner";
+import { type TNewAccount } from "@/types/TNewAccount";
 
 export default function AccountsPage() {
   const {
@@ -42,7 +43,7 @@ export default function AccountsPage() {
 
   useEffect(() => {
     if (token) {
-      const decoded = decode(token);
+      const decoded = decode(token) as (JwtPayload & { data: string }) | null;
 
       if (!decoded) {
         toast.error("Invalid token");
@@ -52,7 +53,7 @@ export default function AccountsPage() {
         return;
       }
 
-      if (decoded.exp < Date.now() / 1000) {
+      if (decoded.exp && decoded.exp < Date.now() / 1000) {
         toast.error("Token expired");
         setTimeout(() => {
           push(ROUTES.accounts);
@@ -62,11 +63,9 @@ export default function AccountsPage() {
 
       const { data } = decoded;
 
-      // decrypt data with crypto and hash
-
       const decodedData = JSON.parse(
         Buffer.from(data, "base64").toString("utf-8"),
-      );
+      ) as TNewAccount;
 
       addAccount(decodedData)
         .unwrap()
