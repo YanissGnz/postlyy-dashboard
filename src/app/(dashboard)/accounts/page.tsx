@@ -100,7 +100,7 @@ export default function AccountsPage() {
         (account) => account.accountType === accountType,
       );
     },
-    [accounts],
+    [accounts, isAccountsLoading, isAccountsFetching],
   );
 
   const connect = useCallback(
@@ -115,8 +115,6 @@ export default function AccountsPage() {
 
   const handleDeleteAccount = useCallback(
     (accountType: number) => () => {
-      console.log(getAccountByType(accountType)?.id);
-
       deleteAccount(getAccountByType(accountType)?.id ?? "")
         .unwrap()
         .then(() => {
@@ -126,7 +124,7 @@ export default function AccountsPage() {
           toast.error("Something went wrong");
         });
     },
-    [],
+    [accounts, isAccountsLoading, isAccountsFetching],
   );
 
   if (isAccountsLoading || isAccountsFetching)
