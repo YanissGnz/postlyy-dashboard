@@ -15,15 +15,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Spinner } from "@/components/ui/Spinner";
 
 interface TeamMembersDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  loading?: boolean;
 }
 
 export function TeamMembersDataTable<TData, TValue>({
   columns,
   data,
+  loading,
 }: TeamMembersDataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -53,7 +56,15 @@ export function TeamMembersDataTable<TData, TValue>({
           ))}
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows?.length ? (
+          {loading ? (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-56 text-center">
+                <div className="flex w-full items-center justify-center">
+                  <Spinner />
+                </div>
+              </TableCell>
+            </TableRow>
+          ) : table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}

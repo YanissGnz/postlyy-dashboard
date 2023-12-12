@@ -19,6 +19,7 @@ import {
 } from "@/redux/api/user/account/apiSlice";
 import { Spinner } from "@/components/ui/Spinner";
 import { type TNewAccount } from "@/types/TNewAccount";
+import { type TErrorResponse } from "@/types/TErrorResponse";
 
 export default function AccountsPage() {
   const {
@@ -75,11 +76,10 @@ export default function AccountsPage() {
             push(ROUTES.accounts);
           }, 1000);
         })
-        .catch(() => {
-          toast.error("Something went wrong");
-          setTimeout(() => {
-            push(ROUTES.accounts);
-          }, 1000);
+        .catch((e: TErrorResponse<string[]>) => {
+          console.log("🚀 ~ file: page.tsx:79 ~ useEffect ~ e:", e);
+          if (e.data) push(ROUTES.accounts);
+          else window.location.reload();
         });
     }
   }, [token]);
@@ -115,6 +115,8 @@ export default function AccountsPage() {
 
   const handleDeleteAccount = useCallback(
     (accountType: number) => () => {
+      console.log(getAccountByType(accountType)?.id);
+
       deleteAccount(getAccountByType(accountType)?.id ?? "")
         .unwrap()
         .then(() => {

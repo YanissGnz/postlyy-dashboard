@@ -10,21 +10,52 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Iconify from "@/components/ui/icon";
-import { deleteTeamMember } from "@/redux/slices/setupSlice";
-import { store } from "@/redux/store";
 
-const handleDeleteMember = (email: string, manager: string) => {
-  store.dispatch(deleteTeamMember({ email, manager }));
+import { type TSubordinate } from "@/types/TSubordinate";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { env } from "@/env";
+import { teamApi } from "@/redux/api/user/team/apiSlice";
+import { store } from "@/redux/store";
+import { toast } from "sonner";
+
+const handleDeleteMember = async (subordinateId: string) => {
+  await store
+    .dispatch(teamApi.endpoints.deleteSubordinate.initiate(subordinateId))
+    .unwrap()
+    .then(() => {
+      toast.success("Subordinate deleted successfully");
+    })
+    .catch(() => {
+      toast.error("Something went wrong");
+    });
 };
 
-export const teamMembersColumns: ColumnDef<{
-  email: string;
-  manager: string;
-}>[] = [
+export const teamMembersColumns: ColumnDef<TSubordinate>[] = [
   {
-    accessorKey: "email",
-    header: "Email",
+    accessorKey: "fullName",
+    header: "Name",
+    cell: ({ row: { original } }) => {
+      return (
+        <div className="flex items-center space-x-2">
+          <Avatar>
+            <AvatarImage
+              src={env.NEXT_PUBLIC_API_BASE_URL + original?.photoUrl ?? ""}
+              alt={`@${original?.fullName}`}
+            />
+            <AvatarFallback>
+              {original?.fullName?.slice(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <div className="text-sm font-medium text-gray-900">
+              {original.fullName}
+            </div>
+          </div>
+        </div>
+      );
+    },
   },
+
   {
     id: "actions",
     cell: ({ row }) => {
@@ -39,9 +70,7 @@ export const teamMembersColumns: ColumnDef<{
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() =>
-                handleDeleteMember(row.original.email, row.original.manager)
-              }
+              onClick={() => handleDeleteMember(row.original.id)}
             >
               Delete
             </DropdownMenuItem>

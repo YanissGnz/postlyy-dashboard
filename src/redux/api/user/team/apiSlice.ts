@@ -1,6 +1,8 @@
 import { env } from "@/env";
 import { type RootState } from "@/redux/store";
+import { type TManager } from "@/types/TManager";
 import { type TResponse } from "@/types/TResponse";
+import { type TSubordinate } from "@/types/TSubordinate";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const teamApi = createApi({
@@ -21,39 +23,41 @@ export const teamApi = createApi({
   }),
   tagTypes: ["Team", "Managers", "Subordinates"],
   endpoints: (builder) => ({
-    getManagers: builder.query<TResponse<unknown>, void>({
+    getManagers: builder.query<TResponse<TManager[]>, void>({
       query: () => "/api/UserManagement/Managers",
       providesTags: ["Managers"],
     }),
-    addManager: builder.mutation<TResponse<unknown>, unknown>({
+    addManager: builder.mutation<TResponse<TManager>, unknown>({
       query: (body) => ({
-        url: "/api/UserManagement/AddManager",
+        url: "/api/UserManagement/Managers",
         method: "POST",
         body,
       }),
       invalidatesTags: ["Managers"],
     }),
-    deleteManager: builder.mutation<TResponse<unknown>, unknown>({
-      query: (body) => ({
-        url: "/api/UserManagement/Managers",
+    deleteManager: builder.mutation<TResponse<unknown>, string>({
+      query: (managerId) => ({
+        url: `/api/UserManagement/Managers/${managerId}`,
         method: "DELETE",
-        body,
       }),
       invalidatesTags: ["Managers"],
     }),
-    getSubordinates: builder.query<TResponse<unknown>, void>({
+    getSubordinates: builder.query<TResponse<TSubordinate[]>, void>({
       query: () => "/api/UserManagement/Subordinates",
       providesTags: ["Subordinates"],
     }),
-    addSubordinate: builder.mutation<TResponse<unknown>, unknown>({
-      query: ({ managerId, ...body }) => ({
-        url: `/api/UserManagement/Subordinates/${managerId}`,
+    addSubordinate: builder.mutation<
+      TResponse<TSubordinate>,
+      { email: string }
+    >({
+      query: (body) => ({
+        url: `/api/UserManagement/Subordinates`,
         method: "POST",
         body,
       }),
       invalidatesTags: ["Subordinates"],
     }),
-    updateSubordinate: builder.mutation<TResponse<unknown>, unknown>({
+    updateSubordinate: builder.mutation<TResponse<TSubordinate>, unknown>({
       query: (body) => ({
         url: "/api/UserManagement/Subordinates",
         method: "PUT",
