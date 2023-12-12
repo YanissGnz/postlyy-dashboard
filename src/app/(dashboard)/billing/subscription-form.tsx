@@ -78,19 +78,19 @@ export default function SubscriptionForm() {
             </p>
           </div>
           <div className="grid w-full grid-cols-3">
-            <p>Renewal Date</p>
+            <p>Start Date</p>
             <p className="col-span-2 font-semibold">
               {format(
-                new Date(subscriptionSettings?.data?.renewalDate ?? ""),
+                new Date(subscriptionSettings?.data?.payingDate ?? ""),
                 "PPPP",
               )}
             </p>
           </div>
           <div className="grid w-full grid-cols-3">
-            <p>Notification Date</p>
+            <p>Renewal Date</p>
             <p className="col-span-2 font-semibold">
               {format(
-                new Date(subscriptionSettings?.data?.notificationDate ?? ""),
+                new Date(subscriptionSettings?.data?.renewalDate ?? ""),
                 "PPPP",
               )}
             </p>
@@ -105,9 +105,6 @@ export default function SubscriptionForm() {
               >
                 Cancel Plan
               </Button>
-            )}
-            {subscriptionSettings?.data.tier !== 2 && (
-              <Button variant="default">Upgrade plan</Button>
             )}
           </div>
         </CardContent>
