@@ -6,7 +6,7 @@ export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
     baseUrl: env.NEXT_PUBLIC_API_BASEURL,
-     prepareHeaders: (headers, { getState }) => {
+    prepareHeaders: (headers, { getState }) => {
       const token = (getState() as RootState).auth?.token;
 
       if (token) {
@@ -41,8 +41,24 @@ export const authApi = createApi({
         body,
       }),
     }),
+    changePassword: builder.mutation<
+      void,
+      {
+        currentPassword: string;
+        newPassword: string;
+      }
+    >({
+      query: (body) => ({
+        url: "/api/Authentication/ChangePassword",
+        method: "PUT",
+        body,
+      }),
+    }),
   }),
 });
 
-export const { useForgotPasswordMutation, useResetForgottenPasswordMutation } =
-  authApi;
+export const {
+  useForgotPasswordMutation,
+  useResetForgottenPasswordMutation,
+  useChangePasswordMutation,
+} = authApi;
