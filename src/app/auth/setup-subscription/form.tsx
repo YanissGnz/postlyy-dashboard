@@ -12,7 +12,7 @@ import { useBoolean } from "usehooks-ts";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { ROUTES } from "@/routes";
+import { type TResponse } from "@/types/TResponse";
 
 export default function SetupForm() {
   const { value: isLoading, setFalse, setTrue } = useBoolean(false);
@@ -25,7 +25,7 @@ export default function SetupForm() {
 
   const session = useSession();
 
-  const { push } = useRouter();
+  const { push, refresh } = useRouter();
 
   const handlePayment = useCallback(
     (tier: number) => async () => {
@@ -43,16 +43,16 @@ export default function SetupForm() {
         }),
       })
         .then((res) => res.json())
-        .then((res: { url: string; hasToPay: boolean }) => {
-          if (res.hasToPay) {
+        .then((res: TResponse<{ url: string; hasToPay: boolean }>) => {
+          if (res.data.hasToPay) {
             setCurrentStep(2);
             setTimeout(() => {
-              push(res.url);
+              push(res.data.url);
             }, 3000);
           }
         })
         .catch(() => {
-          push(ROUTES.home);
+          refresh();
         });
       setFalse();
     },
@@ -144,7 +144,7 @@ export default function SetupForm() {
                 <div className="flex items-center justify-between">
                   <p className="text-4xl font-semibold">
                     <span className="mr-1 text-2xl text-foreground/60"> $</span>
-                    {isYearly ? 479.88 : 39.99}
+                    {isYearly ? 403.09 : 39.99}
                     <span className="ml-1 mr-1 text-xl text-foreground/60">
                       Per seat / {isYearly ? "year" : "month"}
                     </span>
@@ -183,7 +183,7 @@ export default function SetupForm() {
                     <span className="mr-1 text-2xl text-foreground/60"> $</span>
                     {Math.round(
                       (seatsBought > 9 ? 9 : seatsBought) *
-                        (isYearly ? 479.88 : 39.99) *
+                        (isYearly ? 403.09 : 39.99) *
                         100,
                     ) / 100}
                     <span className="ml-1 mr-1 text-xl text-foreground/60">
@@ -258,7 +258,7 @@ export default function SetupForm() {
                 <div className="flex items-center justify-between">
                   <p className="text-4xl font-semibold">
                     <span className="mr-1 text-2xl text-foreground/60"> $</span>
-                    {isYearly ? 407.88 : 34.99}
+                    {isYearly ? 352.79 : 34.99}
                     <span className="ml-1 mr-1 text-xl text-foreground/60">
                       Per seat / {isYearly ? "year" : "month"}
                     </span>
@@ -289,7 +289,7 @@ export default function SetupForm() {
                     <span className="mr-1 text-2xl text-foreground/60">=</span>
                     <span className="mr-1 text-2xl text-foreground/60"> $</span>
                     {Math.round(
-                      seatsBought * (isYearly ? 407.88 : 34.99) * 100,
+                      seatsBought * (isYearly ? 352.79 : 34.99) * 100,
                     ) / 100}
                     <span className="ml-1 mr-1 text-xl text-foreground/60">
                       / {isYearly ? "year" : "month"}
