@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Iconify from "@/components/ui/icon";
 
-import { type TSubordinate } from "@/types/TSubordinate";
+import { type TTeamMember } from "@/types/TTeamMember";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { env } from "@/env";
 import { teamApi } from "@/redux/api/user/team/apiSlice";
@@ -21,10 +21,10 @@ import { Badge } from "@/components/ui/badge";
 
 const handleDeleteMember = async (subordinateId: string) => {
   await store
-    .dispatch(teamApi.endpoints.deleteSubordinate.initiate(subordinateId))
+    .dispatch(teamApi.endpoints.deleteTeamMember.initiate(subordinateId))
     .unwrap()
     .then(() => {
-      toast.success("Subordinate deleted successfully");
+      toast.success("Team Member deleted successfully");
     })
     .catch(() => {
       toast.error("Something went wrong");
@@ -43,7 +43,7 @@ const handleDeleteManager = async (managerId: string) => {
     });
 };
 
-export const teamMembersColumns: ColumnDef<TSubordinate>[] = [
+export const teamMembersColumns: ColumnDef<TTeamMember>[] = [
   {
     accessorKey: "fullName",
     header: "Name",
@@ -78,9 +78,21 @@ export const teamMembersColumns: ColumnDef<TSubordinate>[] = [
         original: { userType },
       },
     }) => {
-      if (userType === 10) return <Badge variant="outline">Member</Badge>;
+      if (userType === 10) return <Badge variant="outline">Team Member</Badge>;
       if (userType === 2) return <Badge variant="destructive">Manager</Badge>;
       if (userType === 0) return <Badge variant="default">Owner</Badge>;
+    },
+  },
+  {
+    accessorKey: "manager",
+    header: "Manager",
+    cell: ({
+      row: {
+        original: { manager },
+      },
+    }) => {
+      if (!manager) return "You";
+      return manager;
     },
   },
   {

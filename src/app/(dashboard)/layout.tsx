@@ -12,6 +12,7 @@ import Header from "@/app/(dashboard)/(layout)/header";
 import { redirect } from "next/navigation";
 import { ROUTES } from "@/routes";
 import { Spinner } from "@/components/ui/Spinner";
+import AlertsProvider from "./alerts-provider";
 
 export default function DashboardLayout({
   children,
@@ -42,7 +43,10 @@ export default function DashboardLayout({
     redirect(ROUTES.setupSubscription);
   }
 
-  if (!session.data?.user.hasPaidSubscription) {
+  if (
+    session.status === "authenticated" &&
+    !session.data?.user.hasPaidSubscription
+  ) {
     redirect(ROUTES.payment);
   }
 
@@ -60,6 +64,7 @@ export default function DashboardLayout({
         }}
       >
         {children}
+        <AlertsProvider />
       </main>
     </div>
   );

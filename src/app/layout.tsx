@@ -8,7 +8,6 @@ import AuthProvider from "@/providers/auth-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 import UserProvider from "@/providers/token-provider";
 // components
-// import NextTopLoader from "nextjs-toploader";
 import { Toaster } from "sonner";
 
 const rubik = DM_Sans({
@@ -18,6 +17,7 @@ const rubik = DM_Sans({
 
 export const metadata: Metadata = {
   title: "Postlyy: Your Content, Planned, Analyzed & Supercharged.",
+  metadataBase: new URL("https://postlyy.com"),
   twitter: {
     card: "summary_large_image",
     site: "@postlyy",
@@ -63,7 +63,6 @@ export default async function RootLayout({
       <body
         className={`bg-background font-sans transition-colors ${rubik.variable}`}
       >
-        {/* <NextTopLoader color="#1DA1F2" showSpinner={false}  /> */}
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <ReduxProvider>

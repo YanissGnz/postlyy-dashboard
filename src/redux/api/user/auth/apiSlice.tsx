@@ -54,6 +54,13 @@ export const authApi = createApi({
         body,
       }),
     }),
+    setupEmail: builder.mutation<void, { email: string }>({
+      query: (body) => ({
+        url: "/api/Authentication/SetupEmail",
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 });
 
@@ -61,4 +68,5 @@ export const {
   useForgotPasswordMutation,
   useResetForgottenPasswordMutation,
   useChangePasswordMutation,
+  useSetupEmailMutation,
 } = authApi;

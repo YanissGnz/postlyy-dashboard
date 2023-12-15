@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 // next
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 // redux
-import { useAppSelector } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 // components
 import Iconify from "../../../components/ui/icon";
 // utils
-import { type TNavItem } from "@/redux/slices/layoutSlice";
+import { type TNavItem, closeMobileSidebar } from "@/redux/slices/layoutSlice";
 import { cn } from "@/lib/utils";
 import {
   Tooltip,
@@ -25,6 +25,12 @@ export default function NavItem({ icon, name, path }: TNavItem) {
 
   const { isCollapsed } = useAppSelector((state) => state.layout);
   const [showName, setShowName] = useState(true);
+
+  const dispatch = useAppDispatch();
+
+  const handleToggleCollapse = useCallback(() => {
+    dispatch(closeMobileSidebar());
+  }, []);
 
   useEffect(() => {
     if (isCollapsed) {
@@ -42,6 +48,7 @@ export default function NavItem({ icon, name, path }: TNavItem) {
         <TooltipTrigger>
           <Link
             href={path}
+            onClick={handleToggleCollapse}
             className={cn(
               "flex w-full cursor-pointer flex-row items-center gap-2 rounded p-2 transition-all",
               isActive

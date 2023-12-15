@@ -188,6 +188,10 @@ export const authOptions: NextAuthOptions = {
       }
 
       const newUser = await getUser(token.refreshToken as string);
+      console.log("🚀 ~ file: auth.ts:196 ~ jwt ~ newUser:", {
+        ...token,
+        ...newUser,
+      });
       return {
         ...token,
         ...newUser,

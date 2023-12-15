@@ -2,7 +2,7 @@ import { env } from "@/env";
 import { type RootState } from "@/redux/store";
 import { type TManager } from "@/types/TManager";
 import { type TResponse } from "@/types/TResponse";
-import { type TSubordinate } from "@/types/TSubordinate";
+import { type TTeamMember } from "@/types/TTeamMember";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const teamApi = createApi({
@@ -21,7 +21,7 @@ export const teamApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Team", "Managers", "Subordinates"],
+  tagTypes: ["Team", "Managers", "TeamMembers"],
   endpoints: (builder) => ({
     getManagers: builder.query<TResponse<TManager[]>, void>({
       query: () => "/api/UserManagement/Managers",
@@ -42,35 +42,32 @@ export const teamApi = createApi({
       }),
       invalidatesTags: ["Managers"],
     }),
-    getSubordinates: builder.query<TResponse<TSubordinate[]>, void>({
+    getTeamMembers: builder.query<TResponse<TTeamMember[]>, void>({
       query: () => "/api/UserManagement/Subordinates",
-      providesTags: ["Subordinates"],
+      providesTags: ["TeamMembers"],
     }),
-    addSubordinate: builder.mutation<
-      TResponse<TSubordinate>,
-      { email: string }
-    >({
+    addTeamMember: builder.mutation<TResponse<TTeamMember>, { email: string }>({
       query: (body) => ({
         url: `/api/UserManagement/Subordinates`,
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Subordinates"],
+      invalidatesTags: ["TeamMembers"],
     }),
-    updateSubordinate: builder.mutation<TResponse<TSubordinate>, unknown>({
+    updateTeamMember: builder.mutation<TResponse<TTeamMember>, unknown>({
       query: (body) => ({
         url: "/api/UserManagement/Subordinates",
         method: "PUT",
         body,
       }),
-      invalidatesTags: ["Subordinates"],
+      invalidatesTags: ["TeamMembers"],
     }),
-    deleteSubordinate: builder.mutation<TResponse<unknown>, string>({
+    deleteTeamMember: builder.mutation<TResponse<unknown>, string>({
       query: (subordinateId) => ({
         url: `/api/UserManagement/Subordinates/${subordinateId}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Subordinates"],
+      invalidatesTags: ["TeamMembers"],
     }),
   }),
 });
@@ -79,8 +76,8 @@ export const {
   useGetManagersQuery,
   useAddManagerMutation,
   useDeleteManagerMutation,
-  useGetSubordinatesQuery,
-  useAddSubordinateMutation,
-  useUpdateSubordinateMutation,
-  useDeleteSubordinateMutation,
+  useGetTeamMembersQuery,
+  useAddTeamMemberMutation,
+  useUpdateTeamMemberMutation,
+  useDeleteTeamMemberMutation,
 } = teamApi;
