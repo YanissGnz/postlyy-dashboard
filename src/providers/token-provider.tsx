@@ -15,8 +15,8 @@ export default function TokenProvider({
 
   useEffect(() => {
     if (session.status === "authenticated") {
-      dispatch(setToken(session.data.user.token));
-      localStorage.setItem("token", session.data.user.token);
+      dispatch(setToken(session.data.user.accessToken));
+      localStorage.setItem("token", session.data.user.accessToken);
       if (
         session.data.user.accounts.length > 0 &&
         session.data.user.accounts[0]

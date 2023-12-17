@@ -63,7 +63,7 @@ async function refreshAccessToken(refetchToken: string) {
     const user = (await response.json()) as TDBUser;
 
     return {
-      accessToken: user.token,
+      accessToken: user.accessToken,
       refreshToken: user.refreshToken,
       fullName: user.fullName,
       profilePicture: user.profilePicture,
@@ -76,7 +76,10 @@ async function refreshAccessToken(refetchToken: string) {
       userType: user.userType,
       accounts: user.accounts,
       username: user?.accounts[0]?.username ?? "",
-      accessTokenExpires: Date.now() + 1000 * 60 * 24 * 30,
+      //  3 hours
+      accessTokenExpires: Date.now() + 1000 * 60 * 60 * 3,
+      // 30 days
+      refetchTokenExpires: Date.now() + 1000 * 60 * 60 * 24 * 30,
     };
   } catch (error) {
     console.log(error);
@@ -137,7 +140,8 @@ export const authOptions: NextAuthOptions = {
         if (account.provider === "credentials") {
           return {
             ...user,
-            accessTokenExpires: Date.now() + 1000 * 60 * 24 * 30,
+            accessTokenExpires: Date.now() + 1000 * 60 * 60 * 3,
+            refreshTokenExpires: Date.now() + 1000 * 60 * 60 * 24 * 30,
           };
         } else {
           const body = JSON.stringify({
@@ -160,11 +164,11 @@ export const authOptions: NextAuthOptions = {
             },
           )
             .then((res) => res.json() as Promise<TDBUser>)
-            .catch((err) => {
+            .catch(() => {
               throw new Error("Failed to login");
             });
 
-          token.accessToken = response.token;
+          token.accessToken = response.accessToken;
           token.refreshToken = response.refreshToken;
           token.fullName = response.fullName;
           token.profilePicture = response.profilePicture;
@@ -177,7 +181,8 @@ export const authOptions: NextAuthOptions = {
           token.userType = response.userType;
           token.accounts = response.accounts;
           token.username = profile?.data.username;
-          token.accessTokenExpires = Date.now() + 1000 * 60 * 24 * 30;
+          token.accessTokenExpires = Date.now() + 1000 * 60 * 60 * 3;
+          token.refreshTokenExpires = Date.now() + 1000 * 60 * 60 * 24 * 30;
         }
 
       if (Date.now() > (token.accessTokenExpires as number)) {
@@ -187,11 +192,18 @@ export const authOptions: NextAuthOptions = {
         };
       }
 
+      if (
+        token.refreshTokenExpires &&
+        Date.now() > (token.refreshTokenExpires as number)
+      ) {
+        return {
+          ...token,
+          ...(await refreshAccessToken(token.refreshToken as string)),
+        };
+      }
+
       const newUser = await getUser(token.refreshToken as string);
-      console.log("🚀 ~ file: auth.ts:196 ~ jwt ~ newUser:", {
-        ...token,
-        ...newUser,
-      });
+
       return {
         ...token,
         ...newUser,
@@ -206,6 +218,9 @@ export const authOptions: NextAuthOptions = {
         },
       };
     },
+  },
+  jwt: {
+    maxAge: 60 * 60 * 3,
   },
   providers: [
     TwitterProvider({

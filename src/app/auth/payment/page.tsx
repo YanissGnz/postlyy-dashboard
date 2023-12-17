@@ -12,12 +12,12 @@ export default function Payment() {
   const { push } = useRouter();
 
   useEffect(() => {
-    if (session.data?.user.token)
+    if (session.data?.user.accessToken)
       fetch(`${env.NEXT_PUBLIC_API_BASE_URL}/api/Subscription/link`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${session.data?.user.token}`,
+          Authorization: `Bearer ${session.data?.user.accessToken}`,
         },
       })
         .then((res) => res.json())
@@ -33,7 +33,7 @@ export default function Payment() {
             push(ROUTES.home);
           }
         });
-  }, [session.data?.user.token]);
+  }, [session.data?.user.accessToken]);
 
   return (
     <div className="flex h-screen w-screen items-center justify-center">

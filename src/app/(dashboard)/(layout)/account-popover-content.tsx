@@ -28,6 +28,7 @@ import { setAccount } from "@/redux/slices/authSlice";
 import Link from "next/link";
 import { ROUTES } from "@/routes";
 import { useGetAccountsQuery } from "@/redux/api/user/account/apiSlice";
+import { EUserType } from "@/types/EUserType";
 
 export default function AccountPopoverContent() {
   const { theme, setTheme } = useTheme();
@@ -69,28 +70,21 @@ export default function AccountPopoverContent() {
             Settings
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href={ROUTES.billing}>
-            <Iconify
-              icon="solar:bill-list-bold-duotone"
-              fontSize={22}
-              className="mr-2 text-foreground/80"
-            />
-            Billing
-          </Link>
-        </DropdownMenuItem>
-        {session?.user.userType === 0 && (
-          <DropdownMenuItem asChild>
-            <Link href={ROUTES.team}>
-              <Iconify
-                icon="solar:users-group-rounded-bold-duotone"
-                fontSize={22}
-                className="mr-2 text-foreground/80"
-              />
-              Team
-            </Link>
-          </DropdownMenuItem>
-        )}
+        {session?.user &&
+          [EUserType.Owner, , EUserType.Single].includes(
+            session.user.userType,
+          ) && (
+            <DropdownMenuItem asChild>
+              <Link href={ROUTES.billing}>
+                <Iconify
+                  icon="solar:bill-list-bold-duotone"
+                  fontSize={22}
+                  className="mr-2 text-foreground/80"
+                />
+                Billing
+              </Link>
+            </DropdownMenuItem>
+          )}
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
       <DropdownMenuGroup>
@@ -137,11 +131,11 @@ export default function AccountPopoverContent() {
               <DropdownMenuItem asChild>
                 <Link href={ROUTES.accounts}>
                   <Iconify
-                    icon="solar:add-circle-bold-duotone"
+                    icon="solar:refresh-circle-bold-duotone"
                     fontSize={22}
                     className="mr-2 text-foreground/80"
                   />
-                  Add account
+                  Manage accounts
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuSubContent>
