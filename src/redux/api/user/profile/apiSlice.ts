@@ -34,7 +34,19 @@ export const profileApi = createApi({
       }),
       invalidatesTags: ["Profile"],
     }),
+    changeProfileImage: builder.mutation<TResponse<TProfile>, FormData>({
+      query: (body) => ({
+        url: "/api/UserSettings/Profile/ChangeImage",
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["Profile"],
+    }),
   }),
 });
 
-export const { useGetProfileQuery, useUpdateProfileMutation } = profileApi;
+export const {
+  useGetProfileQuery,
+  useUpdateProfileMutation,
+  useChangeProfileImageMutation,
+} = profileApi;

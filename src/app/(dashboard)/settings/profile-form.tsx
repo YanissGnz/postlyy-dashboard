@@ -1,19 +1,19 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 // api
 import {
   useGetProfileQuery,
   useUpdateProfileMutation,
+  useChangeProfileImageMutation,
 } from "@/redux/api/user/profile/apiSlice";
 // types
 import { profileSchema, type TProfile } from "@/types/TProfile";
 // components
 import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -24,6 +24,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { UploadAvatar } from "@/components/ui/upload";
+import { fData } from "@/lib/formatNumber";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function profileForm() {
   const {
@@ -33,6 +36,12 @@ export default function profileForm() {
   } = useGetProfileQuery();
   const [updateProfile, { isLoading: isUpdateProfileLoading }] =
     useUpdateProfileMutation();
+  const [changeProfileImage, { isLoading: isChangingProfileImageLoading }] =
+    useChangeProfileImageMutation();
+
+  const [profilePic, setProfilePic] = useState<
+    (File & { preview: string }) | string | null
+  >(profile?.data.photoUrl ? profile.data.photoUrl : null);
 
   const defaultValues = useMemo(() => {
     if (profile) return profile.data;
@@ -50,7 +59,11 @@ export default function profileForm() {
   });
 
   useEffect(() => {
-    if (profile) form.reset(defaultValues);
+    if (profile) {
+      form.reset(defaultValues);
+      if (profile.data.photoUrl && profile.data.photoUrl !== "")
+        setProfilePic(profile.data.photoUrl);
+    }
   }, [profile, isProfileLoading, isProfileFetching]);
 
   function onSubmit(values: TProfile) {
@@ -66,6 +79,37 @@ export default function profileForm() {
       });
   }
 
+  const handleUpdateImage = () => {
+    if (profilePic !== null) {
+      const data = new FormData();
+      data.append("ProfilePicture", profilePic);
+      changeProfileImage(data)
+        .unwrap()
+        .then(() => {
+          toast.success("Profile picture updated successfully");
+        })
+        .catch((err) => {
+          toast.error("Something went wrong");
+          console.log(err);
+        });
+    }
+  };
+
+  const handleDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      const file = acceptedFiles[0];
+
+      if (file) {
+        setProfilePic(
+          Object.assign(file, {
+            preview: URL.createObjectURL(file),
+          }),
+        );
+      }
+    },
+    [setProfilePic],
+  );
+
   return (
     <Card className="w-full">
       {isProfileLoading ? (
@@ -74,6 +118,27 @@ export default function profileForm() {
         </div>
       ) : (
         <CardContent className="p-4">
+          <div className="flex w-full flex-col items-center justify-center">
+            <UploadAvatar
+              file={profilePic!}
+              maxSize={3145728}
+              onDrop={handleDrop}
+              helperText={
+                <p className="mx-auto mb-6 mt-3 block flex-1 text-center text-sm text-gray-600 dark:text-gray-400">
+                  Allowed *.jpeg, *.jpg, *.png, *.gif
+                  <br /> max size of {fData(3145728)}
+                </p>
+              }
+            />
+            <Button
+              onClick={handleUpdateImage}
+              loading={isChangingProfileImageLoading}
+              disabled={isChangingProfileImageLoading}
+            >
+              Update Profile Picture
+            </Button>
+          </div>
+
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
               <FormField
@@ -123,7 +188,7 @@ export default function profileForm() {
                 disabled={isUpdateProfileLoading}
                 loading={isUpdateProfileLoading}
               >
-                Update
+                Update Profile Details
               </Button>
             </form>
           </Form>
