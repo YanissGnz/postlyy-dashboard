@@ -30,7 +30,11 @@ export default function AccountPopover() {
           ) : (
             <Avatar>
               <AvatarImage
-                src={currentAccount?.photoUrl ?? ""}
+                src={
+                  currentAccount?.photoUrl
+                    ? currentAccount?.photoUrl
+                    : session?.user.profilePicture ?? ""
+                }
                 alt={`@${currentAccount?.username}`}
               />
               <AvatarFallback>
