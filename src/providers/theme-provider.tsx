@@ -20,7 +20,7 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
         startPosition={0.3}
         stopDelayMs={200}
         height="4px"
-        options={{ showSpinner: true }}
+        options={{ showSpinner: false }}
         showOnShallow
       />
     </NextThemesProvider>

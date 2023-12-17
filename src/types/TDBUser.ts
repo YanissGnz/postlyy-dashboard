@@ -1,8 +1,9 @@
+import { type EUserType } from "./EUserType";
 import { type TAccount } from "./TAccount";
 
 export type TDBUser = {
   fullName: string;
-  token: string;
+  accessToken: string;
   refreshToken: string;
   profilePicture: string;
   hasChosenSubscription: boolean;
@@ -11,6 +12,6 @@ export type TDBUser = {
   hasSetupEmail: boolean;
   isTrial: boolean;
   tier: number;
-  userType: number;
+  userType: EUserType;
   accounts: Array<TAccount>;
 };

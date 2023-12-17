@@ -1,3 +1,4 @@
+import { EUserType } from "@/types/EUserType";
 import { createSlice } from "@reduxjs/toolkit";
 
 export type TNavItem = {
@@ -5,6 +6,8 @@ export type TNavItem = {
   path: string;
   icon: string;
   children?: TNavItem[];
+  roles: EUserType[];
+  needAccount?: boolean;
 };
 
 type LayoutState = {
@@ -20,36 +23,96 @@ const initialState = {
       name: "Home",
       path: "/home",
       icon: "solar:home-smile-bold-duotone",
+      roles: [
+        EUserType.Manager,
+        EUserType.Single,
+        EUserType.TeamMember,
+        EUserType.Owner,
+      ],
+    },
+    {
+      name: "Team",
+      path: "/team",
+      icon: "solar:users-group-rounded-bold-duotone",
+      roles: [EUserType.Manager, EUserType.Owner],
+    },
+    {
+      name: "Team Analytics",
+      path: "/team-analytics",
+      icon: "solar:round-graph-bold-duotone",
+      roles: [EUserType.Manager, EUserType.Owner],
     },
     {
       name: "Post",
       path: "/post",
       icon: "solar:pen-new-square-bold-duotone",
+      roles: [
+        EUserType.Manager,
+        EUserType.Single,
+        EUserType.TeamMember,
+        EUserType.Owner,
+      ],
+      needAccount: true,
     },
     {
       name: "Queue",
       path: "/queue",
       icon: "solar:calendar-add-bold-duotone",
+      roles: [
+        EUserType.Manager,
+        EUserType.Single,
+        EUserType.TeamMember,
+        EUserType.Owner,
+      ],
+      needAccount: true,
     },
     {
       name: "Powerups",
       path: "/powerups",
       icon: "solar:bolt-circle-bold-duotone",
+      roles: [
+        EUserType.Manager,
+        EUserType.Single,
+        EUserType.TeamMember,
+        EUserType.Owner,
+      ],
+      needAccount: true,
     },
     {
       name: "Calendar",
       path: "/calendar",
       icon: "solar:calendar-bold-duotone",
+      roles: [
+        EUserType.Manager,
+        EUserType.Single,
+        EUserType.TeamMember,
+        EUserType.Owner,
+      ],
+      needAccount: true,
     },
     {
       name: "Analytics",
       path: "/analytics",
       icon: "solar:pie-chart-2-bold-duotone",
+      roles: [
+        EUserType.Manager,
+        EUserType.Single,
+        EUserType.TeamMember,
+        EUserType.Owner,
+      ],
+      needAccount: true,
     },
     {
       name: "Recurrent Posts",
       path: "/recurrent-posts",
       icon: "solar:repeat-one-minimalistic-bold-duotone",
+      roles: [
+        EUserType.Manager,
+        EUserType.Single,
+        EUserType.TeamMember,
+        EUserType.Owner,
+      ],
+      needAccount: true,
     },
   ],
   isMobileSidebarOpen: false,

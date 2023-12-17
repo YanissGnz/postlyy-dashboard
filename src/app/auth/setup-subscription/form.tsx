@@ -30,11 +30,12 @@ export default function SetupForm() {
   const handlePayment = useCallback(
     (tier: number) => async () => {
       setTrue();
+
       await fetch(`${env.NEXT_PUBLIC_API_BASE_URL}/api/Subscription/setup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer " + session?.data?.user.token,
+          Authorization: "Bearer " + session?.data?.user.accessToken,
         },
         body: JSON.stringify({
           tier,
@@ -56,7 +57,7 @@ export default function SetupForm() {
         });
       setFalse();
     },
-    [isYearly, seatsBought],
+    [isYearly, seatsBought, session?.data?.user.accessToken],
   );
 
   const handleAddSeat = useCallback(() => {

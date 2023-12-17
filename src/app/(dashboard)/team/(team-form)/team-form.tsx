@@ -9,7 +9,8 @@ import {
   useAddManagerMutation,
   useAddTeamMemberMutation,
   useGetManagersQuery,
-  useGetTeamMembersQuery,
+  useGetAllMembersQuery,
+  useAddTeamMemberToManagerMutation,
 } from "@/redux/api/user/team/apiSlice";
 // components
 import { TeamMembersDataTable } from "./team-member-data-table";
@@ -35,11 +36,16 @@ import {
 
 export default function TeamForm() {
   const { data: managers, isSuccess: isManagerSuccess } = useGetManagersQuery();
-  const { data: subordinates, isLoading } = useGetTeamMembersQuery();
+  const { data: subordinates, isLoading } = useGetAllMembersQuery();
+
   const [addManager, { isLoading: isAddManagerLoading }] =
     useAddManagerMutation();
   const [addTeamMember, { isLoading: isAddSubLoading }] =
     useAddTeamMemberMutation();
+  const [addTeamMemberToManager, { isLoading: isAddSubToManagerLoading }] =
+    useAddTeamMemberToManagerMutation();
+
+  const [selectedManagerId, setSelectedManagerId] = useState("default");
 
   const session = useSession();
 
@@ -67,6 +73,22 @@ export default function TeamForm() {
   }, [email]);
 
   const handleAddTeamMember = useCallback(async () => {
+    setTrue();
+    if (selectedManagerId !== "default") {
+      await addTeamMemberToManager({ email, managerId: selectedManagerId })
+        .unwrap()
+        .then(() => {
+          setEmail("");
+          toast.success("Team Member added successfully");
+          setFalse();
+        })
+        .catch(() => {
+          toast.error("Something went wrong");
+          setFalse();
+        });
+      return;
+    }
+
     await addTeamMember({ email })
       .unwrap()
       .then(() => {
@@ -76,64 +98,95 @@ export default function TeamForm() {
       })
       .catch(() => {
         toast.error("Something went wrong");
+        setFalse();
       });
   }, [email]);
+
+  const handleManagerChange = useCallback((managerId: string) => {
+    setSelectedManagerId(managerId);
+  }, []);
 
   return (
     <>
       <div className="mb-2 flex items-center justify-end gap-4">
-        {session.data?.user.tier === 2 &&
-        isManagerSuccess &&
-        managers?.data.length < 2 ? (
-          <Dialog
-            open={isManagerDialogOpen}
-            onOpenChange={(open) => setManagerDialogValue(open)}
-          >
-            <DialogTrigger asChild>
-              <Button onClick={() => setManagerDialogTrue()}>
-                Add Manager
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Add Manager</DialogTitle>
-              </DialogHeader>
-              <div className="mb-4">
-                <Label htmlFor="email" className="text-right">
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <DialogFooter>
-                <Button
-                  type="submit"
-                  onClick={handleAddManager}
-                  loading={isAddManagerLoading}
-                  disabled={!email || isAddManagerLoading}
-                >
-                  Invite
+        {isManagerSuccess &&
+          session.data?.user.tier === 1 &&
+          managers?.data.length < 1 && (
+            <Dialog
+              open={isManagerDialogOpen}
+              onOpenChange={(open) => setManagerDialogValue(open)}
+            >
+              <DialogTrigger asChild>
+                <Button onClick={() => setManagerDialogTrue()}>
+                  Add Manager
                 </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        ) : (
-          <Select>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select manager" />
-            </SelectTrigger>
-            <SelectContent>
-              {managers?.data.map((manager) => (
-                <SelectItem key={manager.id} value={manager.id}>
-                  {manager.fullName}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Add Manager</DialogTitle>
+                </DialogHeader>
+                <div className="mb-4">
+                  <Label htmlFor="email" className="text-right">
+                    Email
+                  </Label>
+                  <Input
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+                <DialogFooter>
+                  <Button
+                    type="submit"
+                    onClick={handleAddManager}
+                    loading={isAddManagerLoading}
+                    disabled={!email || isAddManagerLoading}
+                  >
+                    Invite
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
+        {isManagerSuccess &&
+          session.data?.user.tier === 2 &&
+          managers?.data.length < 2 && (
+            <Dialog
+              open={isManagerDialogOpen}
+              onOpenChange={(open) => setManagerDialogValue(open)}
+            >
+              <DialogTrigger asChild>
+                <Button onClick={() => setManagerDialogTrue()}>
+                  Add Manager
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Add Manager</DialogTitle>
+                </DialogHeader>
+                <div className="mb-4">
+                  <Label htmlFor="email" className="text-right">
+                    Email
+                  </Label>
+                  <Input
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+                <DialogFooter>
+                  <Button
+                    type="submit"
+                    onClick={handleAddManager}
+                    loading={isAddManagerLoading}
+                    disabled={!email || isAddManagerLoading}
+                  >
+                    Invite
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
         <Dialog open={isOpen} onOpenChange={(open) => setValue(open)}>
           <DialogTrigger asChild>
             <Button onClick={() => setTrue()}>Add Team Member</Button>
@@ -157,13 +210,29 @@ export default function TeamForm() {
                 type="submit"
                 onClick={handleAddTeamMember}
                 loading={isAddSubLoading}
-                disabled={!email || isAddSubLoading}
+                disabled={!email || isAddSubLoading || isAddSubToManagerLoading}
               >
                 Invite
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        <p>To</p>
+        <Select defaultValue="default" onValueChange={handleManagerChange}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select manager" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="default">You</SelectItem>
+
+            {managers?.data.map((manager) => (
+              <SelectItem key={manager.id} value={manager.id}>
+                {manager.fullName}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <TeamMembersDataTable
         columns={teamMembersColumns}

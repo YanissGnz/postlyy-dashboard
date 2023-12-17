@@ -1,8 +1,12 @@
 "use client";
 
+import { useCallback } from "react";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
+import { cn } from "@/lib/utils";
 // redux
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { toggleCollapseSidebar } from "@/redux/slices/layoutSlice";
 // constants
 import { LAYOUT } from "@/lib/constants";
 // components
@@ -10,11 +14,10 @@ import { Button } from "../../../components/ui/button";
 import Iconify from "../../../components/ui/icon";
 import AccountPopover from "./account-popover";
 import NavItem from "./nav-item";
-import { useCallback } from "react";
-import { toggleCollapseSidebar } from "@/redux/slices/layoutSlice";
-import { cn } from "@/lib/utils";
 
 export default function Sidebar() {
+  const session = useSession();
+
   const { navItems, isCollapsed } = useAppSelector((state) => state.layout);
 
   const dispatch = useAppDispatch();
@@ -22,6 +25,10 @@ export default function Sidebar() {
   const handleToggleCollapse = useCallback(() => {
     dispatch(toggleCollapseSidebar());
   }, []);
+
+  if (!session.data) {
+    return null;
+  }
 
   return (
     <div
@@ -61,9 +68,16 @@ export default function Sidebar() {
         />
       </div>
       <div className="flex flex-1 flex-col gap-2">
-        {navItems.map((item) => (
-          <NavItem key={item.path} {...item} />
-        ))}
+        {navItems.map((item) =>
+          item.needAccount
+            ? item.roles.includes(session.data.user.userType) &&
+              session.data.user.accounts.length > 0 && (
+                <NavItem key={item.path} {...item} />
+              )
+            : item.roles.includes(session.data.user.userType) && (
+                <NavItem key={item.path} {...item} />
+              ),
+        )}
       </div>
 
       <AccountPopover />

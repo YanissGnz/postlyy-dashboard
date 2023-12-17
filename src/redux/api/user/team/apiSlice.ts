@@ -21,7 +21,7 @@ export const teamApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Team", "Managers", "TeamMembers"],
+  tagTypes: ["Managers", "TeamMembers"],
   endpoints: (builder) => ({
     getManagers: builder.query<TResponse<TManager[]>, void>({
       query: () => "/api/UserManagement/Managers",
@@ -33,18 +33,18 @@ export const teamApi = createApi({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Managers"],
+      invalidatesTags: ["Managers", "TeamMembers"],
     }),
     deleteManager: builder.mutation<TResponse<unknown>, string>({
       query: (managerId) => ({
         url: `/api/UserManagement/Managers/${managerId}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Managers"],
+      invalidatesTags: ["Managers", "TeamMembers"],
     }),
-    getTeamMembers: builder.query<TResponse<TTeamMember[]>, void>({
-      query: () => "/api/UserManagement/Subordinates",
-      providesTags: ["TeamMembers"],
+    getAllMembers: builder.query<TResponse<TTeamMember[]>, void>({
+      query: () => "/api/UserManagement/All",
+      providesTags: ["TeamMembers", "Managers"],
     }),
     addTeamMember: builder.mutation<TResponse<TTeamMember>, { email: string }>({
       query: (body) => ({
@@ -52,7 +52,18 @@ export const teamApi = createApi({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["TeamMembers"],
+      invalidatesTags: ["Managers", "TeamMembers"],
+    }),
+    addTeamMemberToManager: builder.mutation<
+      TResponse<TTeamMember>,
+      { email: string; managerId: string }
+    >({
+      query: ({ managerId, ...body }) => ({
+        url: `/api/UserManagement/Subordinates/${managerId}`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Managers", "TeamMembers"],
     }),
     updateTeamMember: builder.mutation<TResponse<TTeamMember>, unknown>({
       query: (body) => ({
@@ -60,14 +71,14 @@ export const teamApi = createApi({
         method: "PUT",
         body,
       }),
-      invalidatesTags: ["TeamMembers"],
+      invalidatesTags: ["Managers", "TeamMembers"],
     }),
     deleteTeamMember: builder.mutation<TResponse<unknown>, string>({
       query: (subordinateId) => ({
         url: `/api/UserManagement/Subordinates/${subordinateId}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["TeamMembers"],
+      invalidatesTags: ["Managers", "TeamMembers"],
     }),
   }),
 });
@@ -76,8 +87,9 @@ export const {
   useGetManagersQuery,
   useAddManagerMutation,
   useDeleteManagerMutation,
-  useGetTeamMembersQuery,
+  useGetAllMembersQuery,
   useAddTeamMemberMutation,
   useUpdateTeamMemberMutation,
   useDeleteTeamMemberMutation,
+  useAddTeamMemberToManagerMutation,
 } = teamApi;
