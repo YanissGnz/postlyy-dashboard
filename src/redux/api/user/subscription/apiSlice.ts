@@ -38,10 +38,22 @@ export const subscriptionApi = createApi({
         method: "POST",
       }),
     }),
+    getPaymentLink: builder.mutation<
+      TResponse<{
+        link: string;
+      }>,
+      void
+    >({
+      query: () => ({
+        url: "/api/Subscription/link",
+        method: "GET",
+      }),
+    }),
   }),
 });
 
 export const {
   useGetSubscriptionSettingsQuery,
   useCancelSubscriptionMutation,
+  useGetPaymentLinkMutation,
 } = subscriptionApi;

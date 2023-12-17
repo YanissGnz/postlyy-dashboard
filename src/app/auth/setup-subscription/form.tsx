@@ -145,7 +145,9 @@ export default function SetupForm() {
                 <div className="flex items-center justify-between">
                   <p className="text-4xl font-semibold">
                     <span className="mr-1 text-2xl text-foreground/60"> $</span>
-                    {isYearly ? 403.09 : 39.99}
+                    {isYearly
+                      ? env.NEXT_PUBLIC_SMB_YEARLY_PRICE
+                      : env.NEXT_PUBLIC_SMB_MONTHLY_PRICE}
                     <span className="ml-1 mr-1 text-xl text-foreground/60">
                       Per seat / {isYearly ? "year" : "month"}
                     </span>
@@ -184,7 +186,9 @@ export default function SetupForm() {
                     <span className="mr-1 text-2xl text-foreground/60"> $</span>
                     {Math.round(
                       (seatsBought > 9 ? 9 : seatsBought) *
-                        (isYearly ? 403.09 : 39.99) *
+                        (isYearly
+                          ? env.NEXT_PUBLIC_SMB_YEARLY_PRICE
+                          : env.NEXT_PUBLIC_SMB_MONTHLY_PRICE) *
                         100,
                     ) / 100}
                     <span className="ml-1 mr-1 text-xl text-foreground/60">
@@ -259,7 +263,9 @@ export default function SetupForm() {
                 <div className="flex items-center justify-between">
                   <p className="text-4xl font-semibold">
                     <span className="mr-1 text-2xl text-foreground/60"> $</span>
-                    {isYearly ? 352.79 : 34.99}
+                    {isYearly
+                      ? env.NEXT_PUBLIC_ENTERPRISE_YEARLY_PRICE
+                      : env.NEXT_PUBLIC_ENTERPRISE_MONTHLY_PRICE}
                     <span className="ml-1 mr-1 text-xl text-foreground/60">
                       Per seat / {isYearly ? "year" : "month"}
                     </span>
@@ -290,7 +296,11 @@ export default function SetupForm() {
                     <span className="mr-1 text-2xl text-foreground/60">=</span>
                     <span className="mr-1 text-2xl text-foreground/60"> $</span>
                     {Math.round(
-                      seatsBought * (isYearly ? 352.79 : 34.99) * 100,
+                      seatsBought *
+                        (isYearly
+                          ? env.NEXT_PUBLIC_ENTERPRISE_YEARLY_PRICE
+                          : env.NEXT_PUBLIC_ENTERPRISE_MONTHLY_PRICE) *
+                        100,
                     ) / 100}
                     <span className="ml-1 mr-1 text-xl text-foreground/60">
                       / {isYearly ? "year" : "month"}

@@ -38,6 +38,12 @@ export const env = createEnv({
     NEXT_PUBLIC_AUTH_BASEURL: z.string().url(),
     NEXT_PUBLIC_JWT_AUTH_SECRET_KEY: z.string(),
     NEXT_PUBLIC_AUTH_SECRET_KEY: z.string(),
+    NEXT_PUBLIC_SMB_MONTHLY_PRICE: z.number(),
+    NEXT_PUBLIC_SMB_YEARLY_PRICE: z.number(),
+    NEXT_PUBLIC_ENTERPRISE_MONTHLY_PRICE: z.number(),
+    NEXT_PUBLIC_ENTERPRISE_YEARLY_PRICE: z.number(),
+    NEXT_PUBLIC_INDIVIDUAL_MONTHLY: z.number(),
+    NEXT_PUBLIC_INDIVIDUAL_YEARLY: z.number(),
   },
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
@@ -53,6 +59,24 @@ export const env = createEnv({
     NEXT_PUBLIC_JWT_AUTH_SECRET_KEY:
       process.env.NEXT_PUBLIC_JWT_AUTH_SECRET_KEY,
     NEXT_PUBLIC_AUTH_SECRET_KEY: process.env.NEXT_PUBLIC_AUTH_SECRET_KEY,
+    NEXT_PUBLIC_SMB_MONTHLY_PRICE: Number(
+      process.env.NEXT_PUBLIC_SMB_MONTHLY_PRICE,
+    ),
+    NEXT_PUBLIC_SMB_YEARLY_PRICE: Number(
+      process.env.NEXT_PUBLIC_SMB_YEARLY_PRICE,
+    ),
+    NEXT_PUBLIC_ENTERPRISE_MONTHLY_PRICE: Number(
+      process.env.NEXT_PUBLIC_ENTERPRISE_MONTHLY_PRICE,
+    ),
+    NEXT_PUBLIC_ENTERPRISE_YEARLY_PRICE: Number(
+      process.env.NEXT_PUBLIC_ENTERPRISE_YEARLY_PRICE,
+    ),
+    NEXT_PUBLIC_INDIVIDUAL_MONTHLY: Number(
+      process.env.NEXT_PUBLIC_INDIVIDUAL_MONTHLY,
+    ),
+    NEXT_PUBLIC_INDIVIDUAL_YEARLY: Number(
+      process.env.NEXT_PUBLIC_INDIVIDUAL_YEARLY,
+    ),
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.

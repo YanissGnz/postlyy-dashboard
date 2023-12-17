@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback } from "react";
-import { format } from "date-fns";
+import { format, isAfter } from "date-fns";
 import { Spinner } from "@/components/ui/Spinner";
 import {
   Card,
@@ -96,16 +96,20 @@ export default function SubscriptionForm() {
             </p>
           </div>
           <div className="flex items-center justify-end gap-4">
-            {!subscriptionSettings?.data.isPendingDeletion && (
-              <Button
-                variant="outline"
-                onClick={handleCancelSubscription}
-                disabled={isCancelLoading}
-                loading={isCancelLoading}
-              >
-                Cancel Plan
-              </Button>
-            )}
+            {!subscriptionSettings?.data.isPendingDeletion &&
+              isAfter(
+                new Date(),
+                new Date(subscriptionSettings?.data.renewalDate ?? ""),
+              ) && (
+                <Button
+                  variant="outline"
+                  onClick={handleCancelSubscription}
+                  disabled={isCancelLoading}
+                  loading={isCancelLoading}
+                >
+                  Cancel Plan
+                </Button>
+              )}
           </div>
         </CardContent>
       </Card>
