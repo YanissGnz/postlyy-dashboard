@@ -61,6 +61,13 @@ export const authApi = createApi({
         body,
       }),
     }),
+    sendFeedback: builder.mutation<void, { stars: number; comment: string }>({
+      query: (body) => ({
+        url: "/api/Feedback",
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 });
 
@@ -69,4 +76,5 @@ export const {
   useResetForgottenPasswordMutation,
   useChangePasswordMutation,
   useSetupEmailMutation,
+  useSendFeedbackMutation,
 } = authApi;
