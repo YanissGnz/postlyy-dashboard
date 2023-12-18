@@ -12,7 +12,7 @@ import Header from "@/app/(dashboard)/(layout)/header";
 import { redirect } from "next/navigation";
 import { ROUTES } from "@/routes";
 import { Spinner } from "@/components/ui/Spinner";
-import AlertsProvider from "./alerts-provider";
+import AlertsProvider from "../../providers/alerts-provider";
 
 export default function DashboardLayout({
   children,

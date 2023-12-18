@@ -9,6 +9,7 @@ export type TDBUser = {
   hasChosenSubscription: boolean;
   hasPaidSubscription: boolean;
   hasToChangePassword: boolean;
+  hasSetupUsers: boolean;
   hasSetupEmail: boolean;
   isTrial: boolean;
   tier: number;

@@ -33,6 +33,7 @@ export default function MobileAccountPopover() {
                     : session?.user.profilePicture ?? ""
                 }
                 alt={`@${currentAccount?.username}`}
+                className="object-cover"
               />
               <AvatarFallback>
                 {currentAccount?.username?.slice(0, 2).toUpperCase() ??

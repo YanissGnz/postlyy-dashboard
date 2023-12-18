@@ -77,9 +77,12 @@ export default function AccountsPage() {
           }, 1000);
         })
         .catch((e: TErrorResponse<string[]>) => {
-          console.log("🚀 ~ file: page.tsx:79 ~ useEffect ~ e:", e);
-          if (e.data) push(ROUTES.accounts);
-          else window.location.reload();
+          if (e.data) {
+            if (e.data.includes("ACCOUNT_EXISTS")) {
+              toast.error("Account already exists");
+              push(ROUTES.accounts);
+            } else push(ROUTES.accounts);
+          } else window.location.reload();
         });
     }
   }, [token]);
@@ -187,7 +190,11 @@ export default function AccountsPage() {
             ? `@${getAccountByType(1)?.username}`
             : "Not connected"}
         </p>
-        <Button variant="outline" disabled={isLoading}>
+        <Button
+          variant="outline"
+          disabled={isLoading}
+          onClick={connect("linkedin")}
+        >
           Connect
         </Button>
       </div>
