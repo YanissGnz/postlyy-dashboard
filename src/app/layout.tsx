@@ -54,9 +54,8 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
 };
 
-export default async function RootLayout({
-  children,
-}: {
+export default async function RootLayout({} // children,
+: {
   children: React.ReactNode;
 }) {
   return (

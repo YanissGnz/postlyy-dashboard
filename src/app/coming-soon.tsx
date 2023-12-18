@@ -1,6 +1,5 @@
 "use client";
-// form
-// motion
+
 import { useSubscribeMutation } from "@/redux/api/newsLetterApi";
 import { Button } from "@/components/ui/button";
 import {

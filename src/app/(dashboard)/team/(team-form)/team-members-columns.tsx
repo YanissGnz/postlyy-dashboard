@@ -59,20 +59,6 @@ const handleDeleteManager = async (managerId: string) => {
   });
 };
 
-const handleChangeManager = async (managerId: string) => {
-  const deleteManagerPromise = store
-    .dispatch(teamApi.endpoints.deleteManager.initiate(managerId))
-    .unwrap();
-
-  toast.promise(deleteManagerPromise, {
-    loading: "Deleting manager...",
-    success: () => {
-      return `Manager deleted successfully`;
-    },
-    error: "Something went wrong",
-  });
-};
-
 export const teamMembersColumns: ColumnDef<TTeamMember>[] = [
   {
     accessorKey: "fullName",
