@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import UserProvider from "@/providers/token-provider";
 // components
 import { Toaster } from "sonner";
+import ComingSoon from "./coming-soon";
 
 const rubik = DM_Sans({
   subsets: ["latin"],
@@ -66,7 +67,10 @@ export default async function RootLayout({
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <ReduxProvider>
-              <UserProvider>{children}</UserProvider>
+              <UserProvider>
+                <ComingSoon />
+                {/* {children} */}
+              </UserProvider>
             </ReduxProvider>
             <Toaster richColors closeButton />
           </ThemeProvider>

@@ -9,6 +9,7 @@ import { subscriptionApi } from "./api/user/subscription/apiSlice";
 import { teamApi } from "./api/user/team/apiSlice";
 import { authApi } from "./api/user/auth/apiSlice";
 import { accountApi } from "./api/user/account/apiSlice";
+import { newsLetterApi } from "./api/newsLetterApi";
 
 export const store = configureStore({
   reducer: {
@@ -21,6 +22,7 @@ export const store = configureStore({
     [teamApi.reducerPath]: teamApi.reducer,
     [authApi.reducerPath]: authApi.reducer,
     [accountApi.reducerPath]: accountApi.reducer,
+    [newsLetterApi.reducerPath]: newsLetterApi.reducer,
   },
   devTools: process.env.NODE_ENV !== "production",
   middleware: (getDefaultMiddleware) =>
@@ -30,7 +32,8 @@ export const store = configureStore({
       .concat(subscriptionApi.middleware)
       .concat(teamApi.middleware)
       .concat(authApi.middleware)
-      .concat(accountApi.middleware),
+      .concat(accountApi.middleware)
+      .concat(newsLetterApi.middleware),
 });
 
 setupListeners(store.dispatch);
