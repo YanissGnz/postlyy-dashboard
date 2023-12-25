@@ -54,9 +54,8 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
 };
 
-export default async function RootLayout({
-  children, // ,
-}: {
+export default async function RootLayout({} // children,
+: {
   children: React.ReactNode;
 }) {
   return (
@@ -68,8 +67,8 @@ export default async function RootLayout({
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <ReduxProvider>
               <UserProvider>
-                {/* <ComingSoon /> */}
-                {children}
+                <ComingSoon />
+                {/* {children} */}
               </UserProvider>
             </ReduxProvider>
             <Toaster richColors closeButton />
