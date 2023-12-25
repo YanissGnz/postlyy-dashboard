@@ -44,6 +44,7 @@ export const env = createEnv({
     NEXT_PUBLIC_ENTERPRISE_YEARLY_PRICE: z.number(),
     NEXT_PUBLIC_INDIVIDUAL_MONTHLY: z.number(),
     NEXT_PUBLIC_INDIVIDUAL_YEARLY: z.number(),
+    NEXT_PUBLIC_GOOGLE_ID: z.string(),
   },
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
@@ -77,6 +78,7 @@ export const env = createEnv({
     NEXT_PUBLIC_INDIVIDUAL_YEARLY: Number(
       process.env.NEXT_PUBLIC_INDIVIDUAL_YEARLY,
     ),
+    NEXT_PUBLIC_GOOGLE_ID: process.env.NEXT_PUBLIC_GOOGLE_ID,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
