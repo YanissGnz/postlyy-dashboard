@@ -59,7 +59,7 @@ export default function PostDetails() {
       </div>
       <div className="flex items-center gap-5">
         <p className="font-medium">Socials:</p>
-        <div>
+        <div className="flex items-center gap-2">
           {event.forTwitter && (
             <Iconify
               icon="simple-icons:x"
