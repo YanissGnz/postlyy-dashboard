@@ -37,6 +37,7 @@ import AddEditEventForm from "./add-edit-event-form";
 import { type TCalendarEvent } from "@/types/TCalendarEvent";
 import PostDetails from "./post-details";
 import { addHours } from "date-fns/esm";
+import { format } from "date-fns";
 
 export default function Modals() {
   const { list } = useAppSelector((state) => state.modals);
@@ -101,12 +102,7 @@ export default function Modals() {
       form.setValue("forTwitter", data.forTwitter);
       form.setValue("forLinkedIn", data.forLinkedIn);
       form.setValue("postId", data.postId);
-      form.setValue(
-        "startTime",
-        new Date(data.startTime).getHours() +
-          ":" +
-          new Date(data.startTime).getMinutes(),
-      );
+      form.setValue("startTime", format(new Date(data.startTime), "HH:mm"));
       form.setValue("daysOfWeek", data.days);
       setSelectedEventId(data.id);
     } else if (list.find((modal) => modal.id === "add-calendar-post-modal")) {
