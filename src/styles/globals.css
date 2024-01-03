@@ -24,6 +24,7 @@
     --input: 220 13% 91%;
     --ring: 203 89% 53%;
     --radius: 0.4rem;
+    --fc-today-bg-color: #139cf12e;
   }
 
   .dark {
@@ -47,6 +48,7 @@
     --border: 215 27.9% 16.9%;
     --input: 215 27.9% 16.9%;
     --ring: 203 89% 53%;
+    --fc-today-bg-color: #139cf12e;
   }
 }
 
@@ -57,4 +59,16 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.fc {
+  @apply overflow-hidden rounded bg-background text-foreground;
+}
+
+.fc .fc-col-header-cell {
+  @apply first:rounded-t last:rounded-tr;
+}
+
+.fc-timegrid-event-harness > .fc-timegrid-event {
+  @apply !relative;
 }

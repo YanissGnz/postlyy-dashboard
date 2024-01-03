@@ -31,6 +31,7 @@ export default function AlertsProvider() {
       setPasswordAlertOpen(true);
     } else if (
       session.status === "authenticated" &&
+      session.data?.user.tier !== 0 &&
       !session.data?.user.hasSetupUsers
     ) {
       setSeatsAlertOpen(true);

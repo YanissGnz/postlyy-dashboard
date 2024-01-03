@@ -3,6 +3,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { layout } from "./slices/layoutSlice";
 import { auth } from "./slices/authSlice";
 import { setup } from "./slices/setupSlice";
+import { modals } from "./slices/modalsSlice";
 import { profileApi } from "./api/user/profile/apiSlice";
 import { notificationsSettingsApi } from "./api/user/notifications-settings/apiSlice";
 import { subscriptionApi } from "./api/user/subscription/apiSlice";
@@ -10,12 +11,14 @@ import { teamApi } from "./api/user/team/apiSlice";
 import { authApi } from "./api/user/auth/apiSlice";
 import { accountApi } from "./api/user/account/apiSlice";
 import { newsLetterApi } from "./api/newsLetterApi";
+import { calendarApi } from "./api/calendar/apiSlice";
 
 export const store = configureStore({
   reducer: {
     layout: layout.reducer,
     auth: auth.reducer,
     setup: setup.reducer,
+    modals: modals.reducer,
     [profileApi.reducerPath]: profileApi.reducer,
     [notificationsSettingsApi.reducerPath]: notificationsSettingsApi.reducer,
     [subscriptionApi.reducerPath]: subscriptionApi.reducer,
@@ -23,6 +26,7 @@ export const store = configureStore({
     [authApi.reducerPath]: authApi.reducer,
     [accountApi.reducerPath]: accountApi.reducer,
     [newsLetterApi.reducerPath]: newsLetterApi.reducer,
+    [calendarApi.reducerPath]: calendarApi.reducer,
   },
   devTools: process.env.NODE_ENV !== "production",
   middleware: (getDefaultMiddleware) =>
@@ -33,7 +37,8 @@ export const store = configureStore({
       .concat(teamApi.middleware)
       .concat(authApi.middleware)
       .concat(accountApi.middleware)
-      .concat(newsLetterApi.middleware),
+      .concat(newsLetterApi.middleware)
+      .concat(calendarApi.middleware),
 });
 
 setupListeners(store.dispatch);
