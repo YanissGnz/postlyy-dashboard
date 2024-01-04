@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   getServerSession,
   type DefaultSession,
@@ -82,8 +84,6 @@ async function refreshAccessToken(refetchToken: string) {
       refetchTokenExpires: Date.now() + 1000 * 60 * 60 * 24 * 30,
     };
   } catch (error) {
-    console.log(error);
-
     return {
       error: "RefreshAccessTokenError",
     };
@@ -125,8 +125,6 @@ async function getUser(refetchToken: string) {
       username: user?.accounts ? user?.accounts[0]?.username : "",
     };
   } catch (error) {
-    console.log(error);
-
     return {
       error: "GetUserError",
     };
@@ -143,7 +141,7 @@ export const authOptions: NextAuthOptions = {
             accessTokenExpires: Date.now() + 1000 * 60 * 60 * 3,
             refreshTokenExpires: Date.now() + 1000 * 60 * 60 * 24 * 30,
           };
-        } else {
+        } else if (account.provider === "twitter") {
           const body = JSON.stringify({
             provider: 0,
             id: profile?.data.id,
@@ -151,7 +149,7 @@ export const authOptions: NextAuthOptions = {
             accessToken: account.access_token,
             email: "",
             userName: profile?.data.username,
-            picture: profile?.data.profile_image_url,
+            picture: profile?.data.profile_image_url ?? "Images/Default.jpeg",
           });
           const response = await fetch(
             `${env.API_BASE_URL}/api/Authentication/External`,
@@ -183,6 +181,50 @@ export const authOptions: NextAuthOptions = {
           token.username = profile?.data.username;
           token.accessTokenExpires = Date.now() + 1000 * 60 * 60 * 3;
           token.refreshTokenExpires = Date.now() + 1000 * 60 * 60 * 24 * 30;
+          return token;
+        } else if (account.provider === "linkedin") {
+          const body = JSON.stringify({
+            provider: 1,
+            id: user.id,
+            refreshToken: user.refreshToken,
+            accessToken: user.accessToken,
+            email: profile?.email,
+            userName: profile?.name,
+            picture: user.profilePicture ?? "Images/Default.jpeg",
+          });
+
+          const response = await fetch(
+            `${env.API_BASE_URL}/api/Authentication/External`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body,
+            },
+          )
+            .then((res) => res.json() as Promise<TDBUser>)
+            .catch(() => {
+              throw new Error("Failed to login");
+            });
+
+          token.accessToken = response.accessToken;
+          token.refreshToken = response.refreshToken;
+          token.fullName = response.fullName;
+          token.profilePicture = response.profilePicture;
+          token.hasChosenSubscription = response.hasChosenSubscription;
+          token.hasPaidSubscription = response.hasPaidSubscription;
+          token.hasToChangePassword = response.hasToChangePassword;
+          token.hasSetupEmail = response.hasSetupEmail;
+          token.isTrial = response.isTrial;
+          token.tier = response.tier;
+          token.userType = response.userType;
+          token.accounts = response.accounts;
+          token.username = profile?.name;
+          token.accessTokenExpires = Date.now() + 1000 * 60 * 60 * 3;
+          token.refreshTokenExpires = Date.now() + 1000 * 60 * 60 * 24 * 30;
+
+          return token;
         }
 
       if (Date.now() > (token.accessTokenExpires as number)) {
@@ -203,6 +245,10 @@ export const authOptions: NextAuthOptions = {
       }
 
       const newUser = await getUser(token.refreshToken as string);
+
+      if (newUser.error) {
+        throw new Error(newUser.error);
+      }
 
       return {
         ...token,
@@ -231,6 +277,41 @@ export const authOptions: NextAuthOptions = {
     LinkedInProvider({
       clientId: env.LINKEDIN_CLIENT_ID,
       clientSecret: env.LINKEDIN_CLIENT_SECRET,
+      authorization: {
+        params: {
+          scope: "openid profile email",
+        },
+      },
+      client: { token_endpoint_auth_method: "client_secret_post" },
+      wellKnown:
+        "https://www.linkedin.com/oauth/.well-known/openid-configuration",
+      version: "2.0",
+      issuer: "https://www.linkedin.com",
+      jwks_endpoint: "https://www.linkedin.com/oauth/openid/jwks",
+
+      async profile(profile, tokens) {
+        return {
+          id: profile.sub,
+          refreshToken: tokens.id_token!,
+          accessToken: tokens.access_token!,
+          email: profile?.email,
+          userName: profile?.name,
+          profilePicture: profile.picture,
+          accounts: [],
+          fullName: profile?.name,
+          hasChosenSubscription: false,
+          hasPaidSubscription: false,
+          hasToChangePassword: false,
+          hasSetupEmail: false,
+          isTrial: false,
+          hasSetupUsers: false,
+          username: profile?.name,
+          userType: 0,
+          tier: 0,
+          image: profile.picture,
+          name: profile?.name,
+        };
+      },
     }),
     CredentialsProvider({
       name: "Enterprise Login",

@@ -94,4 +94,5 @@ export const {
   useAddSpotMutation,
   useDeleteSpotMutation,
   useUpdateSpotMutation,
+  util: calendarApiUtil,
 } = calendarApi;

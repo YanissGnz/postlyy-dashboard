@@ -67,6 +67,10 @@ export default function AccountsPage() {
       const decodedData = JSON.parse(
         Buffer.from(data, "base64").toString("utf-8"),
       ) as TNewAccount;
+      console.log(
+        "🚀 ~ file: page.tsx:70 ~ useEffect ~ decodedData:",
+        decodedData,
+      );
 
       addAccount(decodedData)
         .unwrap()

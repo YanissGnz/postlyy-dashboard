@@ -15,7 +15,11 @@ import listPlugin from "@fullcalendar/list";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 
-import { useGetEventsQuery } from "@/redux/api/calendar/apiSlice";
+import {
+  useGetEventsQuery,
+  useUpdateRecurringPostMutation,
+  useUpdateSpotMutation,
+} from "@/redux/api/calendar/apiSlice";
 import { Spinner } from "@/components/ui/Spinner";
 import {
   Select,
@@ -29,7 +33,10 @@ import {
 import { useAppDispatch } from "@/redux/hooks";
 import { openModal } from "@/redux/slices/modalsSlice";
 import { EPostSpotType } from "@/types/EPostSpotType";
-import { type EventSourceInput } from "@fullcalendar/core/index.js";
+import {
+  type EventDropArg,
+  type EventSourceInput,
+} from "@fullcalendar/core/index.js";
 import Iconify from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { type TRecurringPost } from "@/types/TRecurringPost";
@@ -37,7 +44,14 @@ import { type TCalendarSpot } from "@/types/TCalendarSpot";
 import { type EventImpl } from "@fullcalendar/core/internal";
 import { type TCalendarEvent } from "@/types/TCalendarEvent";
 import { getBackgroundColor, getIcon, getTextColor } from "@/lib/utils";
-import { format } from "date-fns";
+import { addHours, format } from "date-fns";
+import { toast } from "sonner";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 
 export default function Calender() {
   const calenderRef = useRef<FullCalendar>(null);
@@ -48,12 +62,19 @@ export default function Calender() {
   );
   const { data, isLoading, isFetching } = useGetEventsQuery();
 
+  const [updateSpot] = useUpdateSpotMutation();
+
+  const [updateRecurringSpot] = useUpdateRecurringPostMutation();
+
   const events: EventSourceInput = useMemo(() => {
     if (data?.data) {
       return data.data.map((event) => ({
         ...event,
         backgroundColor: getBackgroundColor(event.type),
         textColor: getTextColor(event.type),
+        editable: true,
+        eventDurationEditable: false,
+        eventResizableFromStart: false,
         extendedProps: {
           icon: getIcon(event.type),
           ...event,
@@ -96,6 +117,51 @@ export default function Calender() {
         );
       },
     [],
+  );
+
+  const handleEditEvent = useCallback(
+    (info: EventDropArg) => {
+      const event = info.event.extendedProps as TCalendarEvent;
+
+      if (!event) return;
+
+      if (info.event.start && info.event.start < new Date()) {
+        toast.error("You can't move a spot to the past");
+        info.revert();
+        return;
+      }
+      if (event.type === EPostSpotType.Recurring) {
+        const body: TRecurringPost & { id: string } = {
+          ...event,
+          daysOfWeek: event.days,
+        };
+
+        const updatePromise = updateRecurringSpot(body).unwrap();
+
+        toast.promise(updatePromise, {
+          loading: `Updating ${event.title}...`,
+          success: "Spot updated successfully",
+          error: "Something went wrong",
+        });
+      } else {
+        const body: TCalendarSpot & { id: string } = {
+          ...event,
+          start: addHours(
+            new Date(info.event.start?.toISOString() ?? ""),
+            1,
+          )?.toISOString(),
+        };
+
+        const updatePromise = updateSpot(body).unwrap();
+
+        toast.promise(updatePromise, {
+          loading: `Updating ${event.title}...`,
+          success: "Spot updated successfully",
+          error: "Something went wrong",
+        });
+      }
+    },
+    [dispatch],
   );
 
   if (isLoading)
@@ -153,8 +219,7 @@ export default function Calender() {
         plugins={[timeGridPlugin, dayGridPlugin, listPlugin, interactionPlugin]}
         events={events}
         initialView="timeGrid"
-        slotMinTime="08:00:00"
-        slotMaxTime="21:00:00"
+        slotMinTime="07:00:00"
         height="auto"
         allDaySlot={false}
         eventClick={(info) => {
@@ -166,6 +231,7 @@ export default function Calender() {
             }),
           );
         }}
+        eventDrop={handleEditEvent}
         dateClick={(info) => {
           dispatch(
             openModal({
@@ -246,31 +312,39 @@ export default function Calender() {
               </div>
             );
           return (
-            <div className="flex items-center gap-2">
-              <Iconify
-                icon={event.extendedProps.icon}
-                className="flex-none"
-                fontSize={18}
-              />
-              <div>
+            <ContextMenu>
+              <ContextMenuTrigger>
                 <div className="flex items-center gap-2">
-                  {event.extendedProps.forTwitter && (
-                    <Iconify
-                      icon="simple-icons:x"
-                      className="flex-none"
-                      fontSize={14}
-                    />
-                  )}
-                  {event.extendedProps.forLinkedIn && (
-                    <Iconify
-                      icon="simple-icons:linkedin"
-                      className="flex-none"
-                      fontSize={14}
-                    />
-                  )}
+                  <Iconify
+                    icon={event.extendedProps.icon}
+                    className="flex-none"
+                    fontSize={18}
+                  />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      {event.extendedProps.forTwitter && (
+                        <Iconify
+                          icon="simple-icons:x"
+                          className="flex-none"
+                          fontSize={14}
+                        />
+                      )}
+                      {event.extendedProps.forLinkedIn && (
+                        <Iconify
+                          icon="simple-icons:linkedin"
+                          className="flex-none"
+                          fontSize={14}
+                        />
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </ContextMenuTrigger>
+              <ContextMenuContent>
+                <ContextMenuItem>Profile</ContextMenuItem>
+                <ContextMenuItem>Billing</ContextMenuItem>
+              </ContextMenuContent>
+            </ContextMenu>
           );
         }}
       />
