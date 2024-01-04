@@ -194,13 +194,25 @@ export default function AccountsPage() {
             ? `@${getAccountByType(1)?.username}`
             : "Not connected"}
         </p>
-        <Button
-          variant="outline"
-          disabled={isLoading}
-          onClick={connect("linkedin")}
-        >
-          Connect
-        </Button>
+        {isConnected(1) ? (
+          <Button
+            variant="destructive"
+            onClick={handleDeleteAccount(1)}
+            disabled={isDeleteLoading}
+            loading={isDeleteLoading}
+          >
+            Delete
+          </Button>
+        ) : (
+          <Button
+            variant="outline"
+            onClick={connect("linkedin")}
+            disabled={isLoading}
+            loading={isLoading}
+          >
+            Connect
+          </Button>
+        )}
       </div>
     </Card>
   );

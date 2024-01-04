@@ -288,7 +288,6 @@ export const authOptions: NextAuthOptions = {
       version: "2.0",
       issuer: "https://www.linkedin.com",
       jwks_endpoint: "https://www.linkedin.com/oauth/openid/jwks",
-
       async profile(profile, tokens) {
         return {
           id: profile.sub,
