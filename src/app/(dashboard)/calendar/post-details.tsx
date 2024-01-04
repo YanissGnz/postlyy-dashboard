@@ -10,12 +10,12 @@ import { DAYS_OF_WEEK } from "./add-edit-event-form";
 export default function PostDetails() {
   const { list } = useAppSelector((state) => state.modals);
 
-  const event: TCalendarEvent = useMemo(() => {
+  const event: TCalendarEvent | null = useMemo(() => {
     const found = list.find(
       (modal) => modal.id === "calendar-post-details-modal",
     );
     if (found) {
-      return found.data;
+      return found.data as TCalendarEvent;
     }
     return null;
   }, [list]);
