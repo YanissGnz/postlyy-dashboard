@@ -125,6 +125,7 @@ async function getUser(refetchToken: string) {
       username: user?.accounts ? user?.accounts[0]?.username : "",
     };
   } catch (error) {
+    console.log("🚀 ~ file: auth.ts:128 ~ getUser ~ error:", error);
     return {
       error: "GetUserError",
     };

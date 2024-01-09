@@ -70,6 +70,7 @@ export default function Calender() {
     if (data?.data) {
       return data.data.map((event) => ({
         ...event,
+        end: addHours(new Date(event.start), 1),
         backgroundColor: getBackgroundColor(event.type),
         textColor: getTextColor(event.type),
         editable: true,
@@ -190,6 +191,7 @@ export default function Calender() {
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
+                <SelectItem value="dayGridMonth">Month</SelectItem>
                 <SelectItem value="timeGrid">Week</SelectItem>
                 <SelectItem value="listWeek">List</SelectItem>
               </SelectGroup>
@@ -210,7 +212,7 @@ export default function Calender() {
           }
         >
           <Iconify icon="solar:add-circle-bold-duotone" fontSize={18} />
-          <span className="ml-2">Add Spot</span>
+          <span className="ml-2">Add Slot</span>
         </Button>
       </div>
       <FullCalendar
@@ -219,7 +221,6 @@ export default function Calender() {
         plugins={[timeGridPlugin, dayGridPlugin, listPlugin, interactionPlugin]}
         events={events}
         initialView="timeGrid"
-        slotMinTime="07:00:00"
         height="auto"
         allDaySlot={false}
         eventClick={(info) => {
@@ -252,6 +253,8 @@ export default function Calender() {
 
           return { start: startDate, end: endDate };
         }}
+        slotDuration={"02:00:00"}
+        slotLaneClassNames="!h-14"
         eventContent={(eventInfo) => {
           const { event } = eventInfo;
 
@@ -314,11 +317,11 @@ export default function Calender() {
           return (
             <ContextMenu>
               <ContextMenuTrigger>
-                <div className="flex items-center gap-2">
+                <div className="flex h-12 items-center gap-2 px-2">
                   <Iconify
                     icon={event.extendedProps.icon}
                     className="flex-none"
-                    fontSize={18}
+                    fontSize={22}
                   />
                   <div>
                     <div className="flex items-center gap-2">

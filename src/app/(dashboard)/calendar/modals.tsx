@@ -162,7 +162,7 @@ export default function Modals() {
       >
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>Add Post</SheetTitle>
+            <SheetTitle>Add Slot</SheetTitle>
             <AddEditEventForm form={form} />
           </SheetHeader>
         </SheetContent>
@@ -179,7 +179,7 @@ export default function Modals() {
       >
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>Edit Post</SheetTitle>
+            <SheetTitle>Edit Slot</SheetTitle>
             <AddEditEventForm form={form} isEdit id={selectedEventId} />
           </SheetHeader>
         </SheetContent>

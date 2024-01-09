@@ -395,8 +395,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
             render={({ field }) => (
               <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                 <div className="space-y-0.5">
-                  <FormLabel>Twitter</FormLabel>
-                  <FormDescription>Post to Twitter</FormDescription>
+                  <FormLabel>Twitter Slot</FormLabel>
                 </div>
                 <FormControl>
                   <Switch
@@ -413,8 +412,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
             render={({ field }) => (
               <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                 <div className="space-y-0.5">
-                  <FormLabel>LinkedIn</FormLabel>
-                  <FormDescription>Post to LinkedIn</FormDescription>
+                  <FormLabel>LinkedIn Slot</FormLabel>
                 </div>
                 <FormControl>
                   <Switch
