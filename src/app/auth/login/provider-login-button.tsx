@@ -12,9 +12,9 @@ interface Props {
 const getProviderIcon = (name: string) => {
   switch (name) {
     case "Twitter":
-      return "mdi:twitter";
+      return "simple-icons:x";
     case "LinkedIn":
-      return "mdi:linkedin";
+      return "simple-icons:linkedin";
     default:
       return "mdi:account";
   }
