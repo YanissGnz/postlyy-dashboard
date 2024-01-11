@@ -8,8 +8,8 @@ export type TPost = {
     options: Array<string>;
   } | null;
   twitterDirectLink: boolean;
-  gif: string;
-  images: Array<string>;
+  gif: File | string | null;
+  images: Array<File>;
 };
 
 export type TPostForm = {
@@ -30,7 +30,7 @@ export const postFormSchema = z.object({
   posts: z.array(
     z.object({
       index: z.number(),
-      text: z.string().min(1),
+      text: z.string().min(1).max(280),
       poll: z
         .object({
           durationMins: z.number(),
@@ -39,8 +39,8 @@ export const postFormSchema = z.object({
         .optional()
         .nullable(),
       twitterDirectLink: z.boolean(),
-      gif: z.string(),
-      images: z.array(z.string()),
+      gif: z.any().optional().nullable(),
+      images: z.array(z.any()),
     }),
   ),
 });
