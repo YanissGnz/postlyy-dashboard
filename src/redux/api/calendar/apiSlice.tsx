@@ -5,6 +5,7 @@ import { type TCalendarSpot } from "@/types/TCalendarSpot";
 import { type TRecurringPost } from "@/types/TRecurringPost";
 import { type TResponse } from "@/types/TResponse";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { type TResponseCalendarSpot } from "@/types/TCalendarSpot";
 
 export const calendarApi = createApi({
   reducerPath: "calendarApi",
@@ -83,6 +84,10 @@ export const calendarApi = createApi({
       }),
       invalidatesTags: ["Events", "Spot"],
     }),
+    getNextFiveSpots: builder.query<TResponse<TResponseCalendarSpot[]>, void>({
+      query: () => "/api/Calendar/next5",
+      providesTags: ["Spot"],
+    }),
   }),
 });
 
@@ -94,5 +99,6 @@ export const {
   useAddSpotMutation,
   useDeleteSpotMutation,
   useUpdateSpotMutation,
+  useGetNextFiveSpotsQuery,
   util: calendarApiUtil,
 } = calendarApi;

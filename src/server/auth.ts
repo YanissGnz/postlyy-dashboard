@@ -151,6 +151,7 @@ export const authOptions: NextAuthOptions = {
             email: "",
             userName: profile?.data.username,
             picture: profile?.data.profile_image_url ?? "Images/Default.jpeg",
+            date: new Date().toISOString(),
           });
           const response = await fetch(
             `${env.API_BASE_URL}/api/Authentication/External`,
@@ -192,6 +193,7 @@ export const authOptions: NextAuthOptions = {
             email: profile?.email,
             userName: profile?.name,
             picture: user.profilePicture ?? "Images/Default.jpeg",
+            date: new Date().toISOString(),
           });
 
           const response = await fetch(
@@ -331,6 +333,7 @@ export const authOptions: NextAuthOptions = {
             body: JSON.stringify({
               email: credentials?.email ?? "",
               password: credentials?.password ?? "",
+              date: new Date().toISOString(),
             }),
           },
         );
