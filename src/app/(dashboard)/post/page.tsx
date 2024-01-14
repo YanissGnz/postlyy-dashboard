@@ -989,6 +989,7 @@ export default function PostPage() {
                             <Button size="icon" type="button" variant="ghost">
                               <Iconify
                                 icon="solar:tuning-2-bold-duotone"
+                                className="text-foreground/80"
                                 fontSize={26}
                               />
                             </Button>
@@ -1055,6 +1056,7 @@ export default function PostPage() {
                         >
                           <Iconify
                             icon="solar:eye-bold-duotone"
+                            className="text-foreground/80"
                             fontSize={26}
                           />
                         </Button>
@@ -1277,6 +1279,7 @@ export default function PostPage() {
                                               >
                                                 <Iconify
                                                   icon="solar:add-circle-bold-duotone"
+                                                  className="text-foreground/80"
                                                   fontSize={18}
                                                 />
                                               </Button>
@@ -1324,7 +1327,7 @@ export default function PostPage() {
                                   >
                                     <Iconify
                                       icon="solar:trash-bin-2-bold-duotone"
-                                      className="mr-2"
+                                      className="mr-2 text-foreground/80"
                                       fontSize={16}
                                     />
                                     Remove poll
@@ -1373,6 +1376,7 @@ export default function PostPage() {
                                     >
                                       <Iconify
                                         icon="solar:add-circle-bold-duotone"
+                                        className="text-foreground/80"
                                         fontSize={26}
                                       />
                                     </Button>
@@ -1442,6 +1446,7 @@ export default function PostPage() {
                                             >
                                               <Iconify
                                                 icon="solar:gallery-minimalistic-bold-duotone"
+                                                className="text-foreground/80"
                                                 fontSize={28}
                                               />
                                             </Button>
@@ -1585,6 +1590,7 @@ export default function PostPage() {
                                       >
                                         <Iconify
                                           icon="solar:chart-square-bold-duotone"
+                                          className="text-foreground/80"
                                           fontSize={26}
                                         />
                                       </Button>
@@ -1631,6 +1637,7 @@ export default function PostPage() {
                                         >
                                           <Iconify
                                             icon="solar:emoji-funny-square-bold-duotone"
+                                            className="text-foreground/80"
                                             fontSize={26}
                                           />
                                         </Button>
@@ -1676,6 +1683,7 @@ export default function PostPage() {
                                         >
                                           <Iconify
                                             icon="solar:menu-dots-square-bold-duotone"
+                                            className="text-foreground/80"
                                             fontSize={26}
                                           />
                                         </Button>
