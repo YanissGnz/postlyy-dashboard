@@ -30,18 +30,18 @@ const initialState = {
         EUserType.Owner,
       ],
     },
-    {
-      name: "Team",
-      path: "/team",
-      icon: "solar:users-group-rounded-bold-duotone",
-      roles: [EUserType.Manager, EUserType.Owner],
-    },
-    {
-      name: "Team Analytics",
-      path: "/team-analytics",
-      icon: "solar:round-graph-bold-duotone",
-      roles: [EUserType.Manager, EUserType.Owner],
-    },
+    // {
+    //   name: "Team",
+    //   path: "/team",
+    //   icon: "solar:users-group-rounded-bold-duotone",
+    //   roles: [EUserType.Manager, EUserType.Owner],
+    // },
+    // {
+    //   name: "Team Analytics",
+    //   path: "/team-analytics",
+    //   icon: "solar:round-graph-bold-duotone",
+    //   roles: [EUserType.Manager, EUserType.Owner],
+    // },
     {
       name: "Post",
       path: "/post",
@@ -82,6 +82,18 @@ const initialState = {
       name: "Calendar",
       path: "/calendar",
       icon: "solar:calendar-bold-duotone",
+      roles: [
+        EUserType.Manager,
+        EUserType.Single,
+        EUserType.TeamMember,
+        EUserType.Owner,
+      ],
+      needAccount: true,
+    },
+    {
+      name: "Notes",
+      path: "/notes",
+      icon: "solar:notebook-bold-duotone",
       roles: [
         EUserType.Manager,
         EUserType.Single,

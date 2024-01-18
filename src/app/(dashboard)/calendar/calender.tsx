@@ -222,6 +222,8 @@ export default function Calender() {
         events={events}
         initialView="timeGrid"
         height="auto"
+        slotMinTime="08:00:00"
+        slotMaxTime="22:00:00"
         allDaySlot={false}
         eventClick={(info) => {
           info.jsEvent.preventDefault();

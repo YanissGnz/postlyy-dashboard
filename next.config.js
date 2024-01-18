@@ -17,6 +17,7 @@ const config = withPWA({
 });
 
 export default config({
+  reactStrictMode: false,
   redirects: async () => [
     {
       source: "/",
