@@ -271,11 +271,18 @@ export const authOptions: NextAuthOptions = {
   jwt: {
     maxAge: 60 * 60 * 3,
   },
+
   providers: [
     TwitterProvider({
       clientId: env.TWITTER_CLIENT_ID,
       clientSecret: env.TWITTER_CLIENT_SECRET,
       version: "2.0",
+      authorization: {
+        params: {
+          scope:
+            "tweet.read tweet.write tweet.moderate.write users.read follows.read follows.write offline.access space.read mute.read mute.write like.read like.write block.read block.write",
+        },
+      },
     }),
     LinkedInProvider({
       clientId: env.LINKEDIN_CLIENT_ID,

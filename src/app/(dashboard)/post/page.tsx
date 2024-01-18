@@ -2264,6 +2264,28 @@ export default function PostPage() {
                                             )}
                                           />
                                         )}
+                                        {post.index === 0 && (
+                                          <FormField
+                                            control={form.control}
+                                            name={`addFinisher`}
+                                            render={({ field }) => (
+                                              <FormControl>
+                                                <div className="flex items-center space-x-2">
+                                                  <Switch
+                                                    id="addFinisher"
+                                                    checked={field.value}
+                                                    onCheckedChange={
+                                                      field.onChange
+                                                    }
+                                                  />{" "}
+                                                  <Label htmlFor="addFinisher">
+                                                    Add finisher
+                                                  </Label>
+                                                </div>
+                                              </FormControl>
+                                            )}
+                                          />
+                                        )}
                                       </PopoverContent>
                                     </Popover>
                                   </TooltipTrigger>
