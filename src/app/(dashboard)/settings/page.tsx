@@ -11,6 +11,7 @@ import LayoutForm from "./layout-form";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ROUTES } from "@/routes";
 import FeedbackForm from "./feedback-form";
+import FinisherForm from "./finisher-form";
 
 export default function Settings() {
   const searchParams = useSearchParams();
@@ -38,6 +39,7 @@ export default function Settings() {
           <TabsTrigger value="password">Password</TabsTrigger>
           <TabsTrigger value="layout">Layout</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
+          <TabsTrigger value="finisher">Finisher</TabsTrigger>
           <TabsTrigger value="feedback">Feedback</TabsTrigger>
         </TabsList>
         <TabsContent value="profile">
@@ -51,6 +53,9 @@ export default function Settings() {
         </TabsContent>
         <TabsContent value="notifications">
           <NotificationsForm />
+        </TabsContent>
+        <TabsContent value="finisher">
+          <FinisherForm />
         </TabsContent>
         <TabsContent value="feedback">
           <FeedbackForm />

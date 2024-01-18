@@ -1,5 +1,6 @@
 import { env } from "@/env";
 import { type RootState } from "@/redux/store";
+import { type TFinisher } from "@/types/TFinisher";
 import { type TProfile } from "@/types/TProfile";
 import { type TResponse } from "@/types/TResponse";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
@@ -20,7 +21,7 @@ export const profileApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Profile"],
+  tagTypes: ["Profile", "Finisher"],
   endpoints: (builder) => ({
     getProfile: builder.query<TResponse<TProfile>, void>({
       query: () => "/api/UserSettings/Profile",
@@ -42,6 +43,18 @@ export const profileApi = createApi({
       }),
       invalidatesTags: ["Profile"],
     }),
+    getFinisher: builder.query<TResponse<TFinisher>, void>({
+      query: () => "/api/UserSettings/Finisher",
+      providesTags: ["Finisher"],
+    }),
+    updateFinisher: builder.mutation<TResponse<TFinisher>, FormData>({
+      query: (body) => ({
+        url: "/api/UserSettings/Finisher",
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["Finisher"],
+    }),
   }),
 });
 
@@ -49,4 +62,6 @@ export const {
   useGetProfileQuery,
   useUpdateProfileMutation,
   useChangeProfileImageMutation,
+  useGetFinisherQuery,
+  useUpdateFinisherMutation,
 } = profileApi;
