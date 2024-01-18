@@ -1,6 +1,10 @@
-import { env } from "@/env";
 import { type RootState } from "@/redux/store";
+import { type TDraft } from "@/types/TDraft";
+import { type TPaginatedRequest } from "@/types/TPaginatedRequest";
+import { type TPaginatedResponse } from "@/types/TPaginatedResponse";
+import { type TPostForm } from "@/types/TPostForm";
 import { type TResponse } from "@/types/TResponse";
+import { env } from "@/env";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const postApi = createApi({
@@ -19,7 +23,7 @@ export const postApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Posts", "Drafts"],
+  tagTypes: ["Posts", "Drafts", "Template"],
   endpoints: (builder) => ({
     addPostNow: builder.mutation<TResponse<boolean>, FormData>({
       query: (body) => ({
@@ -27,7 +31,7 @@ export const postApi = createApi({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Posts"],
+      invalidatesTags: ["Posts", "Drafts", "Template"],
     }),
     addPostToQueue: builder.mutation<TResponse<boolean>, FormData>({
       query: (body) => ({
@@ -65,6 +69,74 @@ export const postApi = createApi({
       }),
       invalidatesTags: ["Posts"],
     }),
+    getDrafts: builder.query<TPaginatedResponse<TDraft>, TPaginatedRequest>({
+      query: (params) => ({
+        url: "/api/Drafts",
+        params,
+      }),
+      providesTags: ["Drafts"],
+    }),
+    deleteDraft: builder.mutation<TResponse<boolean>, string>({
+      query: (id) => ({
+        url: `/api/Drafts/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Drafts"],
+    }),
+    updateDraft: builder.mutation<
+      TResponse<boolean>,
+      { body: FormData; id: string }
+    >({
+      query: ({ body, id }) => ({
+        url: `/api/Drafts/${id}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["Posts", "Drafts", "Template"],
+    }),
+    getDraft: builder.mutation<TResponse<TPostForm>, string>({
+      query: (id) => ({
+        url: `/api/Drafts/${id}`,
+        method: "GET",
+      }),
+      invalidatesTags: ["Drafts"],
+    }),
+    getTemplates: builder.query<TPaginatedResponse<TDraft>, TPaginatedRequest>({
+      query: (params) => ({
+        url: "/api/Template",
+        params,
+      }),
+      providesTags: ["Template"],
+    }),
+    deleteTemplate: builder.mutation<TResponse<boolean>, string>({
+      query: (id) => ({
+        url: `/api/Template/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Template"],
+    }),
+    getTemplate: builder.mutation<TResponse<TPostForm>, string>({
+      query: (id) => ({
+        url: `/api/Template/${id}`,
+        method: "GET",
+      }),
+      invalidatesTags: ["Template"],
+    }),
+    deleteDraftImage: builder.mutation<
+      TResponse<boolean>,
+      {
+        id: string;
+        url: string;
+      }
+    >({
+      query: ({ id, url }) => ({
+        url: `/api/Drafts/Delete/Image/${id}`,
+        method: "POST",
+        body: {
+          url,
+        },
+      }),
+    }),
   }),
 });
 
@@ -73,5 +145,13 @@ export const {
   useAddPostToQueueMutation,
   useAddPostToSpotMutation,
   useAddRecurringPostMutation,
+  useGetDraftsQuery,
+  useDeleteDraftMutation,
+  useGetDraftMutation,
+  useDeleteTemplateMutation,
+  useGetTemplateMutation,
+  useGetTemplatesQuery,
+  useUpdateDraftMutation,
+  useDeleteDraftImageMutation,
   util: postApiUtil,
 } = postApi;

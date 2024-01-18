@@ -34,4 +34,5 @@ export type TCalendarSpot = z.infer<typeof calendarSpotSchema>;
 
 export type TResponseCalendarSpot = TCalendarSpot & {
   id: string;
+  days?: number[] | null;
 };

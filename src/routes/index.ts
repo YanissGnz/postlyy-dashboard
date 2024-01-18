@@ -18,4 +18,10 @@ export const ROUTES = {
   team: getPath("team"),
   billing: getPath("billing"),
   accounts: getPath("accounts"),
+  notes: {
+    root: getPath("notes"),
+    create: getPath("notes/create"),
+    edit: (id: string) => getPath(`notes/edit/${id}`),
+    view: (id: string) => getPath(`notes/view/${id}`),
+  },
 };
