@@ -23,7 +23,7 @@ export const calendarApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Events", "RecurringPost", "Spot"],
+  tagTypes: ["Events", "Recurring", "Spot"],
   endpoints: (builder) => ({
     getEvents: builder.query<TResponse<TCalendarEvent[]>, void>({
       query: () => "/api/Calendar",
@@ -38,7 +38,7 @@ export const calendarApi = createApi({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Events", "RecurringPost"],
+      invalidatesTags: ["Events", "Recurring"],
     }),
     updateRecurringPost: builder.mutation<
       TResponse<TRecurringPost>,
@@ -49,14 +49,14 @@ export const calendarApi = createApi({
         method: "PUT",
         body,
       }),
-      invalidatesTags: ["Events", "RecurringPost"],
+      invalidatesTags: ["Events", "Recurring"],
     }),
     deleteRecurringPost: builder.mutation<TResponse<boolean>, string>({
       query: (id) => ({
         url: `/api/Calendar/recurring/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Events", "RecurringPost"],
+      invalidatesTags: ["Events", "Recurring"],
     }),
     addSpot: builder.mutation<TResponse<TCalendarSpot>, TCalendarSpot>({
       query: (body) => ({
@@ -88,6 +88,10 @@ export const calendarApi = createApi({
       query: () => "/api/Calendar/next5",
       providesTags: ["Spot"],
     }),
+    getRecurringSpots: builder.query<TResponse<TResponseCalendarSpot[]>, void>({
+      query: () => "/api/Calendar/recurring",
+      providesTags: ["Recurring"],
+    }),
   }),
 });
 
@@ -100,5 +104,6 @@ export const {
   useDeleteSpotMutation,
   useUpdateSpotMutation,
   useGetNextFiveSpotsQuery,
+  useGetRecurringSpotsQuery,
   util: calendarApiUtil,
 } = calendarApi;

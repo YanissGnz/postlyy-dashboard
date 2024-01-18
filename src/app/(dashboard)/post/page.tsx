@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 "use client";
@@ -17,7 +18,7 @@ import { useAppSelector } from "@/redux/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,7 @@ import {
   FormDescription,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Spinner } from "@/components/ui/Spinner";
@@ -71,22 +73,29 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import {
   useAddPostNowMutation,
   useAddPostToQueueMutation,
   useAddPostToSpotMutation,
+  useAddRecurringPostMutation,
+  useDeleteDraftImageMutation,
+  useGetDraftMutation,
+  useGetTemplateMutation,
+  useUpdateDraftMutation,
 } from "@/redux/api/post/apiSlice";
-import { useGetNextFiveSpotsQuery } from "@/redux/api/calendar/apiSlice";
+import {
+  useGetNextFiveSpotsQuery,
+  useGetRecurringSpotsQuery,
+} from "@/redux/api/calendar/apiSlice";
 import { addDays, format } from "date-fns";
-import { useBoolean } from "usehooks-ts";
+import { useBoolean, useMediaQuery } from "usehooks-ts";
+import DraftSheet from "./draft-sheet";
+import TemplateSheet from "./template-sheet";
+import PreviewSheet from "./preview-sheet";
+import { DAYS_OF_WEEK } from "../calendar/add-edit-event-form";
+import { LAYOUT } from "@/lib/constants";
 const EmojiPicker = dynamic(
   () => {
     return import("emoji-picker-react");
@@ -180,15 +189,14 @@ async function imageUrlToFile(imageUrl: string) {
   }
 }
 
-const generateFormData = (data: TPostForm) => {
+const generateFormData = async (data: TPostForm) => {
   const formData = new FormData();
 
   formData.append("AsEvergreen", data.asEvergreen ? "true" : "false");
-  formData.append("IsDraft", data.isDraft ? "true" : "false");
   formData.append("OnLinkedIn", data.onLinkedIn ? "true" : "false");
   formData.append("OnTwitter", data.onTwitter ? "true" : "false");
 
-  data.posts.forEach((post, index) => {
+  data.posts.forEach(async (post, index) => {
     formData.append(`Posts[${index}].index`, post.index.toString());
     formData.append(`Posts[${index}].text`, post.text);
     formData.append(
@@ -196,14 +204,14 @@ const generateFormData = (data: TPostForm) => {
       post.twitterDirectLink ? "true" : "false",
     );
     if (post.gif) {
-      imageUrlToFile(post.gif as string)
-        .then((file) => {
-          formData.append(`Posts[${index}].gif`, file!);
-        })
-        .catch(() => {
-          toast.error("Failed to fetch gif");
-        });
+      const gifFile = await imageUrlToFile(post.gif as string);
+      if (gifFile) formData.append(`Posts[${index}].gif`, gifFile);
     }
+
+    if (post.gifLink) {
+      formData.append(`Posts[${index}].gif`, post.gifLink);
+    }
+
     post.images.forEach((image) => {
       formData.append(`Posts[${index}].images`, image);
     });
@@ -223,6 +231,8 @@ const generateFormData = (data: TPostForm) => {
 
 export default function PostPage() {
   const { currentAccount } = useAppSelector((state) => state.auth);
+  const { isCollapsed } = useAppSelector((state) => state.layout);
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const session = useSession();
   const { theme, systemTheme } = useTheme();
 
@@ -231,6 +241,11 @@ export default function PostPage() {
     isLoading: isSpotsLoading,
     isSuccess,
   } = useGetNextFiveSpotsQuery();
+  const {
+    data: recurringSpots,
+    isLoading: isRecurringSpotsLoading,
+    isSuccess: isRecurringSpotSuccess,
+  } = useGetRecurringSpotsQuery();
 
   const [postNowOrSchedule, { isLoading: isPostingNowOrScheduling }] =
     useAddPostNowMutation();
@@ -238,6 +253,15 @@ export default function PostPage() {
     useAddPostToSpotMutation();
   const [addPostToQueue, { isLoading: isAddingToQueue }] =
     useAddPostToQueueMutation();
+  const [addRecurringPost, { isLoading: isAddingRecurringPost }] =
+    useAddRecurringPostMutation();
+
+  const [getDraft] = useGetDraftMutation();
+  const [updatedDraft] = useUpdateDraftMutation();
+  const [getTemplate] = useGetTemplateMutation();
+  const [deleteDraftImage] = useDeleteDraftImageMutation();
+
+  const [selectedDraftId, setSelectedDraftId] = useState<string | null>(null);
 
   const [openedGifPopupIndex, setOpenedGifPopupIndex] = useState<number | null>(
     null,
@@ -246,6 +270,8 @@ export default function PostPage() {
     {
       index: number;
       images: ImageListType;
+      imageLinks?: string[];
+      gifLink?: string;
       gif?: string | null;
       poll?: {
         durationMins: number;
@@ -262,6 +288,10 @@ export default function PostPage() {
   const { value: isScheduleDialogOpen, setValue: setIsScheduleDialogOpen } =
     useBoolean(false);
   const { value: isDraftDialogOpen, setValue: setIsDraftDialogOpen } =
+    useBoolean(false);
+  const { value: isDraftSheetOpen, setValue: setIsDraftSheetOpen } =
+    useBoolean(false);
+  const { value: isTemplateSheetOpen, setValue: setIsTemplateSheetOpen } =
     useBoolean(false);
   const { value: isPreviewSheetOpen, setValue: setIsPreviewSheetOpen } =
     useBoolean(false);
@@ -293,7 +323,9 @@ export default function PostPage() {
       isDraft: false,
       onLinkedIn: currentAccount?.accountType === 1,
       onTwitter: currentAccount?.accountType === 0,
-      ScheduleDate: new Date().toISOString(),
+      scheduleDate: new Date().toISOString(),
+      isTemplate: false,
+      addFinisher: false,
       posts: [
         {
           index: 0,
@@ -302,6 +334,8 @@ export default function PostPage() {
           images: [],
           poll: null,
           twitterDirectLink: false,
+          imageLinks: [],
+          gifLink: "",
         },
       ],
     };
@@ -312,14 +346,21 @@ export default function PostPage() {
     defaultValues,
   });
 
-  const [previewSocial, setPreviewSocial] = useState(
-    form.getValues("onTwitter") ? "twitter" : "linkedin",
-  );
-
   useEffect(() => {
     if (currentAccount) {
       form.reset(defaultValues);
-      setPreviewSocial(form.getValues("onTwitter") ? "twitter" : "linkedin");
+      setPostsContent([
+        {
+          index: 0,
+          images: [],
+        },
+      ]);
+      setPostsContent([
+        {
+          index: 0,
+          images: [],
+        },
+      ]);
     }
   }, [currentAccount]);
 
@@ -333,6 +374,8 @@ export default function PostPage() {
         images: [],
         poll: null,
         twitterDirectLink: false,
+        gifLink: "",
+        imageLinks: [],
       };
       return [
         { ...thread, text: thread.text.slice(0, TWITTER_TEXT_MAX_LENGTH) },
@@ -402,6 +445,8 @@ export default function PostPage() {
           images: [],
           poll: null,
           twitterDirectLink: false,
+          gifLink: "",
+          imageLinks: [],
         };
 
         const newThreads = [
@@ -456,6 +501,8 @@ export default function PostPage() {
         images: [],
         poll: null,
         twitterDirectLink: false,
+        gifLink: "",
+        imageLinks: [],
       };
 
       const newThreads = [
@@ -581,6 +628,90 @@ export default function PostPage() {
       });
 
       form.setValue("posts", newThreads);
+    },
+    [form],
+  );
+
+  const onImageLinkRemove = useCallback(
+    (imageIndex: number, postIndex: number) => () => {
+      const image =
+        form.getValues("posts")[postIndex]?.imageLinks?.[imageIndex];
+
+      if (!image) return;
+
+      if (!selectedDraftId) {
+        const newThreads = form.getValues("posts").map((thread, i) => {
+          if (i === postIndex) {
+            return {
+              ...thread,
+              imageLinks: thread.imageLinks.filter((_, i) => i !== imageIndex),
+            };
+          }
+
+          return thread;
+        });
+
+        setPostsContent((prev) => {
+          const newPostsImages = prev.map((post) => {
+            if (post.index === postIndex) {
+              return {
+                ...post,
+                imageLinks:
+                  post.imageLinks?.filter((_, i) => i !== imageIndex) ?? [],
+              };
+            }
+
+            return post;
+          });
+
+          return newPostsImages;
+        });
+
+        form.setValue("posts", newThreads);
+      } else {
+        const deleteImagePromise = deleteDraftImage({
+          id: selectedDraftId,
+          url: image,
+        }).unwrap();
+
+        toast.promise(deleteImagePromise, {
+          loading: "Deleting image...",
+          success: () => {
+            const newThreads = form.getValues("posts").map((thread, i) => {
+              if (i === postIndex) {
+                return {
+                  ...thread,
+                  imageLinks: thread.imageLinks.filter(
+                    (_, i) => i !== imageIndex,
+                  ),
+                };
+              }
+
+              return thread;
+            });
+
+            setPostsContent((prev) => {
+              const newPostsImages = prev.map((post) => {
+                if (post.index === postIndex) {
+                  return {
+                    ...post,
+                    imageLinks:
+                      post.imageLinks?.filter((_, i) => i !== imageIndex) ?? [],
+                  };
+                }
+
+                return post;
+              });
+
+              return newPostsImages;
+            });
+
+            form.setValue("posts", newThreads);
+            return "Deleted image!";
+          },
+          error: "Something went wrong",
+        });
+      }
     },
     [form],
   );
@@ -871,6 +1002,18 @@ export default function PostPage() {
       error: "Something went wrong",
     });
     form.reset(defaultValues);
+    setPostsContent([
+      {
+        index: 0,
+        images: [],
+      },
+    ]);
+    setPostsContent([
+      {
+        index: 0,
+        images: [],
+      },
+    ]);
   }, [form]);
 
   const handleAddToQueue = useCallback(async () => {
@@ -878,7 +1021,7 @@ export default function PostPage() {
       await form.trigger();
       return;
     }
-    const data = generateFormData(form.getValues());
+    const data = await generateFormData(form.getValues());
 
     const addToQueuePromise = addPostToQueue(data).unwrap();
     toast.promise(addToQueuePromise, {
@@ -887,6 +1030,24 @@ export default function PostPage() {
       error: "Something went wrong",
     });
     form.reset(defaultValues);
+    setPostsContent([
+      {
+        index: 0,
+        images: [],
+      },
+    ]);
+    setPostsContent([
+      {
+        index: 0,
+        images: [],
+      },
+    ]);
+    setPostsContent([
+      {
+        index: 0,
+        images: [],
+      },
+    ]);
   }, [form]);
 
   const handleSchedulePost = useCallback(async () => {
@@ -894,10 +1055,10 @@ export default function PostPage() {
       await form.trigger();
       return;
     }
-    const data = generateFormData(form.getValues());
+    const data = await generateFormData(form.getValues());
     if (scheduleDate !== "") {
       setIsScheduleDialogOpen(false);
-      data.append("ScheduleDate", scheduleDate);
+      data.append("scheduleDate", scheduleDate);
 
       const schedulePostPromise = postNowOrSchedule(data).unwrap();
       toast.promise(schedulePostPromise, {
@@ -906,6 +1067,18 @@ export default function PostPage() {
         error: "Something went wrong",
       });
       form.reset(defaultValues);
+      setPostsContent([
+        {
+          index: 0,
+          images: [],
+        },
+      ]);
+      setPostsContent([
+        {
+          index: 0,
+          images: [],
+        },
+      ]);
     } else if (selectedSpot !== null) {
       setIsScheduleDialogOpen(false);
       const schedulePostPromise = addPostToSpot({
@@ -918,11 +1091,58 @@ export default function PostPage() {
         error: "Something went wrong",
       });
       form.reset(defaultValues);
+      setPostsContent([
+        {
+          index: 0,
+          images: [],
+        },
+      ]);
+      setPostsContent([
+        {
+          index: 0,
+          images: [],
+        },
+      ]);
     } else {
       toast.error("Please select a date or a spot");
     }
     setScheduleDate("");
   }, [scheduleDate, selectedSpot, form]);
+
+  const handleAddRecurringPost = useCallback(async () => {
+    if (!selectedSpot) return;
+    if (form.getValues("posts").length === 0 && !form.formState.isValid) {
+      await form.trigger();
+      return;
+    }
+    const data = await generateFormData(form.getValues());
+
+    const addRecurringPostPromise = addRecurringPost({
+      body: data,
+      recurringId: selectedSpot,
+    }).unwrap();
+    toast.promise(addRecurringPostPromise, {
+      loading: "Adding recurring post...",
+      success: () => {
+        setSelectedSpot(null);
+        form.reset(defaultValues);
+        setPostsContent([
+          {
+            index: 0,
+            images: [],
+          },
+        ]);
+        setPostsContent([
+          {
+            index: 0,
+            images: [],
+          },
+        ]);
+        return "Added recurring post!";
+      },
+      error: "Something went wrong",
+    });
+  }, [selectedSpot, form]);
 
   const handleSaveDraft = useCallback(async () => {
     if (form.getValues("posts").length === 0 && !form.formState.isValid) {
@@ -932,11 +1152,12 @@ export default function PostPage() {
 
     setIsDraftDialogOpen(false);
 
-    const data = generateFormData(form.getValues());
+    const data = await generateFormData(form.getValues());
 
     data.append("isDraft", "true");
+    data.append("isTemplate", "false");
     data.append(
-      "ScheduleDate",
+      "scheduleDate",
       scheduleDate ? scheduleDate : addDays(new Date(), 7).toISOString(),
     );
 
@@ -947,13 +1168,217 @@ export default function PostPage() {
       error: "Something went wrong",
     });
     form.reset(defaultValues);
+    setPostsContent([
+      {
+        index: 0,
+        images: [],
+      },
+    ]);
+    setPostsContent([
+      {
+        index: 0,
+        images: [],
+      },
+    ]);
     setScheduleDate("");
   }, [scheduleDate]);
+
+  const handleSaveTemplate = useCallback(async () => {
+    if (form.getValues("posts").length === 0 && !form.formState.isValid) {
+      await form.trigger();
+      return;
+    }
+
+    const data = await generateFormData(form.getValues());
+    data.append("isTemplate", "true");
+    data.append("isDraft", "false");
+
+    const saveTemplatePromise = postNowOrSchedule(data).unwrap();
+    toast.promise(saveTemplatePromise, {
+      loading: "Saving template...",
+      success: "Saved template!",
+      error: "Something went wrong",
+    });
+    form.reset(defaultValues);
+    setPostsContent([
+      {
+        index: 0,
+        images: [],
+      },
+    ]);
+    setPostsContent([
+      {
+        index: 0,
+        images: [],
+      },
+    ]);
+  }, []);
+
+  // Draft
+
+  const handleUpdateDraft = useCallback(async () => {
+    if (!selectedDraftId) return;
+    if (form.getValues("posts").length === 0 && !form.formState.isValid) {
+      await form.trigger();
+      return;
+    }
+
+    setIsDraftDialogOpen(false);
+
+    const data = await generateFormData(form.getValues());
+
+    data.append("isDraft", "true");
+    data.append("isTemplate", "false");
+    data.append(
+      "scheduleDate",
+      scheduleDate ? scheduleDate : form.getValues("scheduleDate"),
+    );
+
+    form.getValues("posts").forEach((post, index) => {
+      data.append(`Posts[${index}].id`, selectedDraftId);
+    });
+
+    const updateDraftPromise = updatedDraft({
+      body: data,
+      id: selectedDraftId,
+    }).unwrap();
+    toast.promise(updateDraftPromise, {
+      loading: "Updating draft...",
+      success: () => {
+        form.reset(defaultValues);
+        setPostsContent([
+          {
+            index: 0,
+            images: [],
+          },
+        ]);
+        setPostsContent([
+          {
+            index: 0,
+            images: [],
+          },
+        ]);
+        setScheduleDate("");
+        setSelectedDraftId(null);
+        return "Updated draft!";
+      },
+      error: "Something went wrong",
+    });
+  }, [scheduleDate, selectedDraftId]);
+
+  const handleEditDraft = useCallback(async (id: string) => {
+    const getDraftPromise = getDraft(id).unwrap();
+
+    setSelectedDraftId(id);
+    toast.promise(getDraftPromise, {
+      loading: "Fetching draft...",
+      success: async (data) => {
+        const newPosts = data.data.posts.map((post) => ({
+          ...post,
+          pull: post.poll ?? null,
+          images: post.images ?? [],
+          imageLinks: post.imageLinks ?? [],
+          gif: post.gifLink ?? null,
+        }));
+
+        const newForm: TPostForm = {
+          addFinisher: data.data.addFinisher,
+          asEvergreen: data.data.asEvergreen,
+          isDraft: data.data.isDraft,
+          isTemplate: data.data.isTemplate,
+          onLinkedIn: data.data.onLinkedIn,
+          onTwitter: data.data.onTwitter,
+          scheduleDate: data.data.scheduleDate,
+          posts: newPosts,
+        };
+        postFormSchema
+          .parseAsync(newForm)
+          .then((data) => {
+            form.reset(data);
+            setIsDraftSheetOpen(false);
+          })
+          .catch((err) => {
+            console.log("🚀 ~ .then ~ err:", err);
+            form.reset(defaultValues);
+            setPostsContent([
+              {
+                index: 0,
+                images: [],
+              },
+            ]);
+            setPostsContent([
+              {
+                index: 0,
+                images: [],
+              },
+            ]);
+            setIsDraftSheetOpen(false);
+          });
+        return "Fetched draft!";
+      },
+      error: "Failed to fetch draft",
+    });
+  }, []);
+
+  // Template
+
+  const handleUseTemplate = useCallback((id: string) => {
+    const getTemplatePromise = getTemplate(id).unwrap();
+
+    toast.promise(getTemplatePromise, {
+      loading: "Fetching template...",
+      success: async (data) => {
+        const newPosts = data.data.posts.map((post) => ({
+          ...post,
+          pull: post.poll ?? null,
+          imageLinks: post.imageLinks ?? [],
+          gif: post.gifLink ?? null,
+          images: [],
+        }));
+
+        const newForm: TPostForm = {
+          addFinisher: data.data.addFinisher,
+          asEvergreen: data.data.asEvergreen,
+          isDraft: data.data.isDraft,
+          isTemplate: data.data.isTemplate,
+          onLinkedIn: data.data.onLinkedIn,
+          onTwitter: data.data.onTwitter,
+          scheduleDate: data.data.scheduleDate ?? "",
+          posts: newPosts,
+        };
+        postFormSchema
+          .parseAsync(newForm)
+          .then((data) => {
+            form.reset(data);
+            setIsTemplateSheetOpen(false);
+          })
+          .catch((err) => {
+            console.log("🚀 ~ .then ~ err:", err);
+            form.reset(defaultValues);
+            setPostsContent([
+              {
+                index: 0,
+                images: [],
+              },
+            ]);
+            setPostsContent([
+              {
+                index: 0,
+                images: [],
+              },
+            ]);
+            setIsTemplateSheetOpen(false);
+          });
+        return "Fetched template!";
+      },
+      error: "Failed to fetch template",
+    });
+  }, []);
 
   return (
     <>
       <TooltipProvider>
-        <Card>
+        <div>
           <Form {...form}>
             <CardContent className="mx-auto max-w-5xl">
               <div className="space-y-2 border-b py-4">
@@ -1044,6 +1469,44 @@ export default function PostPage() {
                       </TooltipTrigger>
                       <TooltipContent side="bottom">
                         <p className="text-center">Socials</p>
+                      </TooltipContent>
+                    </Tooltip>{" "}
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Button
+                          size="icon"
+                          type="button"
+                          variant="ghost"
+                          onClick={() => setIsTemplateSheetOpen(true)}
+                        >
+                          <Iconify
+                            icon="solar:documents-bold-duotone"
+                            className="text-foreground/80"
+                            fontSize={26}
+                          />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom">
+                        <p className="text-center">Templates</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Button
+                          size="icon"
+                          type="button"
+                          variant="ghost"
+                          onClick={() => setIsDraftSheetOpen(true)}
+                        >
+                          <Iconify
+                            icon="solar:file-text-bold-duotone"
+                            className="text-foreground/80"
+                            fontSize={26}
+                          />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom">
+                        <p className="text-center">Drafts</p>
                       </TooltipContent>
                     </Tooltip>
                     <Tooltip>
@@ -1152,7 +1615,50 @@ export default function PostPage() {
                                 </FormItem>
                               )}
                             />
-                            <div className="mb-2 flex items-center gap-2">
+                            <div className="mb-2 flex w-full flex-wrap items-center gap-2">
+                              {form
+                                .getValues(`posts.${post.index}.imageLinks`)
+                                .map((image, index) => (
+                                  <div
+                                    key={index}
+                                    className="group relative w-fit overflow-hidden rounded"
+                                  >
+                                    <Image
+                                      src={`${env.NEXT_PUBLIC_API_BASE_URL}/${image}`}
+                                      alt={image}
+                                      width={110}
+                                      height={110}
+                                      className="rounded object-cover"
+                                    />
+                                    <div className="absolute right-0 top-0 hidden p-1 group-hover:block">
+                                      <Tooltip>
+                                        <TooltipTrigger>
+                                          <Button
+                                            variant="destructive"
+                                            size="icon"
+                                            type="button"
+                                            onClick={onImageLinkRemove(
+                                              index,
+                                              post.index,
+                                            )}
+                                          >
+                                            <Iconify
+                                              icon="solar:trash-bin-2-bold-duotone"
+                                              className="text-destructive-foreground"
+                                              fontSize={16}
+                                            />
+                                          </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent
+                                          side="bottom"
+                                          className="bg-destructive text-destructive-foreground"
+                                        >
+                                          <p>Delete image</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </div>
+                                  </div>
+                                ))}
                               {getPostContent(post.index)?.images &&
                                 postsContent
                                   .find(
@@ -1319,6 +1825,26 @@ export default function PostPage() {
                                       )}
                                     </div>
                                   ))}
+                                  <FormField
+                                    control={form.control}
+                                    name={`posts.${post.index}.poll.durationMins`}
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel>
+                                          Poll duration in minutes
+                                        </FormLabel>
+                                        <FormControl>
+                                          <Input
+                                            {...field}
+                                            type="number"
+                                            placeholder="Poll duration in minutes (0 for no duration)"
+                                            className="w-full"
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
                                   <Button
                                     variant="link"
                                     size="sm"
@@ -1752,50 +2278,158 @@ export default function PostPage() {
                       ))}
                     </div>
                   </ScrollArea>
-                  <div className="flex items-center justify-between">
-                    <Dialog
-                      open={isDraftDialogOpen}
-                      onOpenChange={(open) => {
-                        if (!open) setScheduleDate("");
-                        setIsDraftDialogOpen(open);
-                      }}
-                    >
-                      <DialogTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          disabled={
-                            !form.formState.isValid ||
-                            isPostingNowOrScheduling ||
-                            isAddingPostToSpot
-                          }
-                        >
-                          Save as drafts
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-[425px]">
-                        <DialogHeader>
-                          <DialogTitle>Set a reminder</DialogTitle>
-                        </DialogHeader>
-                        <div className="">
-                          <div className="mt-3 grid w-full max-w-sm items-center gap-1.5">
-                            <Label htmlFor="custom-date">Reminder date</Label>
-                            <Input
-                              id="custom-date"
-                              type="datetime-local"
-                              value={scheduleDate}
-                              onChange={handleCustomDateChange}
-                            />
-                          </div>
-                        </div>
-                        <DialogFooter>
-                          <Button type="button" onClick={handleSaveDraft}>
-                            Save draft
+
+                  <div
+                    className="absolute bottom-0 right-0 flex items-center justify-between gap-2 overflow-auto bg-background p-2 transition-all duration-500"
+                    style={{
+                      left: isMobile
+                        ? 0
+                        : isCollapsed
+                          ? LAYOUT.COLLAPSED_SIDEBAR_WIDTH
+                          : LAYOUT.SIDEBAR_WIDTH,
+                    }}
+                  >
+                    <div className="flex  items-center gap-2">
+                      <Dialog
+                        open={isDraftDialogOpen}
+                        onOpenChange={(open) => {
+                          if (!open) setScheduleDate("");
+                          setIsDraftDialogOpen(open);
+                        }}
+                      >
+                        <DialogTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            disabled={
+                              !form.formState.isValid ||
+                              isPostingNowOrScheduling ||
+                              isAddingPostToSpot
+                            }
+                          >
+                            {selectedDraftId ? "Update draft" : "Save as draft"}
                           </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>Set a reminder</DialogTitle>
+                          </DialogHeader>
+                          <div className="">
+                            <div className="mt-3 grid w-full max-w-sm items-center gap-1.5">
+                              <Label htmlFor="custom-date">Reminder date</Label>
+                              <Input
+                                id="custom-date"
+                                type="datetime-local"
+                                value={scheduleDate}
+                                onChange={handleCustomDateChange}
+                              />
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button
+                              type="button"
+                              onClick={
+                                selectedDraftId
+                                  ? handleUpdateDraft
+                                  : handleSaveDraft
+                              }
+                            >
+                              Save draft
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={
+                          !form.formState.isValid ||
+                          isPostingNowOrScheduling ||
+                          isAddingPostToSpot
+                        }
+                        onClick={handleSaveTemplate}
+                      >
+                        Save as template
+                      </Button>
+                    </div>
                     <div className="flex items-center gap-2">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            disabled={
+                              !form.formState.isValid ||
+                              isPostingNowOrScheduling ||
+                              isAddingPostToSpot ||
+                              isAddingToQueue ||
+                              isAddingRecurringPost
+                            }
+                          >
+                            Pick recurring spot
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>Pick a slot</DialogTitle>
+                            <DialogDescription>
+                              Choose a recurring slot to post your content
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="">
+                            {isRecurringSpotsLoading ? (
+                              <div className="flex h-24 items-center justify-center">
+                                <Spinner />
+                              </div>
+                            ) : isRecurringSpotSuccess &&
+                              recurringSpots?.data.length > 0 ? (
+                              <>
+                                <Label className="mb-2">Recurring Slots</Label>
+                                <div className="flex flex-wrap gap-2">
+                                  {recurringSpots.data.map((spot) => (
+                                    <Button
+                                      variant={
+                                        selectedSpot === spot.id
+                                          ? "default"
+                                          : "outline"
+                                      }
+                                      onClick={() => {
+                                        setSelectedSpot(spot.id);
+                                      }}
+                                    >
+                                      {spot.days
+                                        ?.map(
+                                          (day) =>
+                                            DAYS_OF_WEEK.find(
+                                              (d) => d.value === day,
+                                            )?.label,
+                                        )
+                                        .join(", ")}{" "}
+                                      at{" "}
+                                      {format(
+                                        new Date(spot.startTime ?? ""),
+                                        "HH:mm",
+                                      )}
+                                    </Button>
+                                  ))}
+                                </div>
+                              </>
+                            ) : (
+                              <div className="flex h-24 items-center justify-center text-destructive">
+                                <p>No spots available</p>
+                              </div>
+                            )}
+                          </div>
+                          <DialogFooter>
+                            <Button
+                              type="button"
+                              onClick={handleAddRecurringPost}
+                            >
+                              Schedule
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
                       <Dialog
                         open={isScheduleDialogOpen}
                         onOpenChange={(open) => setIsScheduleDialogOpen(open)}
@@ -1904,231 +2538,25 @@ export default function PostPage() {
               </div>
             </CardContent>
           </Form>
-        </Card>
+        </div>
       </TooltipProvider>
-      <Sheet
-        open={isPreviewSheetOpen}
-        onOpenChange={(open) => setIsPreviewSheetOpen(open)}
-      >
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>Preview</SheetTitle>
-          </SheetHeader>
-          <div className="">
-            <div className="mb-5 mt-5 flex items-center gap-2">
-              {form.getValues("onTwitter") && (
-                <Button
-                  className="p-2"
-                  variant={previewSocial === "twitter" ? "default" : "outline"}
-                  onClick={() => setPreviewSocial("twitter")}
-                >
-                  <Iconify
-                    icon="simple-icons:x"
-                    className="mr-1"
-                    fontSize={20}
-                  />
-                  X (Twitter)
-                </Button>
-              )}
-              {form.getValues("onLinkedIn") && (
-                <Button
-                  className="p-2"
-                  variant={previewSocial === "linkedin" ? "default" : "outline"}
-                  onClick={() => setPreviewSocial("linkedin")}
-                >
-                  <Iconify
-                    icon="simple-icons:linkedin"
-                    className="mr-1"
-                    fontSize={20}
-                  />
-                  LinkedIn
-                </Button>
-              )}
-            </div>
-            {previewSocial === "twitter" && (
-              <div className="space-y-2 divide-y">
-                {form.getValues("posts").map((post) => (
-                  <div key={post.index}>
-                    <div className="my-3 flex items-center gap-2 ">
-                      <Avatar>
-                        <AvatarImage
-                          src={
-                            currentAccount?.photoUrl
-                              ? currentAccount?.photoUrl
-                              : session.data?.user.profilePicture ?? ""
-                          }
-                          alt={`@${currentAccount?.username}`}
-                          className="object-cover"
-                        />
-                        <AvatarFallback>
-                          {currentAccount?.username
-                            ?.slice(0, 2)
-                            .toUpperCase() ??
-                            session.data?.user.fullName
-                              ?.slice(0, 2)
-                              .toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 space-y-1">
-                        <p className="text-sm font-semibold">
-                          {session.data?.user.fullName}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          @
-                          {currentAccount?.username
-                            .toLowerCase()
-                            .split(" ")
-                            .join("")}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <p>{post.text}</p>
-                      <div className="mb-2 flex items-center gap-2">
-                        {getPostContent(post.index)?.images &&
-                          postsContent
-                            .find(
-                              (postImages) => postImages.index === post.index,
-                            )
-                            ?.images.map((image, index) => (
-                              <div
-                                key={index}
-                                className="group relative w-fit overflow-hidden rounded"
-                              >
-                                <Image
-                                  src={image.dataURL}
-                                  alt={index.toString()}
-                                  width={110}
-                                  height={110}
-                                  className="rounded object-cover"
-                                />
-                              </div>
-                            ))}
-                        {Boolean(getPostContent(post.index)?.gif) && (
-                          <div className="group relative w-fit overflow-hidden rounded">
-                            <Image
-                              src={post.gif as string}
-                              alt="gif"
-                              width={110}
-                              height={110}
-                              className="rounded object-cover"
-                            />
-                          </div>
-                        )}
-
-                        {Boolean(getPostContent(post.index)?.poll) && (
-                          <div className="space-y-2">
-                            <p className="font-medium">Poll:</p>
-                            {post.poll?.options.map((option, index) => (
-                              <p>
-                                {index + 1}
-                                {option}
-                              </p>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-            {previewSocial === "linkedin" && (
-              <div className="space-y-2 divide-y">
-                <div>
-                  <div className="my-3 flex items-center gap-2 ">
-                    <Avatar>
-                      <AvatarImage
-                        src={
-                          session.data?.user.accounts.find(
-                            (account) => account.accountType === 1,
-                          )?.photoUrl ??
-                          session.data?.user.profilePicture ??
-                          ""
-                        }
-                        alt={`@${session.data?.user.accounts.find(
-                          (account) => account.accountType === 1,
-                        )?.username}`}
-                        className="object-cover"
-                      />
-                      <AvatarFallback>
-                        {currentAccount?.username?.slice(0, 2).toUpperCase() ??
-                          session.data?.user.fullName
-                            ?.slice(0, 2)
-                            .toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 space-y-1">
-                      <p className="text-sm font-semibold">
-                        {session.data?.user.fullName}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        @
-                        {currentAccount?.username
-                          .toLowerCase()
-                          .split(" ")
-                          .join("")}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="whitespace-pre-wrap">
-                      {
-                        // merge all posts into one
-                        form
-                          .getValues("posts")
-                          .map((post) => post.text)
-                          .join("\n")
-                      }
-                    </p>
-                    <div className="mb-2 flex items-center gap-2">
-                      {/* show all posts mages up to 20 */}
-                      {postsContent
-                        .map((post) => post.images)
-                        .flat()
-                        .slice(0, 20)
-                        .map((image, index) => (
-                          <div
-                            key={index}
-                            className="group relative w-fit overflow-hidden rounded"
-                          >
-                            <Image
-                              src={image.dataURL}
-                              alt={index.toString()}
-                              width={110}
-                              height={110}
-                              className="rounded object-cover"
-                            />
-                          </div>
-                        ))}
-                      {/* if only gifs show up to 20 */}
-                      {postsContent
-                        .filter((post) => Boolean(post.gif))
-                        .map((post) => post.gif)
-                        .filter((gif) => Boolean(gif))
-                        .slice(0, 20)
-                        .map((gif, index) => (
-                          <div
-                            key={index}
-                            className="group relative w-fit overflow-hidden rounded"
-                          >
-                            <Image
-                              src={gif!}
-                              alt="gif"
-                              width={110}
-                              height={110}
-                              className="rounded object-cover"
-                            />
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </SheetContent>
-      </Sheet>
+      <PreviewSheet
+        isPreviewSheetOpen={isPreviewSheetOpen}
+        setIsPreviewSheetOpen={setIsPreviewSheetOpen}
+        form={form}
+        postsContent={postsContent}
+        getPostContent={getPostContent}
+      />
+      <DraftSheet
+        isOpen={isDraftSheetOpen}
+        setIsOpen={setIsDraftSheetOpen}
+        editDraft={handleEditDraft}
+      />
+      <TemplateSheet
+        isOpen={isTemplateSheetOpen}
+        setIsOpen={setIsTemplateSheetOpen}
+        useTemplate={handleUseTemplate}
+      />
     </>
   );
 }

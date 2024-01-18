@@ -55,9 +55,9 @@ const initialState = {
       needAccount: true,
     },
     {
-      name: "Queue",
-      path: "/queue",
-      icon: "solar:calendar-add-bold-duotone",
+      name: "Recurrent Posts",
+      path: "/recurrent-posts",
+      icon: "solar:repeat-one-minimalistic-bold-duotone",
       roles: [
         EUserType.Manager,
         EUserType.Single,
@@ -67,9 +67,9 @@ const initialState = {
       needAccount: true,
     },
     {
-      name: "Powerups",
-      path: "/powerups",
-      icon: "solar:bolt-circle-bold-duotone",
+      name: "Queue",
+      path: "/queue",
+      icon: "solar:calendar-add-bold-duotone",
       roles: [
         EUserType.Manager,
         EUserType.Single,
@@ -90,30 +90,31 @@ const initialState = {
       ],
       needAccount: true,
     },
-    {
-      name: "Analytics",
-      path: "/analytics",
-      icon: "solar:pie-chart-2-bold-duotone",
-      roles: [
-        EUserType.Manager,
-        EUserType.Single,
-        EUserType.TeamMember,
-        EUserType.Owner,
-      ],
-      needAccount: true,
-    },
-    {
-      name: "Recurrent Posts",
-      path: "/recurrent-posts",
-      icon: "solar:repeat-one-minimalistic-bold-duotone",
-      roles: [
-        EUserType.Manager,
-        EUserType.Single,
-        EUserType.TeamMember,
-        EUserType.Owner,
-      ],
-      needAccount: true,
-    },
+    // {
+    //   name: "Powerups",
+    //   path: "/powerups",
+    //   icon: "solar:bolt-circle-bold-duotone",
+    //   roles: [
+    //     EUserType.Manager,
+    //     EUserType.Single,
+    //     EUserType.TeamMember,
+    //     EUserType.Owner,
+    //   ],
+    //   needAccount: true,
+    // },
+
+    // {
+    //   name: "Analytics",
+    //   path: "/analytics",
+    //   icon: "solar:pie-chart-2-bold-duotone",
+    //   roles: [
+    //     EUserType.Manager,
+    //     EUserType.Single,
+    //     EUserType.TeamMember,
+    //     EUserType.Owner,
+    //   ],
+    //   needAccount: true,
+    // },
   ],
   isMobileSidebarOpen: false,
 } as LayoutState;

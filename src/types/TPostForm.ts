@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export type TPost = {
+  id?: string | null;
   index: number;
   text: string;
   poll: {
@@ -10,14 +11,19 @@ export type TPost = {
   twitterDirectLink: boolean;
   gif: File | string | null;
   images: Array<File>;
+  gifLink: string | null;
+  imageLinks: string[];
+  createdAt?: string | null;
 };
 
 export type TPostForm = {
   onTwitter: boolean;
   onLinkedIn: boolean;
   asEvergreen: boolean;
-  ScheduleDate: string;
+  scheduleDate: string;
   isDraft: boolean;
+  isTemplate: boolean;
+  addFinisher: boolean;
   posts: TPost[];
 };
 
@@ -25,10 +31,13 @@ export const postFormSchema = z.object({
   onTwitter: z.boolean(),
   onLinkedIn: z.boolean(),
   asEvergreen: z.boolean(),
-  ScheduleDate: z.string(),
+  scheduleDate: z.string(),
   isDraft: z.boolean(),
+  isTemplate: z.boolean(),
+  addFinisher: z.boolean(),
   posts: z.array(
     z.object({
+      id: z.string().optional().nullable(),
       index: z.number(),
       text: z.string().min(1).max(280),
       poll: z
@@ -41,6 +50,9 @@ export const postFormSchema = z.object({
       twitterDirectLink: z.boolean(),
       gif: z.any().optional().nullable(),
       images: z.array(z.any()),
+      gifLink: z.string().optional().nullable(),
+      imageLinks: z.array(z.string()),
+      createdAt: z.string().optional().nullable(),
     }),
   ),
 });
