@@ -1640,7 +1640,7 @@ export default function PostPage() {
                               {Boolean(getPostContent(post.index)?.gif) && (
                                 <div className="group relative w-fit overflow-hidden rounded">
                                   <Image
-                                    src={getPostContent(post.index)?.gif}
+                                    src={getPostContent(post.index)?.gif ?? ""}
                                     alt="gif"
                                     width={110}
                                     height={110}
