@@ -36,6 +36,7 @@ declare module "next-auth" {
     refresh_token: string;
   }
   interface Profile {
+    screen_name: string;
     data: {
       name: string;
       profile_image_url: string;
@@ -145,12 +146,12 @@ export const authOptions: NextAuthOptions = {
         } else if (account.provider === "twitter") {
           const body = JSON.stringify({
             provider: 0,
-            id: profile?.data.id,
-            refreshToken: account.refresh_token,
-            accessToken: account.access_token,
-            email: "",
-            userName: profile?.data.username,
-            picture: profile?.data.profile_image_url ?? "Images/Default.jpeg",
+            id: user.id.toString(),
+            refreshToken: user.refreshToken,
+            accessToken: user.accessToken,
+            email: profile?.email,
+            userName: profile?.screen_name,
+            picture: user.profilePicture ?? "Images/Default.jpeg",
             date: new Date().toISOString(),
           });
           const response = await fetch(
@@ -164,7 +165,8 @@ export const authOptions: NextAuthOptions = {
             },
           )
             .then((res) => res.json() as Promise<TDBUser>)
-            .catch(() => {
+            .catch((err) => {
+              console.log("🚀 ~ jwt ~ err:", err);
               throw new Error("Failed to login");
             });
 
@@ -180,7 +182,7 @@ export const authOptions: NextAuthOptions = {
           token.tier = response.tier;
           token.userType = response.userType;
           token.accounts = response.accounts;
-          token.username = profile?.data.username;
+          token.username = profile?.screen_name;
           token.accessTokenExpires = Date.now() + 1000 * 60 * 60 * 3;
           token.refreshTokenExpires = Date.now() + 1000 * 60 * 60 * 24 * 30;
           return token;
@@ -276,12 +278,35 @@ export const authOptions: NextAuthOptions = {
     TwitterProvider({
       clientId: env.TWITTER_CLIENT_ID,
       clientSecret: env.TWITTER_CLIENT_SECRET,
-      version: "2.0",
+      version: "1.0",
       authorization: {
         params: {
           scope:
             "tweet.read tweet.write tweet.moderate.write users.read follows.read follows.write offline.access space.read mute.read mute.write like.read like.write block.read block.write",
         },
+      },
+      async profile(profile, tokens) {
+        return {
+          id: profile.id,
+          refreshToken: tokens.oauth_token_secret,
+          accessToken: tokens.oauth_token,
+          email: profile?.email,
+          userName: profile?.screen_name,
+          profilePicture: profile.profile_image_url,
+          accounts: [],
+          fullName: profile?.name,
+          hasChosenSubscription: false,
+          hasPaidSubscription: false,
+          hasToChangePassword: false,
+          hasSetupEmail: false,
+          isTrial: false,
+          hasSetupUsers: false,
+          username: profile?.screen_name,
+          userType: 0,
+          tier: 0,
+          image: profile.profile_image_url,
+          name: profile?.name,
+        };
       },
     }),
     LinkedInProvider({

@@ -39,6 +39,12 @@ export default async function Login() {
           <div className="mb-2 space-y-2">
             {Object.values(providers ?? [])
               .filter((provider) => provider.name !== "Enterprise Login")
+              .map((provider) => {
+                if (provider.name.includes("Legacy")) {
+                  provider.name = provider.name.replace(" (Legacy)", "");
+                }
+                return provider;
+              })
               .map((provider) => (
                 <div key={provider.name}>
                   <ProviderLoginButton provider={provider} />

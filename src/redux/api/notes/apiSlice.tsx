@@ -24,7 +24,7 @@ export const notesApi = createApi({
   }),
   tagTypes: ["Notes"],
   endpoints: (builder) => ({
-    addNote: builder.mutation<TResponse<boolean>, Omit<TNote, "id">>({
+    addNote: builder.mutation<TResponse<boolean>, FormData>({
       query: (body) => ({
         url: "/api/InternalNotes",
         method: "POST",

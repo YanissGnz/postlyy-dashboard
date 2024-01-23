@@ -22,6 +22,6 @@ export const ROUTES = {
     root: getPath("notes"),
     create: getPath("notes/create"),
     edit: (id: string) => getPath(`notes/edit/${id}`),
-    view: (id: string) => getPath(`notes/view/${id}`),
+    view: (id: string) => getPath(`notes/${id}`),
   },
 };
