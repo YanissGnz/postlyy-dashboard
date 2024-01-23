@@ -11,10 +11,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  useDeleteDraftMutation,
-  useDeleteTemplateMutation,
-} from "@/redux/api/post/apiSlice";
+import { useDeleteNoteMutation } from "@/redux/api/notes/apiSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { closeModal } from "@/redux/slices/modalsSlice";
 import { useCallback } from "react";
@@ -23,38 +20,20 @@ import { toast } from "sonner";
 export default function Modals() {
   const { list } = useAppSelector((state) => state.modals);
   const dispatch = useAppDispatch();
-  const [deleteDraft] = useDeleteDraftMutation();
-  const [deleteTemplate] = useDeleteTemplateMutation();
+  const [deleteNote] = useDeleteNoteMutation();
 
-  const handleDeleteDraft = useCallback(async () => {
-    const id = list.find((modal) => modal.id === "delete-draft-modal")
+  const handleDeleteNote = useCallback(async () => {
+    const id = list.find((modal) => modal.id === "delete-note-modal")
       ?.data as string;
 
-    if (!id) return dispatch(closeModal("delete-draft-modal"));
+    if (!id) return dispatch(closeModal("delete-note-modal"));
 
-    const deleteDraftPromise = deleteDraft(id).unwrap();
+    const deleteNotePromise = deleteNote(id).unwrap();
 
-    toast.promise(deleteDraftPromise, {
-      loading: "Deleting draft...",
+    toast.promise(deleteNotePromise, {
+      loading: "Deleting note...",
       success: () => {
-        return "Draft deleted successfully";
-      },
-      error: "Something went wrong",
-    });
-  }, [list]);
-
-  const handleDeleteTemplate = useCallback(async () => {
-    const id = list.find((modal) => modal.id === "delete-template-modal")
-      ?.data as string;
-
-    if (!id) return dispatch(closeModal("delete-template-modal"));
-
-    const deleteDraftPromise = deleteTemplate(id).unwrap();
-
-    toast.promise(deleteDraftPromise, {
-      loading: "Deleting template...",
-      success: () => {
-        return "Template deleted successfully";
+        return "Note deleted successfully";
       },
       error: "Something went wrong",
     });
@@ -63,56 +42,27 @@ export default function Modals() {
   return (
     <>
       <AlertDialog
-        open={list.some((modal) => modal.id === "delete-draft-modal")}
+        open={list.some((modal) => modal.id === "delete-note-modal")}
         onOpenChange={(isOpen) => {
           if (!isOpen) {
-            dispatch(closeModal("delete-draft-modal"));
+            dispatch(closeModal("delete-note-modal"));
           }
         }}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Are you absolutely sure you want to delete this draft?
+              Are you absolutely sure you want to delete this note?
             </AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the
-              draft.
+              note.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleDeleteDraft}
-              className={buttonVariants({ variant: "destructive" })}
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-      <AlertDialog
-        open={list.some((modal) => modal.id === "delete-template-modal")}
-        onOpenChange={(isOpen) => {
-          if (!isOpen) {
-            dispatch(closeModal("delete-template-modal"));
-          }
-        }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              Are you absolutely sure you want to delete this template?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              template.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteTemplate}
+              onClick={handleDeleteNote}
               className={buttonVariants({ variant: "destructive" })}
             >
               Delete

@@ -204,8 +204,7 @@ const generateFormData = async (data: TPostForm) => {
       post.twitterDirectLink ? "true" : "false",
     );
     if (post.gif) {
-      const gifFile = await imageUrlToFile(post.gif as string);
-      if (gifFile) formData.append(`Posts[${index}].gif`, gifFile);
+      formData.append(`Posts[${index}].gif`, post.gif);
     }
 
     if (post.gifLink) {
@@ -272,7 +271,7 @@ export default function PostPage() {
       images: ImageListType;
       imageLinks?: string[];
       gifLink?: string;
-      gif?: string | null;
+      gif?: File | string | null;
       poll?: {
         durationMins: number;
         options: string[];
@@ -717,31 +716,31 @@ export default function PostPage() {
   );
 
   const handleAddGif = useCallback(
-    (index: number) => (gif: TenorImage) => {
-      const newThreads = form.getValues("posts").map((thread, i) => {
+    (index: number) => async (gif: TenorImage) => {
+      const newThreads = form.getValues("posts").map(async (thread, i) => {
         if (i === index) {
+          const gifFile = await imageUrlToFile(gif.url);
+          setPostsContent((prev) => {
+            const newPostsImages = prev.map((post) => {
+              if (post.index === index) {
+                return {
+                  ...post,
+                  gif: gifFile,
+                };
+              }
+
+              return post;
+            });
+
+            return newPostsImages;
+          });
           return {
             ...thread,
-            gif: gif.url,
+            gif: gifFile,
           };
         }
 
         return thread;
-      });
-
-      setPostsContent((prev) => {
-        const newPostsImages = prev.map((post) => {
-          if (post.index === index) {
-            return {
-              ...post,
-              gif: gif.url,
-            };
-          }
-
-          return post;
-        });
-
-        return newPostsImages;
       });
 
       form.setValue("posts", newThreads);
@@ -956,64 +955,26 @@ export default function PostPage() {
       await form.trigger();
       return;
     }
-    const data = new FormData();
+    await generateFormData(form.getValues()).then((data) => {
+      console.log("🚀 ~ handlePostNow ~ data:", data.get("Posts[0].gif"));
 
-    data.append(
-      "AsEvergreen",
-      form.getValues("asEvergreen") ? "true" : "false",
-    );
-    data.append("IsDraft", "false");
-    data.append("OnLinkedIn", form.getValues("onLinkedIn") ? "true" : "false");
-    data.append("OnTwitter", form.getValues("onTwitter") ? "true" : "false");
-    form.getValues("posts").forEach((post, index) => {
-      data.append(`Posts[${index}].index`, post.index.toString());
-      data.append(`Posts[${index}].text`, post.text);
-      data.append(
-        `Posts[${index}].twitterDirectLink`,
-        post.twitterDirectLink ? "true" : "false",
-      );
-      if (post.gif) {
-        imageUrlToFile(post.gif as string)
-          .then((file) => {
-            data.append(`Posts[${index}].gif`, file!);
-          })
-          .catch(() => {
-            toast.error("Failed to fetch gif");
-          });
-      }
-      post.images.forEach((image) => {
-        data.append(`Posts[${index}].images`, image);
+      const postNowPromise = postNowOrSchedule(data).unwrap();
+      toast.promise(postNowPromise, {
+        loading: "Posting...",
+        success: () => {
+          form.reset(defaultValues);
+          setPostsContent([
+            {
+              index: 0,
+              images: [],
+            },
+          ]);
+
+          return "Posted!";
+        },
+        error: "Something went wrong",
       });
-      if (post.poll) {
-        data.append(
-          `Posts[${index}].poll.DurationMins`,
-          post.poll.durationMins.toString(),
-        );
-        post.poll.options.forEach((option, i) => {
-          data.append(`Posts[${index}].poll.Options${i}`, option);
-        });
-      }
     });
-
-    const postNowPromise = postNowOrSchedule(data).unwrap();
-    toast.promise(postNowPromise, {
-      loading: "Posting...",
-      success: "Posted!",
-      error: "Something went wrong",
-    });
-    form.reset(defaultValues);
-    setPostsContent([
-      {
-        index: 0,
-        images: [],
-      },
-    ]);
-    setPostsContent([
-      {
-        index: 0,
-        images: [],
-      },
-    ]);
   }, [form]);
 
   const handleAddToQueue = useCallback(async () => {
@@ -1026,28 +987,18 @@ export default function PostPage() {
     const addToQueuePromise = addPostToQueue(data).unwrap();
     toast.promise(addToQueuePromise, {
       loading: "Adding to queue...",
-      success: "Added to queue!",
+      success: () => {
+        form.reset(defaultValues);
+        setPostsContent([
+          {
+            index: 0,
+            images: [],
+          },
+        ]);
+        return "Added to queue!";
+      },
       error: "Something went wrong",
     });
-    form.reset(defaultValues);
-    setPostsContent([
-      {
-        index: 0,
-        images: [],
-      },
-    ]);
-    setPostsContent([
-      {
-        index: 0,
-        images: [],
-      },
-    ]);
-    setPostsContent([
-      {
-        index: 0,
-        images: [],
-      },
-    ]);
   }, [form]);
 
   const handleSchedulePost = useCallback(async () => {
@@ -1063,22 +1014,19 @@ export default function PostPage() {
       const schedulePostPromise = postNowOrSchedule(data).unwrap();
       toast.promise(schedulePostPromise, {
         loading: "Scheduling post...",
-        success: "Scheduled post!",
+        success: () => {
+          form.reset(defaultValues);
+          setPostsContent([
+            {
+              index: 0,
+              images: [],
+            },
+          ]);
+          setScheduleDate("");
+          return "Scheduled post!";
+        },
         error: "Something went wrong",
       });
-      form.reset(defaultValues);
-      setPostsContent([
-        {
-          index: 0,
-          images: [],
-        },
-      ]);
-      setPostsContent([
-        {
-          index: 0,
-          images: [],
-        },
-      ]);
     } else if (selectedSpot !== null) {
       setIsScheduleDialogOpen(false);
       const schedulePostPromise = addPostToSpot({
@@ -1132,12 +1080,7 @@ export default function PostPage() {
             images: [],
           },
         ]);
-        setPostsContent([
-          {
-            index: 0,
-            images: [],
-          },
-        ]);
+
         return "Added recurring post!";
       },
       error: "Something went wrong",
@@ -1164,22 +1107,20 @@ export default function PostPage() {
     const saveDraftPromise = postNowOrSchedule(data).unwrap();
     toast.promise(saveDraftPromise, {
       loading: "Saving draft...",
-      success: "Saved draft!",
+      success: () => {
+        form.reset(defaultValues);
+        setPostsContent([
+          {
+            index: 0,
+            images: [],
+          },
+        ]);
+        setScheduleDate("");
+        return "Saved draft!";
+      },
       error: "Something went wrong",
     });
-    form.reset(defaultValues);
-    setPostsContent([
-      {
-        index: 0,
-        images: [],
-      },
-    ]);
-    setPostsContent([
-      {
-        index: 0,
-        images: [],
-      },
-    ]);
+
     setScheduleDate("");
   }, [scheduleDate]);
 
@@ -1196,22 +1137,18 @@ export default function PostPage() {
     const saveTemplatePromise = postNowOrSchedule(data).unwrap();
     toast.promise(saveTemplatePromise, {
       loading: "Saving template...",
-      success: "Saved template!",
+      success: () => {
+        form.reset(defaultValues);
+        setPostsContent([
+          {
+            index: 0,
+            images: [],
+          },
+        ]);
+        return "Saved template!";
+      },
       error: "Something went wrong",
     });
-    form.reset(defaultValues);
-    setPostsContent([
-      {
-        index: 0,
-        images: [],
-      },
-    ]);
-    setPostsContent([
-      {
-        index: 0,
-        images: [],
-      },
-    ]);
   }, []);
 
   // Draft
@@ -1252,12 +1189,7 @@ export default function PostPage() {
             images: [],
           },
         ]);
-        setPostsContent([
-          {
-            index: 0,
-            images: [],
-          },
-        ]);
+
         setScheduleDate("");
         setSelectedDraftId(null);
         return "Updated draft!";
@@ -1709,7 +1641,9 @@ export default function PostPage() {
                               {Boolean(getPostContent(post.index)?.gif) && (
                                 <div className="group relative w-fit overflow-hidden rounded">
                                   <Image
-                                    src={post.gif as string}
+                                    src={URL.createObjectURL(
+                                      getPostContent(post.index)?.gif,
+                                    )}
                                     alt="gif"
                                     width={110}
                                     height={110}

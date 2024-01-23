@@ -44,10 +44,12 @@ export default function CreateBlogPage() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    addNote({
-      name: values.name,
-      content: values.content,
-    })
+    const data = new FormData();
+
+    data.append("Name", values.name);
+    data.append("Content", values.content);
+
+    addNote(data)
       .unwrap()
       .then(() => {
         toast.success("Note created successfully");
