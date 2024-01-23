@@ -173,21 +173,21 @@ const ACCEPTED_IMAGE_TYPES = ["jpg", "png"];
 const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
 const TWITTER_TEXT_MAX_LENGTH = 280;
 
-async function imageUrlToFile(imageUrl: string) {
-  try {
-    const response = await fetch(imageUrl);
-    if (!response.ok) {
-      toast.error("Failed to fetch image");
-    }
-    const blob = await response.blob();
-    const filename = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-    const file = new File([blob], filename, { type: blob.type });
-    return file;
-  } catch (error) {
-    console.error("Error:", error);
-    toast.error("Failed to fetch image");
-  }
-}
+// async function imageUrlToFile(imageUrl: string) {
+//   try {
+//     const response = await fetch(imageUrl);
+//     if (!response.ok) {
+//       toast.error("Failed to fetch image");
+//     }
+//     const blob = await response.blob();
+//     const filename = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+//     const file = new File([blob], filename, { type: blob.type });
+//     return file;
+//   } catch (error) {
+//     console.error("Error:", error);
+//     toast.error("Failed to fetch image");
+//   }
+// }
 
 const generateFormData = async (data: TPostForm) => {
   const formData = new FormData();
@@ -271,7 +271,7 @@ export default function PostPage() {
       images: ImageListType;
       imageLinks?: string[];
       gifLink?: string;
-      gif?: File | string | null;
+      gif?: string | null;
       poll?: {
         durationMins: number;
         options: string[];
@@ -716,16 +716,15 @@ export default function PostPage() {
   );
 
   const handleAddGif = useCallback(
-    (index: number) => async (gif: TenorImage) => {
-      const newThreads = form.getValues("posts").map(async (thread, i) => {
+    (index: number) => (gif: TenorImage) => {
+      const newThreads = form.getValues("posts").map((thread, i) => {
         if (i === index) {
-          const gifFile = await imageUrlToFile(gif.url);
           setPostsContent((prev) => {
             const newPostsImages = prev.map((post) => {
               if (post.index === index) {
                 return {
                   ...post,
-                  gif: gifFile,
+                  gif: gif.url,
                 };
               }
 
@@ -736,7 +735,7 @@ export default function PostPage() {
           });
           return {
             ...thread,
-            gif: gifFile,
+            gif: gif.url,
           };
         }
 
@@ -1641,9 +1640,7 @@ export default function PostPage() {
                               {Boolean(getPostContent(post.index)?.gif) && (
                                 <div className="group relative w-fit overflow-hidden rounded">
                                   <Image
-                                    src={URL.createObjectURL(
-                                      getPostContent(post.index)?.gif,
-                                    )}
+                                    src={getPostContent(post.index)?.gif}
                                     alt="gif"
                                     width={110}
                                     height={110}
