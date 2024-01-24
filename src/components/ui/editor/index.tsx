@@ -36,7 +36,7 @@ const Editor = ({
       holder: EDITOR_HOLDER_ID,
       logLevel: "ERROR" as LogLevels,
       data: editorData,
-      placeholder: "Write your blog post here...",
+      placeholder: "Start writing...",
       onReady: () => {
         setEditorInstance(editor);
         // editor.focus();
@@ -56,7 +56,7 @@ const Editor = ({
     <div className="w-full rounded border">
       <div
         id={EDITOR_HOLDER_ID}
-        className="prose max-w-full p-1  dark:prose-invert"
+        className="prose dark:prose-invert max-w-full  p-1"
       ></div>
     </div>
   );

@@ -55,30 +55,6 @@ const initialState = {
       needAccount: true,
     },
     {
-      name: "Recurrent Posts",
-      path: "/recurrent-posts",
-      icon: "solar:repeat-one-minimalistic-bold-duotone",
-      roles: [
-        EUserType.Manager,
-        EUserType.Single,
-        EUserType.TeamMember,
-        EUserType.Owner,
-      ],
-      needAccount: true,
-    },
-    {
-      name: "Queue",
-      path: "/queue",
-      icon: "solar:calendar-add-bold-duotone",
-      roles: [
-        EUserType.Manager,
-        EUserType.Single,
-        EUserType.TeamMember,
-        EUserType.Owner,
-      ],
-      needAccount: true,
-    },
-    {
       name: "Calendar",
       path: "/calendar",
       icon: "solar:calendar-bold-duotone",
