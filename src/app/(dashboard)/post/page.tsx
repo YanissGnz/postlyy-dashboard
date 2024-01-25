@@ -955,8 +955,6 @@ export default function PostPage() {
       return;
     }
     await generateFormData(form.getValues()).then((data) => {
-      console.log("🚀 ~ handlePostNow ~ data:", data.get("Posts[0].gif"));
-
       const postNowPromise = postNowOrSchedule(data).unwrap();
       toast.promise(postNowPromise, {
         loading: "Posting...",

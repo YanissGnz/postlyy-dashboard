@@ -195,7 +195,7 @@ export default function Modals() {
       >
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>Post Details</SheetTitle>
+            <SheetTitle>Slot Details</SheetTitle>
             <PostDetails />
           </SheetHeader>
         </SheetContent>

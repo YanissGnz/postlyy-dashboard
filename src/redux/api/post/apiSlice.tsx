@@ -137,6 +137,25 @@ export const postApi = createApi({
         },
       }),
     }),
+    getScheduledPostById: builder.query<TResponse<TPostForm>, string>({
+      query: (id) => ({
+        url: `/api/ScheduledPosts/${id}`,
+      }),
+    }),
+    updateScheduledPost: builder.mutation<
+      TResponse<boolean>,
+      {
+        id: string;
+        body: FormData;
+      }
+    >({
+      query: ({ id, body }) => ({
+        url: `/api/ScheduledPosts/${id}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["Posts", "Drafts", "Template"],
+    }),
   }),
 });
 
@@ -153,5 +172,7 @@ export const {
   useGetTemplatesQuery,
   useUpdateDraftMutation,
   useDeleteDraftImageMutation,
+  useGetScheduledPostByIdQuery,
+  useUpdateScheduledPostMutation,
   util: postApiUtil,
 } = postApi;
