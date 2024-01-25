@@ -60,6 +60,13 @@ export default function Calender() {
   const [title, setTitle] = useState(
     calenderRef.current?.getApi().view.title ?? "",
   );
+
+  useEffect(() => {
+    if (calenderRef.current) {
+      setTitle(calenderRef.current?.getApi().view.title ?? "");
+    }
+  }, [calenderRef.current?.getApi().view.title]);
+
   const { data, isLoading, isFetching } = useGetEventsQuery();
 
   const [updateSpot] = useUpdateSpotMutation();
@@ -88,12 +95,6 @@ export default function Calender() {
     }
     return [];
   }, [data?.data, isLoading, isFetching]);
-
-  useEffect(() => {
-    if (calenderRef.current) {
-      setTitle(calenderRef.current?.getApi().view.title ?? "");
-    }
-  }, [calenderRef.current?.getApi().view.title]);
 
   const handleOpenDeleteEventModal = useCallback(
     (id: string, type: EPostSpotType) =>

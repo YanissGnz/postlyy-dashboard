@@ -49,6 +49,16 @@ export default function PostDetails() {
     postData?.data.onTwitter ? "twitter" : "linkedin",
   );
 
+  useEffect(() => {
+    if (postData?.data.onTwitter && postData?.data.onLinkedIn) {
+      setPreviewSocial("twitter");
+    } else if (postData?.data.onTwitter) {
+      setPreviewSocial("twitter");
+    } else if (postData?.data.onLinkedIn) {
+      setPreviewSocial("linkedin");
+    }
+  }, [postData?.data.onLinkedIn, postData?.data.onTwitter]);
+
   const event: TCalendarEvent | null = useMemo(() => {
     const found = list.find(
       (modal) => modal.id === "calendar-post-details-modal",
@@ -62,16 +72,6 @@ export default function PostDetails() {
   if (!event) {
     return <div>Event Not Found</div>;
   }
-
-  useEffect(() => {
-    if (postData?.data.onTwitter && postData?.data.onLinkedIn) {
-      setPreviewSocial("twitter");
-    } else if (postData?.data.onTwitter) {
-      setPreviewSocial("twitter");
-    } else if (postData?.data.onLinkedIn) {
-      setPreviewSocial("linkedin");
-    }
-  }, [postData?.data.onLinkedIn, postData?.data.onTwitter]);
 
   return (
     <div className="space-y-2">
