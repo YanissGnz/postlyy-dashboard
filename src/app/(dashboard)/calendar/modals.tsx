@@ -193,12 +193,7 @@ export default function Modals() {
           }
         }}
       >
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>Post Details</SheetTitle>
-            <PostDetails />
-          </SheetHeader>
-        </SheetContent>
+        <PostDetails />
       </Sheet>
 
       <AlertDialog

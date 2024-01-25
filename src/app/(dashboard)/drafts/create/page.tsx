@@ -64,37 +64,11 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
-import {
-  useAddPostNowMutation,
-  useAddPostToQueueMutation,
-  useAddPostToSpotMutation,
-  useAddRecurringPostMutation,
-  useDeleteDraftImageMutation,
-  useGetDraftMutation,
-  useGetTemplateMutation,
-  useUpdateDraftMutation,
-} from "@/redux/api/post/apiSlice";
-import {
-  useGetNextFiveSpotsQuery,
-  useGetRecurringSpotsQuery,
-} from "@/redux/api/calendar/apiSlice";
-import { addDays, format } from "date-fns";
+import { useAddPostNowMutation } from "@/redux/api/post/apiSlice";
 import { useBoolean, useMediaQuery } from "usehooks-ts";
-import DraftSheet from "./draft-sheet";
-import TemplateSheet from "./template-sheet";
 import PreviewSheet from "./preview-sheet";
-import { DAYS_OF_WEEK } from "../calendar/add-edit-event-form";
 import { LAYOUT } from "@/lib/constants";
 const EmojiPicker = dynamic(
   () => {
@@ -173,22 +147,6 @@ const ACCEPTED_IMAGE_TYPES = ["jpg", "png"];
 const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
 const TWITTER_TEXT_MAX_LENGTH = 280;
 
-// async function imageUrlToFile(imageUrl: string) {
-//   try {
-//     const response = await fetch(imageUrl);
-//     if (!response.ok) {
-//       toast.error("Failed to fetch image");
-//     }
-//     const blob = await response.blob();
-//     const filename = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-//     const file = new File([blob], filename, { type: blob.type });
-//     return file;
-//   } catch (error) {
-//     console.error("Error:", error);
-//     toast.error("Failed to fetch image");
-//   }
-// }
-
 const generateFormData = async (data: TPostForm) => {
   const formData = new FormData();
 
@@ -235,32 +193,8 @@ export default function PostPage() {
   const session = useSession();
   const { theme, systemTheme } = useTheme();
 
-  const {
-    data: nextSpots,
-    isLoading: isSpotsLoading,
-    isSuccess,
-  } = useGetNextFiveSpotsQuery();
-  const {
-    data: recurringSpots,
-    isLoading: isRecurringSpotsLoading,
-    isSuccess: isRecurringSpotSuccess,
-  } = useGetRecurringSpotsQuery();
-
-  const [postNowOrSchedule, { isLoading: isPostingNowOrScheduling }] =
+  const [saveDraft, { isLoading: isPostingNowOrScheduling }] =
     useAddPostNowMutation();
-  const [addPostToSpot, { isLoading: isAddingPostToSpot }] =
-    useAddPostToSpotMutation();
-  const [addPostToQueue, { isLoading: isAddingToQueue }] =
-    useAddPostToQueueMutation();
-  const [addRecurringPost, { isLoading: isAddingRecurringPost }] =
-    useAddRecurringPostMutation();
-
-  const [getDraft] = useGetDraftMutation();
-  const [updatedDraft] = useUpdateDraftMutation();
-  const [getTemplate] = useGetTemplateMutation();
-  const [deleteDraftImage] = useDeleteDraftImageMutation();
-
-  const [selectedDraftId, setSelectedDraftId] = useState<string | null>(null);
 
   const [openedGifPopupIndex, setOpenedGifPopupIndex] = useState<number | null>(
     null,
@@ -284,19 +218,8 @@ export default function PostPage() {
     },
   ]);
 
-  const { value: isScheduleDialogOpen, setValue: setIsScheduleDialogOpen } =
-    useBoolean(false);
-  const { value: isDraftDialogOpen, setValue: setIsDraftDialogOpen } =
-    useBoolean(false);
-  const { value: isDraftSheetOpen, setValue: setIsDraftSheetOpen } =
-    useBoolean(false);
-  const { value: isTemplateSheetOpen, setValue: setIsTemplateSheetOpen } =
-    useBoolean(false);
   const { value: isPreviewSheetOpen, setValue: setIsPreviewSheetOpen } =
     useBoolean(false);
-
-  const [selectedSpot, setSelectedSpot] = useState<string | null>(null);
-  const [scheduleDate, setScheduleDate] = useState("");
 
   const hasAccount = useCallback(
     (accountType: number) => {
@@ -319,7 +242,7 @@ export default function PostPage() {
   const defaultValues: TPostForm = useMemo(() => {
     return {
       asEvergreen: false,
-      isDraft: false,
+      isDraft: true,
       onLinkedIn: currentAccount?.accountType === 1,
       onTwitter: currentAccount?.accountType === 0,
       scheduleDate: new Date().toISOString(),
@@ -348,7 +271,7 @@ export default function PostPage() {
   useEffect(() => {
     if (currentAccount) {
       form.reset(defaultValues);
-     setPostsContent([
+      setPostsContent([
         {
           index: 0,
           images: [],
@@ -415,12 +338,6 @@ export default function PostPage() {
       );
     }
   }, [form.getValues("onTwitter")]);
-
-  useEffect(() => {
-    if (isSuccess && nextSpots.data.length > 0) {
-      setSelectedSpot(nextSpots?.data?.[0]?.id ?? null);
-    }
-  }, [isSuccess, isSpotsLoading]);
 
   const handleTextChange = useCallback(
     (index: number) => (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -632,79 +549,34 @@ export default function PostPage() {
 
       if (!image) return;
 
-      if (!selectedDraftId) {
-        const newThreads = form.getValues("posts").map((thread, i) => {
-          if (i === postIndex) {
+      const newThreads = form.getValues("posts").map((thread, i) => {
+        if (i === postIndex) {
+          return {
+            ...thread,
+            imageLinks: thread.imageLinks.filter((_, i) => i !== imageIndex),
+          };
+        }
+
+        return thread;
+      });
+
+      setPostsContent((prev) => {
+        const newPostsImages = prev.map((post) => {
+          if (post.index === postIndex) {
             return {
-              ...thread,
-              imageLinks: thread.imageLinks.filter((_, i) => i !== imageIndex),
+              ...post,
+              imageLinks:
+                post.imageLinks?.filter((_, i) => i !== imageIndex) ?? [],
             };
           }
 
-          return thread;
+          return post;
         });
 
-        setPostsContent((prev) => {
-          const newPostsImages = prev.map((post) => {
-            if (post.index === postIndex) {
-              return {
-                ...post,
-                imageLinks:
-                  post.imageLinks?.filter((_, i) => i !== imageIndex) ?? [],
-              };
-            }
+        return newPostsImages;
+      });
 
-            return post;
-          });
-
-          return newPostsImages;
-        });
-
-        form.setValue("posts", newThreads);
-      } else {
-        const deleteImagePromise = deleteDraftImage({
-          id: selectedDraftId,
-          url: image,
-        }).unwrap();
-
-        toast.promise(deleteImagePromise, {
-          loading: "Deleting image...",
-          success: () => {
-            const newThreads = form.getValues("posts").map((thread, i) => {
-              if (i === postIndex) {
-                return {
-                  ...thread,
-                  imageLinks: thread.imageLinks.filter(
-                    (_, i) => i !== imageIndex,
-                  ),
-                };
-              }
-
-              return thread;
-            });
-
-            setPostsContent((prev) => {
-              const newPostsImages = prev.map((post) => {
-                if (post.index === postIndex) {
-                  return {
-                    ...post,
-                    imageLinks:
-                      post.imageLinks?.filter((_, i) => i !== imageIndex) ?? [],
-                  };
-                }
-
-                return post;
-              });
-
-              return newPostsImages;
-            });
-
-            form.setValue("posts", newThreads);
-            return "Deleted image!";
-          },
-          error: "Something went wrong",
-        });
-      }
+      form.setValue("posts", newThreads);
     },
     [form],
   );
@@ -933,163 +805,17 @@ export default function PostPage() {
     [form],
   );
 
-  const handleCustomDateChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      setSelectedSpot(null);
-      setScheduleDate(e.target.value);
-    },
-    [],
-  );
-
-  // Posting
-
-  const handlePostNow = useCallback(async () => {
-    if (form.getValues("posts").length === 0 && !form.formState.isValid) {
-      await form.trigger();
-      return;
-    }
-    await generateFormData(form.getValues()).then((data) => {
-      const postNowPromise = postNowOrSchedule(data).unwrap();
-      toast.promise(postNowPromise, {
-        loading: "Posting...",
-        success: () => {
-          form.reset(defaultValues);
-          setPostsContent([
-            {
-              index: 0,
-              images: [],
-            },
-          ]);
-
-          return "Posted!";
-        },
-        error: "Something went wrong",
-      });
-    });
-  }, [form]);
-
-  const handleAddToQueue = useCallback(async () => {
-    if (form.getValues("posts").length === 0 && !form.formState.isValid) {
-      await form.trigger();
-      return;
-    }
-    const data = await generateFormData(form.getValues());
-
-    const addToQueuePromise = addPostToQueue(data).unwrap();
-    toast.promise(addToQueuePromise, {
-      loading: "Adding to queue...",
-      success: () => {
-        form.reset(defaultValues);
-        setPostsContent([
-          {
-            index: 0,
-            images: [],
-          },
-        ]);
-        return "Added to queue!";
-      },
-      error: "Something went wrong",
-    });
-  }, [form]);
-
-  const handleSchedulePost = useCallback(async () => {
-    if (form.getValues("posts").length === 0 && !form.formState.isValid) {
-      await form.trigger();
-      return;
-    }
-    const data = await generateFormData(form.getValues());
-    if (scheduleDate !== "") {
-      setIsScheduleDialogOpen(false);
-      data.append("scheduleDate", scheduleDate);
-
-      const schedulePostPromise = postNowOrSchedule(data).unwrap();
-      toast.promise(schedulePostPromise, {
-        loading: "Scheduling post...",
-        success: () => {
-          form.reset(defaultValues);
-          setPostsContent([
-            {
-              index: 0,
-              images: [],
-            },
-          ]);
-          setScheduleDate("");
-          return "Scheduled post!";
-        },
-        error: "Something went wrong",
-      });
-    } else if (selectedSpot !== null) {
-      setIsScheduleDialogOpen(false);
-      const schedulePostPromise = addPostToSpot({
-        body: data,
-        spotId: selectedSpot,
-      }).unwrap();
-      toast.promise(schedulePostPromise, {
-        loading: "Scheduling post...",
-        success: "Scheduled post!",
-        error: "Something went wrong",
-      });
-      form.reset(defaultValues);
-     setPostsContent([
-        {
-          index: 0,
-          images: [],
-        },
-      ]);
-    } else {
-      toast.error("Please select a date or a spot");
-    }
-    setScheduleDate("");
-  }, [scheduleDate, selectedSpot, form]);
-
-  const handleAddRecurringPost = useCallback(async () => {
-    if (!selectedSpot) return;
-    if (form.getValues("posts").length === 0 && !form.formState.isValid) {
-      await form.trigger();
-      return;
-    }
-    const data = await generateFormData(form.getValues());
-
-    const addRecurringPostPromise = addRecurringPost({
-      body: data,
-      recurringId: selectedSpot,
-    }).unwrap();
-    toast.promise(addRecurringPostPromise, {
-      loading: "Adding recurring post...",
-      success: () => {
-        setSelectedSpot(null);
-        form.reset(defaultValues);
-        setPostsContent([
-          {
-            index: 0,
-            images: [],
-          },
-        ]);
-
-        return "Added recurring post!";
-      },
-      error: "Something went wrong",
-    });
-  }, [selectedSpot, form]);
-
   const handleSaveDraft = useCallback(async () => {
     if (form.getValues("posts").length === 0 && !form.formState.isValid) {
       await form.trigger();
       return;
     }
 
-    setIsDraftDialogOpen(false);
-
     const data = await generateFormData(form.getValues());
-
     data.append("isDraft", "true");
     data.append("isTemplate", "false");
-    data.append(
-      "scheduleDate",
-      scheduleDate ? scheduleDate : addDays(new Date(), 7).toISOString(),
-    );
 
-    const saveDraftPromise = postNowOrSchedule(data).unwrap();
+    const saveDraftPromise = saveDraft(data).unwrap();
     toast.promise(saveDraftPromise, {
       loading: "Saving draft...",
       success: () => {
@@ -1100,200 +826,17 @@ export default function PostPage() {
             images: [],
           },
         ]);
-        setScheduleDate("");
         return "Saved draft!";
       },
       error: "Something went wrong",
     });
-
-    setScheduleDate("");
-  }, [scheduleDate]);
-
-  const handleSaveTemplate = useCallback(async () => {
-    if (form.getValues("posts").length === 0 && !form.formState.isValid) {
-      await form.trigger();
-      return;
-    }
-
-    const data = await generateFormData(form.getValues());
-    data.append("isTemplate", "true");
-    data.append("isDraft", "false");
-
-    const saveTemplatePromise = postNowOrSchedule(data).unwrap();
-    toast.promise(saveTemplatePromise, {
-      loading: "Saving template...",
-      success: () => {
-        form.reset(defaultValues);
-        setPostsContent([
-          {
-            index: 0,
-            images: [],
-          },
-        ]);
-        return "Saved template!";
-      },
-      error: "Something went wrong",
-    });
-  }, []);
-
-  // Draft
-
-  const handleUpdateDraft = useCallback(async () => {
-    if (!selectedDraftId) return;
-    if (form.getValues("posts").length === 0 && !form.formState.isValid) {
-      await form.trigger();
-      return;
-    }
-
-    setIsDraftDialogOpen(false);
-
-    const data = await generateFormData(form.getValues());
-
-    data.append("isDraft", "true");
-    data.append("isTemplate", "false");
-    data.append(
-      "scheduleDate",
-      scheduleDate ? scheduleDate : form.getValues("scheduleDate"),
-    );
-
-    form.getValues("posts").forEach((post, index) => {
-      data.append(`Posts[${index}].id`, selectedDraftId);
-    });
-
-    const updateDraftPromise = updatedDraft({
-      body: data,
-      id: selectedDraftId,
-    }).unwrap();
-    toast.promise(updateDraftPromise, {
-      loading: "Updating draft...",
-      success: () => {
-        form.reset(defaultValues);
-        setPostsContent([
-          {
-            index: 0,
-            images: [],
-          },
-        ]);
-
-        setScheduleDate("");
-        setSelectedDraftId(null);
-        return "Updated draft!";
-      },
-      error: "Something went wrong",
-    });
-  }, [scheduleDate, selectedDraftId]);
-
-  const handleEditDraft = useCallback(async (id: string) => {
-    const getDraftPromise = getDraft(id).unwrap();
-
-    setSelectedDraftId(id);
-    toast.promise(getDraftPromise, {
-      loading: "Fetching draft...",
-      success: async (data) => {
-        const newPosts = data.data.posts.map((post) => ({
-          ...post,
-          pull: post.poll ?? null,
-          images: post.images ?? [],
-          imageLinks: post.imageLinks ?? [],
-          gif: post.gifLink ?? null,
-        }));
-
-        const newForm: TPostForm = {
-          addFinisher: data.data.addFinisher,
-          asEvergreen: data.data.asEvergreen,
-          isDraft: data.data.isDraft,
-          isTemplate: data.data.isTemplate,
-          onLinkedIn: data.data.onLinkedIn,
-          onTwitter: data.data.onTwitter,
-          scheduleDate: data.data.scheduleDate,
-          posts: newPosts,
-        };
-        postFormSchema
-          .parseAsync(newForm)
-          .then((data) => {
-            form.reset(data);
-            setIsDraftSheetOpen(false);
-          })
-          .catch((err) => {
-            console.log("🚀 ~ .then ~ err:", err);
-            form.reset(defaultValues);
-            setPostsContent([
-              {
-                index: 0,
-                images: [],
-              },
-            ]);
-            setPostsContent([
-              {
-                index: 0,
-                images: [],
-              },
-            ]);
-            setIsDraftSheetOpen(false);
-          });
-        return "Fetched draft!";
-      },
-      error: "Failed to fetch draft",
-    });
-  }, []);
-
-  // Template
-
-  const handleUseTemplate = useCallback((id: string) => {
-    const getTemplatePromise = getTemplate(id).unwrap();
-
-    toast.promise(getTemplatePromise, {
-      loading: "Fetching template...",
-      success: async (data) => {
-        const newPosts = data.data.posts.map((post) => ({
-          ...post,
-          pull: post.poll ?? null,
-          imageLinks: post.imageLinks ?? [],
-          gif: post.gifLink ?? null,
-          images: [],
-        }));
-
-        const newForm: TPostForm = {
-          addFinisher: data.data.addFinisher,
-          asEvergreen: data.data.asEvergreen,
-          isDraft: data.data.isDraft,
-          isTemplate: data.data.isTemplate,
-          onLinkedIn: data.data.onLinkedIn,
-          onTwitter: data.data.onTwitter,
-          scheduleDate: data.data.scheduleDate ?? "",
-          posts: newPosts,
-        };
-        postFormSchema
-          .parseAsync(newForm)
-          .then((data) => {
-            form.reset(data);
-            setIsTemplateSheetOpen(false);
-          })
-          .catch((err) => {
-            console.log("🚀 ~ .then ~ err:", err);
-            form.reset(defaultValues);
-            setPostsContent([
-              {
-                index: 0,
-                images: [],
-              },
-            ]);
-            setPostsContent([
-              {
-                index: 0,
-                images: [],
-              },
-            ]);
-            setIsTemplateSheetOpen(false);
-          });
-        return "Fetched template!";
-      },
-      error: "Failed to fetch template",
-    });
   }, []);
 
   return (
-    <>
+    <div className="space-y-2 px-4 py-4 md:px-8">
+      <div className="mb-5 flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Create Drafts</h2>
+      </div>
       <TooltipProvider>
         <div>
           <Form {...form}>
@@ -1388,44 +931,6 @@ export default function PostPage() {
                         <p className="text-center">Socials</p>
                       </TooltipContent>
                     </Tooltip>{" "}
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Button
-                          size="icon"
-                          type="button"
-                          variant="ghost"
-                          onClick={() => setIsTemplateSheetOpen(true)}
-                        >
-                          <Iconify
-                            icon="solar:documents-bold-duotone"
-                            className="text-foreground/80"
-                            fontSize={26}
-                          />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent side="bottom">
-                        <p className="text-center">Templates</p>
-                      </TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Button
-                          size="icon"
-                          type="button"
-                          variant="ghost"
-                          onClick={() => setIsDraftSheetOpen(true)}
-                        >
-                          <Iconify
-                            icon="solar:file-text-bold-duotone"
-                            className="text-foreground/80"
-                            fontSize={26}
-                          />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent side="bottom">
-                        <p className="text-center">Drafts</p>
-                      </TooltipContent>
-                    </Tooltip>
                     <Tooltip>
                       <TooltipTrigger>
                         <Button
@@ -2237,250 +1742,15 @@ export default function PostPage() {
                           : LAYOUT.SIDEBAR_WIDTH,
                     }}
                   >
-                    <div className="flex  items-center gap-2">
-                      <Dialog
-                        open={isDraftDialogOpen}
-                        onOpenChange={(open) => {
-                          if (!open) setScheduleDate("");
-                          setIsDraftDialogOpen(open);
-                        }}
-                      >
-                        <DialogTrigger asChild>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            disabled={
-                              !form.formState.isValid ||
-                              isPostingNowOrScheduling ||
-                              isAddingPostToSpot
-                            }
-                          >
-                            {selectedDraftId ? "Update draft" : "Save as draft"}
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                          <DialogHeader>
-                            <DialogTitle>Set a reminder</DialogTitle>
-                          </DialogHeader>
-                          <div className="">
-                            <div className="mt-3 grid w-full max-w-sm items-center gap-1.5">
-                              <Label htmlFor="custom-date">Reminder date</Label>
-                              <Input
-                                id="custom-date"
-                                type="datetime-local"
-                                value={scheduleDate}
-                                onChange={handleCustomDateChange}
-                              />
-                            </div>
-                          </div>
-                          <DialogFooter>
-                            <Button
-                              type="button"
-                              onClick={
-                                selectedDraftId
-                                  ? handleUpdateDraft
-                                  : handleSaveDraft
-                              }
-                            >
-                              Save draft
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        disabled={
-                          !form.formState.isValid ||
-                          isPostingNowOrScheduling ||
-                          isAddingPostToSpot
-                        }
-                        onClick={handleSaveTemplate}
-                      >
-                        Save as template
-                      </Button>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            type="button"
-                            variant="secondary"
-                            disabled={
-                              !form.formState.isValid ||
-                              isPostingNowOrScheduling ||
-                              isAddingPostToSpot ||
-                              isAddingToQueue ||
-                              isAddingRecurringPost
-                            }
-                          >
-                            Pick recurring spot
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                          <DialogHeader>
-                            <DialogTitle>Pick a slot</DialogTitle>
-                            <DialogDescription>
-                              Choose a recurring slot to post your content
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="">
-                            {isRecurringSpotsLoading ? (
-                              <div className="flex h-24 items-center justify-center">
-                                <Spinner />
-                              </div>
-                            ) : isRecurringSpotSuccess &&
-                              recurringSpots?.data.length > 0 ? (
-                              <>
-                                <Label className="mb-2">Recurring Slots</Label>
-                                <div className="flex flex-wrap gap-2">
-                                  {recurringSpots.data.map((spot) => (
-                                    <Button
-                                      variant={
-                                        selectedSpot === spot.id
-                                          ? "default"
-                                          : "outline"
-                                      }
-                                      onClick={() => {
-                                        setSelectedSpot(spot.id);
-                                      }}
-                                    >
-                                      {spot.days
-                                        ?.map(
-                                          (day) =>
-                                            DAYS_OF_WEEK.find(
-                                              (d) => d.value === day,
-                                            )?.label,
-                                        )
-                                        .join(", ")}{" "}
-                                      at{" "}
-                                      {format(
-                                        new Date(spot.startTime ?? ""),
-                                        "HH:mm",
-                                      )}
-                                    </Button>
-                                  ))}
-                                </div>
-                              </>
-                            ) : (
-                              <div className="flex h-24 items-center justify-center text-destructive">
-                                <p>No spots available</p>
-                              </div>
-                            )}
-                          </div>
-                          <DialogFooter>
-                            <Button
-                              type="button"
-                              onClick={handleAddRecurringPost}
-                            >
-                              Schedule
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                      <Dialog
-                        open={isScheduleDialogOpen}
-                        onOpenChange={(open) => setIsScheduleDialogOpen(open)}
-                      >
-                        <DialogTrigger asChild>
-                          <Button
-                            type="button"
-                            variant="secondary"
-                            disabled={
-                              !form.formState.isValid ||
-                              isPostingNowOrScheduling ||
-                              isAddingPostToSpot ||
-                              isAddingToQueue
-                            }
-                          >
-                            Pick a time
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                          <DialogHeader>
-                            <DialogTitle>Pick a time</DialogTitle>
-                            <DialogDescription>
-                              Choose a time to post your content
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="">
-                            {isSpotsLoading ? (
-                              <div className="flex h-24 items-center justify-center">
-                                <Spinner />
-                              </div>
-                            ) : isSuccess && nextSpots?.data.length > 0 ? (
-                              <>
-                                <Label className="mb-2">Time Slots</Label>
-                                <div className="flex flex-wrap gap-2">
-                                  {nextSpots.data.map((spot) => (
-                                    <Button
-                                      variant={
-                                        selectedSpot === spot.id
-                                          ? "default"
-                                          : "outline"
-                                      }
-                                      onClick={() => {
-                                        setScheduleDate("");
-                                        setSelectedSpot(spot.id);
-                                      }}
-                                    >
-                                      {format(
-                                        new Date(spot.start ?? ""),
-                                        "dd MMM yyyy, HH:mm",
-                                      )}
-                                    </Button>
-                                  ))}
-                                </div>
-                              </>
-                            ) : (
-                              <div className="flex h-24 items-center justify-center text-destructive">
-                                <p>No spots available</p>
-                              </div>
-                            )}
-                            <div className="mt-3 grid w-full max-w-sm items-center gap-1.5 border-t pt-2">
-                              <Label htmlFor="custom-date">Custom date</Label>
-                              <Input
-                                id="custom-date"
-                                type="datetime-local"
-                                value={scheduleDate}
-                                onChange={handleCustomDateChange}
-                              />
-                            </div>
-                          </div>
-                          <DialogFooter>
-                            <Button type="button" onClick={handleSchedulePost}>
-                              Schedule
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        disabled={
-                          !form.formState.isValid ||
-                          isPostingNowOrScheduling ||
-                          isAddingPostToSpot ||
-                          isAddingToQueue
-                        }
-                        onClick={handlePostNow}
-                      >
-                        Post now
-                      </Button>
-                      <Button
-                        type="button"
-                        disabled={
-                          !form.formState.isValid ||
-                          isPostingNowOrScheduling ||
-                          isAddingPostToSpot ||
-                          isAddingToQueue
-                        }
-                        onClick={handleAddToQueue}
-                      >
-                        Add to queue
-                      </Button>
-                    </div>
+                    <Button
+                      type="button"
+                      disabled={
+                        !form.formState.isValid || isPostingNowOrScheduling
+                      }
+                      onClick={handleSaveDraft}
+                    >
+                      Save draft
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -2495,16 +1765,6 @@ export default function PostPage() {
         postsContent={postsContent}
         getPostContent={getPostContent}
       />
-      <DraftSheet
-        isOpen={isDraftSheetOpen}
-        setIsOpen={setIsDraftSheetOpen}
-        editDraft={handleEditDraft}
-      />
-      <TemplateSheet
-        isOpen={isTemplateSheetOpen}
-        setIsOpen={setIsTemplateSheetOpen}
-        useTemplate={handleUseTemplate}
-      />
-    </>
+    </div>
   );
 }
