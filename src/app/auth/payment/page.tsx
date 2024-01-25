@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { env } from "@/types/env";
+import { env } from "@/env";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/routes";

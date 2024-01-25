@@ -1,7 +1,7 @@
 "use client";
 
 import Script from "next/script";
-import { env } from "@/types/env";
+import { env } from "@/env";
 
 const GoogleAnalytics = () => {
   return (

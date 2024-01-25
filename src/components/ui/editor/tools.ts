@@ -14,7 +14,7 @@ import CheckList from "@editorjs/checklist";
 import Delimiter from "@editorjs/delimiter";
 import InlineCode from "@editorjs/inline-code";
 import SimpleImage from "@editorjs/simple-image";
-import { env } from "@/types/env";
+import { env } from "@/env";
 import { store } from "@/redux/store";
 
 export const EDITOR_JS_TOOLS = {

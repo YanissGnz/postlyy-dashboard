@@ -21,7 +21,7 @@ import {
 import Iconify from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { openModal } from "@/redux/slices/modalsSlice";
-import { env } from "@/types/env";
+import { env } from "@/env";
 import Image from "@/components/ui/image";
 import { format } from "date-fns";
 

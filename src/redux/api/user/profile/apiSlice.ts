@@ -1,4 +1,4 @@
-import { env } from "@/types/env";
+import { env } from "@/env";
 import { type RootState } from "@/redux/store";
 import { type TFinisher } from "@/types/TFinisher";
 import { type TProfile } from "@/types/TProfile";

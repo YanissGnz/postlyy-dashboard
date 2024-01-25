@@ -1,4 +1,4 @@
-import { env } from "@/types/env";
+import { env } from "@/env";
 import { type RootState } from "@/redux/store";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 

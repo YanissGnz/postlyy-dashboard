@@ -19,7 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import Iconify from "@/components/ui/icon";
 import { ROUTES } from "@/routes";
-import { env } from "@/types/env";
+import { env } from "@/env";
 
 export const registerSchema = z
   .object({

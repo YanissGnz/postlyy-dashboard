@@ -10,7 +10,7 @@ import TwitterProvider from "next-auth/providers/twitter";
 import LinkedInProvider from "next-auth/providers/linkedin";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-import { env } from "@/types/env";
+import { env } from "@/env";
 import { type TDBUser } from "@/types/TDBUser";
 
 declare module "next-auth" {
