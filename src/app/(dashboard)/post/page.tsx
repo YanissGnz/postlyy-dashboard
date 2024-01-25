@@ -348,13 +348,7 @@ export default function PostPage() {
   useEffect(() => {
     if (currentAccount) {
       form.reset(defaultValues);
-      setPostsContent([
-        {
-          index: 0,
-          images: [],
-        },
-      ]);
-      setPostsContent([
+     setPostsContent([
         {
           index: 0,
           images: [],
@@ -1036,13 +1030,7 @@ export default function PostPage() {
         error: "Something went wrong",
       });
       form.reset(defaultValues);
-      setPostsContent([
-        {
-          index: 0,
-          images: [],
-        },
-      ]);
-      setPostsContent([
+     setPostsContent([
         {
           index: 0,
           images: [],

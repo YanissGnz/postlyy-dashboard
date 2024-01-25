@@ -3,7 +3,7 @@ import { DataTable } from "./data-table";
 import { ROUTES } from "@/routes";
 import { Button } from "@/components/ui/button";
 
-export default function BlogsPage() {
+export default function NotesPage() {
   return (
     <div className="flex h-screen flex-col space-y-2 px-4 py-4 md:px-8">
       <div className="mb-5 flex items-center justify-between">

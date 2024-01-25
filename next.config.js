@@ -18,6 +18,16 @@ const config = withPWA({
 
 export default config({
   reactStrictMode: false,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "api.postlyy.com",
+        port: "",
+        pathname: "/*/**",
+      },
+    ],
+  },
   redirects: async () => [
     {
       source: "/",

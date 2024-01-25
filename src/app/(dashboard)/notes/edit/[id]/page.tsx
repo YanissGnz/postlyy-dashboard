@@ -38,20 +38,20 @@ export default function EditNotePage({ params }: { params: { id: string } }) {
 
   const [editNote, { isLoading }] = useEditNoteMutation();
 
-  const { data: note, isLoading: isLoadingBlog } = useGetNoteQuery(params.id);
+  const { data: note, isLoading: isLoadingNote } = useGetNoteQuery(params.id);
 
   const defaultValues = useMemo(() => {
     if (note) {
       return {
         name: note.data.name,
-        content: note.data.content,
+        content: JSON.parse(note.data.content) as string,
       };
     }
     return {
       name: "",
       content: "",
     };
-  }, [note, isLoadingBlog]);
+  }, [note, isLoadingNote]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -59,12 +59,14 @@ export default function EditNotePage({ params }: { params: { id: string } }) {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    const formData = new FormData();
+
+    formData.append("name", values.name);
+    formData.append("content", JSON.stringify(values.content));
+
     editNote({
       id: params.id,
-      note: {
-        name: values.name,
-        content: values.content,
-      },
+      note: formData,
     })
       .unwrap()
       .then(() => {
@@ -80,7 +82,7 @@ export default function EditNotePage({ params }: { params: { id: string } }) {
     if (note) {
       form.reset(defaultValues);
     }
-  }, [note, isLoadingBlog]);
+  }, [note, isLoadingNote]);
 
   return (
     <div className="space-y-2 px-4 py-4 md:px-8">

@@ -74,7 +74,20 @@ export const postApi = createApi({
         url: "/api/Drafts",
         params,
       }),
-      providesTags: ["Drafts"],
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.data.map(({ id }) => ({ type: "Drafts" as const, id })),
+              { type: "Drafts" as const },
+            ]
+          : [{ type: "Drafts" as const }],
+    }),
+    getDraftById: builder.query<TResponse<TPostForm>, string>({
+      query: (id) => ({
+        url: `/api/Drafts/${id}`,
+        method: "GET",
+      }),
+      providesTags: (result, error, id) => [{ type: "Drafts", id }],
     }),
     deleteDraft: builder.mutation<TResponse<boolean>, string>({
       query: (id) => ({
@@ -92,7 +105,7 @@ export const postApi = createApi({
         method: "PUT",
         body,
       }),
-      invalidatesTags: ["Posts", "Drafts", "Template"],
+      invalidatesTags: (result, error, { id }) => [{ type: "Drafts", id }],
     }),
     getDraft: builder.mutation<TResponse<TPostForm>, string>({
       query: (id) => ({
@@ -115,12 +128,33 @@ export const postApi = createApi({
       }),
       invalidatesTags: ["Template"],
     }),
+    updateTemplate: builder.mutation<
+      TResponse<boolean>,
+      { body: FormData; id: string }
+    >({
+      query: ({ body, id }) => ({
+        url: `/api/Draft/${id}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Template", id },
+        "Template",
+      ],
+    }),
     getTemplate: builder.mutation<TResponse<TPostForm>, string>({
       query: (id) => ({
         url: `/api/Template/${id}`,
         method: "GET",
       }),
       invalidatesTags: ["Template"],
+    }),
+    getTemplateById: builder.query<TResponse<TPostForm>, string>({
+      query: (id) => ({
+        url: `/api/Template/${id}`,
+        method: "GET",
+      }),
+      providesTags: (result, error, id) => [{ type: "Template", id }],
     }),
     deleteDraftImage: builder.mutation<
       TResponse<boolean>,
@@ -174,5 +208,8 @@ export const {
   useDeleteDraftImageMutation,
   useGetScheduledPostByIdQuery,
   useUpdateScheduledPostMutation,
+  useGetTemplateByIdQuery,
+  useUpdateTemplateMutation,
+  useGetDraftByIdQuery,
   util: postApiUtil,
 } = postApi;

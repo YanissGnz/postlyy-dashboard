@@ -9,7 +9,7 @@ import { useGetNoteQuery } from "../../../../redux/api/notes/apiSlice";
 export default function page({ params }: { params: { id: string } }) {
   const {
     data: note,
-    isLoading: isLoadingBlog,
+    isLoading: isLoadingNote,
     isSuccess,
   } = useGetNoteQuery(params.id);
 
@@ -22,7 +22,7 @@ export default function page({ params }: { params: { id: string } }) {
 
   return (
     <>
-      {isLoadingBlog ? (
+      {isLoadingNote ? (
         <div className="flex h-56 items-center justify-center">
           <Spinner />
         </div>
@@ -37,7 +37,7 @@ export default function page({ params }: { params: { id: string } }) {
         </div>
       ) : (
         <div className="flex h-56 items-center justify-center">
-          <p>Blog not found</p>
+          <p>Note not found</p>
         </div>
       )}
     </>

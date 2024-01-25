@@ -28,7 +28,7 @@ export const EDITOR_JS_TOOLS = {
     class: Image,
     config: {
       endpoints: {
-        byFile: `${env.NEXT_PUBLIC_API_BASE_URL}/api/BlogPosts/AddImage`,
+        byFile: `${env.NEXT_PUBLIC_API_BASE_URL}/api/NotePosts/AddImage`,
       },
       additionalRequestHeaders: {
         authorization: `Bearer ${

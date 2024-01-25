@@ -301,12 +301,6 @@ export default function EditPostPage({ params: { id: postId } }: Props) {
           images: [],
         },
       ]);
-      setPostsContent([
-        {
-          index: 0,
-          images: [],
-        },
-      ]);
     }
   }, [currentAccount]);
 

@@ -38,16 +38,23 @@ export const notesApi = createApi({
         method: "GET",
         params,
       }),
-      providesTags: ["Notes"],
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.data.map(({ id }) => ({ type: "Notes" as const, id })),
+              "Notes",
+            ]
+          : ["Notes"],
     }),
     getNote: builder.query<TResponse<TNote>, string>({
       query: (id) => `/api/InternalNotes/${id}`,
+      providesTags: (result, error, id) => [{ type: "Notes", id }],
     }),
     editNote: builder.mutation<
       TResponse<boolean>,
       {
         id: string;
-        note: Omit<TNote, "id">;
+        note: FormData;
       }
     >({
       query: ({ id, note }) => ({
@@ -55,14 +62,16 @@ export const notesApi = createApi({
         method: "PUT",
         body: note,
       }),
-      invalidatesTags: ["Notes"],
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Notes" as const, id },
+      ],
     }),
     deleteNote: builder.mutation<TResponse<boolean>, string>({
       query: (id) => ({
         url: `/api/InternalNotes/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Notes"],
+      invalidatesTags: (result, error, id) => [{ type: "Notes" as const, id }],
     }),
   }),
 });

@@ -78,6 +78,30 @@ const initialState = {
       ],
       needAccount: true,
     },
+    {
+      name: "Templates",
+      path: "/templates",
+      icon: "solar:documents-bold-duotone",
+      roles: [
+        EUserType.Manager,
+        EUserType.Single,
+        EUserType.TeamMember,
+        EUserType.Owner,
+      ],
+      needAccount: true,
+    },
+    {
+      name: "Drafts",
+      path: "/drafts",
+      icon: "solar:file-text-bold-duotone",
+      roles: [
+        EUserType.Manager,
+        EUserType.Single,
+        EUserType.TeamMember,
+        EUserType.Owner,
+      ],
+      needAccount: true,
+    },
     // {
     //   name: "Powerups",
     //   path: "/powerups",

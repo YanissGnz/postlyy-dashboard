@@ -24,6 +24,18 @@ export const ROUTES = {
     edit: (id: string) => getPath(`notes/edit/${id}`),
     view: (id: string) => getPath(`notes/${id}`),
   },
+  templates: {
+    root: getPath("templates"),
+    create: getPath("templates/create"),
+    edit: (id: string) => getPath(`templates/edit/${id}`),
+    view: (id: string) => getPath(`templates/${id}`),
+  },
+  drafts: {
+    root: getPath("drafts"),
+    create: getPath("drafts/create"),
+    edit: (id: string) => getPath(`drafts/edit/${id}`),
+    view: (id: string) => getPath(`drafts/${id}`),
+  },
   post: {
     create: getPath("post"),
     edit: (id: string) => getPath(`post/edit/${id}`),

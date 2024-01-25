@@ -29,7 +29,7 @@ const formSchema = z.object({
   content: z.string(),
 });
 
-export default function CreateBlogPage() {
+export default function CreateNotePage() {
   const [addNote, { isLoading }] = useAddNoteMutation();
   const { isCollapsed } = useAppSelector((state) => state.layout);
 
