@@ -220,7 +220,7 @@ const generateFormData = async (data: TPostForm) => {
         post.poll.durationMins.toString(),
       );
       post.poll.options.forEach((option, i) => {
-        formData.append(`Posts[${index}].poll.Options${i}`, option);
+        formData.append(`Posts[${index}].poll.Options[${i}]`, option);
       });
     }
   });
@@ -1692,6 +1692,10 @@ export default function PostPage() {
                                                   index + 1
                                                 }`}
                                                 className="w-full"
+                                                onChange={async (e) => {
+                                                  field.onChange(e);
+                                                  await form.trigger("posts");
+                                                }}
                                               />
                                             </FormControl>
                                             <FormMessage />
@@ -1768,6 +1772,11 @@ export default function PostPage() {
                                             type="number"
                                             placeholder="Poll duration in minutes (0 for no duration)"
                                             className="w-full"
+                                            onChange={(e) =>
+                                              field.onChange(
+                                                Number(e.target.value),
+                                              )
+                                            }
                                           />
                                         </FormControl>
                                         <FormMessage />
