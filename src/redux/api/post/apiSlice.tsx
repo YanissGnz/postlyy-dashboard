@@ -4,7 +4,7 @@ import { type TPaginatedRequest } from "@/types/TPaginatedRequest";
 import { type TPaginatedResponse } from "@/types/TPaginatedResponse";
 import { type TPostForm } from "@/types/TPostForm";
 import { type TResponse } from "@/types/TResponse";
-import { env } from "@/env";
+import { env } from "@/types/env";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const postApi = createApi({

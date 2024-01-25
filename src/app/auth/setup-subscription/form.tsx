@@ -6,7 +6,7 @@ import Iconify from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-import { env } from "@/env";
+import { env } from "@/types/env";
 import { useSession } from "next-auth/react";
 import { useBoolean } from "usehooks-ts";
 import { useRouter } from "next/navigation";

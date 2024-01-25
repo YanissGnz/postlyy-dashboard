@@ -1,5 +1,5 @@
 import { type RootState } from "@/redux/store";
-import { env } from "@/env";
+import { env } from "@/types/env";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { type TResponse } from "@/types/TResponse";
 import { type TNote } from "@/types/TNote";

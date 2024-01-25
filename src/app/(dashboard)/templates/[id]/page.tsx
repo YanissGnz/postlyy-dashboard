@@ -9,7 +9,7 @@ import Iconify from "@/components/ui/icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { env } from "@/env";
+import { env } from "@/types/env";
 
 export default function page({ params: { id } }: { params: { id: string } }) {
   const {

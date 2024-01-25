@@ -1,4 +1,4 @@
-import { env } from "@/env";
+import { env } from "@/types/env";
 import { type RootState } from "@/redux/store";
 import { type TAccount } from "@/types/TAccount";
 import { type TNewAccount } from "@/types/TNewAccount";

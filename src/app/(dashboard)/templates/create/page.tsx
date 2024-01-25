@@ -58,7 +58,7 @@ import ImageUploading, { type ImageListType } from "react-images-uploading";
 import Image from "@/components/ui/image";
 import { toast } from "sonner";
 import { fData } from "@/lib/formatNumber";
-import { env } from "@/env";
+import { env } from "@/types/env";
 import { type TenorImage } from "gif-picker-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -271,7 +271,7 @@ export default function PostPage() {
   useEffect(() => {
     if (currentAccount) {
       form.reset(defaultValues);
-     setPostsContent([
+      setPostsContent([
         {
           index: 0,
           images: [],

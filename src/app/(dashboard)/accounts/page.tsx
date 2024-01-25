@@ -10,7 +10,7 @@ import crypto from "crypto";
 // components
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { env } from "@/env";
+import { env } from "@/types/env";
 import { ROUTES } from "@/routes";
 import {
   useAddAccountMutation,
