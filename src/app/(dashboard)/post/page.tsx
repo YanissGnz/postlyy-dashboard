@@ -51,7 +51,6 @@ import {
   SkinTonePickerLocation,
   type Theme,
 } from "emoji-picker-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import ImageUploading, { type ImageListType } from "react-images-uploading";
@@ -348,7 +347,7 @@ export default function PostPage() {
   useEffect(() => {
     if (currentAccount) {
       form.reset(defaultValues);
-     setPostsContent([
+      setPostsContent([
         {
           index: 0,
           images: [],
@@ -1030,7 +1029,7 @@ export default function PostPage() {
         error: "Something went wrong",
       });
       form.reset(defaultValues);
-     setPostsContent([
+      setPostsContent([
         {
           index: 0,
           images: [],
@@ -1223,12 +1222,7 @@ export default function PostPage() {
                 images: [],
               },
             ]);
-            setPostsContent([
-              {
-                index: 0,
-                images: [],
-              },
-            ]);
+
             setIsDraftSheetOpen(false);
           });
         return "Fetched draft!";
@@ -1278,12 +1272,7 @@ export default function PostPage() {
                 images: [],
               },
             ]);
-            setPostsContent([
-              {
-                index: 0,
-                images: [],
-              },
-            ]);
+
             setIsTemplateSheetOpen(false);
           });
         return "Fetched template!";
@@ -1463,8 +1452,8 @@ export default function PostPage() {
               </div>
               <div>
                 <div>
-                  <ScrollArea className="h-[400px] w-full">
-                    <div className="px-1">
+                  <div className="w-full">
+                    <div className="px-1 pb-14">
                       {form.getValues("posts").map((post) => (
                         <Fragment key={post.index}>
                           <div className="my-3 flex items-center gap-2 ">
@@ -2225,10 +2214,10 @@ export default function PostPage() {
                         </Fragment>
                       ))}
                     </div>
-                  </ScrollArea>
+                  </div>
 
                   <div
-                    className="absolute bottom-0 right-0 flex items-center justify-between gap-2 overflow-auto bg-background p-2 transition-all duration-500"
+                    className="fixed bottom-0 right-0 flex items-center justify-between gap-2 overflow-auto bg-background p-2 transition-all duration-500"
                     style={{
                       left: isMobile
                         ? 0
