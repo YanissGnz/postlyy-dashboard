@@ -95,6 +95,8 @@ import TemplateSheet from "./template-sheet";
 import PreviewSheet from "./preview-sheet";
 import { DAYS_OF_WEEK } from "../calendar/add-edit-event-form";
 import { LAYOUT } from "@/lib/constants";
+import NotesSheet from "./notes-sheet";
+import Note from "./note";
 const EmojiPicker = dynamic(
   () => {
     return import("emoji-picker-react");
@@ -260,6 +262,7 @@ export default function PostPage() {
   const [deleteDraftImage] = useDeleteDraftImageMutation();
 
   const [selectedDraftId, setSelectedDraftId] = useState<string | null>(null);
+  const [noteId, setNoteId] = useState<string | null>(null);
 
   const [openedGifPopupIndex, setOpenedGifPopupIndex] = useState<number | null>(
     null,
@@ -290,6 +293,8 @@ export default function PostPage() {
   const { value: isDraftSheetOpen, setValue: setIsDraftSheetOpen } =
     useBoolean(false);
   const { value: isTemplateSheetOpen, setValue: setIsTemplateSheetOpen } =
+    useBoolean(false);
+  const { value: isNotesSheetOpen, setValue: setIsNotesSheetOpen } =
     useBoolean(false);
   const { value: isPreviewSheetOpen, setValue: setIsPreviewSheetOpen } =
     useBoolean(false);
@@ -1281,12 +1286,22 @@ export default function PostPage() {
     });
   }, []);
 
+  // Note
+  const handleOpenNote = useCallback((id: string) => {
+    setNoteId(id);
+    setIsNotesSheetOpen(false);
+  }, []);
+
+  const handleCloseNote = useCallback(() => {
+    setNoteId(null);
+  }, []);
+
   return (
     <>
       <TooltipProvider>
-        <div>
+        <div className="flex w-full">
           <Form {...form}>
-            <CardContent className="mx-auto max-w-5xl">
+            <CardContent className="mx-auto max-w-5xl flex-1 transition-all">
               <div className="space-y-2 border-b py-4">
                 <div className="flex items-center justify-between ">
                   <div className="flex items-center gap-3">
@@ -1413,6 +1428,25 @@ export default function PostPage() {
                       </TooltipTrigger>
                       <TooltipContent side="bottom">
                         <p className="text-center">Drafts</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Button
+                          size="icon"
+                          type="button"
+                          variant="ghost"
+                          onClick={() => setIsNotesSheetOpen(true)}
+                        >
+                          <Iconify
+                            icon="solar:notebook-bold-duotone"
+                            className="text-foreground/80"
+                            fontSize={26}
+                          />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom">
+                        <p className="text-center">Notes</p>
                       </TooltipContent>
                     </Tooltip>
                     <Tooltip>
@@ -2475,6 +2509,7 @@ export default function PostPage() {
               </div>
             </CardContent>
           </Form>
+          <Note noteId={noteId} closeNote={handleCloseNote} />
         </div>
       </TooltipProvider>
       <PreviewSheet
@@ -2493,6 +2528,11 @@ export default function PostPage() {
         isOpen={isTemplateSheetOpen}
         setIsOpen={setIsTemplateSheetOpen}
         useTemplate={handleUseTemplate}
+      />
+      <NotesSheet
+        isOpen={isNotesSheetOpen}
+        setIsOpen={setIsNotesSheetOpen}
+        openNote={handleOpenNote}
       />
     </>
   );
