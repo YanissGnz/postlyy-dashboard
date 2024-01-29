@@ -18,7 +18,7 @@ import { ROUTES } from "@/routes";
 import { SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { openModal } from "@/redux/slices/modalsSlice";
 
-const DEFAULT_POST_ID = "00000000-0000-0000-0000-000000000000";
+export const DEFAULT_POST_ID = "00000000-0000-0000-0000-000000000000";
 
 export default function PostDetails() {
   const { list } = useAppSelector((state) => state.modals);
@@ -94,7 +94,7 @@ export default function PostDetails() {
   );
 
   if (!event) {
-    return <div>Event Not Found</div>;
+    return null;
   }
 
   return (

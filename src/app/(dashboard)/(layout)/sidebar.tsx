@@ -14,6 +14,7 @@ import { Button } from "../../../components/ui/button";
 import Iconify from "../../../components/ui/icon";
 import AccountPopover from "./account-popover";
 import NavItem from "./nav-item";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function Sidebar() {
   const session = useSession();
@@ -67,18 +68,24 @@ export default function Sidebar() {
           height="64"
         />
       </div>
-      <div className="flex flex-1 flex-col gap-2">
-        {navItems.map((item) =>
-          item.needAccount
-            ? item.roles.includes(session.data.user.userType) &&
-              session.data.user.accounts.length > 0 && (
-                <NavItem key={item.path} {...item} />
-              )
-            : item.roles.includes(session.data.user.userType) && (
-                <NavItem key={item.path} {...item} />
-              ),
-        )}
-      </div>
+      <ScrollArea
+        style={{
+          height: "calc(100% - 100px)",
+        }}
+      >
+        <div className="flex flex-1 flex-col gap-2">
+          {navItems.map((item) =>
+            item.needAccount
+              ? item.roles.includes(session.data.user.userType) &&
+                session.data.user.accounts.length > 0 && (
+                  <NavItem key={item.path} {...item} />
+                )
+              : item.roles.includes(session.data.user.userType) && (
+                  <NavItem key={item.path} {...item} />
+                ),
+          )}
+        </div>
+      </ScrollArea>
 
       <AccountPopover />
     </div>

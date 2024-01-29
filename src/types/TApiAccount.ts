@@ -3,4 +3,5 @@ export type TApiAccount = {
   accountType: number;
   username: string;
   photoUrl: string;
+  isExpired?: boolean;
 };

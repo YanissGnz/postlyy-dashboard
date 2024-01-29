@@ -46,12 +46,7 @@ import { type TCalendarEvent } from "@/types/TCalendarEvent";
 import { getBackgroundColor, getIcon, getTextColor } from "@/lib/utils";
 import { addHours, format } from "date-fns";
 import { toast } from "sonner";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
+import { DEFAULT_POST_ID } from "./post-details";
 
 export default function Calender() {
   const calenderRef = useRef<FullCalendar>(null);
@@ -256,7 +251,7 @@ export default function Calender() {
 
           return { start: startDate, end: endDate };
         }}
-        slotDuration={"02:00:00"}
+        slotDuration={"01:00:00"}
         slotLaneClassNames="!h-14"
         eventContent={(eventInfo) => {
           const { event } = eventInfo;
@@ -318,39 +313,38 @@ export default function Calender() {
               </div>
             );
           return (
-            <ContextMenu>
-              <ContextMenuTrigger>
-                <div className="flex h-12 items-center gap-2 px-2">
-                  <Iconify
-                    icon={event.extendedProps.icon}
-                    className="flex-none"
-                    fontSize={22}
-                  />
-                  <div>
-                    <div className="flex items-center gap-2">
-                      {event.extendedProps.forTwitter && (
-                        <Iconify
-                          icon="simple-icons:x"
-                          className="flex-none"
-                          fontSize={14}
-                        />
-                      )}
-                      {event.extendedProps.forLinkedIn && (
-                        <Iconify
-                          icon="simple-icons:linkedin"
-                          className="flex-none"
-                          fontSize={14}
-                        />
-                      )}
-                    </div>
-                  </div>
+            <div className="flex h-12 items-center gap-2 px-2">
+              <Iconify
+                icon={event.extendedProps.icon}
+                className="flex-none"
+                fontSize={22}
+              />
+              <div>
+                <div className="flex items-center gap-2">
+                  {event.extendedProps.forTwitter && (
+                    <Iconify
+                      icon="simple-icons:x"
+                      className="flex-none"
+                      fontSize={14}
+                    />
+                  )}
+                  {event.extendedProps.forLinkedIn && (
+                    <Iconify
+                      icon="simple-icons:linkedin"
+                      className="flex-none"
+                      fontSize={14}
+                    />
+                  )}
+                  {event.extendedProps.postId !== DEFAULT_POST_ID && (
+                    <Iconify
+                      icon="simple-icons:linkedin"
+                      className="flex-none"
+                      fontSize={14}
+                    />
+                  )}
                 </div>
-              </ContextMenuTrigger>
-              <ContextMenuContent>
-                <ContextMenuItem>Profile</ContextMenuItem>
-                <ContextMenuItem>Billing</ContextMenuItem>
-              </ContextMenuContent>
-            </ContextMenu>
+              </div>
+            </div>
           );
         }}
       />

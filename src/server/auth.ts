@@ -208,8 +208,11 @@ export const authOptions: NextAuthOptions = {
               body,
             },
           )
-            .then((res) => res.json() as Promise<TDBUser>)
-            .catch(() => {
+            .then((res) => {
+              return res.json() as Promise<TDBUser>;
+            })
+            .catch((err) => {
+              console.log("🚀 ~ jwt ~ err:", err);
               throw new Error("Failed to login");
             });
 
@@ -250,6 +253,8 @@ export const authOptions: NextAuthOptions = {
       }
 
       const newUser = await getUser(token.refreshToken as string);
+
+      console.log("🚀 ~ jwt ", newUser);
 
       if (newUser.error) {
         throw new Error(newUser.error);
@@ -315,7 +320,7 @@ export const authOptions: NextAuthOptions = {
       clientSecret: env.LINKEDIN_CLIENT_SECRET,
       authorization: {
         params: {
-          scope: "openid profile email",
+          scope: "openid profile email w_member_social",
         },
       },
       client: { token_endpoint_auth_method: "client_secret_post" },
