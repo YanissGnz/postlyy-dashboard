@@ -62,30 +62,28 @@ export default function NotesSheet({ isOpen, setIsOpen, openNote }: Props) {
                 <div className="flex flex-col">
                   <div className="flex flex-col">
                     {notes.data.map((note) => (
-                      <div className="mb-4 flex flex-col rounded border">
-                        <div className="flex items-center justify-between border-b p-1">
-                          <p className="font-medium">{note.name}</p>
-                          <div className="gap2 flex items-center">
-                            <Tooltip>
-                              <TooltipTrigger>
-                                <Button
-                                  size="icon"
-                                  type="button"
-                                  variant="ghost"
-                                  onClick={handleOpenNote(note.id)}
-                                >
-                                  <Iconify
-                                    icon="solar:square-forward-bold-duotone"
-                                    className="text-foreground/80"
-                                    fontSize={18}
-                                  />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent side="bottom">
-                                <p className="text-center">Open</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </div>
+                      <div className="flex items-center justify-between rounded border p-1">
+                        <p className="font-medium">{note.name}</p>
+                        <div className="gap2 flex items-center">
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <Button
+                                size="icon"
+                                type="button"
+                                variant="ghost"
+                                onClick={handleOpenNote(note.id)}
+                              >
+                                <Iconify
+                                  icon="solar:square-forward-bold-duotone"
+                                  className="text-foreground/80"
+                                  fontSize={18}
+                                />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom">
+                              <p className="text-center">Open</p>
+                            </TooltipContent>
+                          </Tooltip>
                         </div>
                       </div>
                     ))}

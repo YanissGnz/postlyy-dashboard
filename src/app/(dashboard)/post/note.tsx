@@ -2,6 +2,7 @@ import ErrorCard from "@/components/error-card";
 import LoadingCard from "@/components/loading-card";
 import { Button } from "@/components/ui/button";
 import Iconify from "@/components/ui/icon";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Tooltip,
   TooltipContent,
@@ -11,6 +12,7 @@ import {
 import { useGetNoteQuery } from "@/redux/api/notes/apiSlice";
 import { Parser } from "@alkhipce/editorjs-react";
 import { type IParser } from "@alkhipce/editorjs-react/dist/types/ParserData";
+import { isString } from "lodash";
 import React, { useCallback, useMemo } from "react";
 
 export default function Note({
@@ -32,7 +34,9 @@ export default function Note({
 
   const content = useMemo(() => {
     if (isSuccess) {
-      return JSON.parse(note.data.content) as IParser;
+      return isString(JSON.parse(note.data.content))
+        ? (JSON.parse(JSON.parse(note.data.content) as string) as IParser)
+        : (JSON.parse(note.data.content) as IParser);
     }
     return null;
   }, [isSuccess, note]);
@@ -58,8 +62,14 @@ export default function Note({
     );
 
   return (
-    <div className="md:min-w-[400px]">
-      <div className="space-y-2 px-4 py-4">
+    <div className="sticky top-0 h-max md:min-w-[400px]">
+      <ScrollArea
+        className="space-y-2 px-4 py-4"
+        style={{
+          height: "calc(100vh - 120px)",
+          maxHeight: "calc(100vh - 120px)",
+        }}
+      >
         <div className="mb-10 flex items-center justify-between">
           <h2 className="text-2xl font-bold">{note.data.name}</h2>
           <TooltipProvider>
@@ -83,10 +93,10 @@ export default function Note({
             </Tooltip>
           </TooltipProvider>
         </div>
-        <article className="prose dark:prose-invert mx-auto max-w-4xl ">
+        <article className="prose dark:prose-invert prose-sm mx-auto max-w-4xl">
           {content && <Parser data={content} />}
         </article>
-      </div>
+      </ScrollArea>
     </div>
   );
 }

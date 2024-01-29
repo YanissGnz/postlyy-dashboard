@@ -27,6 +27,7 @@ import {
   useEditNoteMutation,
   useGetNoteQuery,
 } from "@/redux/api/notes/apiSlice";
+import { isString } from "lodash";
 
 const formSchema = z.object({
   name: z.string().min(2),
@@ -44,7 +45,9 @@ export default function EditNotePage({ params }: { params: { id: string } }) {
     if (note) {
       return {
         name: note.data.name,
-        content: JSON.parse(note.data.content) as string,
+        content: isString(JSON.parse(note.data.content))
+          ? (JSON.parse(note.data.content) as string)
+          : note.data.content,
       };
     }
     return {
