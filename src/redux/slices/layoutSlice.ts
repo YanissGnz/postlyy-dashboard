@@ -102,6 +102,18 @@ const initialState = {
       ],
       needAccount: true,
     },
+    {
+      name: "Powerups",
+      path: "/powerups",
+      icon: "solar:bolt-circle-bold-duotone",
+      roles: [
+        EUserType.Manager,
+        EUserType.Single,
+        EUserType.TeamMember,
+        EUserType.Owner,
+      ],
+      needAccount: true,
+    },
     // {
     //   name: "Powerups",
     //   path: "/powerups",
