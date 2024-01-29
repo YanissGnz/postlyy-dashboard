@@ -14,6 +14,7 @@ import { newsLetterApi } from "./api/newsLetterApi";
 import { calendarApi } from "./api/calendar/apiSlice";
 import { postApi } from "./api/post/apiSlice";
 import { notesApi } from "./api/notes/apiSlice";
+import { powerupsApi } from "./api/user/powerups/apiSlice";
 
 export const store = configureStore({
   reducer: {
@@ -31,6 +32,7 @@ export const store = configureStore({
     [calendarApi.reducerPath]: calendarApi.reducer,
     [postApi.reducerPath]: postApi.reducer,
     [notesApi.reducerPath]: notesApi.reducer,
+    [powerupsApi.reducerPath]: powerupsApi.reducer,
   },
   devTools: process.env.NODE_ENV !== "production",
   middleware: (getDefaultMiddleware) =>
@@ -44,7 +46,8 @@ export const store = configureStore({
       .concat(newsLetterApi.middleware)
       .concat(calendarApi.middleware)
       .concat(postApi.middleware)
-      .concat(notesApi.middleware),
+      .concat(notesApi.middleware)
+      .concat(powerupsApi.middleware),
 });
 
 setupListeners(store.dispatch);
