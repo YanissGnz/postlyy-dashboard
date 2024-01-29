@@ -1,7 +1,7 @@
 import "@/styles/globals.css";
 import { type Metadata } from "next";
 // font
-import { Poppins } from "next/font/google";
+import { Outfit } from "next/font/google";
 // providers
 import ReduxProvider from "@/providers/redux-provider";
 import AuthProvider from "@/providers/auth-provider";
@@ -11,11 +11,9 @@ import UserProvider from "@/providers/token-provider";
 import { Toaster } from "sonner";
 // import ComingSoon from "./coming-soon";
 
-const font = Poppins({
-  subsets: ["latin-ext"],
-  display: "swap",
-  preload: true,
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+const font = Outfit({
+  subsets: ["latin"],
+  variable: "--font-sans",
 });
 
 export const metadata: Metadata = {
@@ -64,7 +62,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`bg-background font-sans transition-colors ${font.className}`}
+        className={`bg-background font-sans transition-colors ${font.variable}`}
       >
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

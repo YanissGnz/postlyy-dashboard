@@ -271,7 +271,7 @@ export default function PostPage() {
   useEffect(() => {
     if (currentAccount) {
       form.reset(defaultValues);
-     setPostsContent([
+      setPostsContent([
         {
           index: 0,
           images: [],
