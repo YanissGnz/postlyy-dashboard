@@ -9,7 +9,7 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import UserProvider from "@/providers/token-provider";
 // components
 import { Toaster } from "sonner";
-// import ComingSoon from "./coming-soon";
+import ComingSoon from "./coming-soon";
 
 const font = Outfit({
   subsets: ["latin"],
@@ -54,10 +54,9 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
 };
 
-export default async function RootLayout({
-  children, // children,
-}: {
-  children: React.ReactNode;
+export default async function RootLayout({} // children,
+: {
+  // children: React.ReactNode;
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
@@ -68,8 +67,8 @@ export default async function RootLayout({
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <ReduxProvider>
               <UserProvider>
-                {/* <ComingSoon /> */}
-                {children}
+                <ComingSoon />
+                {/* {children} */}
               </UserProvider>
             </ReduxProvider>
             <Toaster richColors closeButton />

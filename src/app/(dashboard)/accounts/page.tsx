@@ -19,7 +19,7 @@ import {
 } from "@/redux/api/user/account/apiSlice";
 import { Spinner } from "@/components/ui/Spinner";
 import { type TNewAccount } from "@/types/TNewAccount";
-import { type TErrorResponse } from "@/types/TErrorResponse";
+import { isString } from "lodash";
 
 export default function AccountsPage() {
   const {
@@ -67,10 +67,6 @@ export default function AccountsPage() {
       const decodedData = JSON.parse(
         Buffer.from(data, "base64").toString("utf-8"),
       ) as TNewAccount;
-      console.log(
-        "🚀 ~ file: page.tsx:70 ~ useEffect ~ decodedData:",
-        decodedData,
-      );
 
       addAccount(decodedData)
         .unwrap()
@@ -80,10 +76,10 @@ export default function AccountsPage() {
             push(ROUTES.accounts);
           }, 1000);
         })
-        .catch((e: TErrorResponse<string[]>) => {
-          if (e.data) {
-            if (e.data.includes("ACCOUNT_EXISTS")) {
-              toast.error("Account already exists");
+        .catch((e: string[]) => {
+          if (e) {
+            if (isString(e[0])) {
+              toast.error(e[0]);
               push(ROUTES.accounts);
             } else push(ROUTES.accounts);
           } else window.location.reload();
@@ -202,6 +198,15 @@ export default function AccountsPage() {
             loading={isDeleteLoading}
           >
             Delete
+          </Button>
+        ) : getAccountByType(1)?.isExpired ? (
+          <Button
+            variant="outline"
+            onClick={connect("linkedin")}
+            disabled={isLoading}
+            loading={isLoading}
+          >
+            Renew
           </Button>
         ) : (
           <Button
