@@ -74,3 +74,8 @@ declare module "@editorjs/simple-image" {
   const SimpleImage: any;
   export = SimpleImage;
 }
+
+declare module "editorjs-text-color-plugin" {
+  const ColorPlugin: any;
+  export = ColorPlugin;
+}
