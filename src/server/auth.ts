@@ -105,6 +105,7 @@ async function getUser(refetchToken: string) {
     );
 
     if (!response.ok) {
+      console.log("🚀 ~ getUser ~ response:", response);
       return {
         error: "GetUserError",
       };
@@ -240,6 +241,10 @@ export const authOptions: NextAuthOptions = {
 
           return token;
         }
+
+      if (!token.refreshToken) {
+        return token;
+      }
 
       if (Date.now() > (token.accessTokenExpires as number)) {
         return {
