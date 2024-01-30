@@ -136,6 +136,12 @@ async function getUser(refetchToken: string) {
 export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, account, profile, user }) {
+      console.log("🚀 ~ jwt ~ { token, account, profile, user }:", {
+        token,
+        account,
+        profile,
+        user,
+      });
       if (account)
         if (account.provider === "credentials") {
           return {
