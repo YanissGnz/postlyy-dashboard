@@ -76,7 +76,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import {
   useAddPostNowMutation,
-  useAddPostToQueueMutation,
   useAddPostToSpotMutation,
   useAddRecurringPostMutation,
   useDeleteDraftImageMutation,
@@ -190,14 +189,14 @@ const TWITTER_TEXT_MAX_LENGTH = 280;
 //   }
 // }
 
-const generateFormData = async (data: TPostForm) => {
+export const generateFormData = (data: TPostForm) => {
   const formData = new FormData();
 
   formData.append("AsEvergreen", data.asEvergreen ? "true" : "false");
   formData.append("OnLinkedIn", data.onLinkedIn ? "true" : "false");
   formData.append("OnTwitter", data.onTwitter ? "true" : "false");
 
-  data.posts.forEach(async (post, index) => {
+  data.posts.forEach((post, index) => {
     formData.append(`Posts[${index}].index`, post.index.toString());
     formData.append(`Posts[${index}].text`, post.text);
     formData.append(
@@ -251,8 +250,6 @@ export default function PostPage() {
     useAddPostNowMutation();
   const [addPostToSpot, { isLoading: isAddingPostToSpot }] =
     useAddPostToSpotMutation();
-  const [addPostToQueue, { isLoading: isAddingToQueue }] =
-    useAddPostToQueueMutation();
   const [addRecurringPost, { isLoading: isAddingRecurringPost }] =
     useAddRecurringPostMutation();
 
@@ -287,6 +284,8 @@ export default function PostPage() {
   ]);
 
   const { value: isScheduleDialogOpen, setValue: setIsScheduleDialogOpen } =
+    useBoolean(false);
+  const { value: isQueueDialogOpen, setValue: setIsQueueDialogOpen } =
     useBoolean(false);
   const { value: isDraftDialogOpen, setValue: setIsDraftDialogOpen } =
     useBoolean(false);
@@ -952,36 +951,10 @@ export default function PostPage() {
       await form.trigger();
       return;
     }
-    await generateFormData(form.getValues()).then((data) => {
-      const postNowPromise = postNowOrSchedule(data).unwrap();
-      toast.promise(postNowPromise, {
-        loading: "Posting...",
-        success: () => {
-          form.reset(defaultValues);
-          setPostsContent([
-            {
-              index: 0,
-              images: [],
-            },
-          ]);
-
-          return "Posted!";
-        },
-        error: "Something went wrong",
-      });
-    });
-  }, [form]);
-
-  const handleAddToQueue = useCallback(async () => {
-    if (form.getValues("posts").length === 0 && !form.formState.isValid) {
-      await form.trigger();
-      return;
-    }
-    const data = await generateFormData(form.getValues());
-
-    const addToQueuePromise = addPostToQueue(data).unwrap();
-    toast.promise(addToQueuePromise, {
-      loading: "Adding to queue...",
+    const data = generateFormData(form.getValues());
+    const postNowPromise = postNowOrSchedule(data).unwrap();
+    toast.promise(postNowPromise, {
+      loading: "Posting...",
       success: () => {
         form.reset(defaultValues);
         setPostsContent([
@@ -990,7 +963,8 @@ export default function PostPage() {
             images: [],
           },
         ]);
-        return "Added to queue!";
+
+        return "Posted!";
       },
       error: "Something went wrong",
     });
@@ -1001,7 +975,7 @@ export default function PostPage() {
       await form.trigger();
       return;
     }
-    const data = await generateFormData(form.getValues());
+    const data = generateFormData(form.getValues());
     if (scheduleDate !== "") {
       setIsScheduleDialogOpen(false);
       data.append("scheduleDate", scheduleDate);
@@ -1052,7 +1026,7 @@ export default function PostPage() {
       await form.trigger();
       return;
     }
-    const data = await generateFormData(form.getValues());
+    const data = generateFormData(form.getValues());
 
     const addRecurringPostPromise = addRecurringPost({
       body: data,
@@ -1084,7 +1058,7 @@ export default function PostPage() {
 
     setIsDraftDialogOpen(false);
 
-    const data = await generateFormData(form.getValues());
+    const data = generateFormData(form.getValues());
 
     data.append("isDraft", "true");
     data.append("isTemplate", "false");
@@ -1119,7 +1093,7 @@ export default function PostPage() {
       return;
     }
 
-    const data = await generateFormData(form.getValues());
+    const data = generateFormData(form.getValues());
     data.append("isTemplate", "true");
     data.append("isDraft", "false");
 
@@ -1151,7 +1125,7 @@ export default function PostPage() {
 
     setIsDraftDialogOpen(false);
 
-    const data = await generateFormData(form.getValues());
+    const data = generateFormData(form.getValues());
 
     data.append("isDraft", "true");
     data.append("isTemplate", "false");
@@ -2328,12 +2302,10 @@ export default function PostPage() {
                         <DialogTrigger asChild>
                           <Button
                             type="button"
-                            variant="secondary"
                             disabled={
                               !form.formState.isValid ||
                               isPostingNowOrScheduling ||
                               isAddingPostToSpot ||
-                              isAddingToQueue ||
                               isAddingRecurringPost
                             }
                           >
@@ -2408,15 +2380,68 @@ export default function PostPage() {
                         <DialogTrigger asChild>
                           <Button
                             type="button"
-                            variant="secondary"
+                            disabled={
+                              !form.formState.isValid ||
+                              isPostingNowOrScheduling ||
+                              isAddingPostToSpot
+                            }
+                          >
+                            Pick a time
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>Pick a time</DialogTitle>
+                            <DialogDescription>
+                              Choose a time to post your content
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="">
+                            <div className="mt-3 grid w-full max-w-sm items-center gap-1.5">
+                              <Label htmlFor="custom-date">Custom date</Label>
+                              <Input
+                                id="custom-date"
+                                type="datetime-local"
+                                value={scheduleDate}
+                                onChange={handleCustomDateChange}
+                              />
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button type="button" onClick={handleSchedulePost}>
+                              Schedule
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+
+                      <Button
+                        type="button"
+                        disabled={
+                          !form.formState.isValid ||
+                          isPostingNowOrScheduling ||
+                          isAddingPostToSpot ||
+                          isAddingRecurringPost
+                        }
+                        onClick={handlePostNow}
+                      >
+                        Post now
+                      </Button>
+                      <Dialog
+                        open={isQueueDialogOpen}
+                        onOpenChange={(open) => setIsQueueDialogOpen(open)}
+                      >
+                        <DialogTrigger asChild>
+                          <Button
+                            type="button"
                             disabled={
                               !form.formState.isValid ||
                               isPostingNowOrScheduling ||
                               isAddingPostToSpot ||
-                              isAddingToQueue
+                              isAddingRecurringPost
                             }
                           >
-                            Pick a time
+                            Add to queue
                           </Button>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[425px]">
@@ -2460,15 +2485,6 @@ export default function PostPage() {
                                 <p>No spots available</p>
                               </div>
                             )}
-                            <div className="mt-3 grid w-full max-w-sm items-center gap-1.5 border-t pt-2">
-                              <Label htmlFor="custom-date">Custom date</Label>
-                              <Input
-                                id="custom-date"
-                                type="datetime-local"
-                                value={scheduleDate}
-                                onChange={handleCustomDateChange}
-                              />
-                            </div>
                           </div>
                           <DialogFooter>
                             <Button type="button" onClick={handleSchedulePost}>
@@ -2477,32 +2493,6 @@ export default function PostPage() {
                           </DialogFooter>
                         </DialogContent>
                       </Dialog>
-
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        disabled={
-                          !form.formState.isValid ||
-                          isPostingNowOrScheduling ||
-                          isAddingPostToSpot ||
-                          isAddingToQueue
-                        }
-                        onClick={handlePostNow}
-                      >
-                        Post now
-                      </Button>
-                      <Button
-                        type="button"
-                        disabled={
-                          !form.formState.isValid ||
-                          isPostingNowOrScheduling ||
-                          isAddingPostToSpot ||
-                          isAddingToQueue
-                        }
-                        onClick={handleAddToQueue}
-                      >
-                        Add to queue
-                      </Button>
                     </div>
                   </div>
                 </div>
