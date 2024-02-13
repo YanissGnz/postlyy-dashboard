@@ -77,3 +77,36 @@
 .fc-timegrid-event-harness > .fc-timegrid-event {
   @apply !relative;
 }
+
+/* Chart */
+
+.apexcharts-canvas .apexcharts-xaxistooltip {
+  @apply rounded border-0 bg-gray-50/10 text-primary shadow-md !backdrop-blur before:border-b-transparent after:border-b-white/10 dark:after:border-b-accent-foreground;
+}
+
+.apexcharts-canvas .apexcharts-tooltip-title {
+  @apply border-0 bg-gray-200 text-center font-bold text-secondary dark:text-primary;
+}
+
+.apexcharts-canvas .apexcharts-legend {
+  @apply p-0;
+}
+.apexcharts-canvas .apexcharts-legend-series {
+  @apply !flex items-center;
+}
+.apexcharts-canvas .apexcharts-legend-marker {
+  @apply mr-2;
+}
+.apexcharts-canvas .apexcharts-legend-text {
+  @apply capitalize leading-5 dark:!text-white;
+}
+
+.apexcharts-canvas .apexcharts-tooltip.apexcharts-theme-light,
+.apexcharts-canvas .apexcharts-tooltip.apexcharts-theme-dark {
+  @apply rounded border-0 !bg-white/20 text-foreground shadow-lg backdrop-blur  dark:!bg-background/50 dark:text-white;
+}
+
+.apexcharts-canvas .apexcharts-text.apexcharts-xaxis-label,
+.apexcharts-canvas .apexcharts-text.apexcharts-yaxis-label {
+  @apply !fill-foreground dark:!fill-gray-300;
+}

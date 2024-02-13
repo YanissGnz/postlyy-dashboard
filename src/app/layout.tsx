@@ -1,4 +1,6 @@
 import "@/styles/globals.css";
+import "/node_modules/react-grid-layout/css/styles.css";
+import "/node_modules/react-resizable/css/styles.css";
 import { type Metadata } from "next";
 // font
 import { Outfit } from "next/font/google";
@@ -24,16 +26,7 @@ export const metadata: Metadata = {
     site: "@postlyy",
     creator: "@postlyy",
   },
-  assets: [
-    "/favicon.ico",
-    "/favicon-16x16.png",
-    "/favicon-32x32.png",
-    "/apple-touch-icon.png",
-    "/android-chrome-192x192.png",
-    "/android-chrome-512x512.png",
-    "/site.webmanifest",
-    "/safari-pinned-tab.svg",
-  ],
+  assets: ["/favicon.ico"],
   description: "Your Content, Planned, Analyzed & Supercharged.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
   keywords: [

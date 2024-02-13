@@ -105,7 +105,6 @@ async function getUser(refetchToken: string) {
     );
 
     if (!response.ok) {
-      console.log("🚀 ~ getUser ~ response:", response);
       return {
         error: "GetUserError",
       };
@@ -137,12 +136,6 @@ async function getUser(refetchToken: string) {
 export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, account, profile, user }) {
-      console.log("🚀 ~ jwt ~ { token, account, profile, user }:", {
-        token,
-        account,
-        profile,
-        user,
-      });
       if (account)
         if (account.provider === "credentials") {
           return {
@@ -264,8 +257,6 @@ export const authOptions: NextAuthOptions = {
       }
 
       const newUser = await getUser(token.refreshToken as string);
-
-      console.log("🚀 ~ jwt ", newUser);
 
       if (newUser.error) {
         throw new Error(newUser.error);

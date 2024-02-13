@@ -15,6 +15,8 @@ import { calendarApi } from "./api/calendar/apiSlice";
 import { postApi } from "./api/post/apiSlice";
 import { notesApi } from "./api/notes/apiSlice";
 import { powerupsApi } from "./api/user/powerups/apiSlice";
+import { dashboard } from "./slices/dashboardSlice";
+import { dashboardApi } from "./api/user/dashboard/apiSlice";
 
 export const store = configureStore({
   reducer: {
@@ -22,6 +24,7 @@ export const store = configureStore({
     auth: auth.reducer,
     setup: setup.reducer,
     modals: modals.reducer,
+    dashboard: dashboard.reducer,
     [profileApi.reducerPath]: profileApi.reducer,
     [notificationsSettingsApi.reducerPath]: notificationsSettingsApi.reducer,
     [subscriptionApi.reducerPath]: subscriptionApi.reducer,
@@ -33,6 +36,7 @@ export const store = configureStore({
     [postApi.reducerPath]: postApi.reducer,
     [notesApi.reducerPath]: notesApi.reducer,
     [powerupsApi.reducerPath]: powerupsApi.reducer,
+    [dashboardApi.reducerPath]: dashboardApi.reducer,
   },
   devTools: process.env.NODE_ENV !== "production",
   middleware: (getDefaultMiddleware) =>
@@ -47,7 +51,8 @@ export const store = configureStore({
       .concat(calendarApi.middleware)
       .concat(postApi.middleware)
       .concat(notesApi.middleware)
-      .concat(powerupsApi.middleware),
+      .concat(powerupsApi.middleware)
+      .concat(dashboardApi.middleware),
 });
 
 setupListeners(store.dispatch);
