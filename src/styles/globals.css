@@ -78,6 +78,39 @@
   @apply !relative;
 }
 
+/* scrollbar */
+
+.scrollbar-none {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, and Opera */
+}
+
+html[class*="dark"] {
+  scrollbar-color: #ffffffb3 transparent;
+  scrollbar-width: auto;
+}
+
+::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-black/50 dark:bg-white/70;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-black/60 dark:hover:bg-white/80;
+}
+
 /* Chart */
 
 .apexcharts-canvas .apexcharts-xaxistooltip {
@@ -117,4 +150,25 @@ span.react-resizable-handle.react-resizable-handle-se {
 
 .react-grid-placeholder {
   @apply rounded-xl !bg-primary;
+}
+
+.grid-background {
+  --grid-size: 90px;
+  --grid-padding: 10px;
+  background-image: repeating-linear-gradient(
+      0deg,
+      transparent 20px,
+      transparent calc(var(--grid-size) - 1px),
+      #dddddd60 calc(var(--grid-size) - var(--grid-padding)),
+      #dddddd60 var(--grid-size)
+    ),
+    repeating-linear-gradient(
+      -90deg,
+      transparent var(--grid-padding),
+      transparent calc(var(--grid-size) - 1px),
+      #dddddd60 calc(var(--grid-size) - var(--grid-padding)),
+      #dddddd60 var(--grid-size)
+    );
+  background-position: var(--grid-padding) var(--grid-padding);
+  background-size: var(--grid-size) var(--grid-size);
 }

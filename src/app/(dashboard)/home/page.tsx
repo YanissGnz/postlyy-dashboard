@@ -17,6 +17,7 @@ import LoadingCard from "@/components/loading-card";
 import { Button } from "@/components/ui/button";
 import { useBoolean } from "usehooks-ts";
 import Iconify from "@/components/ui/icon";
+import { cn } from "@/lib/utils";
 const GridLayout = dynamic(() => import("react-grid-layout"), { ssr: false });
 
 export default function HomePage() {
@@ -109,7 +110,7 @@ export default function HomePage() {
           </div>
         ) : (
           <GridLayout
-            className="w-ful"
+            className={cn("w-ful", isEdit && "grid-background")}
             layout={
               layout.map((item) => ({
                 ...item,
