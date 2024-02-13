@@ -70,21 +70,18 @@ export default function AccountPopoverContent() {
             Settings
           </Link>
         </DropdownMenuItem>
-        {session?.user &&
-          [EUserType.Owner, , EUserType.Single].includes(
-            session.user.userType,
-          ) && (
-            <DropdownMenuItem asChild>
-              <Link href={ROUTES.billing}>
-                <Iconify
-                  icon="solar:bill-list-bold-duotone"
-                  fontSize={22}
-                  className="mr-2 text-foreground/80"
-                />
-                Billing
-              </Link>
-            </DropdownMenuItem>
-          )}
+        {session?.user && [EUserType.Owner].includes(session.user.userType) && (
+          <DropdownMenuItem asChild>
+            <Link href={ROUTES.billing}>
+              <Iconify
+                icon="solar:bill-list-bold-duotone"
+                fontSize={22}
+                className="mr-2 text-foreground/80"
+              />
+              Billing
+            </Link>
+          </DropdownMenuItem>
+        )}
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
       <DropdownMenuGroup>
