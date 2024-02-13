@@ -110,3 +110,11 @@
 .apexcharts-canvas .apexcharts-text.apexcharts-yaxis-label {
   @apply !fill-foreground dark:!fill-gray-300;
 }
+
+span.react-resizable-handle.react-resizable-handle-se {
+  @apply h-4 w-4 rounded-ee-xl border-b-2 border-r-2 border-foreground bg-none after:border-none;
+}
+
+.react-grid-placeholder {
+  @apply rounded-xl !bg-primary;
+}

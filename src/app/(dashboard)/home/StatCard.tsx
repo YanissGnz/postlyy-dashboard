@@ -7,30 +7,22 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Iconify from "@/components/ui/icon";
-import { useAppDispatch } from "@/redux/hooks";
-import { removeCard } from "@/redux/slices/dashboardSlice";
-import React, { useCallback } from "react";
 
 export default function StatCard({
   title,
-  query,
   description,
   unit,
   i,
+  handleRemoveCard,
 }: {
   title: string;
   query: string;
   unit?: string;
   description?: string;
   i: string;
+  handleRemoveCard: (i: string) => () => void;
 }) {
   // TODO: Add query to fetch data from the server
-
-  const dispatch = useAppDispatch();
-
-  const handleRemoveCard = useCallback(() => {
-    dispatch(removeCard(i));
-  }, []);
 
   return (
     <Card className="flex h-full flex-col items-start justify-between">
@@ -43,7 +35,7 @@ export default function StatCard({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem onClick={handleRemoveCard}>
+            <DropdownMenuItem onClick={handleRemoveCard(i)}>
               <>
                 <Iconify
                   icon="solar:trash-bin-2-bold"

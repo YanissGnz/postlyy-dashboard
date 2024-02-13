@@ -7,7 +7,7 @@ import GraphCard from "./GraphCard";
 import AddCardDialog from "./add-card-dialog";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { type Layout } from "react-grid-layout";
-import { changeLayout } from "@/redux/slices/dashboardSlice";
+import { changeLayout, removeCard } from "@/redux/slices/dashboardSlice";
 import { type DashboardConfig } from "@/types/DashboardConfig";
 import {
   useChangeDashboardConfigMutation,
@@ -68,22 +68,33 @@ export default function HomePage() {
     [layout],
   );
 
+  const handleRemoveCard = useCallback(
+    (i: string) => async () => {
+      dispatch(removeCard(i));
+      const newLayout = layout.filter((item) => item.i !== i);
+      await changeConfig(newLayout).unwrap();
+    },
+    [layout],
+  );
+
   return (
     <div className="flex h-screen flex-col space-y-2 px-4 py-4">
       <div className="mb-5 flex items-center justify-between md:px-4">
         <h2 className="text-2xl font-bold">Home</h2>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleEditLayout}>
-            <Iconify
-              icon={
-                isEdit
-                  ? "solar:check-circle-bold-duotone"
-                  : "solar:ruler-cross-pen-bold-duotone"
-              }
-              className="mr-2 h-5 w-5"
-            />
-            {isEdit ? "Done" : "Edit"}
-          </Button>
+          {layout.length > 0 && (
+            <Button variant="outline" onClick={handleEditLayout}>
+              <Iconify
+                icon={
+                  isEdit
+                    ? "solar:check-circle-bold-duotone"
+                    : "solar:ruler-cross-pen-bold-duotone"
+                }
+                className="mr-2 h-5 w-5"
+              />
+              {isEdit ? "Done" : "Edit"}
+            </Button>
+          )}
           <AddCardDialog />
         </div>
       </div>
@@ -112,18 +123,19 @@ export default function HomePage() {
             isDraggable={isEdit}
             isResizable={isEdit}
             onLayoutChange={handleLayoutChange}
+            useCSSTransforms
           >
             {layout.map((item) => {
               if (item.type === "stat") {
                 return (
                   <div key={item.i}>
-                    <StatCard {...item} />
+                    <StatCard {...item} handleRemoveCard={handleRemoveCard} />
                   </div>
                 );
               } else {
                 return (
                   <div key={item.i}>
-                    <GraphCard {...item} />
+                    <GraphCard {...item} handleRemoveCard={handleRemoveCard} />
                   </div>
                 );
               }

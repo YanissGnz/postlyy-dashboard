@@ -1,9 +1,7 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useMemo } from "react";
 import ReactApexChart, { BaseOptionChart } from "@/components/ui/chart";
 import { merge } from "lodash";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAppDispatch } from "@/redux/hooks";
-import { removeCard } from "@/redux/slices/dashboardSlice";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,13 +14,13 @@ import Iconify from "@/components/ui/icon";
 export default function GraphCard({
   title,
   i,
+  handleRemoveCard,
 }: {
   title: string;
   query: string;
   i: string;
+  handleRemoveCard: (i: string) => () => void;
 }) {
-  const dispatch = useAppDispatch();
-
   const chartOptions = useMemo(() => {
     return merge(BaseOptionChart(), {
       labels: [
@@ -53,10 +51,6 @@ export default function GraphCard({
     });
   }, []);
 
-  const handleRemoveCard = useCallback(() => {
-    dispatch(removeCard(i));
-  }, []);
-
   return (
     <Card className="flex h-full flex-col">
       <CardHeader className="flex w-full flex-row items-center justify-between space-y-0 pb-2">
@@ -68,7 +62,7 @@ export default function GraphCard({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem onClick={handleRemoveCard}>
+            <DropdownMenuItem onClick={handleRemoveCard(i)}>
               <>
                 <Iconify
                   icon="solar:trash-bin-2-bold"
