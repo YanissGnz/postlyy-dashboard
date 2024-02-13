@@ -189,14 +189,14 @@ const TWITTER_TEXT_MAX_LENGTH = 280;
 //   }
 // }
 
-export const generateFormData = (data: TPostForm) => {
+const generateFormData = async (data: TPostForm) => {
   const formData = new FormData();
 
   formData.append("AsEvergreen", data.asEvergreen ? "true" : "false");
   formData.append("OnLinkedIn", data.onLinkedIn ? "true" : "false");
   formData.append("OnTwitter", data.onTwitter ? "true" : "false");
 
-  data.posts.forEach((post, index) => {
+  data.posts.forEach(async (post, index) => {
     formData.append(`Posts[${index}].index`, post.index.toString());
     formData.append(`Posts[${index}].text`, post.text);
     formData.append(
@@ -285,8 +285,6 @@ export default function PostPage() {
 
   const { value: isScheduleDialogOpen, setValue: setIsScheduleDialogOpen } =
     useBoolean(false);
-  const { value: isQueueDialogOpen, setValue: setIsQueueDialogOpen } =
-    useBoolean(false);
   const { value: isDraftDialogOpen, setValue: setIsDraftDialogOpen } =
     useBoolean(false);
   const { value: isDraftSheetOpen, setValue: setIsDraftSheetOpen } =
@@ -296,6 +294,8 @@ export default function PostPage() {
   const { value: isNotesSheetOpen, setValue: setIsNotesSheetOpen } =
     useBoolean(false);
   const { value: isPreviewSheetOpen, setValue: setIsPreviewSheetOpen } =
+    useBoolean(false);
+  const { value: isQueueDialogOpen, setValue: setIsQueueDialogOpen } =
     useBoolean(false);
 
   const [selectedSpot, setSelectedSpot] = useState<string | null>(null);
@@ -951,22 +951,23 @@ export default function PostPage() {
       await form.trigger();
       return;
     }
-    const data = generateFormData(form.getValues());
-    const postNowPromise = postNowOrSchedule(data).unwrap();
-    toast.promise(postNowPromise, {
-      loading: "Posting...",
-      success: () => {
-        form.reset(defaultValues);
-        setPostsContent([
-          {
-            index: 0,
-            images: [],
-          },
-        ]);
+    await generateFormData(form.getValues()).then((data) => {
+      const postNowPromise = postNowOrSchedule(data).unwrap();
+      toast.promise(postNowPromise, {
+        loading: "Posting...",
+        success: () => {
+          form.reset(defaultValues);
+          setPostsContent([
+            {
+              index: 0,
+              images: [],
+            },
+          ]);
 
-        return "Posted!";
-      },
-      error: "Something went wrong",
+          return "Posted!";
+        },
+        error: "Something went wrong",
+      });
     });
   }, [form]);
 
@@ -975,7 +976,7 @@ export default function PostPage() {
       await form.trigger();
       return;
     }
-    const data = generateFormData(form.getValues());
+    const data = await generateFormData(form.getValues());
     if (scheduleDate !== "") {
       setIsScheduleDialogOpen(false);
       data.append("scheduleDate", scheduleDate);
@@ -1026,7 +1027,7 @@ export default function PostPage() {
       await form.trigger();
       return;
     }
-    const data = generateFormData(form.getValues());
+    const data = await generateFormData(form.getValues());
 
     const addRecurringPostPromise = addRecurringPost({
       body: data,
@@ -1058,7 +1059,7 @@ export default function PostPage() {
 
     setIsDraftDialogOpen(false);
 
-    const data = generateFormData(form.getValues());
+    const data = await generateFormData(form.getValues());
 
     data.append("isDraft", "true");
     data.append("isTemplate", "false");
@@ -1093,7 +1094,7 @@ export default function PostPage() {
       return;
     }
 
-    const data = generateFormData(form.getValues());
+    const data = await generateFormData(form.getValues());
     data.append("isTemplate", "true");
     data.append("isDraft", "false");
 
@@ -1125,7 +1126,7 @@ export default function PostPage() {
 
     setIsDraftDialogOpen(false);
 
-    const data = generateFormData(form.getValues());
+    const data = await generateFormData(form.getValues());
 
     data.append("isDraft", "true");
     data.append("isTemplate", "false");
