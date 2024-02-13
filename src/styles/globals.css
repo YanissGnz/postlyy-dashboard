@@ -77,3 +77,98 @@
 .fc-timegrid-event-harness > .fc-timegrid-event {
   @apply !relative;
 }
+
+/* scrollbar */
+
+.scrollbar-none {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, and Opera */
+}
+
+html[class*="dark"] {
+  scrollbar-color: #ffffffb3 transparent;
+  scrollbar-width: auto;
+}
+
+::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-black/50 dark:bg-white/70;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-black/60 dark:hover:bg-white/80;
+}
+
+/* Chart */
+
+.apexcharts-canvas .apexcharts-xaxistooltip {
+  @apply rounded border-0 bg-gray-50/10 text-primary shadow-md !backdrop-blur before:border-b-transparent after:border-b-white/10 dark:after:border-b-accent-foreground;
+}
+
+.apexcharts-canvas .apexcharts-tooltip-title {
+  @apply border-0 bg-gray-200 text-center font-bold text-secondary dark:text-primary;
+}
+
+.apexcharts-canvas .apexcharts-legend {
+  @apply p-0;
+}
+.apexcharts-canvas .apexcharts-legend-series {
+  @apply !flex items-center;
+}
+.apexcharts-canvas .apexcharts-legend-marker {
+  @apply mr-2;
+}
+.apexcharts-canvas .apexcharts-legend-text {
+  @apply capitalize leading-5 dark:!text-white;
+}
+
+.apexcharts-canvas .apexcharts-tooltip.apexcharts-theme-light,
+.apexcharts-canvas .apexcharts-tooltip.apexcharts-theme-dark {
+  @apply rounded border-0 !bg-white/20 text-foreground shadow-lg backdrop-blur  dark:!bg-background/50 dark:text-white;
+}
+
+.apexcharts-canvas .apexcharts-text.apexcharts-xaxis-label,
+.apexcharts-canvas .apexcharts-text.apexcharts-yaxis-label {
+  @apply !fill-foreground dark:!fill-gray-300;
+}
+
+span.react-resizable-handle.react-resizable-handle-se {
+  @apply h-4 w-4 rounded-ee-xl border-b-2 border-r-2 border-foreground bg-none after:border-none;
+}
+
+.react-grid-placeholder {
+  @apply rounded-xl !bg-primary;
+}
+
+.grid-background {
+  --grid-size: 90px;
+  --grid-padding: 10px;
+  background-image: repeating-linear-gradient(
+      0deg,
+      transparent 20px,
+      transparent calc(var(--grid-size) - 1px),
+      #dddddd60 calc(var(--grid-size) - var(--grid-padding)),
+      #dddddd60 var(--grid-size)
+    ),
+    repeating-linear-gradient(
+      -90deg,
+      transparent var(--grid-padding),
+      transparent calc(var(--grid-size) - 1px),
+      #dddddd60 calc(var(--grid-size) - var(--grid-padding)),
+      #dddddd60 var(--grid-size)
+    );
+  background-position: var(--grid-padding) var(--grid-padding);
+  background-size: var(--grid-size) var(--grid-size);
+}

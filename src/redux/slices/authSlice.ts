@@ -4,11 +4,13 @@ import { type PayloadAction, createSlice } from "@reduxjs/toolkit";
 export type TAuth = {
   token: string | null;
   currentAccount: TAccount | null;
+  dashboard: TAccount | null;
 };
 
 const initialState = {
   token: null,
   currentAccount: null,
+  dashboard: null,
 } as TAuth;
 
 export const auth = createSlice({
@@ -21,6 +23,9 @@ export const auth = createSlice({
     setAccount: (state, action: PayloadAction<TAccount>) => {
       state.currentAccount = action.payload;
     },
+    setDashboard: (state, action: PayloadAction<TAccount>) => {
+      state.currentAccount = action.payload;
+    }
   },
 });
 
