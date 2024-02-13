@@ -76,7 +76,7 @@ import PreviewSheet from "./preview-sheet";
 import { LAYOUT } from "@/lib/constants";
 import ErrorCard from "@/components/error-card";
 import { type TErrorResponse } from "@/types/TErrorResponse";
-import { isString } from "lodash";
+import { isArray } from "lodash";
 const EmojiPicker = dynamic(
   () => {
     return import("emoji-picker-react");
@@ -902,10 +902,8 @@ export default function EditPostPage({ params: { id: postId } }: Props) {
         await refetchPostData();
         return "Post updated successfully";
       },
-      error: (err: TErrorResponse<string>) => {
-        if (isString(err.data)) {
-          return err.data;
-        }
+      error: (err: TErrorResponse | string) => {
+        if (isArray(err)) return err[0];
         return "Something went wrong";
       },
     });
