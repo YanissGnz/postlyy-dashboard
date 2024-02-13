@@ -12,6 +12,7 @@ import UserProvider from "@/providers/token-provider";
 // components
 import { Toaster } from "sonner";
 import ComingSoon from "./coming-soon";
+import { env } from "@/env";
 
 const font = Outfit({
   subsets: ["latin"],
@@ -47,8 +48,9 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
 };
 
-export default async function RootLayout({} // children,
-: {
+export default async function RootLayout({
+  children,
+}: {
   children: React.ReactNode;
 }) {
   return (
@@ -60,8 +62,11 @@ export default async function RootLayout({} // children,
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <ReduxProvider>
               <UserProvider>
-                <ComingSoon />
-                {/* {children} */}
+                {env.NEXT_PUBLIC_ENVIRONMENT === "production" ? (
+                  <ComingSoon />
+                ) : (
+                  children
+                )}
               </UserProvider>
             </ReduxProvider>
             <Toaster richColors closeButton />
