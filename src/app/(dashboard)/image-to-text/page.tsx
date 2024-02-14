@@ -44,9 +44,9 @@ export default function CreateNotePage() {
         </div>
       </div>
       <div className="sr-only">
-        <div ref={ref} className="prose px-5">
+        <div ref={ref} className="prose min-w-[300px] px-5">
           <Parser data={JSON.parse(content ?? "null") as IParser} />
-          <div className="flex justify-end p-2">
+          <div className="flex justify-end p-2 text-xs text-muted-foreground">
             <p>Made by Postlyy</p>
           </div>
         </div>
