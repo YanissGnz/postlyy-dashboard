@@ -1,7 +1,7 @@
 import React from "react";
 import Calender from "./calender";
 
-export default function TeamPage() {
+export default function CalendarPage() {
   return (
     <div>
       <Calender />

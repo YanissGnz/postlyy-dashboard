@@ -34,7 +34,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { setHours } from "date-fns";
 import {
@@ -216,12 +215,6 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
                         Scheduled
                       </div>
                     </SelectItem>
-                    <SelectItem value="1">
-                      <div className="flex items-center gap-2">
-                        <Iconify icon={getIcon(1)} fontSize={18} />
-                        Draft
-                      </div>
-                    </SelectItem>
                     <SelectItem value="2">
                       <div className="flex items-center gap-2">
                         <Iconify icon={getIcon(2)} fontSize={18} />
@@ -388,40 +381,6 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
               )}
             />
           )}
-          <FormField
-            control={form.control}
-            name="forTwitter"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                <div className="space-y-0.5">
-                  <FormLabel>Twitter Slot</FormLabel>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="forLinkedIn"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                <div className="space-y-0.5">
-                  <FormLabel>LinkedIn Slot</FormLabel>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
           <Button
             type="submit"
             disabled={

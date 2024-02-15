@@ -76,8 +76,6 @@ export default function Modals() {
       start: data?.date
         ? addHours(new Date(data.date), 1).toISOString().slice(0, 16)
         : "",
-      forTwitter: true,
-      forLinkedIn: false,
       postId: null,
       startTime: "",
       daysOfWeek: [],
