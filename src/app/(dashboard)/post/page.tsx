@@ -189,7 +189,7 @@ const TWITTER_TEXT_MAX_LENGTH = 280;
 //   }
 // }
 
-const generateFormData = async (data: TPostForm) => {
+export const generateFormData = async (data: TPostForm) => {
   const formData = new FormData();
 
   formData.append("AsEvergreen", data.asEvergreen ? "true" : "false");
