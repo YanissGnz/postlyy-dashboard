@@ -167,7 +167,7 @@ export default function page({ params }: { params: { id: string } }) {
             ref.current.style.backgroundColor = "transparent";
             ref.current.style.padding = "0";
           }
-          const data = generateFormData(form.getValues());
+          const data = await generateFormData(form.getValues());
           const file = new File([blob], "note.png", {
             type: "image/png",
           });
@@ -212,7 +212,7 @@ export default function page({ params }: { params: { id: string } }) {
             ref.current.style.backgroundColor = "transparent";
             ref.current.style.padding = "0";
           }
-          const data = generateFormData(form.getValues());
+          const data = await generateFormData(form.getValues());
           const file = new File([blob], "note.png", {
             type: "image/png",
           });
@@ -256,7 +256,7 @@ export default function page({ params }: { params: { id: string } }) {
             ref.current.style.backgroundColor = "transparent";
             ref.current.style.padding = "0";
           }
-          const data = generateFormData(form.getValues());
+          const data = await generateFormData(form.getValues());
           const file = new File([blob], "note.png", {
             type: "image/png",
           });
@@ -303,7 +303,7 @@ export default function page({ params }: { params: { id: string } }) {
             ref.current.style.backgroundColor = "transparent";
             ref.current.style.padding = "0";
           }
-          const data = generateFormData(form.getValues());
+          const data = await generateFormData(form.getValues());
           const file = new File([blob], "note.png", {
             type: "image/png",
           });
