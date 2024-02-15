@@ -157,16 +157,9 @@ export default function page({ params }: { params: { id: string } }) {
     }
     if (!ref.current || !note) return;
 
-    ref.current.style.backgroundColor = "white";
-    ref.current.style.padding = "20px";
-
     toBlob(ref.current)
-      .then((blob) => {
+      .then(async (blob) => {
         if (blob) {
-          if (ref.current) {
-            ref.current.style.backgroundColor = "transparent";
-            ref.current.style.padding = "0";
-          }
           const data = await generateFormData(form.getValues());
           const file = new File([blob], "note.png", {
             type: "image/png",
@@ -202,16 +195,9 @@ export default function page({ params }: { params: { id: string } }) {
 
     if (!ref.current || !note) return;
 
-    ref.current.style.backgroundColor = "white";
-    ref.current.style.padding = "20px";
-
     toBlob(ref.current)
       .then(async (blob) => {
         if (blob) {
-          if (ref.current) {
-            ref.current.style.backgroundColor = "transparent";
-            ref.current.style.padding = "0";
-          }
           const data = await generateFormData(form.getValues());
           const file = new File([blob], "note.png", {
             type: "image/png",
@@ -246,16 +232,9 @@ export default function page({ params }: { params: { id: string } }) {
       return;
     }
 
-    ref.current.style.backgroundColor = "white";
-    ref.current.style.padding = "20px";
-
     toBlob(ref.current)
-      .then((blob) => {
+      .then(async (blob) => {
         if (blob) {
-          if (ref.current) {
-            ref.current.style.backgroundColor = "transparent";
-            ref.current.style.padding = "0";
-          }
           const data = await generateFormData(form.getValues());
           const file = new File([blob], "note.png", {
             type: "image/png",
@@ -293,16 +272,9 @@ export default function page({ params }: { params: { id: string } }) {
       return;
     }
 
-    ref.current.style.backgroundColor = "white";
-    ref.current.style.padding = "20px";
-
     toBlob(ref.current)
-      .then((blob) => {
+      .then(async (blob) => {
         if (blob) {
-          if (ref.current) {
-            ref.current.style.backgroundColor = "transparent";
-            ref.current.style.padding = "0";
-          }
           const data = await generateFormData(form.getValues());
           const file = new File([blob], "note.png", {
             type: "image/png",
@@ -342,11 +314,16 @@ export default function page({ params }: { params: { id: string } }) {
             <div className="mb-10 flex items-center justify-between">
               <h2 className="text-2xl font-bold">{note.data.name}</h2>
             </div>
-            <div
-              ref={ref}
-              className="prose mx-auto max-w-4xl dark:prose-invert "
-            >
+            <div className="prose mx-auto max-w-4xl dark:prose-invert ">
               <Parser data={content} />
+            </div>
+          </div>
+          <div className="sr-only">
+            <div ref={ref} className="prose min-w-[300px] px-5">
+              <Parser data={content} />
+              <div className="flex justify-end p-2 text-xs text-muted-foreground">
+                <p>Made by Postlyy</p>
+              </div>
             </div>
           </div>
           <BottomButtons>
