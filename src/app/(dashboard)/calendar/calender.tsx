@@ -189,7 +189,7 @@ export default function Calender() {
               <SelectGroup>
                 <SelectItem value="dayGridMonth">Month</SelectItem>
                 <SelectItem value="timeGrid">Week</SelectItem>
-                <SelectItem value="listWeek">List</SelectItem>
+                <SelectItem value="list">List</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
@@ -230,6 +230,12 @@ export default function Calender() {
             }),
           );
         }}
+        views={{
+          list: {
+            type: "listWeek",
+            duration: { days: 8 },
+          },
+        }}
         eventDrop={handleEditEvent}
         dateClick={(info) => {
           dispatch(
@@ -256,7 +262,7 @@ export default function Calender() {
         eventContent={(eventInfo) => {
           const { event } = eventInfo;
 
-          if (calenderRef.current?.getApi().view.type === "listWeek")
+          if (calenderRef.current?.getApi().view.type === "list")
             return (
               <div className="flex items-center gap-2">
                 <Iconify
