@@ -56,7 +56,7 @@ const Editor = ({
     <div className="w-full rounded border">
       <div
         id={EDITOR_HOLDER_ID}
-        className="prose dark:prose-invert max-w-full  p-1"
+        className="prose max-w-full p-1 font-sans dark:prose-invert"
       ></div>
     </div>
   );
