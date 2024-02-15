@@ -28,8 +28,19 @@ const handleOpenDeleteTemplateModal = (id: string) => () => {
 
 export const columns: ColumnDef<TDraft>[] = [
   {
-    accessorKey: "id",
-    header: "ID",
+    accessorKey: "text",
+    header: "Text",
+    cell: ({
+      row: {
+        original: { text },
+      },
+    }) => {
+      return (
+        <p className="truncate">
+          {text.length > 50 ? text.slice(0, 50) + "..." : text}
+        </p>
+      );
+    },
   },
   {
     accessorKey: "createdAt",
@@ -39,12 +50,13 @@ export const columns: ColumnDef<TDraft>[] = [
         original: { createdAt },
       },
     }) => {
-      return format(new Date(createdAt), "dd/MM/yyyy");
+      return format(new Date(createdAt), "dd MMM yyyy");
     },
   },
   {
     id: "actions",
     header: "Actions",
+    size: 50,
     cell: ({
       row: {
         original: { id },

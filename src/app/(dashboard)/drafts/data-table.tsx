@@ -59,7 +59,12 @@ export function DataTable() {
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead
+                      key={header.id}
+                      style={{
+                        width: header.getSize() ?? "auto",
+                      }}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(

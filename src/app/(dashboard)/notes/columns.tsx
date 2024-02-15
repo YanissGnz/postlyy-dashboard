@@ -34,6 +34,7 @@ export const columns: ColumnDef<TNote>[] = [
   {
     id: "actions",
     header: "Actions",
+    size: 50,
     cell: ({
       row: {
         original: { id },

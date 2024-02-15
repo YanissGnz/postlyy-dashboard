@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { DataTableViewOptions } from "@/components/ui/table/DataTableViewOptions ";
 import { Spinner } from "@/components/ui/Spinner";
 import { DataTablePagination } from "@/components/ui/table/DataTablePagination";
-import { useGetTemplatesQuery } from '@/redux/api/post/apiSlice';
+import { useGetTemplatesQuery } from "@/redux/api/post/apiSlice";
 
 export function DataTable() {
   const pagination = usePagination();
@@ -59,7 +59,12 @@ export function DataTable() {
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead
+                      key={header.id}
+                      style={{
+                        width: header.getSize() ?? "auto",
+                      }}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
