@@ -43,9 +43,7 @@ export default function CreateNotePage() {
           </BottomButtons>
         </div>
       </div>
-      <div
-      // className="sr-only"
-      >
+      <div className="sr-only">
         <div ref={ref} className="prose min-w-[300px] px-5">
           <Parser data={JSON.parse(content ?? "null") as IParser} />
           <div className="flex justify-end p-2 text-xs text-muted-foreground">
