@@ -13,7 +13,7 @@ export const getBackgroundColor = (type: EPostSpotType) => {
     case EPostSpotType.Evergreen:
       return "#6EE7B7";
     case EPostSpotType.Scheduled:
-      return "#FCA5A5";
+      return "#7fb7d9";
     case EPostSpotType.Recurring:
       return "#A5B4FC";
   }
@@ -26,7 +26,7 @@ export const getTextColor = (type: EPostSpotType) => {
     case EPostSpotType.Evergreen:
       return "#1F2937";
     case EPostSpotType.Scheduled:
-      return "#1F2937";
+      return "#000";
     case EPostSpotType.Recurring:
       return "#1F2937";
   }
