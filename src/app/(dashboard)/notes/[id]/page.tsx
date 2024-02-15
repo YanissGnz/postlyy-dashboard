@@ -206,7 +206,7 @@ export default function page({ params }: { params: { id: string } }) {
     ref.current.style.padding = "20px";
 
     toBlob(ref.current)
-      .then((blob) => {
+      .then(async (blob) => {
         if (blob) {
           if (ref.current) {
             ref.current.style.backgroundColor = "transparent";
