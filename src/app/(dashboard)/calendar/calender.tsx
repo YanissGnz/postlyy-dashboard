@@ -62,7 +62,7 @@ export default function Calender() {
     }
   }, [calenderRef.current?.getApi().view.title]);
 
-  const { data, isLoading, isFetching } = useGetEventsQuery();
+  const { data, isLoading, isFetching } = useGetEventsQuery({});
 
   const [updateSpot] = useUpdateSpotMutation();
 
