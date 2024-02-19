@@ -1,6 +1,8 @@
+import { type ETiers } from "./ETiers";
+
 export type TSubscriptionSettings = {
   id: string;
-  tier: number;
+  tier: ETiers;
   payingDate: string;
   renewalDate: string;
   notificationDate: string;

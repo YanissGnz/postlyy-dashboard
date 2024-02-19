@@ -3,6 +3,7 @@ import { type RootState } from "@/redux/store";
 import { type TSubscriptionSettings } from "@/types/TSubscriptionSettings";
 import { type TResponse } from "@/types/TResponse";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { type ETiers } from "@/types/ETiers";
 
 export const subscriptionApi = createApi({
   reducerPath: "subscriptionApi",
@@ -49,6 +50,17 @@ export const subscriptionApi = createApi({
         method: "GET",
       }),
     }),
+    upgradeSubscription: builder.mutation<
+      TResponse<unknown>,
+      { newTier: ETiers }
+    >({
+      query: (body) => ({
+        url: "/api/Subscription/upgrade",
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["SubscriptionSettings"],
+    }),
   }),
 });
 
@@ -56,4 +68,5 @@ export const {
   useGetSubscriptionSettingsQuery,
   useCancelSubscriptionMutation,
   useGetPaymentLinkMutation,
+  useUpgradeSubscriptionMutation,
 } = subscriptionApi;
