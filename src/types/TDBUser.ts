@@ -1,3 +1,4 @@
+import { type ETiers } from "./ETiers";
 import { type EUserType } from "./EUserType";
 import { type TAccount } from "./TAccount";
 
@@ -12,7 +13,7 @@ export type TDBUser = {
   hasSetupUsers: boolean;
   hasSetupEmail: boolean;
   isTrial: boolean;
-  tier: number;
+  tier: ETiers;
   userType: EUserType;
   accounts: Array<TAccount>;
 };

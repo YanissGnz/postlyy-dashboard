@@ -33,6 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { type TErrorResponse } from "@/types/TErrorResponse";
 
 export default function TeamForm() {
   const { data: managers, isSuccess: isManagerSuccess } = useGetManagersQuery();
@@ -67,8 +68,8 @@ export default function TeamForm() {
         toast.success("Manager added successfully");
         setManagerDialogFalse();
       })
-      .catch(() => {
-        toast.error("Something went wrong");
+      .catch((error: { data: TErrorResponse }) => {
+        toast.error(error.data[0] ?? "Something went wrong");
       });
   }, [email]);
 
@@ -96,8 +97,8 @@ export default function TeamForm() {
         toast.success("Team Member added successfully");
         setFalse();
       })
-      .catch(() => {
-        toast.error("Something went wrong");
+      .catch((error: { data: TErrorResponse }) => {
+        toast.error(error.data[0] ?? "Something went wrong");
         setFalse();
       });
   }, [email]);

@@ -57,10 +57,10 @@ export default function SubscriptionForm() {
             <p>Plan</p>
             <p className="col-span-2 font-semibold">
               {subscriptionSettings?.data.tier === 0
-                ? "Individual"
+                ? "Basic"
                 : subscriptionSettings?.data.tier === 1
-                  ? "SMB"
-                  : "Enterprise"}
+                  ? "Pro"
+                  : "Expert"}
             </p>
           </div>
           <div className="grid w-full grid-cols-3">
