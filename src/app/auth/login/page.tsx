@@ -4,7 +4,7 @@ import { getProviders } from "next-auth/react";
 import ProviderLoginButton from "./provider-login-button";
 import { getServerAuthSession } from "@/server/auth";
 import { redirect } from "next/navigation";
-import EnterpriseLoginForm from "./enterprise-login-form";
+import CredentialsLoginForm from "./credentials-login-form";
 
 export default async function Login() {
   const session = await getServerAuthSession();
@@ -32,13 +32,11 @@ export default async function Login() {
         </svg>
       </div>
 
-      <div className="col-span-12 h-full px-2 py-10 md:col-span-6">
-        <div className="flex flex-col px-8 py-10 sm:px-16 md:px-16 lg:px-20">
-          <h6 className="mb-2 text-4xl font-bold">Login</h6>
-          <p className="mb-2 text-foreground/80">Login to your account</p>
+      <div className="col-span-12 flex h-full w-full items-center justify-center px-2 py-10 md:col-span-6">
+        <div className="flex w-full flex-col px-8 py-10 sm:px-16 md:px-16 lg:px-20">
           <div className="mb-2 space-y-2">
             {Object.values(providers ?? [])
-              .filter((provider) => provider.name !== "Enterprise Login")
+              .filter((provider) => provider.name !== "Credentials Login")
               .map((provider) => {
                 if (provider.name.includes("Legacy")) {
                   provider.name = provider.name.replace(" (Legacy)", "");
@@ -56,8 +54,7 @@ export default async function Login() {
             OR
             <div className="h-px flex-1 bg-gray-200"></div>
           </div>
-          <p className="mb-2 text-foreground/80">Enterprise login</p>
-          <EnterpriseLoginForm />
+          <CredentialsLoginForm />
         </div>
       </div>
       <div className=" hidden h-full p-8 md:col-span-6 md:block">
