@@ -13,7 +13,6 @@ import Iconify from "@/components/ui/icon";
 
 import { type TTeamMember } from "@/types/TTeamMember";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { env } from "@/env";
 import { teamApi } from "@/redux/api/user/team/apiSlice";
 import { store } from "@/redux/store";
 import { toast } from "sonner";
@@ -68,7 +67,7 @@ export const teamMembersColumns: ColumnDef<TTeamMember>[] = [
         <div className="flex items-center space-x-2">
           <Avatar>
             <AvatarImage
-              src={env.NEXT_PUBLIC_API_BASE_URL + original?.photoUrl ?? ""}
+              src={original?.photoUrl ?? ""}
               alt={`@${original?.fullName}`}
             />
             <AvatarFallback>

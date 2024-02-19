@@ -39,6 +39,7 @@ export default function DashboardLayout({
   if (
     session.status === "authenticated" &&
     !session.data?.user.hasChosenSubscription &&
+    !session.data?.user.isTrial &&
     !session.data?.user.hasPaidSubscription
   ) {
     redirect(ROUTES.setupSubscription);
@@ -46,6 +47,7 @@ export default function DashboardLayout({
 
   if (
     session.status === "authenticated" &&
+    !session.data?.user.isTrial &&
     !session.data?.user.hasPaidSubscription
   ) {
     redirect(ROUTES.payment);

@@ -1,39 +1,39 @@
-"use client";
-
-import React, { useEffect } from "react";
+import React from "react";
 import { env } from "@/env";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { ROUTES } from "@/routes";
+import { getServerAuthSession } from "@/server/auth";
+import { redirect } from "next/navigation";
 
-export default function Payment() {
-  const session = useSession();
+export default async function Payment() {
+  const session = await getServerAuthSession();
 
-  const { push } = useRouter();
+  if (session?.user.isTrial) redirect(ROUTES.home);
 
-  useEffect(() => {
-    if (session.data?.user.accessToken)
-      fetch(`${env.NEXT_PUBLIC_API_BASE_URL}/api/Subscription/link`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.data?.user.accessToken}`,
-        },
+  if (
+    session?.user.accessToken &&
+    !session?.user.isTrial &&
+    !session?.user.hasPaidSubscription
+  )
+    await fetch(`${env.NEXT_PUBLIC_API_BASE_URL}/api/Subscription/link`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session?.user.accessToken}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data: { data: { link: string } } | string[]) => {
+        if ((data as { data: { link: string } })?.data?.link)
+          redirect((data as { data: { link: string } })?.data?.link);
+        else if ((data as string[]).includes("SUBSCRIPTION_PAID")) {
+          redirect(ROUTES.home);
+        }
       })
-        .then((res) => res.json())
-        .then((data: { data: { link: string } } | string[]) => {
-          if ((data as { data: { link: string } })?.data?.link)
-            push((data as { data: { link: string } })?.data?.link);
-          else if ((data as string[]).includes("SUBSCRIPTION_PAID")) {
-            push(ROUTES.home);
-          }
-        })
-        .catch((err: string[]) => {
-          if (err.includes("SUBSCRIPTION_PAID")) {
-            push(ROUTES.home);
-          }
-        });
-  }, [session.data?.user.accessToken]);
+      .catch((err: string[]) => {
+        if (err.includes("SUBSCRIPTION_PAID")) {
+          redirect(ROUTES.home);
+        }
+      });
 
   return (
     <div className="flex h-screen w-screen items-center justify-center">

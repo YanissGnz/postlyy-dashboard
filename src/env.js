@@ -42,8 +42,9 @@ export const env = createEnv({
     NEXT_PUBLIC_PRO_YEARLY_PRICE: z.number(),
     NEXT_PUBLIC_EXPERT_MONTHLY_PRICE: z.number(),
     NEXT_PUBLIC_EXPERT_YEARLY_PRICE: z.number(),
-    NEXT_PUBLIC_BASIC_MONTHLY: z.number(),
-    NEXT_PUBLIC_BASIC_YEARLY: z.number(),
+    NEXT_PUBLIC_BASIC_MONTHLY_PRICE: z.number(),
+    NEXT_PUBLIC_BASIC_YEARLY_PRICE: z.number(),
+
     NEXT_PUBLIC_GOOGLE_ID: z.string(),
     NEXT_PUBLIC_TENOR_API_KEY: z.string(),
     NEXT_PUBLIC_ENVIRONMENT: z.string(),
@@ -73,6 +74,13 @@ export const env = createEnv({
     ),
     NEXT_PUBLIC_EXPERT_YEARLY_PRICE: Number(
       process.env.NEXT_PUBLIC_EXPERT_YEARLY_PRICE,
+    ),
+    NEXT_PUBLIC_BASIC_MONTHLY_PRICE: Number(
+      process.env.NEXT_PUBLIC_BASIC_MONTHLY_PRICE,
+    ),
+    NEXT_PUBLIC_BASIC_YEARLY_PRICE: Number(
+      process.env.NEXT_PUBLIC_BASIC_YEARLY_PRICE,
+
     ),
     NEXT_PUBLIC_BASIC_MONTHLY: Number(process.env.NEXT_PUBLIC_BASIC_MONTHLY),
     NEXT_PUBLIC_BASIC_YEARLY: Number(process.env.NEXT_PUBLIC_BASIC_YEARLY),

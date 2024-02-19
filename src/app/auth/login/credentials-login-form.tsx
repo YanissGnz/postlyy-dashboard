@@ -48,7 +48,7 @@ export default function EnterpriseLoginForm() {
     const { email, password } = values;
     setTrue();
 
-    const response = await signIn("credentials", {
+    const response = await signIn("c", {
       email,
       password,
       redirect: false,
@@ -105,7 +105,21 @@ export default function EnterpriseLoginForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <div className="flex items-center justify-between">
+                <FormLabel>Password</FormLabel>{" "}
+                <p className="text-xs text-gray-500">
+                  Forgot your password?{" "}
+                  <Link href={ROUTES.recoverPassword}>
+                    <Button
+                      variant="link"
+                      className="px-1 text-xs"
+                      type="button"
+                    >
+                      Recover password
+                    </Button>
+                  </Link>
+                </p>
+              </div>
               <FormControl>
                 <Input
                   type="password"
@@ -117,17 +131,8 @@ export default function EnterpriseLoginForm() {
             </FormItem>
           )}
         />
-        <div className="mt-2 text-end">
-          <p className="text-sm text-gray-500">
-            Forgot your password?{" "}
-            <Link href={ROUTES.recoverPassword}>
-              <Button variant="link" className="px-1" type="button">
-                Recover password
-              </Button>
-            </Link>
-          </p>
-        </div>
-        <Button type="submit" disabled={isLoading}>
+
+        <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading && (
             <Iconify
               icon="ph:spinner-bold"

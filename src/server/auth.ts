@@ -74,6 +74,7 @@ async function refreshAccessToken(refetchToken: string) {
       hasPaidSubscription: user.hasPaidSubscription,
       hasToChangePassword: user.hasToChangePassword,
       hasSetupEmail: user.hasSetupEmail,
+      hasSetupUsers: user.hasSetupUsers,
       isTrial: user.isTrial,
       tier: user.tier,
       userType: user.userType,
@@ -119,6 +120,7 @@ async function getUser(refetchToken: string) {
       hasPaidSubscription: user.hasPaidSubscription,
       hasToChangePassword: user.hasToChangePassword,
       hasSetupEmail: user.hasSetupEmail,
+      hasSetupUsers: user.hasSetupUsers,
       isTrial: user.isTrial,
       tier: user.tier,
       userType: user.userType,
@@ -178,6 +180,7 @@ export const authOptions: NextAuthOptions = {
           token.hasPaidSubscription = response.hasPaidSubscription;
           token.hasToChangePassword = response.hasToChangePassword;
           token.hasSetupEmail = response.hasSetupEmail;
+          token.hasSetupUsers = response.hasSetupUsers;
           token.isTrial = response.isTrial;
           token.tier = response.tier;
           token.userType = response.userType;
@@ -223,6 +226,7 @@ export const authOptions: NextAuthOptions = {
           token.hasChosenSubscription = response.hasChosenSubscription;
           token.hasPaidSubscription = response.hasPaidSubscription;
           token.hasToChangePassword = response.hasToChangePassword;
+          token.hasSetupUsers = response.hasSetupUsers;
           token.hasSetupEmail = response.hasSetupEmail;
           token.isTrial = response.isTrial;
           token.tier = response.tier;
@@ -356,7 +360,7 @@ export const authOptions: NextAuthOptions = {
       },
     }),
     CredentialsProvider({
-      name: "Enterprise Login",
+      name: "Credentials Login",
 
       credentials: {
         email: { label: "Email", type: "email" },

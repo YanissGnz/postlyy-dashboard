@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Iconify from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
@@ -13,15 +13,23 @@ import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { type TResponse } from "@/types/TResponse";
+import { ROUTES } from "@/routes";
 
 export default function SetupForm() {
   const { value: isLoading, setFalse, setTrue } = useBoolean(false);
 
   const { value: isYearly, setValue: setYearly } = useBoolean(false);
 
-  const [seatsBought, setSeatsBought] = useState(2);
+  const [seatsBought, setSeatsBought] = useState(1);
 
   const [currentStep, setCurrentStep] = useState(1);
+
+  const percentage = useMemo(() => {
+    if (seatsBought === 1) return 1;
+    if (seatsBought <= 9) return 0.95;
+    if (seatsBought <= 20) return 0.925;
+    return 0.9;
+  }, [seatsBought, isYearly]);
 
   const session = useSession();
 
@@ -50,6 +58,8 @@ export default function SetupForm() {
             setTimeout(() => {
               push(res.data.url);
             }, 3000);
+          } else {
+            push(ROUTES.home);
           }
         })
         .catch(() => {
@@ -65,9 +75,7 @@ export default function SetupForm() {
   }, [seatsBought]);
 
   const handleRemoveSeat = useCallback(() => {
-    if (seatsBought > 2) {
-      setSeatsBought((prev) => prev - 1);
-    }
+    setSeatsBought((prev) => Math.max(1, prev - 1));
   }, [seatsBought]);
 
   const handlePaymentModeChange = useCallback((e: boolean) => {
@@ -134,12 +142,20 @@ export default function SetupForm() {
               </Label>
             </div>
           </div>
-          <div className="grid w-full grid-cols-1 gap-10 md:grid-cols-2">
-            <Card className="border shadow-none">
+          <div className="mb-4 flex items-center justify-center gap-2">
+            <Button size="icon" variant="ghost" onClick={handleRemoveSeat}>
+              <Iconify icon="solar:minus-circle-bold-duotone" fontSize={22} />
+            </Button>
+            <p className="rounded border p-2">{seatsBought} seats</p>
+            <Button size="icon" variant="ghost" onClick={handleAddSeat}>
+              <Iconify icon="solar:add-circle-bold-duotone" fontSize={22} />
+            </Button>
+          </div>
+          <div className="grid w-full grid-cols-1 gap-10 md:grid-cols-3">
+            {" "}
+            <Card className="h-full border shadow-none">
               <CardHeader>
-                <CardTitle className="text-2xl font-bold">
-                  Small to medium businesses
-                </CardTitle>
+                <CardTitle className="text-2xl font-bold">Basic</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between">
@@ -152,40 +168,113 @@ export default function SetupForm() {
                       Per seat / {isYearly ? "year" : "month"}
                     </span>
                   </p>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={handleRemoveSeat}
-                      disabled={seatsBought <= 2}
-                    >
-                      <Iconify
-                        icon="solar:minus-circle-bold-duotone"
-                        fontSize={22}
-                      />
-                    </Button>
-                    <p className="rounded border p-2">
-                      {seatsBought > 9 ? 9 : seatsBought} seats
-                    </p>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={handleAddSeat}
-                      disabled={seatsBought >= 9}
-                    >
-                      <Iconify
-                        icon="solar:add-circle-bold-duotone"
-                        fontSize={22}
-                      />
-                    </Button>
-                  </div>
                 </div>
                 <div className="mt-2 flex items-center justify-between">
                   <p className="text-4xl font-semibold">
                     <span className="mr-1 text-2xl text-foreground/60">=</span>
                     <span className="mr-1 text-2xl text-foreground/60"> $</span>
                     {Math.round(
-                      (seatsBought > 9 ? 9 : seatsBought) *
+                      seatsBought *
+                        percentage *
+                        (isYearly
+                          ? env.NEXT_PUBLIC_BASIC_YEARLY_PRICE
+                          : env.NEXT_PUBLIC_BASIC_MONTHLY_PRICE) *
+                        100,
+                    ) / 100}
+                    <span className="ml-1 mr-1 text-xl text-foreground/60">
+                      / {isYearly ? "year" : "month"}
+                    </span>
+                  </p>
+                </div>
+                <ul className="mt-5 flex flex-col gap-4 border-t p-3">
+                  <li className="flex items-center gap-2 text-gray-600">
+                    <div className="p-1">
+                      <Iconify
+                        icon="ph:check-circle-fill"
+                        height={20}
+                        width={20}
+                        className="text-primary"
+                      />
+                    </div>{" "}
+                    Schedule X (Twitter) / Linkedin Posts
+                  </li>
+                  <li className="flex items-center gap-2 text-gray-600">
+                    <div className="p-1">
+                      <Iconify
+                        icon="ph:check-circle-fill"
+                        height={20}
+                        width={20}
+                        className="text-primary"
+                      />{" "}
+                    </div>{" "}
+                    Create Recurring & Evergreen LinkedIn & Twitter Posts
+                  </li>
+                  <li className="flex items-center gap-2 text-gray-600">
+                    <div className="p-1">
+                      <Iconify
+                        icon="ph:check-circle-fill"
+                        height={20}
+                        width={20}
+                        className="text-primary"
+                      />{" "}
+                    </div>{" "}
+                    Calendar Management
+                  </li>{" "}
+                  <li className="flex items-center gap-2 text-gray-600">
+                    <div className="p-1">
+                      <Iconify
+                        icon="ph:check-circle-fill"
+                        height={20}
+                        width={20}
+                        className="text-primary"
+                      />{" "}
+                    </div>{" "}
+                    Custom Dashboard and Content Analytics
+                  </li>{" "}
+                  <li className="flex items-center gap-2 text-gray-600">
+                    <div className="p-1">
+                      <Iconify
+                        icon="ph:check-circle-fill"
+                        height={20}
+                        width={20}
+                        className="text-primary"
+                      />{" "}
+                    </div>{" "}
+                    Complimentary Manager Overview with 5+ seats
+                  </li>
+                </ul>
+                <Button
+                  className="mt-5 w-full"
+                  onClick={handlePayment(0)}
+                  disabled={isLoading}
+                >
+                  Choose Basic {!isYearly && "(1 month free trial)"}
+                </Button>
+              </CardContent>
+            </Card>
+            <Card className="border shadow-none">
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold">Pro</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <p className="text-4xl font-semibold">
+                    <span className="mr-1 text-2xl text-foreground/60"> $</span>
+                    {isYearly
+                      ? env.NEXT_PUBLIC_PRO_YEARLY_PRICE
+                      : env.NEXT_PUBLIC_PRO_MONTHLY_PRICE}=
+                    <span className="ml-1 mr-1 text-xl text-foreground/60">
+                      Per seat / {isYearly ? "year" : "month"}
+                    </span>
+                  </p>
+                </div>
+                <div className="mt-2 flex items-center justify-between">
+                  <p className="text-4xl font-semibold">
+                    <span className="mr-1 text-2xl text-foreground/60">=</span>
+                    <span className="mr-1 text-2xl text-foreground/60"> $</span>
+                    {Math.round(
+                      seatsBought *
+                        percentage *
                         (isYearly
                           ? env.NEXT_PUBLIC_PRO_YEARLY_PRICE
                           : env.NEXT_PUBLIC_PRO_MONTHLY_PRICE) *
@@ -197,67 +286,85 @@ export default function SetupForm() {
                   </p>
                 </div>
                 <ul className="mt-5 flex flex-col gap-4 border-t p-3">
-                  <li className="inline-flex">
-                    <Iconify
-                      icon="solar:check-circle-bold-duotone"
-                      fontSize={22}
-                      className="mr-2 text-primary"
-                    />
-                    2-9 seats (includes a free manager seat)
+                  <li className="flex items-center gap-2 text-gray-600">
+                    <div className="p-1">
+                      <Iconify
+                        icon="ph:check-circle-fill"
+                        height={20}
+                        width={20}
+                        className="text-primary"
+                      />
+                    </div>{" "}
+                    Schedule X (Twitter) / Linkedin Posts
+                  </li>{" "}
+                  <li className="flex items-center gap-2 text-gray-600">
+                    <div className="p-1">
+                      <Iconify
+                        icon="ph:check-circle-fill"
+                        height={20}
+                        width={20}
+                        className="text-primary"
+                      />
+                    </div>{" "}
+                    Create Recurring & Evergreen LinkedIn & Twitter Posts
+                  </li>{" "}
+                  <li className="flex items-center gap-2 text-gray-600">
+                    <div className="p-1">
+                      <Iconify
+                        icon="ph:check-circle-fill"
+                        height={20}
+                        width={20}
+                        className="text-primary"
+                      />
+                    </div>{" "}
+                    Calendar Management
                   </li>
-                  <li className="inline-flex">
-                    <Iconify
-                      icon="solar:check-circle-bold-duotone"
-                      fontSize={22}
-                      className="mr-2 text-primary"
-                    />
-                    Schedule LinkedIn & Twitter Posts
+                  <li className="flex items-center gap-2 text-gray-600">
+                    <div className="p-1">
+                      <Iconify
+                        icon="ph:check-circle-fill"
+                        height={20}
+                        width={20}
+                        className="text-primary"
+                      />{" "}
+                    </div>{" "}
+                    Custom Dashboard and Content Analytics
                   </li>
-                  <li className="inline-flex">
-                    <Iconify
-                      icon="solar:check-circle-bold-duotone"
-                      fontSize={22}
-                      className="mr-2 text-primary"
-                    />
-                    AI Post Generation
-                  </li>
-                  <li className="inline-flex">
-                    <Iconify
-                      icon="solar:check-circle-bold-duotone"
-                      fontSize={22}
-                      className="mr-2 text-primary"
-                    />
-                    Analytics
-                  </li>
-                  <li className="inline-flex">
-                    <Iconify
-                      icon="solar:check-circle-bold-duotone"
-                      fontSize={22}
-                      className="mr-2 text-primary"
-                    />
-                    Managerial Oversight
-                  </li>
-                  <li className="inline-flex">
-                    <Iconify
-                      icon="solar:check-circle-bold-duotone"
-                      fontSize={22}
-                      className="mr-2 text-primary"
-                    />
-                    Enhanced Collaboration Tools
+                  <li className="flex items-center gap-2 text-gray-600">
+                    <div className="p-1">
+                      <Iconify
+                        icon="ph:check-circle-fill"
+                        height={20}
+                        width={20}
+                        className="text-primary"
+                      />{" "}
+                    </div>{" "}
+                    Complimentary Manager Overview with 5+ seats
+                  </li>{" "}
+                  <li className="flex items-center gap-2 text-gray-600">
+                    <div className="p-1">
+                      <Iconify
+                        icon="ph:check-circle-fill"
+                        height={20}
+                        width={20}
+                        className="text-primary"
+                      />{" "}
+                    </div>{" "}
+                    Text to Image Converter
                   </li>
                 </ul>
                 <Button
                   className="mt-5 w-full"
                   onClick={handlePayment(1)}
-                  disabled={isLoading || seatsBought > 9}
+                  disabled={isLoading}
                 >
-                  Choose SMB (1 {isYearly ? "year" : "month"} free trail)
+                  Choose Pro {!isYearly && "(1 month free trial)"}
                 </Button>
               </CardContent>
             </Card>
             <Card className="border shadow-none">
               <CardHeader>
-                <CardTitle className="text-2xl font-bold">Enterprise</CardTitle>
+                <CardTitle className="text-2xl font-bold">Expert</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between">
@@ -270,26 +377,6 @@ export default function SetupForm() {
                       Per seat / {isYearly ? "year" : "month"}
                     </span>
                   </p>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={handleRemoveSeat}
-                      disabled={seatsBought <= 2}
-                    >
-                      <Iconify
-                        icon="solar:minus-circle-bold-duotone"
-                        fontSize={22}
-                      />
-                    </Button>
-                    <p className="rounded border p-2">{seatsBought} seats</p>
-                    <Button size="icon" variant="ghost" onClick={handleAddSeat}>
-                      <Iconify
-                        icon="solar:add-circle-bold-duotone"
-                        fontSize={22}
-                      />
-                    </Button>
-                  </div>
                 </div>
                 <div className="mt-2 flex items-center justify-between">
                   <p className="text-4xl font-semibold">
@@ -297,6 +384,7 @@ export default function SetupForm() {
                     <span className="mr-1 text-2xl text-foreground/60"> $</span>
                     {Math.round(
                       seatsBought *
+                        percentage *
                         (isYearly
                           ? env.NEXT_PUBLIC_EXPERT_YEARLY_PRICE
                           : env.NEXT_PUBLIC_EXPERT_MONTHLY_PRICE) *
@@ -308,61 +396,90 @@ export default function SetupForm() {
                   </p>
                 </div>
                 <ul className="mt-5 flex flex-col gap-4 border-t p-3">
-                  <li className="inline-flex">
-                    <Iconify
-                      icon="solar:check-circle-bold-duotone"
-                      fontSize={22}
-                      className="mr-2 text-primary"
-                    />
-                    10+ seats (includes 2 free managers seats)
+                  <li className="flex items-center gap-2 text-gray-600">
+                    <div className="p-1">
+                      <Iconify
+                        icon="ph:check-circle-fill"
+                        height={20}
+                        width={20}
+                        className="text-primary"
+                      />
+                    </div>{" "}
+                    Schedule X (Twitter) / Linkedin Posts
+                  </li>{" "}
+                  <li className="flex items-center gap-2 text-gray-600">
+                    <div className="p-1">
+                      <Iconify
+                        icon="ph:check-circle-fill"
+                        height={20}
+                        width={20}
+                        className="text-primary"
+                      />
+                    </div>{" "}
+                    Create Recurring & Evergreen LinkedIn & Twitter Posts
+                  </li>{" "}
+                  <li className="flex items-center gap-2 text-gray-600">
+                    <div className="p-1">
+                      <Iconify
+                        icon="ph:check-circle-fill"
+                        height={20}
+                        width={20}
+                        className="text-primary"
+                      />
+                    </div>{" "}
+                    Calendar Management
                   </li>
-                  <li className="inline-flex">
-                    <Iconify
-                      icon="solar:check-circle-bold-duotone"
-                      fontSize={22}
-                      className="mr-2 text-primary"
-                    />
-                    Schedule LinkedIn & Twitter Posts
+                  <li className="flex items-center gap-2 text-gray-600">
+                    <div className="p-1">
+                      <Iconify
+                        icon="ph:check-circle-fill"
+                        height={20}
+                        width={20}
+                        className="text-primary"
+                      />{" "}
+                    </div>{" "}
+                    Custom Dashboard and Content Analytics
                   </li>
-                  <li className="inline-flex">
-                    <Iconify
-                      icon="solar:check-circle-bold-duotone"
-                      fontSize={22}
-                      className="mr-2 text-primary"
-                    />
-                    AI Post Generation
+                  <li className="flex items-center gap-2 text-gray-600">
+                    <div className="p-1">
+                      <Iconify
+                        icon="ph:check-circle-fill"
+                        height={20}
+                        width={20}
+                        className="text-primary"
+                      />{" "}
+                    </div>{" "}
+                    Complimentary Manager Overview with 5+ seats
+                  </li>{" "}
+                  <li className="flex items-center gap-2 text-gray-600">
+                    <div className="p-1">
+                      <Iconify
+                        icon="ph:check-circle-fill"
+                        height={20}
+                        width={20}
+                        className="text-primary"
+                      />{" "}
+                    </div>{" "}
+                    Text to Image Converter
                   </li>
-                  <li className="inline-flex">
-                    <Iconify
-                      icon="solar:check-circle-bold-duotone"
-                      fontSize={22}
-                      className="mr-2 text-primary"
-                    />
-                    Analytics
-                  </li>
-                  <li className="inline-flex">
-                    <Iconify
-                      icon="solar:check-circle-bold-duotone"
-                      fontSize={22}
-                      className="mr-2 text-primary"
-                    />
-                    Managerial Oversight
-                  </li>
-                  <li className="inline-flex">
-                    <Iconify
-                      icon="solar:check-circle-bold-duotone"
-                      fontSize={22}
-                      className="mr-2 text-primary"
-                    />
-                    Enhanced Collaboration Tools
-                  </li>
+                  <li className="flex items-center gap-2 text-gray-600">
+                    <div className="p-1">
+                      <Iconify
+                        icon="ph:check-circle-fill"
+                        height={20}
+                        width={20}
+                        className="text-primary"
+                      />{" "}
+                    </div>{" "}
+                    AI Content Generation
+                  </li>{" "}
                 </ul>
                 <Button
                   className="mt-5 w-full"
                   onClick={handlePayment(2)}
                   disabled={isLoading}
                 >
-                  Choose Enterprise
+                  Choose Expert {!isYearly && "(1 month free trial)"}
                 </Button>
               </CardContent>
             </Card>
