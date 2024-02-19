@@ -25,8 +25,15 @@ export const calendarApi = createApi({
   }),
   tagTypes: ["Events", "Recurring", "Spot"],
   endpoints: (builder) => ({
-    getEvents: builder.query<TResponse<TCalendarEvent[]>, void>({
-      query: () => "/api/Calendar",
+    getEvents: builder.query<
+      TResponse<TCalendarEvent[]>,
+      {        startDate?: string;
+      }
+    >({
+      query: (params) => ({
+        url: "/api/Calendar",
+        params,
+      }),
       providesTags: ["Events"],
     }),
     addRecurringPost: builder.mutation<
