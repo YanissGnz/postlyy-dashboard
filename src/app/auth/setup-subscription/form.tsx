@@ -146,8 +146,8 @@ export default function SetupForm() {
                   <p className="text-4xl font-semibold">
                     <span className="mr-1 text-2xl text-foreground/60"> $</span>
                     {isYearly
-                      ? env.NEXT_PUBLIC_SMB_YEARLY_PRICE
-                      : env.NEXT_PUBLIC_SMB_MONTHLY_PRICE}
+                      ? env.NEXT_PUBLIC_PRO_YEARLY_PRICE
+                      : env.NEXT_PUBLIC_PRO_MONTHLY_PRICE}
                     <span className="ml-1 mr-1 text-xl text-foreground/60">
                       Per seat / {isYearly ? "year" : "month"}
                     </span>
@@ -187,8 +187,8 @@ export default function SetupForm() {
                     {Math.round(
                       (seatsBought > 9 ? 9 : seatsBought) *
                         (isYearly
-                          ? env.NEXT_PUBLIC_SMB_YEARLY_PRICE
-                          : env.NEXT_PUBLIC_SMB_MONTHLY_PRICE) *
+                          ? env.NEXT_PUBLIC_PRO_YEARLY_PRICE
+                          : env.NEXT_PUBLIC_PRO_MONTHLY_PRICE) *
                         100,
                     ) / 100}
                     <span className="ml-1 mr-1 text-xl text-foreground/60">
@@ -264,8 +264,8 @@ export default function SetupForm() {
                   <p className="text-4xl font-semibold">
                     <span className="mr-1 text-2xl text-foreground/60"> $</span>
                     {isYearly
-                      ? env.NEXT_PUBLIC_ENTERPRISE_YEARLY_PRICE
-                      : env.NEXT_PUBLIC_ENTERPRISE_MONTHLY_PRICE}
+                      ? env.NEXT_PUBLIC_EXPERT_YEARLY_PRICE
+                      : env.NEXT_PUBLIC_EXPERT_MONTHLY_PRICE}
                     <span className="ml-1 mr-1 text-xl text-foreground/60">
                       Per seat / {isYearly ? "year" : "month"}
                     </span>
@@ -298,8 +298,8 @@ export default function SetupForm() {
                     {Math.round(
                       seatsBought *
                         (isYearly
-                          ? env.NEXT_PUBLIC_ENTERPRISE_YEARLY_PRICE
-                          : env.NEXT_PUBLIC_ENTERPRISE_MONTHLY_PRICE) *
+                          ? env.NEXT_PUBLIC_EXPERT_YEARLY_PRICE
+                          : env.NEXT_PUBLIC_EXPERT_MONTHLY_PRICE) *
                         100,
                     ) / 100}
                     <span className="ml-1 mr-1 text-xl text-foreground/60">
