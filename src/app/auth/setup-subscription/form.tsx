@@ -162,8 +162,8 @@ export default function SetupForm() {
                   <p className="text-4xl font-semibold">
                     <span className="mr-1 text-2xl text-foreground/60"> $</span>
                     {isYearly
-                      ? env.NEXT_PUBLIC_BASIC_YEARLY_PRICE
-                      : env.NEXT_PUBLIC_BASIC_MONTHLY_PRICE}
+                      ? env.NEXT_PUBLIC_PRO_YEARLY_PRICE
+                      : env.NEXT_PUBLIC_PRO_MONTHLY_PRICE}
                     <span className="ml-1 mr-1 text-xl text-foreground/60">
                       Per seat / {isYearly ? "year" : "month"}
                     </span>
@@ -262,7 +262,7 @@ export default function SetupForm() {
                     <span className="mr-1 text-2xl text-foreground/60"> $</span>
                     {isYearly
                       ? env.NEXT_PUBLIC_PRO_YEARLY_PRICE
-                      : env.NEXT_PUBLIC_PRO_MONTHLY_PRICE}
+                      : env.NEXT_PUBLIC_PRO_MONTHLY_PRICE}=
                     <span className="ml-1 mr-1 text-xl text-foreground/60">
                       Per seat / {isYearly ? "year" : "month"}
                     </span>
