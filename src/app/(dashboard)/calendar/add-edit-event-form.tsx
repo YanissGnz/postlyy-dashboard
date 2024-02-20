@@ -45,6 +45,7 @@ import {
 import { useAppDispatch } from "@/redux/hooks";
 import { closeModal } from "@/redux/slices/modalsSlice";
 import Iconify from "@/components/ui/icon";
+import { EPostSpotType } from "@/types/EPostSpotType";
 
 type Props = {
   form: UseFormReturn<TRecurringPost | TCalendarSpot, unknown, undefined>;
@@ -211,19 +212,28 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
                   <SelectContent>
                     <SelectItem value="0">
                       <div className="flex items-center gap-2">
-                        <Iconify icon={getIcon(0)} fontSize={18} />
+                        <Iconify
+                          icon={getIcon(EPostSpotType.Scheduled)}
+                          fontSize={18}
+                        />
                         Scheduled
                       </div>
                     </SelectItem>
                     <SelectItem value="2">
                       <div className="flex items-center gap-2">
-                        <Iconify icon={getIcon(2)} fontSize={18} />
+                        <Iconify
+                          icon={getIcon(EPostSpotType.Evergreen)}
+                          fontSize={18}
+                        />
                         Evergreen
                       </div>
                     </SelectItem>
                     <SelectItem value="3">
                       <div className="flex items-center gap-2">
-                        <Iconify icon={getIcon(3)} fontSize={18} />
+                        <Iconify
+                          icon={getIcon(EPostSpotType.Recurring)}
+                          fontSize={18}
+                        />
                         Recurring
                       </div>
                     </SelectItem>

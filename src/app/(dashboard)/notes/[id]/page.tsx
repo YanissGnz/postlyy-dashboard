@@ -53,8 +53,45 @@ import {
 } from "@/components/ui/form";
 import { useSession } from "next-auth/react";
 import { Switch } from "@/components/ui/switch";
-import { generateFormData } from "../../post/page";
 
+const generateFormData = (data: TPostForm) => {
+  const formData = new FormData();
+
+  formData.append("AsEvergreen", data.asEvergreen ? "true" : "false");
+  formData.append("OnLinkedIn", data.onLinkedIn ? "true" : "false");
+  formData.append("OnTwitter", data.onTwitter ? "true" : "false");
+
+  data.posts.forEach((post, index) => {
+    formData.append(`Posts[${index}].index`, post.index.toString());
+    formData.append(`Posts[${index}].text`, post.text);
+    formData.append(
+      `Posts[${index}].twitterDirectLink`,
+      post.twitterDirectLink ? "true" : "false",
+    );
+    if (post.gif) {
+      formData.append(`Posts[${index}].gif`, post.gif);
+    }
+
+    if (post.gifLink) {
+      formData.append(`Posts[${index}].gif`, post.gifLink);
+    }
+
+    post.images.forEach((image) => {
+      formData.append(`Posts[${index}].images`, image);
+    });
+    if (post.poll) {
+      formData.append(
+        `Posts[${index}].poll.DurationMins`,
+        post.poll.durationMins.toString(),
+      );
+      post.poll.options.forEach((option, i) => {
+        formData.append(`Posts[${index}].poll.Options[${i}]`, option);
+      });
+    }
+  });
+
+  return formData;
+};
 export default function page({ params }: { params: { id: string } }) {
   const {
     data: note,
@@ -160,7 +197,7 @@ export default function page({ params }: { params: { id: string } }) {
     toBlob(ref.current)
       .then(async (blob) => {
         if (blob) {
-          const data = await generateFormData(form.getValues());
+          const data = generateFormData(form.getValues());
           const file = new File([blob], "note.png", {
             type: "image/png",
           });
@@ -198,7 +235,7 @@ export default function page({ params }: { params: { id: string } }) {
     toBlob(ref.current)
       .then(async (blob) => {
         if (blob) {
-          const data = await generateFormData(form.getValues());
+          const data = generateFormData(form.getValues());
           const file = new File([blob], "note.png", {
             type: "image/png",
           });
@@ -235,7 +272,7 @@ export default function page({ params }: { params: { id: string } }) {
     toBlob(ref.current)
       .then(async (blob) => {
         if (blob) {
-          const data = await generateFormData(form.getValues());
+          const data = generateFormData(form.getValues());
           const file = new File([blob], "note.png", {
             type: "image/png",
           });
@@ -275,7 +312,7 @@ export default function page({ params }: { params: { id: string } }) {
     toBlob(ref.current)
       .then(async (blob) => {
         if (blob) {
-          const data = await generateFormData(form.getValues());
+          const data = generateFormData(form.getValues());
           const file = new File([blob], "note.png", {
             type: "image/png",
           });
