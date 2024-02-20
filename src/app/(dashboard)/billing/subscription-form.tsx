@@ -111,7 +111,7 @@ export default function SubscriptionForm() {
             <p className="col-span-2 font-semibold">
               {subscriptionSettings?.data.tier === ETiers.Basic
                 ? "Basic"
-                : subscriptionSettings?.data.tier === ETiers.Expert
+                : subscriptionSettings?.data.tier === ETiers.Pro
                   ? "Pro"
                   : "Expert"}
             </p>
@@ -121,13 +121,20 @@ export default function SubscriptionForm() {
             <p className="col-span-2 font-semibold">
               {Math.round(subscriptionSettings.data.subscriptionPrice * 100) /
                 100}{" "}
-              ${subscriptionSettings?.data.isTrial && "(Free trail)"}
+              ${subscriptionSettings?.data.yearly ? "/year" : "/month"}
+              {subscriptionSettings?.data.isTrial && " (Free trail)"}
             </p>
           </div>
           <div className="grid w-full grid-cols-3">
-            <p>Seats</p>
+            <p>Bought Seats</p>
             <p className="col-span-2 font-semibold">
               {subscriptionSettings?.data.seats}
+            </p>
+          </div>
+          <div className="grid w-full grid-cols-3">
+            <p>Used Seats</p>
+            <p className="col-span-2 font-semibold">
+              {subscriptionSettings?.data.usedSeats}
             </p>
           </div>
           <div className="grid w-full grid-cols-3">
@@ -148,6 +155,26 @@ export default function SubscriptionForm() {
               )}
             </p>
           </div>
+          <div className="grid w-full grid-cols-3">
+            <p>Notification Date</p>
+            <p className="col-span-2 font-semibold">
+              {format(
+                new Date(subscriptionSettings?.data?.notificationDate ?? ""),
+                "PPPP",
+              )}
+            </p>
+          </div>
+          {subscriptionSettings?.data?.isPendingDeletion && (
+            <div className="grid w-full grid-cols-3">
+              <p>Renewal Date</p>
+              <p className="col-span-2 font-semibold">
+                {format(
+                  new Date(subscriptionSettings?.data?.deletionDate ?? ""),
+                  "PPPP",
+                )}
+              </p>
+            </div>
+          )}
           <div className="flex items-center justify-end gap-4">
             {subscriptionSettings?.data.tier !== ETiers.Expert && (
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

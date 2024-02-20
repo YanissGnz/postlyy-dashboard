@@ -7,11 +7,13 @@ export type TSubscriptionSettings = {
   renewalDate: string;
   notificationDate: string;
   seats: number;
+  usedSeats: number;
   subscriptionPrice: number;
   isNotified: boolean;
   isPendingSuspension: boolean;
   isPendingDeletion: boolean;
   deletionDate: string;
+  yearly: boolean;
   isTrial: boolean;
   history: Array<{
     dateOfPayment: string;
