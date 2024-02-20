@@ -34,6 +34,7 @@ export default async function Login() {
 
       <div className="col-span-12 flex h-full w-full items-center justify-center px-2 py-10 md:col-span-6">
         <div className="flex w-full flex-col px-8 py-10 sm:px-16 md:px-16 lg:px-20">
+          <h6 className="mb-4 text-4xl font-bold">Login</h6>
           <div className="mb-2 space-y-2">
             {Object.values(providers ?? [])
               .filter((provider) => provider.name !== "Credentials Login")

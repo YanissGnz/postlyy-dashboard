@@ -71,7 +71,7 @@ export default function RegisterForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
         <FormField
           control={form.control}
           name="fullName"
@@ -134,7 +134,7 @@ export default function RegisterForm() {
           )}
         />
 
-        <Button type="submit" disabled={isLoading}>
+        <Button type="submit" disabled={isLoading} className="w-full">
           {isLoading && (
             <Iconify
               icon="ph:spinner-bold"
