@@ -5,15 +5,18 @@ import forbidden from "public/images/403.png";
 import Image from "@/components/ui/image";
 import { type EUserType } from "@/types/EUserType";
 import { useSession } from "next-auth/react";
+import { type ETiers } from "@/types/ETiers";
 // ----------------------------------------------------------------------
 
 interface RoleBasedGuardProp {
   accessibleRoles: EUserType[];
+  accessibleTiers?: ETiers[];
   children: ReactNode;
 }
 
 export default function RoleBasedGuard({
   accessibleRoles,
+  accessibleTiers,
   children,
 }: RoleBasedGuardProp) {
   const session = useSession();
@@ -33,7 +36,8 @@ export default function RoleBasedGuard({
 
   if (
     session?.data?.user?.userType &&
-    !accessibleRoles.includes(session?.data?.user.userType)
+    (!accessibleRoles.includes(session?.data?.user.userType) ||
+      !accessibleTiers?.includes(session?.data?.user.tier))
   ) {
     return (
       <div className="flex h-full w-full flex-col items-center justify-center gap-4 p-10">
