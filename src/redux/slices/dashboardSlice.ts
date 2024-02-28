@@ -1,5 +1,7 @@
 import { type PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { type DashboardConfig } from "@/types/DashboardConfig";
+import { type EStatType } from "@/types/EStatType";
+import { type EAggregation } from "@/types/EAggregation";
 
 export type Props = {
   layout: DashboardConfig[];
@@ -13,7 +15,8 @@ export type TNewCard = {
   title: string;
   description: string;
   type: "stat" | "graph";
-  query: string;
+  query: EStatType;
+  agregation: EAggregation;
 };
 
 export const dashboard = createSlice({

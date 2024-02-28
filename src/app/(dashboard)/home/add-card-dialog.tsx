@@ -33,35 +33,52 @@ import {
 import { useAppDispatch } from "@/redux/hooks";
 import { addCard } from "@/redux/slices/dashboardSlice";
 import { useBoolean } from "usehooks-ts";
+import { EAggregation } from "@/types/EAggregation";
+import { type EStatType } from "@/types/EStatType";
 
 const DASHBOARD_QUERIES = [
   {
-    name: "Followers",
-    value: "followers",
-    type: "stat",
+    name: "Impressions",
+    value: 0,
+  },
+  {
+    name: "Likes",
+    value: 1,
+  },
+  {
+    name: "Replies",
+    value: 2,
+  },
+  {
+    name: "Retweets",
+    value: 3,
+  },
+  {
+    name: "Link Clicks",
+    value: 4,
+  },
+  {
+    name: "Profile Clicks",
+    value: 5,
+  },
+  {
+    name: "Follows",
+    value: 6,
   },
   {
     name: "Posts",
-    value: "posts",
-    type: "stat",
+    value: 7,
   },
   {
-    name: "User Growth",
-    value: "user_growth",
-    type: "graph",
-  },
-  {
-    name: "Post Growth",
-    value: "post_growth",
-    type: "graph",
+    name: "Schedules",
+    value: 8,
   },
 ];
 
 const formSchema = z.object({
   type: z.enum(["stat", "graph"]),
-  title: z.string().min(3),
   description: z.string().optional(),
-  query: z.enum(["followers", "posts", "user_growth", "post_growth"]),
+  query: z.enum(["0", "1", "2", "3", "4", "5", "6", "7", "8"]),
 });
 
 export default function AddCardDialog() {
@@ -72,15 +89,23 @@ export default function AddCardDialog() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      type: "stat",
-      title: "",
       description: "",
-      query: "followers",
+      query: "0",
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    dispatch(addCard(values));
+    const title = DASHBOARD_QUERIES.find(
+      (query) => query.value.toString() === values.query,
+    )?.name;
+    dispatch(
+      addCard({
+        ...values,
+        query: parseInt(values.query) as EStatType,
+        title,
+        agregation: EAggregation.Total,
+      }),
+    );
     setValue(false);
     form.reset();
   }
@@ -130,32 +155,7 @@ export default function AddCardDialog() {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter title" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter description" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+
               <FormField
                 control={form.control}
                 name="query"
@@ -172,16 +172,30 @@ export default function AddCardDialog() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {DASHBOARD_QUERIES.filter(
-                          (query) => query.type === form.getValues("type"),
-                        ).map((query) => (
-                          <SelectItem key={query.value} value={query.value}>
+                        {DASHBOARD_QUERIES.map((query) => (
+                          <SelectItem
+                            key={query.value}
+                            value={query.value.toString()}
+                          >
                             {query.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
 
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter description" {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

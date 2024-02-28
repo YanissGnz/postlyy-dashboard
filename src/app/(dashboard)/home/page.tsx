@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { useBoolean } from "usehooks-ts";
 import Iconify from "@/components/ui/icon";
 import { cn } from "@/lib/utils";
+import { type EAggregation } from "@/types/EAggregation";
 const GridLayout = dynamic(() => import("react-grid-layout"), { ssr: false });
 
 export default function HomePage() {
@@ -78,6 +79,20 @@ export default function HomePage() {
     [layout],
   );
 
+  const handleChangeAggregation = useCallback(
+    (i: string, aggregation: EAggregation) => async () => {
+      const newLayout = layout.map((item) => {
+        if (item.i === i) {
+          return { ...item, aggregation };
+        }
+        return item;
+      });
+      await changeConfig(newLayout).unwrap();
+      dispatch(changeLayout(newLayout));
+    },
+    [layout],
+  );
+
   return (
     <div className="flex h-screen flex-col space-y-2 px-4 py-4">
       <div className="mb-5 flex items-center justify-between md:px-4">
@@ -130,13 +145,21 @@ export default function HomePage() {
               if (item.type === "stat") {
                 return (
                   <div key={item.i}>
-                    <StatCard {...item} handleRemoveCard={handleRemoveCard} />
+                    <StatCard
+                      {...item}
+                      handleRemoveCard={handleRemoveCard}
+                      handleChangeAggregation={handleChangeAggregation}
+                    />
                   </div>
                 );
               } else {
                 return (
                   <div key={item.i}>
-                    <GraphCard {...item} handleRemoveCard={handleRemoveCard} />
+                    <GraphCard
+                      {...item}
+                      handleRemoveCard={handleRemoveCard}
+                      handleChangeAggregation={handleChangeAggregation}
+                    />
                   </div>
                 );
               }
