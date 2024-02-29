@@ -16,7 +16,10 @@ export type TPowerups = {
     condition: number;
     conditionValue: number;
   };
-  autoRetweetLinks: Array<string>;
+  autoRetweetLinks: Array<{
+    userName: string;
+    accountId: string;
+  }>;
   emptySlotsActAsEvergreen: boolean;
   splitLongTextToThreads: boolean;
   expandThreadsAfterThreeLines: boolean;

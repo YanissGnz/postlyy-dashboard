@@ -4,6 +4,7 @@ import { type TResponse } from "@/types/TResponse";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { type TSelfRetweet } from "@/types/TSelfRetweet";
 import { type TPowerups } from "@/types/TPowerups";
+import { type EProviders } from "@/types/EProviders";
 
 export const powerupsApi = createApi({
   reducerPath: "powerupsApi",
@@ -41,6 +42,25 @@ export const powerupsApi = createApi({
       }),
       invalidatesTags: ["Powerups"],
     }),
+    updateAutoRetweet: builder.mutation<
+      TResponse<unknown>,
+      {
+        accountId: string;
+        body: {
+          links: Array<{
+            userName: string;
+            accountId: string;
+          }>;
+        };
+      }
+    >({
+      query: ({ accountId, body }) => ({
+        url: `/api/UserSettings/PowerUps/${accountId}/AutoRetweet`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["Powerups"],
+    }),
     updateSelfRetweet: builder.mutation<
       TResponse<unknown>,
       {
@@ -55,6 +75,22 @@ export const powerupsApi = createApi({
       }),
       invalidatesTags: ["Powerups"],
     }),
+    searchUser: builder.query<
+      {
+        accId: string;
+        username: string;
+      }[],
+      {
+        search: string;
+        provider: EProviders;
+      }
+    >({
+      query: (params) => ({
+        url: `/api/UserSearch`,
+        method: "GET",
+        params,
+      }),
+    }),
   }),
 });
 
@@ -62,4 +98,6 @@ export const {
   useGetPowerupsQuery,
   useUpdateAutoPlugMutation,
   useUpdateSelfRetweetMutation,
+  useUpdateAutoRetweetMutation,
+  useSearchUserQuery,
 } = powerupsApi;
