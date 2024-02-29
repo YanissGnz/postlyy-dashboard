@@ -25,12 +25,12 @@ const initialState = {
       icon: "solar:home-smile-bold-duotone",
       roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
     },
-    // {
-    //   name: "Team",
-    //   path: "/team",
-    //   icon: "solar:users-group-rounded-bold-duotone",
-    //   roles: [EUserType.Manager, EUserType.Owner],
-    // },
+    {
+      name: "Team",
+      path: "/team",
+      icon: "solar:users-group-rounded-bold-duotone",
+      roles: [EUserType.Manager, EUserType.Owner],
+    },
     // {
     //   name: "Team Analytics",
     //   path: "/team-analytics",

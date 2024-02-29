@@ -17,6 +17,7 @@ import { notesApi } from "./api/notes/apiSlice";
 import { powerupsApi } from "./api/user/powerups/apiSlice";
 import { dashboard } from "./slices/dashboardSlice";
 import { dashboardApi } from "./api/user/dashboard/apiSlice";
+import { dashboardStatsApi } from "./api/dashboard/apiSlice";
 
 export const store = configureStore({
   reducer: {
@@ -37,6 +38,7 @@ export const store = configureStore({
     [notesApi.reducerPath]: notesApi.reducer,
     [powerupsApi.reducerPath]: powerupsApi.reducer,
     [dashboardApi.reducerPath]: dashboardApi.reducer,
+    [dashboardStatsApi.reducerPath]: dashboardStatsApi.reducer,
   },
   devTools: process.env.NODE_ENV !== "production",
   middleware: (getDefaultMiddleware) =>
@@ -52,7 +54,8 @@ export const store = configureStore({
       .concat(postApi.middleware)
       .concat(notesApi.middleware)
       .concat(powerupsApi.middleware)
-      .concat(dashboardApi.middleware),
+      .concat(dashboardApi.middleware)
+      .concat(dashboardStatsApi.middleware),
 });
 
 setupListeners(store.dispatch);

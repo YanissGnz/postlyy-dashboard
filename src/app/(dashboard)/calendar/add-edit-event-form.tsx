@@ -15,7 +15,7 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
-import { cn, getIcon } from "@/lib/utils";
+import { cn, getEventIcon } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import {
   Form,
@@ -213,7 +213,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
                     <SelectItem value="0">
                       <div className="flex items-center gap-2">
                         <Iconify
-                          icon={getIcon(EPostSpotType.Scheduled)}
+                          icon={getEventIcon(EPostSpotType.Scheduled)}
                           fontSize={18}
                         />
                         Scheduled
@@ -222,7 +222,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
                     <SelectItem value="2">
                       <div className="flex items-center gap-2">
                         <Iconify
-                          icon={getIcon(EPostSpotType.Evergreen)}
+                          icon={getEventIcon(EPostSpotType.Evergreen)}
                           fontSize={18}
                         />
                         Evergreen
@@ -231,7 +231,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
                     <SelectItem value="3">
                       <div className="flex items-center gap-2">
                         <Iconify
-                          icon={getIcon(EPostSpotType.Recurring)}
+                          icon={getEventIcon(EPostSpotType.Recurring)}
                           fontSize={18}
                         />
                         Recurring

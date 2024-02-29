@@ -43,7 +43,11 @@ import { type TRecurringPost } from "@/types/TRecurringPost";
 import { type TCalendarSpot } from "@/types/TCalendarSpot";
 import { type EventImpl } from "@fullcalendar/core/internal";
 import { type TCalendarEvent } from "@/types/TCalendarEvent";
-import { getBackgroundColor, getIcon, getTextColor } from "@/lib/utils";
+import {
+  getEventBackgroundColor,
+  getEventIcon,
+  getEventTextColor,
+} from "@/lib/utils";
 import { addHours, format } from "date-fns";
 import { toast } from "sonner";
 import { DEFAULT_POST_ID } from "./post-details";
@@ -73,13 +77,13 @@ export default function Calender() {
       return data.data.map((event) => ({
         ...event,
         end: addHours(new Date(event.start), 1),
-        backgroundColor: getBackgroundColor(event.type),
-        textColor: getTextColor(event.type),
+        backgroundColor: getEventBackgroundColor(event.type),
+        textColor: getEventTextColor(event.type),
         editable: true,
         eventDurationEditable: false,
         eventResizableFromStart: false,
         extendedProps: {
-          icon: getIcon(event.type),
+          icon: getEventIcon(event.type),
           ...event,
         },
         ...(event.type === EPostSpotType.Recurring && {

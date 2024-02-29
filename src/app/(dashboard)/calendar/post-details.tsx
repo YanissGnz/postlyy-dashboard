@@ -1,5 +1,5 @@
 import Iconify from "@/components/ui/icon";
-import { getIcon, getTypeName } from "@/lib/utils";
+import { getEventIcon, getTypeName } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { EPostSpotType } from "@/types/EPostSpotType";
 import { type TCalendarEvent } from "@/types/TCalendarEvent";
@@ -132,7 +132,7 @@ export default function PostDetails() {
         <div className="flex items-center gap-5">
           <p className="font-medium">Type:</p>
           <div className="flex items-center gap-1">
-            <Iconify icon={getIcon(event.type)} fontSize={24} />
+            <Iconify icon={getEventIcon(event.type)} fontSize={24} />
             <span>{getTypeName(event.type)}</span>
           </div>
         </div>

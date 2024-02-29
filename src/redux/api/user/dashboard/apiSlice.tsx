@@ -1,6 +1,6 @@
 import { env } from "@/env";
 import { type RootState } from "@/redux/store";
-import { type DashboardConfig } from "@/types/DashboardConfig";
+import { type DashboardConfig } from "@/types/TDashboardConfig";
 import { type TResponse } from "@/types/TResponse";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
