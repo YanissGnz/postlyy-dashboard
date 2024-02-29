@@ -6,13 +6,18 @@ import {
   getDachboardCardMinWidth,
 } from "@/lib/utils";
 import { type TDashboardCard } from "@/types/TDashboardCard";
+import { subDays } from "date-fns";
 
 export type Props = {
   layout: DashboardConfig[];
+  startDate: string;
+  endDate: string;
 };
 
 const initialState = {
   layout: [],
+  startDate: subDays(new Date(), 30).toISOString(),
+  endDate: new Date().toISOString(),
 } as Props;
 
 export const dashboard = createSlice({
@@ -41,9 +46,21 @@ export const dashboard = createSlice({
     changeLayout: (state, action: PayloadAction<DashboardConfig[]>) => {
       state.layout = action.payload;
     },
+    changeDashboardDateRange: (
+      state,
+      action: PayloadAction<{ startDate: string; endDate: string }>,
+    ) => {
+      state.startDate = action.payload.startDate;
+      state.endDate = action.payload.endDate;
+    },
   },
 });
 
-export const { setLayout, addCard, removeCard, changeLayout } =
-  dashboard.actions;
+export const {
+  setLayout,
+  addCard,
+  removeCard,
+  changeLayout,
+  changeDashboardDateRange,
+} = dashboard.actions;
 export default dashboard.reducer;

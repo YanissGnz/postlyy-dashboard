@@ -30,6 +30,7 @@ export default function GraphCard({
   handleChangeAggregation: (i: string, aggregation: EAggregation) => () => void;
 }) {
   const { currentAccount } = useAppSelector((state) => state.auth);
+  const { endDate, startDate } = useAppSelector((state) => state.dashboard);
 
   const aggregationText = useMemo(() => {
     switch (aggregation) {
@@ -49,6 +50,8 @@ export default function GraphCard({
       provider: currentAccount!.accountType,
       aggregation: aggregation,
       statType: query,
+      startDate,
+      endDate,
     },
     {
       skip: !currentAccount,

@@ -25,6 +25,7 @@ import {
 import { type EAggregation } from "@/types/EAggregation";
 import { EDashboardCardType } from "@/types/EDashboardCardType";
 import CalendarCard from "./CalendarCard";
+import { DashboardRangePicker } from "./range-picker";
 const GridLayout = dynamic(() => import("react-grid-layout"), { ssr: false });
 
 export default function HomePage() {
@@ -104,6 +105,7 @@ export default function HomePage() {
       <div className="mb-5 flex items-center justify-between md:px-4">
         <h2 className="text-2xl font-bold">Home</h2>
         <div className="flex items-center gap-2">
+          <DashboardRangePicker />
           {layout.length > 0 && (
             <Button variant="outline" onClick={handleEditLayout}>
               <Iconify
