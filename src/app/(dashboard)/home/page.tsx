@@ -8,7 +8,7 @@ import AddCardDialog from "./add-card-dialog";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { type Layout } from "react-grid-layout";
 import { changeLayout, removeCard } from "@/redux/slices/dashboardSlice";
-import { type DashboardConfig } from "@/types/DashboardConfig";
+import { type DashboardConfig } from "@/types/TDashboardConfig";
 import {
   useChangeDashboardConfigMutation,
   useGetDashboardConfigQuery,
@@ -17,8 +17,14 @@ import LoadingCard from "@/components/loading-card";
 import { Button } from "@/components/ui/button";
 import { useBoolean } from "usehooks-ts";
 import Iconify from "@/components/ui/icon";
-import { cn } from "@/lib/utils";
+import {
+  cn,
+  getDachboardCardMinHeight,
+  getDachboardCardMinWidth,
+} from "@/lib/utils";
 import { type EAggregation } from "@/types/EAggregation";
+import { EDashboardCardType } from "@/types/EDashboardCardType";
+import CalendarCard from "./CalendarCard";
 const GridLayout = dynamic(() => import("react-grid-layout"), { ssr: false });
 
 export default function HomePage() {
@@ -125,12 +131,12 @@ export default function HomePage() {
           </div>
         ) : (
           <GridLayout
-            className={cn("w-ful", isEdit && "grid-background")}
+            className={cn("w-full", isEdit && "grid-background")}
             layout={
               layout.map((item) => ({
                 ...item,
-                minW: item.type === "stat" ? 2 : 6,
-                minH: item.type === "stat" ? 4 : 8,
+                minW: getDachboardCardMinWidth(item.type),
+                minH: getDachboardCardMinHeight(item.type),
               })) as Layout[]
             }
             cols={12}
@@ -142,7 +148,7 @@ export default function HomePage() {
             useCSSTransforms
           >
             {layout.map((item) => {
-              if (item.type === "stat") {
+              if (item.type === EDashboardCardType.Stat) {
                 return (
                   <div key={item.i}>
                     <StatCard
@@ -152,13 +158,22 @@ export default function HomePage() {
                     />
                   </div>
                 );
-              } else {
+              } else if (item.type === EDashboardCardType.Graph) {
                 return (
                   <div key={item.i}>
                     <GraphCard
                       {...item}
                       handleRemoveCard={handleRemoveCard}
                       handleChangeAggregation={handleChangeAggregation}
+                    />
+                  </div>
+                );
+              } else if (item.type === EDashboardCardType.EventsCalendar) {
+                return (
+                  <div key={item.i}>
+                    <CalendarCard
+                      {...item}
+                      handleRemoveCard={handleRemoveCard}
                     />
                   </div>
                 );

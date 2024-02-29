@@ -34,7 +34,8 @@ import { useAppDispatch } from "@/redux/hooks";
 import { addCard } from "@/redux/slices/dashboardSlice";
 import { useBoolean } from "usehooks-ts";
 import { EAggregation } from "@/types/EAggregation";
-import { type EStatType } from "@/types/EStatType";
+import { EStatType } from "@/types/EStatType";
+import { EDashboardCardType } from "@/types/EDashboardCardType";
 
 const DASHBOARD_QUERIES = [
   {
@@ -75,11 +76,33 @@ const DASHBOARD_QUERIES = [
   },
 ];
 
-const formSchema = z.object({
-  type: z.enum(["stat", "graph"]),
-  description: z.string().optional(),
-  query: z.enum(["0", "1", "2", "3", "4", "5", "6", "7", "8"]),
-});
+function getCardTitle(type: EDashboardCardType, value?: number) {
+  if (
+    (type === EDashboardCardType.Graph || type === EDashboardCardType.Stat) &&
+    value
+  ) {
+    return (
+      DASHBOARD_QUERIES.find((query) => query.value === value)?.name ?? "Card"
+    );
+  } else if (type === EDashboardCardType.Table) {
+    return "Table";
+  } else if (type === EDashboardCardType.EventsCalendar) {
+    return "Events Calendar";
+  }
+
+  return "Card";
+}
+
+const formSchema = z
+  .object({
+    type: z.enum(["stat", "graph", "table", "events-calendar"]),
+    description: z.string().optional(),
+    query: z.enum(["0", "1", "2", "3", "4", "5", "6", "7", "8"]).optional(),
+  })
+  .refine((data) => data.type !== "graph" && data.type !== "stat", {
+    message: "Please select a data type",
+    path: ["query"],
+  });
 
 export default function AddCardDialog() {
   const dispatch = useAppDispatch();
@@ -95,15 +118,20 @@ export default function AddCardDialog() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    const title = DASHBOARD_QUERIES.find(
-      (query) => query.value.toString() === values.query,
-    )?.name;
+    const title = getCardTitle(
+      values.type as EDashboardCardType,
+      values.query ? parseInt(values.query) : undefined,
+    );
+
     dispatch(
       addCard({
-        ...values,
-        query: parseInt(values.query) as EStatType,
         title,
-        agregation: EAggregation.Total,
+        type: values.type as EDashboardCardType,
+        query: values.query
+          ? (parseInt(values.query) as EStatType)
+          : EStatType.Follows,
+        aggregation: EAggregation.Total,
+        description: values.description,
       }),
     );
     setValue(false);
@@ -148,6 +176,10 @@ export default function AddCardDialog() {
                       <SelectContent>
                         <SelectItem value="stat">Stat</SelectItem>
                         <SelectItem value="graph">Graph</SelectItem>
+                        <SelectItem value="table">Table</SelectItem>
+                        <SelectItem value="events-calendar">
+                          Today's Schedule
+                        </SelectItem>
                       </SelectContent>
                     </Select>
 
@@ -156,37 +188,40 @@ export default function AddCardDialog() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="query"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Data</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select card type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {DASHBOARD_QUERIES.map((query) => (
-                          <SelectItem
-                            key={query.value}
-                            value={query.value.toString()}
-                          >
-                            {query.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+              {(form.watch("type") === "stat" ||
+                form.watch("type") === "graph") && (
+                <FormField
+                  control={form.control}
+                  name="query"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Data</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select card type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {DASHBOARD_QUERIES.map((query) => (
+                            <SelectItem
+                              key={query.value}
+                              value={query.value.toString()}
+                            >
+                              {query.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
 
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
               <FormField
                 control={form.control}
                 name="description"

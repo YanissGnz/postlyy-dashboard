@@ -107,80 +107,39 @@ export default function TeamForm() {
   return (
     <>
       <div className="mb-2 flex items-center justify-end gap-4">
-        {isManagerSuccess && managers?.data.length < 1 && (
-          <Dialog
-            open={isManagerDialogOpen}
-            onOpenChange={(open) => setManagerDialogValue(open)}
-          >
-            <DialogTrigger asChild>
-              <Button onClick={() => setManagerDialogTrue()}>
-                Add Manager
+        <Dialog
+          open={isManagerDialogOpen}
+          onOpenChange={(open) => setManagerDialogValue(open)}
+        >
+          <DialogTrigger asChild>
+            <Button onClick={() => setManagerDialogTrue()}>Add Manager</Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Add Manager</DialogTitle>
+            </DialogHeader>
+            <div className="mb-4">
+              <Label htmlFor="email" className="text-right">
+                Email
+              </Label>
+              <Input
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <DialogFooter>
+              <Button
+                type="submit"
+                onClick={handleAddManager}
+                loading={isAddManagerLoading}
+                disabled={!email || isAddManagerLoading}
+              >
+                Invite
               </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Add Manager</DialogTitle>
-              </DialogHeader>
-              <div className="mb-4">
-                <Label htmlFor="email" className="text-right">
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <DialogFooter>
-                <Button
-                  type="submit"
-                  onClick={handleAddManager}
-                  loading={isAddManagerLoading}
-                  disabled={!email || isAddManagerLoading}
-                >
-                  Invite
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        )}
-        {isManagerSuccess && managers?.data.length < 2 && (
-          <Dialog
-            open={isManagerDialogOpen}
-            onOpenChange={(open) => setManagerDialogValue(open)}
-          >
-            <DialogTrigger asChild>
-              <Button onClick={() => setManagerDialogTrue()}>
-                Add Manager
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Add Manager</DialogTitle>
-              </DialogHeader>
-              <div className="mb-4">
-                <Label htmlFor="email" className="text-right">
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <DialogFooter>
-                <Button
-                  type="submit"
-                  onClick={handleAddManager}
-                  loading={isAddManagerLoading}
-                  disabled={!email || isAddManagerLoading}
-                >
-                  Invite
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        )}
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
         <Dialog open={isOpen} onOpenChange={(open) => setValue(open)}>
           <DialogTrigger asChild>
             <Button onClick={() => setTrue()}>Add Team Member</Button>

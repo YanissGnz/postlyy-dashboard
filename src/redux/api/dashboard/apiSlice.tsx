@@ -1,5 +1,6 @@
 import { env } from "@/env";
 import { type RootState } from "@/redux/store";
+import { type TCalendarEvent } from "@/types/TCalendarEvent";
 import { type TDashboardGraph } from "@/types/TDashbaordGraph";
 import { type TDashboardStat } from "@/types/TDashbaordStat";
 import { type TDashboardStatParms } from "@/types/TDashboardStatParms";
@@ -38,7 +39,17 @@ export const dashboardStatsApi = createApi({
         params,
       }),
     }),
+    getTodayCalendarEvents: builder.query<TResponse<TCalendarEvent[]>, void>({
+      query: () => ({
+        url: `/api/CustomDashboard/TodayCalendarEvents`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
-export const { useGetStatQuery, useGetGraphQuery } = dashboardStatsApi;
+export const {
+  useGetStatQuery,
+  useGetGraphQuery,
+  useGetTodayCalendarEventsQuery,
+} = dashboardStatsApi;

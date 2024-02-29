@@ -16,8 +16,11 @@ import { Button } from "@/components/ui/button";
 type Props = {
   i: string;
   handleRemoveCard: (i: string) => () => void;
-  handleChangeAggregation: (i: string, aggregation: EAggregation) => () => void;
-  aggregation: EAggregation;
+  handleChangeAggregation?: (
+    i: string,
+    aggregation: EAggregation,
+  ) => () => void;
+  aggregation?: EAggregation;
 };
 
 export default function CardDropdown({
@@ -44,40 +47,42 @@ export default function CardDropdown({
             Remove
           </>
         </DropdownMenuItem>
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger>
-            <>
-              <Iconify
-                icon="solar:square-transfer-horizontal-bold-duotone"
-                className="mr-2"
-                fontSize={18}
-              />{" "}
-              Change Aggregation
-            </>
-          </DropdownMenuSubTrigger>
-          <DropdownMenuPortal>
-            <DropdownMenuSubContent>
-              <DropdownMenuCheckboxItem
-                onClick={handleChangeAggregation(i, EAggregation.Sum)}
-                checked={aggregation === EAggregation.Sum}
-              >
-                Sum
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem
-                onClick={handleChangeAggregation(i, EAggregation.Average)}
-                checked={aggregation === EAggregation.Average}
-              >
-                Average
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem
-                onClick={handleChangeAggregation(i, EAggregation.Total)}
-                checked={aggregation === EAggregation.Total}
-              >
-                Total
-              </DropdownMenuCheckboxItem>
-            </DropdownMenuSubContent>
-          </DropdownMenuPortal>
-        </DropdownMenuSub>
+        {handleChangeAggregation && (
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <>
+                <Iconify
+                  icon="solar:square-transfer-horizontal-bold-duotone"
+                  className="mr-2"
+                  fontSize={18}
+                />{" "}
+                Change Aggregation
+              </>
+            </DropdownMenuSubTrigger>
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent>
+                <DropdownMenuCheckboxItem
+                  onClick={handleChangeAggregation(i, EAggregation.Sum)}
+                  checked={aggregation === EAggregation.Sum}
+                >
+                  Sum
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  onClick={handleChangeAggregation(i, EAggregation.Average)}
+                  checked={aggregation === EAggregation.Average}
+                >
+                  Average
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  onClick={handleChangeAggregation(i, EAggregation.Total)}
+                  checked={aggregation === EAggregation.Total}
+                >
+                  Total
+                </DropdownMenuCheckboxItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
+          </DropdownMenuSub>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

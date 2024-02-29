@@ -19,25 +19,23 @@ export default function ErrorCard({
   className,
 }: ErrorCardProps) {
   return (
-    <div>
-      <Card
+    <Card
+      className={cn(
+        "flex h-56 flex-col items-center justify-center gap-5 p-4",
+        className,
+      )}
+    >
+      <h1
         className={cn(
-          "flex h-56 flex-col items-center justify-center gap-5 p-4",
-          className,
+          "text-center text-xl font-semibold text-destructive",
+          titleClassName,
         )}
       >
-        <h1
-          className={cn(
-            "text-center text-xl font-semibold text-destructive",
-            titleClassName,
-          )}
-        >
-          {title ?? "Something went wrong"}
-        </h1>
-        <Button variant="outline" onClick={refetchFunction}>
-          {refetchText ?? "Try again"}
-        </Button>
-      </Card>
-    </div>
+        {title ?? "Something went wrong"}
+      </h1>
+      <Button variant="outline" onClick={refetchFunction}>
+        {refetchText ?? "Try again"}
+      </Button>
+    </Card>
   );
 }

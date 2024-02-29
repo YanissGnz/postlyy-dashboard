@@ -9,6 +9,8 @@ import { useGetGraphQuery } from "@/redux/api/dashboard/apiSlice";
 import CardDropdown from "./card-dropdown";
 import { Skeleton } from "@/components/ui/skeleton";
 import ErrorCard from "@/components/error-card";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
+import { ScrollBar } from "@/components/ui/scroll-area";
 
 export default function GraphCard({
   title,
@@ -99,16 +101,20 @@ export default function GraphCard({
           aggregation={aggregation}
         />
       </CardHeader>
-      <CardContent className="flex-1 p-1">
-        <ReactApexChart
-          type="line"
-          series={data?.data.series ?? []}
-          options={chartOptions}
-          height="100%"
-          width="100%"
-        />
-        <p className="text-xs text-muted-foreground">{description}</p>
-      </CardContent>
+      <ScrollArea className="h-full w-full flex-1">
+        <CardContent className="h-full w-full min-w-[300px] p-1">
+          <ReactApexChart
+            type="line"
+            series={data?.data.series ?? []}
+            options={chartOptions}
+            height="100%"
+            width="100%"
+          />
+          <p className="text-xs text-muted-foreground">{description}</p>
+        </CardContent>
+        <ScrollBar orientation="vertical" />
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
     </Card>
   );
 }
