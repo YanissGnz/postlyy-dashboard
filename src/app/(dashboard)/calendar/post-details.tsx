@@ -17,6 +17,7 @@ import Link from "next/link";
 import { ROUTES } from "@/routes";
 import { SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { openModal } from "@/redux/slices/modalsSlice";
+import { EProviders } from "@/types/EProviders";
 
 export const DEFAULT_POST_ID = "00000000-0000-0000-0000-000000000000";
 
@@ -329,13 +330,15 @@ export default function PostDetails() {
                           <AvatarImage
                             src={
                               session.data?.user.accounts.find(
-                                (account) => account.accountType === 1,
+                                (account) =>
+                                  account.accountType === EProviders.Linkedin,
                               )?.photoUrl ??
                               session.data?.user.profilePicture ??
                               ""
                             }
                             alt={`@${session.data?.user.accounts.find(
-                              (account) => account.accountType === 1,
+                              (account) =>
+                                account.accountType === EProviders.Linkedin,
                             )?.username}`}
                             className="object-cover"
                           />

@@ -35,7 +35,7 @@ import {
 import { type TErrorResponse } from "@/types/TErrorResponse";
 
 export default function TeamForm() {
-  const { data: managers, isSuccess: isManagerSuccess } = useGetManagersQuery();
+  const { data: managers } = useGetManagersQuery();
   const { data: subordinates, isLoading } = useGetAllMembersQuery();
 
   const [addManager, { isLoading: isAddManagerLoading }] =

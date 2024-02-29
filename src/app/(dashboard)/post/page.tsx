@@ -96,6 +96,7 @@ import { DAYS_OF_WEEK } from "../calendar/add-edit-event-form";
 import { LAYOUT } from "@/lib/constants";
 import NotesSheet from "./notes-sheet";
 import Note from "./note";
+import { EProviders } from "@/types/EProviders";
 const EmojiPicker = dynamic(
   () => {
     return import("emoji-picker-react");
@@ -286,7 +287,7 @@ export default function PostPage() {
   const [scheduleDate, setScheduleDate] = useState("");
 
   const hasAccount = useCallback(
-    (accountType: number) => {
+    (accountType: EProviders) => {
       return Boolean(
         session.data?.user.accounts.find(
           (account) => account.accountType === accountType,
@@ -307,8 +308,8 @@ export default function PostPage() {
     return {
       asEvergreen: false,
       isDraft: false,
-      onLinkedIn: currentAccount?.accountType === 1,
-      onTwitter: currentAccount?.accountType === 0,
+      onLinkedIn: currentAccount?.accountType === EProviders.Linkedin,
+      onTwitter: currentAccount?.accountType === EProviders.Twitter,
       scheduleDate: new Date().toISOString(),
       isTemplate: false,
       addFinisher: false,
@@ -1309,7 +1310,7 @@ export default function PostPage() {
                                     <Switch
                                       id="onTwitter"
                                       disabled={
-                                        !hasAccount(0) ||
+                                        !hasAccount(EProviders.Linkedin) ||
                                         (!form.getValues("onLinkedIn") &&
                                           field.value)
                                       }
@@ -1332,7 +1333,7 @@ export default function PostPage() {
                                     <Switch
                                       id="onLinkedIn"
                                       disabled={
-                                        !hasAccount(0) ||
+                                        !hasAccount(EProviders.Twitter) ||
                                         (!form.getValues("onTwitter") &&
                                           field.value)
                                       }
