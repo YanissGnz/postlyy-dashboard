@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ErrorCard from "@/components/error-card";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { ScrollBar } from "@/components/ui/scroll-area";
+import { EProviders } from "@/types/EProviders";
 
 export default function GraphCard({
   title,
@@ -47,7 +48,7 @@ export default function GraphCard({
 
   const { data, isLoading, isError, refetch } = useGetGraphQuery(
     {
-      provider: currentAccount!.accountType,
+      provider: currentAccount?.accountType ?? EProviders.Twitter,
       aggregation: aggregation,
       statType: query,
       startDate,

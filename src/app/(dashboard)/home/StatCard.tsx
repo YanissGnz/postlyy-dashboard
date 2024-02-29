@@ -8,6 +8,7 @@ import { type EStatType } from "@/types/EStatType";
 import CardDropdown from "./card-dropdown";
 import { Skeleton } from "@/components/ui/skeleton";
 import ErrorCard from "@/components/error-card";
+import { EProviders } from "@/types/EProviders";
 
 export default function StatCard({
   title,
@@ -46,7 +47,7 @@ export default function StatCard({
 
   const { data, isLoading, isError, refetch } = useGetStatQuery(
     {
-      provider: currentAccount!.accountType,
+      provider: currentAccount?.accountType ?? EProviders.Twitter,
       aggregation: aggregation,
       statType: query,
       startDate,
