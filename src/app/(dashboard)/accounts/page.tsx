@@ -20,6 +20,7 @@ import {
 import { Spinner } from "@/components/ui/Spinner";
 import { type TNewAccount } from "@/types/TNewAccount";
 import { isString } from "lodash";
+import { EProviders } from "@/types/EProviders";
 
 export default function AccountsPage() {
   const {
@@ -88,7 +89,7 @@ export default function AccountsPage() {
   }, [token]);
 
   const isConnected = useCallback(
-    (accountType: number) => {
+    (accountType: EProviders) => {
       if (!accounts) return false;
       return Boolean(
         accounts.data.find((account) => account.accountType === accountType),
@@ -97,7 +98,7 @@ export default function AccountsPage() {
     [accounts],
   );
   const getAccountByType = useCallback(
-    (accountType: number) => {
+    (accountType: EProviders) => {
       if (!accounts) return null;
       return accounts.data.find(
         (account) => account.accountType === accountType,
@@ -150,14 +151,14 @@ export default function AccountsPage() {
           <p className="font-medium">X (Twitter)</p>
         </div>
         <p>
-          {isConnected(0)
-            ? `@${getAccountByType(0)?.username}`
+          {isConnected(EProviders.Twitter)
+            ? `@${getAccountByType(EProviders.Twitter)?.username}`
             : "Not connected"}
         </p>
-        {isConnected(0) ? (
+        {isConnected(EProviders.Twitter) ? (
           <Button
             variant="destructive"
-            onClick={handleDeleteAccount(0)}
+            onClick={handleDeleteAccount(EProviders.Twitter)}
             disabled={isDeleteLoading}
             loading={isDeleteLoading}
           >
@@ -190,16 +191,16 @@ export default function AccountsPage() {
             ? `@${getAccountByType(1)?.username}`
             : "Not connected"}
         </p>
-        {isConnected(1) ? (
+        {isConnected(EProviders.Linkedin) ? (
           <Button
             variant="destructive"
-            onClick={handleDeleteAccount(1)}
+            onClick={handleDeleteAccount(EProviders.Linkedin)}
             disabled={isDeleteLoading}
             loading={isDeleteLoading}
           >
             Delete
           </Button>
-        ) : getAccountByType(1)?.isExpired ? (
+        ) : getAccountByType(EProviders.Linkedin)?.isExpired ? (
           <Button
             variant="outline"
             onClick={connect("linkedin")}

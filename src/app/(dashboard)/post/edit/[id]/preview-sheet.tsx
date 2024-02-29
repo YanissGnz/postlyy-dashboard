@@ -11,6 +11,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useAppSelector } from "@/redux/hooks";
+import { EProviders } from "@/types/EProviders";
 import { type TPostForm } from "@/types/TPostForm";
 import { useSession } from "next-auth/react";
 import { useState, type Dispatch, type SetStateAction } from "react";
@@ -198,13 +199,15 @@ export default function PreviewSheet({
                     <AvatarImage
                       src={
                         session.data?.user.accounts.find(
-                          (account) => account.accountType === 1,
+                          (account) =>
+                            account.accountType === EProviders.Linkedin,
                         )?.photoUrl ??
                         session.data?.user.profilePicture ??
                         ""
                       }
                       alt={`@${session.data?.user.accounts.find(
-                        (account) => account.accountType === 1,
+                        (account) =>
+                          account.accountType === EProviders.Linkedin,
                       )?.username}`}
                       className="object-cover"
                     />

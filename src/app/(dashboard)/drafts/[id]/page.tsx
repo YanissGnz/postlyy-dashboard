@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { env } from "@/env";
+import { EProviders } from "@/types/EProviders";
 
 export default function page({ params: { id } }: { params: { id: string } }) {
   const {
@@ -28,7 +29,7 @@ export default function page({ params: { id } }: { params: { id: string } }) {
   }, [data?.user.accounts]);
 
   const getAccount = useCallback(
-    (type: number) => {
+    (type: EProviders) => {
       return accounts.find((account) => account.accountType === type);
     },
     [accounts],
@@ -102,15 +103,17 @@ export default function page({ params: { id } }: { params: { id: string } }) {
                       <Avatar>
                         <AvatarImage
                           src={
-                            getAccount(0)
-                              ? getAccount(0)?.photoUrl
+                            getAccount(EProviders.Twitter)
+                              ? getAccount(EProviders.Twitter)?.photoUrl
                               : data?.user.profilePicture ?? ""
                           }
-                          alt={`@${getAccount(0)?.username}`}
+                          alt={`@${getAccount(EProviders.Twitter)?.username}`}
                           className="object-cover"
                         />
                         <AvatarFallback>
-                          {getAccount(0)?.username?.slice(0, 2).toUpperCase() ??
+                          {getAccount(EProviders.Twitter)
+                            ?.username?.slice(0, 2)
+                            .toUpperCase() ??
                             data?.user.fullName?.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
@@ -183,13 +186,15 @@ export default function page({ params: { id } }: { params: { id: string } }) {
                       <AvatarImage
                         src={
                           data?.user.accounts.find(
-                            (account) => account.accountType === 1,
+                            (account) =>
+                              account.accountType === EProviders.Linkedin,
                           )?.photoUrl ??
                           data?.user.profilePicture ??
                           ""
                         }
                         alt={`@${data?.user.accounts.find(
-                          (account) => account.accountType === 1,
+                          (account) =>
+                            account.accountType === EProviders.Linkedin,
                         )?.username}`}
                         className="object-cover"
                       />
