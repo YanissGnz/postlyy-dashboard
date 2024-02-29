@@ -36,8 +36,7 @@ import {
 import AddEditEventForm from "./add-edit-event-form";
 import { type TCalendarEvent } from "@/types/TCalendarEvent";
 import PostDetails from "./post-details";
-import { addHours } from "date-fns/esm";
-import { format } from "date-fns";
+import { addHours, format } from "date-fns";
 
 export default function Modals() {
   const { list } = useAppSelector((state) => state.modals);
