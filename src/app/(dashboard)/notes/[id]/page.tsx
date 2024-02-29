@@ -53,6 +53,7 @@ import {
 } from "@/components/ui/form";
 import { useSession } from "next-auth/react";
 import { Switch } from "@/components/ui/switch";
+import { EProviders } from "@/types/EProviders";
 
 const generateFormData = (data: TPostForm) => {
   const formData = new FormData();
@@ -118,8 +119,8 @@ export default function page({ params }: { params: { id: string } }) {
     return {
       asEvergreen: false,
       isDraft: false,
-      onLinkedIn: currentAccount?.accountType === 1,
-      onTwitter: currentAccount?.accountType === 0,
+      onLinkedIn: currentAccount?.accountType === EProviders.Linkedin,
+      onTwitter: currentAccount?.accountType === EProviders.Twitter,
       scheduleDate: new Date().toISOString(),
       isTemplate: false,
       addFinisher: false,
@@ -169,7 +170,7 @@ export default function page({ params }: { params: { id: string } }) {
   }, [isNoteSuccess, note]);
 
   const hasAccount = useCallback(
-    (accountType: number) => {
+    (accountType: EProviders) => {
       return Boolean(
         session.data?.user.accounts.find(
           (account) => account.accountType === accountType,
