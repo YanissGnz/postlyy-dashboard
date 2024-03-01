@@ -34,7 +34,7 @@ export default function EnterpriseLoginForm() {
   const callbackUrl = searchParams.get("callbackUrl");
   const urlEmail = searchParams.get("email");
 
-  const { push } = useRouter();
+  const { replace } = useRouter();
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -55,7 +55,7 @@ export default function EnterpriseLoginForm() {
     });
 
     if (response?.ok) {
-      push(callbackUrl ?? ROUTES.home);
+      replace(callbackUrl ?? ROUTES.home);
     } else if (response?.error === "CredentialsSignin") {
       form.setError("email", {
         type: "manual",
@@ -66,7 +66,7 @@ export default function EnterpriseLoginForm() {
         message: "Invalid email or password",
       });
     } else if (response?.error === "USER_NOT_CONFIRMED") {
-      push(`${ROUTES.confirmEmail}?email=${email}`);
+      replace(`${ROUTES.confirmEmail}?email=${email}`);
     } else if (response?.error === "USER_NOT_FOUND") {
       form.setError("email", {
         type: "manual",

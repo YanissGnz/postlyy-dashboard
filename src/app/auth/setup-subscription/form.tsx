@@ -33,7 +33,7 @@ export default function SetupForm() {
 
   const session = useSession();
 
-  const { push, refresh } = useRouter();
+  const { replace, refresh } = useRouter();
 
   const handlePayment = useCallback(
     (tier: number) => async () => {
@@ -56,10 +56,10 @@ export default function SetupForm() {
           if (res.data.hasToPay) {
             setCurrentStep(2);
             setTimeout(() => {
-              push(res.data.url);
+              replace(res.data.url);
             }, 3000);
           } else {
-            push(ROUTES.home);
+            replace(ROUTES.home);
           }
         })
         .catch(() => {
