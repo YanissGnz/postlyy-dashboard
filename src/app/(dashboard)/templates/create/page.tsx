@@ -70,6 +70,7 @@ import { useAddPostNowMutation } from "@/redux/api/post/apiSlice";
 import { useBoolean, useMediaQuery } from "usehooks-ts";
 import PreviewSheet from "./preview-sheet";
 import { LAYOUT } from "@/lib/constants";
+import { EProviders } from "@/types/EProviders";
 const EmojiPicker = dynamic(
   () => {
     return import("emoji-picker-react");
@@ -222,7 +223,7 @@ export default function PostPage() {
     useBoolean(false);
 
   const hasAccount = useCallback(
-    (accountType: number) => {
+    (accountType: EProviders) => {
       return Boolean(
         session.data?.user.accounts.find(
           (account) => account.accountType === accountType,
@@ -243,8 +244,8 @@ export default function PostPage() {
     return {
       asEvergreen: false,
       isDraft: false,
-      onLinkedIn: currentAccount?.accountType === 1,
-      onTwitter: currentAccount?.accountType === 0,
+      onLinkedIn: currentAccount?.accountType === EProviders.Linkedin,
+      onTwitter: currentAccount?.accountType === EProviders.Twitter,
       scheduleDate: new Date().toISOString(),
       isTemplate: false,
       addFinisher: false,

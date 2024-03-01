@@ -77,6 +77,7 @@ import LoadingCard from "@/components/loading-card";
 import ErrorCard from "@/components/error-card";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/routes";
+import { EProviders } from "@/types/EProviders";
 const EmojiPicker = dynamic(
   () => {
     return import("emoji-picker-react");
@@ -244,7 +245,7 @@ export default function EditDraftPage({ params: { id } }: Props) {
     useBoolean(false);
 
   const hasAccount = useCallback(
-    (accountType: number) => {
+    (accountType: EProviders) => {
       return Boolean(
         session.data?.user.accounts.find(
           (account) => account.accountType === accountType,
@@ -283,8 +284,8 @@ export default function EditDraftPage({ params: { id } }: Props) {
     return {
       asEvergreen: false,
       isDraft: true,
-      onLinkedIn: currentAccount?.accountType === 1,
-      onTwitter: currentAccount?.accountType === 0,
+      onLinkedIn: currentAccount?.accountType === EProviders.Linkedin,
+      onTwitter: currentAccount?.accountType === EProviders.Twitter,
       scheduleDate: new Date().toISOString(),
       isTemplate: false,
       addFinisher: false,
@@ -952,7 +953,7 @@ export default function EditDraftPage({ params: { id } }: Props) {
                                         <Switch
                                           id="onTwitter"
                                           disabled={
-                                            !hasAccount(0) ||
+                                            !hasAccount(EProviders.Twitter) ||
                                             (!form.getValues("onLinkedIn") &&
                                               field.value)
                                           }
@@ -975,7 +976,7 @@ export default function EditDraftPage({ params: { id } }: Props) {
                                         <Switch
                                           id="onLinkedIn"
                                           disabled={
-                                            !hasAccount(0) ||
+                                            !hasAccount(EProviders.Linkedin) ||
                                             (!form.getValues("onTwitter") &&
                                               field.value)
                                           }

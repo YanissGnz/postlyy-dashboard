@@ -80,7 +80,7 @@ const initialState = {
       needAccount: true,
     },
     {
-      name: "Image to text",
+      name: "Text to Image",
       path: "/image-to-text",
       icon: "solar:magic-stick-3-bold-duotone",
       roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],

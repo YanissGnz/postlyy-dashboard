@@ -161,9 +161,9 @@ export default function SetupForm() {
                 <div className="flex items-center justify-between">
                   <p className="text-4xl font-semibold">
                     <span className="mr-1 text-2xl text-foreground/60"> $</span>
-                    {isYearly
-                      ? env.NEXT_PUBLIC_PRO_YEARLY_PRICE
-                      : env.NEXT_PUBLIC_PRO_MONTHLY_PRICE}
+                    {(isYearly
+                      ? env.NEXT_PUBLIC_BASIC_YEARLY_PRICE
+                      : env.NEXT_PUBLIC_BASIC_MONTHLY_PRICE) * percentage}
                     <span className="ml-1 mr-1 text-xl text-foreground/60">
                       Per seat / {isYearly ? "year" : "month"}
                     </span>
@@ -260,9 +260,10 @@ export default function SetupForm() {
                 <div className="flex items-center justify-between">
                   <p className="text-4xl font-semibold">
                     <span className="mr-1 text-2xl text-foreground/60"> $</span>
-                    {isYearly
+                    {(isYearly
                       ? env.NEXT_PUBLIC_PRO_YEARLY_PRICE
-                      : env.NEXT_PUBLIC_PRO_MONTHLY_PRICE}=
+                      : env.NEXT_PUBLIC_PRO_MONTHLY_PRICE) * percentage}
+
                     <span className="ml-1 mr-1 text-xl text-foreground/60">
                       Per seat / {isYearly ? "year" : "month"}
                     </span>
@@ -370,9 +371,9 @@ export default function SetupForm() {
                 <div className="flex items-center justify-between">
                   <p className="text-4xl font-semibold">
                     <span className="mr-1 text-2xl text-foreground/60"> $</span>
-                    {isYearly
+                    {(isYearly
                       ? env.NEXT_PUBLIC_EXPERT_YEARLY_PRICE
-                      : env.NEXT_PUBLIC_EXPERT_MONTHLY_PRICE}
+                      : env.NEXT_PUBLIC_EXPERT_MONTHLY_PRICE) * percentage}
                     <span className="ml-1 mr-1 text-xl text-foreground/60">
                       Per seat / {isYearly ? "year" : "month"}
                     </span>
