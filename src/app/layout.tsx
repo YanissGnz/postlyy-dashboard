@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     "twitter",
     "linkedin",
   ],
-  manifest: "/manifest.json",
+  // manifest: "/manifest.json",
 };
 
 export default async function RootLayout({
