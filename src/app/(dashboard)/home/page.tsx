@@ -1,6 +1,7 @@
 "use client";
 
 import LoadingCard from "@/components/loading-card";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
   cn,
   getDachboardCardMinHeight,
@@ -15,10 +16,11 @@ import { changeLayout, removeCard } from "@/redux/slices/dashboardSlice";
 import { type EAggregation } from "@/types/EAggregation";
 import { EDashboardCardType } from "@/types/EDashboardCardType";
 import { type DashboardConfig } from "@/types/TDashboardConfig";
+import { max } from "lodash";
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect } from "react";
 import { type Layout } from "react-grid-layout";
-import { useBoolean } from "usehooks-ts";
+import { useBoolean, useElementSize } from "usehooks-ts";
 import CalendarCard from "./CalendarCard";
 import GraphCard from "./GraphCard";
 import StatCard from "./StatCard";
@@ -28,8 +30,6 @@ import { DashboardRangePicker } from "./range-picker";
 const GridLayout = dynamic(() => import("react-grid-layout"), { ssr: false });
 
 export default function HomePage() {
-  const containerRef = useRef<HTMLDivElement>(null);
-
   const dispatch = useAppDispatch();
   const [changeConfig] = useChangeDashboardConfigMutation();
   const { layout } = useAppSelector((state) => state.dashboard);
@@ -41,13 +41,11 @@ export default function HomePage() {
     isSuccess,
   } = useGetDashboardConfigQuery();
 
-  const width = useMemo(() => {
-    if (containerRef.current) {
-      return containerRef.current.offsetWidth;
-    }
-    return 800;
-  }, [containerRef.current?.offsetWidth]);
+  const [containerRef, { width = 0 }] = useElementSize();
 
+  useEffect(() => {
+    console.log("🚀 ", width);
+  }, [width]);
   useEffect(() => {
     if (isSuccess) {
       dispatch(changeLayout(dashboardConfig.data ?? []));
@@ -100,9 +98,9 @@ export default function HomePage() {
 
   return (
     <div className="flex h-screen flex-col space-y-2 px-4 py-4">
-      <div className="mb-5 flex items-center justify-between md:px-4">
+      <div className="mb-5 flex flex-wrap items-center justify-between md:px-4">
         <h2 className="text-2xl font-bold">Home</h2>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <DashboardRangePicker />
           {layout.length > 0 && (
             <EditLayoutButton
@@ -123,56 +121,59 @@ export default function HomePage() {
             </h1>
           </div>
         ) : (
-          <GridLayout
-            className={cn("w-full", isEdit && "grid-background")}
-            layout={
-              layout.map((item) => ({
-                ...item,
-                minW: getDachboardCardMinWidth(item.type),
-                minH: getDachboardCardMinHeight(item.type),
-              })) as Layout[]
-            }
-            cols={12}
-            rowHeight={30}
-            width={width}
-            isDraggable={isEdit}
-            isResizable={isEdit}
-            onLayoutChange={handleLayoutChange}
-            useCSSTransforms
-          >
-            {layout.map((item) => {
-              if (item.type === EDashboardCardType.Stat) {
-                return (
-                  <div key={item.i}>
-                    <StatCard
-                      {...item}
-                      handleRemoveCard={handleRemoveCard}
-                      handleChangeAggregation={handleChangeAggregation}
-                    />
-                  </div>
-                );
-              } else if (item.type === EDashboardCardType.Graph) {
-                return (
-                  <div key={item.i}>
-                    <GraphCard
-                      {...item}
-                      handleRemoveCard={handleRemoveCard}
-                      handleChangeAggregation={handleChangeAggregation}
-                    />
-                  </div>
-                );
-              } else if (item.type === EDashboardCardType.EventsCalendar) {
-                return (
-                  <div key={item.i}>
-                    <CalendarCard
-                      {...item}
-                      handleRemoveCard={handleRemoveCard}
-                    />
-                  </div>
-                );
+          <ScrollArea className="h-fit w-full">
+            <GridLayout
+              className={cn("w-full", isEdit && "grid-background")}
+              layout={
+                layout.map((item) => ({
+                  ...item,
+                  minW: getDachboardCardMinWidth(item.type),
+                  minH: getDachboardCardMinHeight(item.type),
+                })) as Layout[]
               }
-            })}
-          </GridLayout>
+              cols={12}
+              rowHeight={30}
+              width={max([width, 650])}
+              isDraggable={isEdit}
+              isResizable={isEdit}
+              onLayoutChange={handleLayoutChange}
+              useCSSTransforms
+            >
+              {layout.map((item) => {
+                if (item.type === EDashboardCardType.Stat) {
+                  return (
+                    <div key={item.i}>
+                      <StatCard
+                        {...item}
+                        handleRemoveCard={handleRemoveCard}
+                        handleChangeAggregation={handleChangeAggregation}
+                      />
+                    </div>
+                  );
+                } else if (item.type === EDashboardCardType.Graph) {
+                  return (
+                    <div key={item.i}>
+                      <GraphCard
+                        {...item}
+                        handleRemoveCard={handleRemoveCard}
+                        handleChangeAggregation={handleChangeAggregation}
+                      />
+                    </div>
+                  );
+                } else if (item.type === EDashboardCardType.EventsCalendar) {
+                  return (
+                    <div key={item.i}>
+                      <CalendarCard
+                        {...item}
+                        handleRemoveCard={handleRemoveCard}
+                      />
+                    </div>
+                  );
+                }
+              })}
+            </GridLayout>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
         )}
       </div>
     </div>
