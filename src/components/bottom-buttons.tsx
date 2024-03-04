@@ -36,11 +36,6 @@ export default function BottomButtons({
             ? LAYOUT.COLLAPSED_SIDEBAR_WIDTH
             : LAYOUT.SIDEBAR_WIDTH,
         width,
-        // isMobile
-        // ? "100%"
-        // : isCollapsed
-        //   ? `calc(100vw - ${LAYOUT.COLLAPSED_SIDEBAR_WIDTH})`
-        //   : `calc(100vw - ${LAYOUT.SIDEBAR_WIDTH})`,
         ...style,
       }}
       {...props}
