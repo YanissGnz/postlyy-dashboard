@@ -3,66 +3,27 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 "use client";
 
+import { useSession } from "next-auth/react";
+import dynamic from "next/dynamic";
 import {
-  type ChangeEvent,
   Fragment,
   useCallback,
   useEffect,
   useMemo,
   useState,
+  type ChangeEvent,
 } from "react";
-import dynamic from "next/dynamic";
-import { useSession } from "next-auth/react";
 
 import { useAppSelector } from "@/redux/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import { CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import Iconify from "@/components/ui/icon";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Spinner } from "@/components/ui/Spinner";
-import { type TPostForm, postFormSchema, type TPost } from "@/types/TPostForm";
-import {
-  type EmojiClickData,
-  EmojiStyle,
-  SkinTonePickerLocation,
-  type Theme,
-} from "emoji-picker-react";
-import { cn } from "@/lib/utils";
-import { useTheme } from "next-themes";
-import ImageUploading, { type ImageListType } from "react-images-uploading";
-import Image from "@/components/ui/image";
-import { toast } from "sonner";
-import { fData } from "@/lib/formatNumber";
-import { env } from "@/env";
-import { type TenorImage } from "gif-picker-react";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -72,8 +33,40 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { InfoCircledIcon } from "@radix-ui/react-icons";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import Iconify from "@/components/ui/icon";
+import Image from "@/components/ui/image";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { env } from "@/env";
+import { LAYOUT } from "@/lib/constants";
+import { fData } from "@/lib/formatNumber";
+import { cn } from "@/lib/utils";
+import {
+  useGetNextFiveSpotsQuery,
+  useGetRecurringSpotsQuery,
+} from "@/redux/api/calendar/apiSlice";
 import {
   useAddPostNowMutation,
   useAddPostToSpotMutation,
@@ -83,20 +76,27 @@ import {
   useGetTemplateMutation,
   useUpdateDraftMutation,
 } from "@/redux/api/post/apiSlice";
-import {
-  useGetNextFiveSpotsQuery,
-  useGetRecurringSpotsQuery,
-} from "@/redux/api/calendar/apiSlice";
-import { addDays, format } from "date-fns";
-import { useBoolean, useMediaQuery } from "usehooks-ts";
-import DraftSheet from "./draft-sheet";
-import TemplateSheet from "./template-sheet";
-import PreviewSheet from "./preview-sheet";
-import { DAYS_OF_WEEK } from "../calendar/add-edit-event-form";
-import { LAYOUT } from "@/lib/constants";
-import NotesSheet from "./notes-sheet";
-import Note from "./note";
 import { EProviders } from "@/types/EProviders";
+import { postFormSchema, type TPost, type TPostForm } from "@/types/TPostForm";
+import { InfoCircledIcon } from "@radix-ui/react-icons";
+import { addDays, format } from "date-fns";
+import {
+  EmojiStyle,
+  SkinTonePickerLocation,
+  type EmojiClickData,
+  type Theme,
+} from "emoji-picker-react";
+import { type TenorImage } from "gif-picker-react";
+import { useTheme } from "next-themes";
+import ImageUploading, { type ImageListType } from "react-images-uploading";
+import { toast } from "sonner";
+import { useBoolean, useMediaQuery } from "usehooks-ts";
+import { DAYS_OF_WEEK } from "../calendar/add-edit-event-form";
+import DraftSheet from "./draft-sheet";
+import Note from "./note";
+import NotesSheet from "./notes-sheet";
+import PreviewSheet from "./preview-sheet";
+import TemplateSheet from "./template-sheet";
 const EmojiPicker = dynamic(
   () => {
     return import("emoji-picker-react");
@@ -281,6 +281,8 @@ export default function PostPage() {
   const { value: isPreviewSheetOpen, setValue: setIsPreviewSheetOpen } =
     useBoolean(false);
   const { value: isQueueDialogOpen, setValue: setIsQueueDialogOpen } =
+    useBoolean(false);
+  const { value: isRecurringDialogOpen, setValue: setIsRecurringDialogOpen } =
     useBoolean(false);
 
   const [selectedSpot, setSelectedSpot] = useState<string | null>(null);
@@ -964,6 +966,7 @@ export default function PostPage() {
     const data = await generateFormData(form.getValues());
     if (scheduleDate !== "") {
       setIsScheduleDialogOpen(false);
+      setIsQueueDialogOpen(false);
       data.append("scheduleDate", scheduleDate);
 
       const schedulePostPromise = postNowOrSchedule(data).unwrap();
@@ -984,6 +987,7 @@ export default function PostPage() {
       });
     } else if (selectedSpot !== null) {
       setIsScheduleDialogOpen(false);
+      setIsQueueDialogOpen(false);
       const schedulePostPromise = addPostToSpot({
         body: data,
         spotId: selectedSpot,
@@ -1012,6 +1016,9 @@ export default function PostPage() {
       await form.trigger();
       return;
     }
+
+    setIsRecurringDialogOpen(false);
+
     const data = await generateFormData(form.getValues());
 
     const addRecurringPostPromise = addRecurringPost({
@@ -2284,7 +2291,10 @@ export default function PostPage() {
                       </Button>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Dialog>
+                      <Dialog
+                        open={isRecurringDialogOpen}
+                        onOpenChange={(open) => setIsRecurringDialogOpen(open)}
+                      >
                         <DialogTrigger asChild>
                           <Button
                             type="button"
