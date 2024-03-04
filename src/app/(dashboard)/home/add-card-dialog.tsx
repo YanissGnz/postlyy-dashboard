@@ -1,7 +1,5 @@
 "use client";
 
-import React, { useCallback } from "react";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -21,8 +19,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Select,
   SelectContent,
@@ -32,10 +28,14 @@ import {
 } from "@/components/ui/select";
 import { useAppDispatch } from "@/redux/hooks";
 import { addCard } from "@/redux/slices/dashboardSlice";
-import { useBoolean } from "usehooks-ts";
 import { EAggregation } from "@/types/EAggregation";
-import { EStatType } from "@/types/EStatType";
 import { EDashboardCardType } from "@/types/EDashboardCardType";
+import { EStatType } from "@/types/EStatType";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useCallback } from "react";
+import { useForm } from "react-hook-form";
+import { useBoolean } from "usehooks-ts";
+import { z } from "zod";
 
 const DASHBOARD_QUERIES = [
   {
@@ -99,10 +99,13 @@ const formSchema = z
     description: z.string().optional(),
     query: z.enum(["0", "1", "2", "3", "4", "5", "6", "7", "8"]).optional(),
   })
-  .refine((data) => data.type !== "graph" && data.type !== "stat", {
-    message: "Please select a data type",
-    path: ["query"],
-  });
+  .refine(
+    (data) => (data.type === "graph" || data.type === "stat") && data.query,
+    {
+      message: "Please select a data type",
+      path: ["query"],
+    },
+  );
 
 export default function AddCardDialog() {
   const dispatch = useAppDispatch();
@@ -113,7 +116,6 @@ export default function AddCardDialog() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       description: "",
-      query: "0",
     },
   });
 
