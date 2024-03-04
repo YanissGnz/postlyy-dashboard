@@ -3,21 +3,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 "use client";
 
-import { useSession } from "next-auth/react";
-import dynamic from "next/dynamic";
-import {
-  Fragment,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type ChangeEvent,
-} from "react";
-
-import { useAppSelector } from "@/redux/hooks";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-
 import { Spinner } from "@/components/ui/Spinner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -76,8 +61,10 @@ import {
   useGetTemplateMutation,
   useUpdateDraftMutation,
 } from "@/redux/api/post/apiSlice";
+import { useAppSelector } from "@/redux/hooks";
 import { EProviders } from "@/types/EProviders";
 import { postFormSchema, type TPost, type TPostForm } from "@/types/TPostForm";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { addDays, format } from "date-fns";
 import {
@@ -87,7 +74,18 @@ import {
   type Theme,
 } from "emoji-picker-react";
 import { type TenorImage } from "gif-picker-react";
+import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
+import dynamic from "next/dynamic";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ChangeEvent,
+} from "react";
+import { useForm } from "react-hook-form";
 import ImageUploading, { type ImageListType } from "react-images-uploading";
 import { toast } from "sonner";
 import { useBoolean, useMediaQuery } from "usehooks-ts";
@@ -336,14 +334,12 @@ export default function PostPage() {
   });
 
   useEffect(() => {
-    if (currentAccount) {
+    if (
+      currentAccount &&
+      !form.getValues().onLinkedIn &&
+      !form.getValues().onTwitter
+    ) {
       form.reset(defaultValues);
-      setPostsContent([
-        {
-          index: 0,
-          images: [],
-        },
-      ]);
     }
   }, [currentAccount]);
 
@@ -800,7 +796,6 @@ export default function PostPage() {
       });
 
       form.setValue("posts", newThreads);
-      await form.trigger("posts");
     },
     [form],
   );
@@ -1186,7 +1181,7 @@ export default function PostPage() {
             setIsDraftSheetOpen(false);
           })
           .catch((err) => {
-            console.log("🚀 ~ .then ~ err:", err);
+            console.log("🚀 ~ success: ~ err:", err);
             form.reset(defaultValues);
             setPostsContent([
               {
@@ -1236,7 +1231,7 @@ export default function PostPage() {
             setIsTemplateSheetOpen(false);
           })
           .catch((err) => {
-            console.log("🚀 ~ .then ~ err:", err);
+            console.log("🚀 ", err);
             form.reset(defaultValues);
             setPostsContent([
               {
@@ -1672,7 +1667,9 @@ export default function PostPage() {
                                                 className="w-full"
                                                 onChange={async (e) => {
                                                   field.onChange(e);
-                                                  await form.trigger("posts");
+                                                  await form.trigger(
+                                                    `posts.${post.index}.poll.options.${index}`,
+                                                  );
                                                 }}
                                               />
                                             </FormControl>
@@ -1769,7 +1766,7 @@ export default function PostPage() {
                                   >
                                     <Iconify
                                       icon="solar:trash-bin-2-bold-duotone"
-                                      className="mr-2 text-foreground/80"
+                                      className="mr-2"
                                       fontSize={16}
                                     />
                                     Remove poll
@@ -1883,7 +1880,8 @@ export default function PostPage() {
                                                   (form.getValues("onTwitter")
                                                     ? TWITTER_MAX_IMAGES
                                                     : LINKEDIN_MAX_IMAGES) ||
-                                                Boolean(post.gif)
+                                                Boolean(post.gif) ||
+                                                Boolean(post.poll)
                                               }
                                             >
                                               <Iconify
@@ -1952,7 +1950,7 @@ export default function PostPage() {
                                             (
                                               getPostContent(post.index)
                                                 ?.images ?? []
-                                            ).length > 0
+                                            ).length > 0 || Boolean(post.poll)
                                           }
                                         >
                                           <Iconify
