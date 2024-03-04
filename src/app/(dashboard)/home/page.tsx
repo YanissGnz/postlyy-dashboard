@@ -44,9 +44,6 @@ export default function HomePage() {
   const [containerRef, { width = 0 }] = useElementSize();
 
   useEffect(() => {
-    console.log("🚀 ", width);
-  }, [width]);
-  useEffect(() => {
     if (isSuccess) {
       dispatch(changeLayout(dashboardConfig.data ?? []));
     }
