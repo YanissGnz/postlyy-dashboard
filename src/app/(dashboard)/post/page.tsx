@@ -400,12 +400,6 @@ export default function PostPage() {
     }
   }, [form.getValues("onTwitter")]);
 
-  useEffect(() => {
-    if (isSuccess && nextSpots.data.length > 0) {
-      setSelectedSpot(nextSpots?.data?.[0]?.id ?? null);
-    }
-  }, [isSuccess, isSpotsLoading]);
-
   const handleTextChange = useCallback(
     (index: number) => (e: ChangeEvent<HTMLTextAreaElement>) => {
       const text = e.target.value.slice(0, 280);
@@ -2285,9 +2279,10 @@ export default function PostPage() {
                       <div className="flex items-center gap-2">
                         <Dialog
                           open={isRecurringDialogOpen}
-                          onOpenChange={(open) =>
-                            setIsRecurringDialogOpen(open)
-                          }
+                          onOpenChange={(open) => {
+                            setIsRecurringDialogOpen(open);
+                            if (!open) setSelectedSpot(null);
+                          }}
                         >
                           <DialogTrigger asChild>
                             <Button
@@ -2359,6 +2354,7 @@ export default function PostPage() {
                               <Button
                                 type="button"
                                 onClick={handleAddRecurringPost}
+                                disabled={!selectedSpot}
                               >
                                 Schedule
                               </Button>
@@ -2367,7 +2363,10 @@ export default function PostPage() {
                         </Dialog>
                         <Dialog
                           open={isScheduleDialogOpen}
-                          onOpenChange={(open) => setIsScheduleDialogOpen(open)}
+                          onOpenChange={(open) => {
+                            setIsScheduleDialogOpen(open);
+                            if (!open) setScheduleDate("");
+                          }}
                         >
                           <DialogTrigger asChild>
                             <Button
@@ -2403,6 +2402,7 @@ export default function PostPage() {
                               <Button
                                 type="button"
                                 onClick={handleSchedulePost}
+                                disabled={!scheduleDate}
                               >
                                 Schedule
                               </Button>
@@ -2424,7 +2424,10 @@ export default function PostPage() {
                         </Button>
                         <Dialog
                           open={isQueueDialogOpen}
-                          onOpenChange={(open) => setIsQueueDialogOpen(open)}
+                          onOpenChange={(open) => {
+                            setIsQueueDialogOpen(open);
+                            if (!open) setSelectedSpot(null);
+                          }}
                         >
                           <DialogTrigger asChild>
                             <Button
@@ -2485,6 +2488,7 @@ export default function PostPage() {
                               <Button
                                 type="button"
                                 onClick={handleSchedulePost}
+                                disabled={!selectedSpot}
                               >
                                 Schedule
                               </Button>
