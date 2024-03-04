@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 "use client";
 
+import BottomButtons from "@/components/bottom-buttons";
 import { Spinner } from "@/components/ui/Spinner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -45,7 +46,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { env } from "@/env";
-import { LAYOUT } from "@/lib/constants";
 import { fData } from "@/lib/formatNumber";
 import { cn } from "@/lib/utils";
 import {
@@ -88,7 +88,7 @@ import {
 import { useForm } from "react-hook-form";
 import ImageUploading, { type ImageListType } from "react-images-uploading";
 import { toast } from "sonner";
-import { useBoolean, useMediaQuery } from "usehooks-ts";
+import { useBoolean } from "usehooks-ts";
 import { DAYS_OF_WEEK } from "../calendar/add-edit-event-form";
 import DraftSheet from "./draft-sheet";
 import Note from "./note";
@@ -213,8 +213,6 @@ const generateFormData = async (data: TPostForm) => {
 
 export default function PostPage() {
   const { currentAccount } = useAppSelector((state) => state.auth);
-  const { isCollapsed } = useAppSelector((state) => state.layout);
-  const isMobile = useMediaQuery("(max-width: 768px)");
   const session = useSession();
   const { theme, systemTheme } = useTheme();
 
@@ -2215,280 +2213,287 @@ export default function PostPage() {
                     </div>
                   </div>
 
-                  <div
-                    className="fixed bottom-0 right-0 flex items-center justify-between gap-2 overflow-auto bg-background p-2 transition-all duration-500"
-                    style={{
-                      left: isMobile
-                        ? 0
-                        : isCollapsed
-                          ? LAYOUT.COLLAPSED_SIDEBAR_WIDTH
-                          : LAYOUT.SIDEBAR_WIDTH,
-                    }}
-                  >
-                    <div className="flex  items-center gap-2">
-                      <Dialog
-                        open={isDraftDialogOpen}
-                        onOpenChange={(open) => {
-                          if (!open) setScheduleDate("");
-                          setIsDraftDialogOpen(open);
-                        }}
-                      >
-                        <DialogTrigger asChild>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            disabled={
-                              !form.formState.isValid ||
-                              isPostingNowOrScheduling ||
-                              isAddingPostToSpot
-                            }
-                          >
-                            {selectedDraftId ? "Update draft" : "Save as draft"}
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                          <DialogHeader>
-                            <DialogTitle>Set a reminder</DialogTitle>
-                          </DialogHeader>
-                          <div className="">
-                            <div className="mt-3 grid w-full max-w-sm items-center gap-1.5">
-                              <Label htmlFor="custom-date">Reminder date</Label>
-                              <Input
-                                id="custom-date"
-                                type="datetime-local"
-                                value={scheduleDate}
-                                onChange={handleCustomDateChange}
-                              />
-                            </div>
-                          </div>
-                          <DialogFooter>
+                  <BottomButtons>
+                    <div className="flex  items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Dialog
+                          open={isDraftDialogOpen}
+                          onOpenChange={(open) => {
+                            if (!open) setScheduleDate("");
+                            setIsDraftDialogOpen(open);
+                          }}
+                        >
+                          <DialogTrigger asChild>
                             <Button
                               type="button"
-                              onClick={
-                                selectedDraftId
-                                  ? handleUpdateDraft
-                                  : handleSaveDraft
+                              variant="outline"
+                              disabled={
+                                !form.formState.isValid ||
+                                isPostingNowOrScheduling ||
+                                isAddingPostToSpot
                               }
                             >
-                              Save draft
+                              {selectedDraftId
+                                ? "Update draft"
+                                : "Save as draft"}
                             </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        disabled={
-                          !form.formState.isValid ||
-                          isPostingNowOrScheduling ||
-                          isAddingPostToSpot
-                        }
-                        onClick={handleSaveTemplate}
-                      >
-                        Save as template
-                      </Button>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Dialog
-                        open={isRecurringDialogOpen}
-                        onOpenChange={(open) => setIsRecurringDialogOpen(open)}
-                      >
-                        <DialogTrigger asChild>
-                          <Button
-                            type="button"
-                            disabled={
-                              !form.formState.isValid ||
-                              isPostingNowOrScheduling ||
-                              isAddingPostToSpot ||
-                              isAddingRecurringPost
-                            }
-                          >
-                            Pick recurring spot
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                          <DialogHeader>
-                            <DialogTitle>Pick a slot</DialogTitle>
-                            <DialogDescription>
-                              Choose a recurring slot to post your content
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="">
-                            {isRecurringSpotsLoading ? (
-                              <div className="flex h-24 items-center justify-center">
-                                <Spinner />
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                              <DialogTitle>Set a reminder</DialogTitle>
+                            </DialogHeader>
+                            <div className="">
+                              <div className="mt-3 grid w-full max-w-sm items-center gap-1.5">
+                                <Label htmlFor="custom-date">
+                                  Reminder date
+                                </Label>
+                                <Input
+                                  id="custom-date"
+                                  type="datetime-local"
+                                  value={scheduleDate}
+                                  onChange={handleCustomDateChange}
+                                />
                               </div>
-                            ) : isRecurringSpotSuccess &&
-                              recurringSpots?.data.length > 0 ? (
-                              <>
-                                <Label className="mb-2">Recurring Slots</Label>
-                                <div className="flex flex-wrap gap-2">
-                                  {recurringSpots.data.map((spot) => (
-                                    <Button
-                                      variant={
-                                        selectedSpot === spot.id
-                                          ? "default"
-                                          : "outline"
-                                      }
-                                      onClick={() => {
-                                        setSelectedSpot(spot.id);
-                                      }}
-                                    >
-                                      {spot.days
-                                        ?.map(
-                                          (day) =>
-                                            DAYS_OF_WEEK.find(
-                                              (d) => d.value === day,
-                                            )?.label,
-                                        )
-                                        .join(", ")}{" "}
-                                      at{" "}
-                                      {format(
-                                        new Date(spot.startTime ?? ""),
-                                        "HH:mm",
-                                      )}
-                                    </Button>
-                                  ))}
-                                </div>
-                              </>
-                            ) : (
-                              <div className="flex h-24 items-center justify-center text-destructive">
-                                <p>No spots available</p>
-                              </div>
-                            )}
-                          </div>
-                          <DialogFooter>
+                            </div>
+                            <DialogFooter>
+                              <Button
+                                type="button"
+                                onClick={
+                                  selectedDraftId
+                                    ? handleUpdateDraft
+                                    : handleSaveDraft
+                                }
+                              >
+                                Save draft
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={
+                            !form.formState.isValid ||
+                            isPostingNowOrScheduling ||
+                            isAddingPostToSpot
+                          }
+                          onClick={handleSaveTemplate}
+                        >
+                          Save as template
+                        </Button>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Dialog
+                          open={isRecurringDialogOpen}
+                          onOpenChange={(open) =>
+                            setIsRecurringDialogOpen(open)
+                          }
+                        >
+                          <DialogTrigger asChild>
                             <Button
                               type="button"
-                              onClick={handleAddRecurringPost}
+                              disabled={
+                                !form.formState.isValid ||
+                                isPostingNowOrScheduling ||
+                                isAddingPostToSpot ||
+                                isAddingRecurringPost
+                              }
                             >
-                              Schedule
+                              Pick recurring spot
                             </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                      <Dialog
-                        open={isScheduleDialogOpen}
-                        onOpenChange={(open) => setIsScheduleDialogOpen(open)}
-                      >
-                        <DialogTrigger asChild>
-                          <Button
-                            type="button"
-                            disabled={
-                              !form.formState.isValid ||
-                              isPostingNowOrScheduling ||
-                              isAddingPostToSpot
-                            }
-                          >
-                            Pick a time
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                          <DialogHeader>
-                            <DialogTitle>Pick a time</DialogTitle>
-                            <DialogDescription>
-                              Choose a time to post your content
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="">
-                            <div className="mt-3 grid w-full max-w-sm items-center gap-1.5">
-                              <Label htmlFor="custom-date">Custom date</Label>
-                              <Input
-                                id="custom-date"
-                                type="datetime-local"
-                                value={scheduleDate}
-                                onChange={handleCustomDateChange}
-                              />
-                            </div>
-                          </div>
-                          <DialogFooter>
-                            <Button type="button" onClick={handleSchedulePost}>
-                              Schedule
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-
-                      <Button
-                        type="button"
-                        disabled={
-                          !form.formState.isValid ||
-                          isPostingNowOrScheduling ||
-                          isAddingPostToSpot ||
-                          isAddingRecurringPost
-                        }
-                        onClick={handlePostNow}
-                      >
-                        Post now
-                      </Button>
-                      <Dialog
-                        open={isQueueDialogOpen}
-                        onOpenChange={(open) => setIsQueueDialogOpen(open)}
-                      >
-                        <DialogTrigger asChild>
-                          <Button
-                            type="button"
-                            disabled={
-                              !form.formState.isValid ||
-                              isPostingNowOrScheduling ||
-                              isAddingPostToSpot ||
-                              isAddingRecurringPost
-                            }
-                          >
-                            Add to queue
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                          <DialogHeader>
-                            <DialogTitle>Pick a time</DialogTitle>
-                            <DialogDescription>
-                              Choose a time to post your content
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="">
-                            {isSpotsLoading ? (
-                              <div className="flex h-24 items-center justify-center">
-                                <Spinner />
-                              </div>
-                            ) : isSuccess && nextSpots?.data.length > 0 ? (
-                              <>
-                                <Label className="mb-2">Time Slots</Label>
-                                <div className="flex flex-wrap gap-2">
-                                  {nextSpots.data.map((spot) => (
-                                    <Button
-                                      variant={
-                                        selectedSpot === spot.id
-                                          ? "default"
-                                          : "outline"
-                                      }
-                                      onClick={() => {
-                                        setScheduleDate("");
-                                        setSelectedSpot(spot.id);
-                                      }}
-                                    >
-                                      {format(
-                                        new Date(spot.start ?? ""),
-                                        "dd MMM yyyy, HH:mm",
-                                      )}
-                                    </Button>
-                                  ))}
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                              <DialogTitle>Pick a slot</DialogTitle>
+                              <DialogDescription>
+                                Choose a recurring slot to post your content
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="">
+                              {isRecurringSpotsLoading ? (
+                                <div className="flex h-24 items-center justify-center">
+                                  <Spinner />
                                 </div>
-                              </>
-                            ) : (
-                              <div className="flex h-24 items-center justify-center text-destructive">
-                                <p>No spots available</p>
-                              </div>
-                            )}
-                          </div>
-                          <DialogFooter>
-                            <Button type="button" onClick={handleSchedulePost}>
-                              Schedule
+                              ) : isRecurringSpotSuccess &&
+                                recurringSpots?.data.length > 0 ? (
+                                <>
+                                  <Label className="mb-2">
+                                    Recurring Slots
+                                  </Label>
+                                  <div className="flex flex-wrap gap-2">
+                                    {recurringSpots.data.map((spot) => (
+                                      <Button
+                                        variant={
+                                          selectedSpot === spot.id
+                                            ? "default"
+                                            : "outline"
+                                        }
+                                        onClick={() => {
+                                          setSelectedSpot(spot.id);
+                                        }}
+                                      >
+                                        {spot.days
+                                          ?.map(
+                                            (day) =>
+                                              DAYS_OF_WEEK.find(
+                                                (d) => d.value === day,
+                                              )?.label,
+                                          )
+                                          .join(", ")}{" "}
+                                        at{" "}
+                                        {format(
+                                          new Date(spot.startTime ?? ""),
+                                          "HH:mm",
+                                        )}
+                                      </Button>
+                                    ))}
+                                  </div>
+                                </>
+                              ) : (
+                                <div className="flex h-24 items-center justify-center text-destructive">
+                                  <p>No spots available</p>
+                                </div>
+                              )}
+                            </div>
+                            <DialogFooter>
+                              <Button
+                                type="button"
+                                onClick={handleAddRecurringPost}
+                              >
+                                Schedule
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                        <Dialog
+                          open={isScheduleDialogOpen}
+                          onOpenChange={(open) => setIsScheduleDialogOpen(open)}
+                        >
+                          <DialogTrigger asChild>
+                            <Button
+                              type="button"
+                              disabled={
+                                !form.formState.isValid ||
+                                isPostingNowOrScheduling ||
+                                isAddingPostToSpot
+                              }
+                            >
+                              Pick a time
                             </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                              <DialogTitle>Pick a time</DialogTitle>
+                              <DialogDescription>
+                                Choose a time to post your content
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="">
+                              <div className="mt-3 grid w-full max-w-sm items-center gap-1.5">
+                                <Label htmlFor="custom-date">Custom date</Label>
+                                <Input
+                                  id="custom-date"
+                                  type="datetime-local"
+                                  value={scheduleDate}
+                                  onChange={handleCustomDateChange}
+                                />
+                              </div>
+                            </div>
+                            <DialogFooter>
+                              <Button
+                                type="button"
+                                onClick={handleSchedulePost}
+                              >
+                                Schedule
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+
+                        <Button
+                          type="button"
+                          disabled={
+                            !form.formState.isValid ||
+                            isPostingNowOrScheduling ||
+                            isAddingPostToSpot ||
+                            isAddingRecurringPost
+                          }
+                          onClick={handlePostNow}
+                        >
+                          Post now
+                        </Button>
+                        <Dialog
+                          open={isQueueDialogOpen}
+                          onOpenChange={(open) => setIsQueueDialogOpen(open)}
+                        >
+                          <DialogTrigger asChild>
+                            <Button
+                              type="button"
+                              disabled={
+                                !form.formState.isValid ||
+                                isPostingNowOrScheduling ||
+                                isAddingPostToSpot ||
+                                isAddingRecurringPost
+                              }
+                            >
+                              Add to queue
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                              <DialogTitle>Pick a time</DialogTitle>
+                              <DialogDescription>
+                                Choose a time to post your content
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="">
+                              {isSpotsLoading ? (
+                                <div className="flex h-24 items-center justify-center">
+                                  <Spinner />
+                                </div>
+                              ) : isSuccess && nextSpots?.data.length > 0 ? (
+                                <>
+                                  <Label className="mb-2">Time Slots</Label>
+                                  <div className="flex flex-wrap gap-2">
+                                    {nextSpots.data.map((spot) => (
+                                      <Button
+                                        variant={
+                                          selectedSpot === spot.id
+                                            ? "default"
+                                            : "outline"
+                                        }
+                                        onClick={() => {
+                                          setScheduleDate("");
+                                          setSelectedSpot(spot.id);
+                                        }}
+                                      >
+                                        {format(
+                                          new Date(spot.start ?? ""),
+                                          "dd MMM yyyy, HH:mm",
+                                        )}
+                                      </Button>
+                                    ))}
+                                  </div>
+                                </>
+                              ) : (
+                                <div className="flex h-24 items-center justify-center text-destructive">
+                                  <p>No spots available</p>
+                                </div>
+                              )}
+                            </div>
+                            <DialogFooter>
+                              <Button
+                                type="button"
+                                onClick={handleSchedulePost}
+                              >
+                                Schedule
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
                     </div>
-                  </div>
+                  </BottomButtons>
                 </div>
               </div>
             </CardContent>
