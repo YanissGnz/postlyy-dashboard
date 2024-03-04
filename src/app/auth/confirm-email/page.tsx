@@ -1,4 +1,3 @@
-import React from "react";
 import ConfirmEmailForm from "./form";
 
 export default function ConfirmEmail() {
@@ -26,7 +25,7 @@ export default function ConfirmEmail() {
         </div>
       </div>
       <div className=" hidden h-full p-8 md:col-span-6 md:block">
-        <div className="h-full rounded-xl bg-[url(/images/login-image.jpg)] bg-cover bg-no-repeat shadow-xl"></div>
+        <div className="h-full rounded-xl bg-[url(/images/login-image.png)] bg-cover bg-no-repeat shadow-xl"></div>
       </div>
     </div>
   );

@@ -1,4 +1,3 @@
-import React from "react";
 import RecoverPasswordForm from "./form";
 
 export default function RecoverPassword() {
@@ -26,7 +25,7 @@ export default function RecoverPassword() {
         </div>
       </div>
       <div className=" hidden h-full p-8 md:col-span-6 md:block">
-        <div className="h-full rounded-xl bg-[url(/images/login-image.jpg)] bg-cover bg-no-repeat shadow-xl"></div>
+        <div className="h-full rounded-xl bg-[url(/images/login-image.png)] bg-cover bg-no-repeat shadow-xl"></div>
       </div>
     </div>
   );

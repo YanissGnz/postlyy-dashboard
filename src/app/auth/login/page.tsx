@@ -1,10 +1,10 @@
 // next-auth
 import { getProviders } from "next-auth/react";
 // components
-import ProviderLoginButton from "./provider-login-button";
 import { getServerAuthSession } from "@/server/auth";
 import { redirect } from "next/navigation";
 import CredentialsLoginForm from "./credentials-login-form";
+import ProviderLoginButton from "./provider-login-button";
 
 export default async function Login() {
   const session = await getServerAuthSession();
@@ -59,7 +59,7 @@ export default async function Login() {
         </div>
       </div>
       <div className=" hidden h-full p-8 md:col-span-6 md:block">
-        <div className="h-full rounded-xl bg-[url(/images/login-image.jpg)] bg-cover bg-no-repeat shadow-xl"></div>
+        <div className="h-full rounded-xl bg-[url(/images/login-image.png)] bg-cover bg-no-repeat shadow-xl"></div>
       </div>
     </div>
   );

@@ -1,4 +1,3 @@
-import React from "react";
 import RegisterForm from "./form";
 
 export default function Register() {
@@ -21,12 +20,13 @@ export default function Register() {
 
       <div className="col-span-12 h-full px-2 py-10 md:col-span-6">
         <div className="flex flex-col px-8 py-10 sm:px-16 md:px-16 lg:px-20">
-          <h6 className="mb-2 text-4xl font-bold">Register</h6>
+          <h6 className="mb-1 text-4xl font-bold">Create an account</h6>
+          <p className="mb-2 text-muted-foreground">Let's get you started!</p>
           <RegisterForm />
         </div>
       </div>
       <div className="col-span-6 h-full p-8">
-        <div className="h-full rounded-xl bg-[url(/images/login-image.jpg)] bg-cover bg-no-repeat shadow-xl"></div>
+        <div className="h-full rounded-xl bg-[url(/images/login-image.png)] bg-cover bg-no-repeat shadow-xl"></div>
       </div>
     </div>
   );

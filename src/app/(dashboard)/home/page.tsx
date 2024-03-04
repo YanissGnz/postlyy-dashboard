@@ -1,30 +1,29 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import StatCard from "./StatCard";
-import { useCallback, useEffect, useMemo, useRef } from "react";
-import GraphCard from "./GraphCard";
-import AddCardDialog from "./add-card-dialog";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { type Layout } from "react-grid-layout";
-import { changeLayout, removeCard } from "@/redux/slices/dashboardSlice";
-import { type DashboardConfig } from "@/types/TDashboardConfig";
-import {
-  useChangeDashboardConfigMutation,
-  useGetDashboardConfigQuery,
-} from "@/redux/api/user/dashboard/apiSlice";
 import LoadingCard from "@/components/loading-card";
-import { Button } from "@/components/ui/button";
-import { useBoolean } from "usehooks-ts";
-import Iconify from "@/components/ui/icon";
 import {
   cn,
   getDachboardCardMinHeight,
   getDachboardCardMinWidth,
 } from "@/lib/utils";
+import {
+  useChangeDashboardConfigMutation,
+  useGetDashboardConfigQuery,
+} from "@/redux/api/user/dashboard/apiSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { changeLayout, removeCard } from "@/redux/slices/dashboardSlice";
 import { type EAggregation } from "@/types/EAggregation";
 import { EDashboardCardType } from "@/types/EDashboardCardType";
+import { type DashboardConfig } from "@/types/TDashboardConfig";
+import dynamic from "next/dynamic";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import { type Layout } from "react-grid-layout";
+import { useBoolean } from "usehooks-ts";
 import CalendarCard from "./CalendarCard";
+import GraphCard from "./GraphCard";
+import StatCard from "./StatCard";
+import AddCardDialog from "./add-card-dialog";
+import EditLayoutButton from "./edit-layout-button";
 import { DashboardRangePicker } from "./range-picker";
 const GridLayout = dynamic(() => import("react-grid-layout"), { ssr: false });
 
@@ -55,7 +54,7 @@ export default function HomePage() {
     }
   }, [isSuccess, dashboardConfig]);
 
-  const handleEditLayout = useCallback(() => {
+  const handleToggleEditLayout = useCallback(() => {
     toggleEditValue();
   }, [toggleEditValue]);
 
@@ -71,7 +70,6 @@ export default function HomePage() {
         })
         .filter(Boolean) as DashboardConfig[];
 
-      await changeConfig(newLayout).unwrap();
       dispatch(changeLayout(newLayout));
     },
     [layout],
@@ -107,17 +105,10 @@ export default function HomePage() {
         <div className="flex items-center gap-2">
           <DashboardRangePicker />
           {layout.length > 0 && (
-            <Button variant="outline" onClick={handleEditLayout}>
-              <Iconify
-                icon={
-                  isEdit
-                    ? "solar:check-circle-bold-duotone"
-                    : "solar:ruler-cross-pen-bold-duotone"
-                }
-                className="mr-2 h-5 w-5"
-              />
-              {isEdit ? "Done" : "Edit"}
-            </Button>
+            <EditLayoutButton
+              handleToggleEditLayout={handleToggleEditLayout}
+              isEdit={isEdit}
+            />
           )}
           <AddCardDialog />
         </div>
