@@ -1,17 +1,24 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import { default as React, useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 import EditorJS, { type LogLevels, type OutputData } from "@editorjs/editorjs";
+import { default as React, useEffect, useState } from "react";
 import { EDITOR_JS_TOOLS } from "./tools";
 
 const EDITOR_HOLDER_ID = "editorjs";
 
+type Props = {
+  defaultData?: OutputData;
+  onChange: (content: string) => void;
+  containerClassName?: string;
+  className?: string;
+};
+
 const Editor = ({
   defaultData,
   onChange,
-}: {
-  defaultData?: OutputData;
-  onChange: (content: string) => void;
-}) => {
+  containerClassName,
+  className,
+}: Props) => {
   const [editorInstance, setEditorInstance] = useState<EditorJS | null>(null);
   const [editorData, setEditorData] = React.useState(defaultData ?? undefined);
 
@@ -53,10 +60,13 @@ const Editor = ({
   };
 
   return (
-    <div className="w-full rounded border">
+    <div className={cn("w-full rounded border", containerClassName)}>
       <div
         id={EDITOR_HOLDER_ID}
-        className="prose max-w-full p-1 font-sans dark:prose-invert"
+        className={cn(
+          "prose max-w-full p-1 font-sans dark:prose-invert",
+          className,
+        )}
       ></div>
     </div>
   );
