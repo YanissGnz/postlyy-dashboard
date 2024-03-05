@@ -1,14 +1,19 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import { useCallback, useRef, useState } from "react";
+import BottomButtons from "@/components/bottom-buttons";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Parser } from "@alkhipce/editorjs-react";
 import { type IParser } from "@alkhipce/editorjs-react/dist/types/ParserData";
+
 import { toPng } from "html-to-image";
-import BottomButtons from "@/components/bottom-buttons";
+import dynamic from "next/dynamic";
+import { useCallback, useRef, useState } from "react";
 const Editor = dynamic(() => import("@/components/ui/editor"), {
   ssr: false,
+  loading() {
+    return <Skeleton className="h-[calc(100vh-5rem)] w-full" />;
+  },
 });
 
 export default function CreateNotePage() {
@@ -25,7 +30,7 @@ export default function CreateNotePage() {
         pixelRatio: 2,
       }).then((dataUrl) => {
         const link = document.createElement("a");
-        link.download = `postlyy-image-to-text-${Date.now()}.jpeg`;
+        link.download = `postlyy-image-to-text-${Date.now()}.png`;
         link.href = dataUrl;
         link.click();
       });
@@ -36,18 +41,24 @@ export default function CreateNotePage() {
     <div className="space-y-2 px-4 py-4 md:px-8">
       <div className="flex flex-col space-y-4 lg:flex-row lg:space-x-12 lg:space-y-0">
         <div className="flex-1">
-          <Editor onChange={setContent} />
+          <Editor
+            containerClassName="min-h-[calc(100vh-5rem)]"
+            onChange={setContent}
+          />
 
           <BottomButtons>
-            <Button onClick={handleExportToJpeg}>Export to jpeg</Button>
+            <Button onClick={handleExportToJpeg}>Export to png</Button>
           </BottomButtons>
         </div>
       </div>
-      <div className="sr-only">
-        <div ref={ref} className="prose min-w-[300px] px-5">
+      <div className=" whitespace-normal">
+        <div
+          ref={ref}
+          className="font-sans! prose min-w-[300px] break-words px-5"
+        >
           <Parser data={JSON.parse(content ?? "null") as IParser} />
           <div className="flex justify-end p-2 text-xs text-muted-foreground">
-            <p>Made by Postlyy</p>
+            <p>Made with Postlyy</p>
           </div>
         </div>
       </div>
