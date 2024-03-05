@@ -51,7 +51,7 @@ export default function CreateNotePage() {
           </BottomButtons>
         </div>
       </div>
-      <div className=" whitespace-normal">
+      <div className="sr-only top-0 h-fit w-fit whitespace-normal">
         <div
           ref={ref}
           className="font-sans! prose min-w-[300px] break-words px-5"

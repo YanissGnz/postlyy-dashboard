@@ -1,21 +1,21 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import Embed from "@editorjs/embed";
-import Table from "@editorjs/table";
-import List from "@editorjs/list";
 import Code from "@editorjs/code";
-import Link from "@editorjs/link";
+import Embed from "@editorjs/embed";
 import Image from "@editorjs/image";
+import Link from "@editorjs/link";
+import List from "@editorjs/list";
+import Table from "@editorjs/table";
 // import Raw from "@editorjs/raw";
 import Header from "@editorjs/header";
-import Quote from "@editorjs/quote";
 import Marker from "@editorjs/marker";
+import Quote from "@editorjs/quote";
 // import CheckList from "@editorjs/checklist";
+import { env } from "@/env";
+import { store } from "@/redux/store";
 import Delimiter from "@editorjs/delimiter";
 import InlineCode from "@editorjs/inline-code";
 import SimpleImage from "@editorjs/simple-image";
 import ColorPlugin from "editorjs-text-color-plugin";
-import { env } from "@/env";
-import { store } from "@/redux/store";
 
 export const EDITOR_JS_TOOLS = {
   embed: Embed,
