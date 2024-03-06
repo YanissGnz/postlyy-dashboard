@@ -153,7 +153,6 @@ export default function HomePage() {
                       <GraphCard
                         {...item}
                         handleRemoveCard={handleRemoveCard}
-                        handleChangeAggregation={handleChangeAggregation}
                       />
                     </div>
                   );

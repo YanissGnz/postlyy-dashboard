@@ -1,14 +1,16 @@
-import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useMemo } from "react";
 
+import ErrorCard from "@/components/error-card";
+import Iconify from "@/components/ui/icon";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getProviderIcon } from "@/lib/utils";
 import { useGetStatQuery } from "@/redux/api/dashboard/apiSlice";
 import { useAppSelector } from "@/redux/hooks";
 import { EAggregation } from "@/types/EAggregation";
+import { EProviders } from "@/types/EProviders";
 import { type EStatType } from "@/types/EStatType";
 import CardDropdown from "./card-dropdown";
-import { Skeleton } from "@/components/ui/skeleton";
-import ErrorCard from "@/components/error-card";
-import { EProviders } from "@/types/EProviders";
 
 export default function StatCard({
   title,
@@ -19,6 +21,7 @@ export default function StatCard({
   query,
   aggregation,
   handleChangeAggregation,
+  provider,
 }: {
   title: string;
   query: EStatType;
@@ -28,6 +31,7 @@ export default function StatCard({
   i: string;
   handleRemoveCard: (i: string) => () => void;
   handleChangeAggregation: (i: string, aggregation: EAggregation) => () => void;
+  provider: EProviders;
 }) {
   const { currentAccount } = useAppSelector((state) => state.auth);
   const { endDate, startDate } = useAppSelector((state) => state.dashboard);
@@ -47,16 +51,13 @@ export default function StatCard({
 
   const { data, isLoading, isError, refetch } = useGetStatQuery(
     {
-      provider: currentAccount?.accountType ?? EProviders.Twitter,
+      provider: provider ?? currentAccount?.accountType ?? EProviders.Twitter,
       aggregation: aggregation,
       statType: query,
       startDate,
       endDate,
     },
-    {
-      skip: !currentAccount,
-      refetchOnMountOrArgChange: true,
-    },
+    { refetchOnMountOrArgChange: true },
   );
 
   if (isLoading) return <Skeleton className="h-full w-full" />;
@@ -74,8 +75,11 @@ export default function StatCard({
   return (
     <Card className="flex h-full flex-col items-start justify-between">
       <CardHeader className="flex w-full flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="flex flex-col font-medium">
-          <span>{title}</span>
+        <CardTitle className="flex flex-col gap-1 font-medium">
+          <div className="flex items-center gap-2">
+            <Iconify icon={getProviderIcon(provider)} fontSize={18} />
+            <span>{title}</span>
+          </div>
           <span className="text-sm text-muted-foreground">
             {aggregationText}
           </span>

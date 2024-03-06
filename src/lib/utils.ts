@@ -1,6 +1,7 @@
 import { EDashboardCardType } from "@/types/EDashboardCardType";
 import { EPostSpotType } from "@/types/EPostSpotType";
-import { type ClassValue, clsx } from "clsx";
+import { EProviders } from "@/types/EProviders";
+import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -78,5 +79,14 @@ export const getDachboardCardMinHeight = (type: EDashboardCardType) => {
       return 8;
     default:
       return 4;
+  }
+};
+
+export const getProviderIcon = (type: EProviders) => {
+  switch (type) {
+    case EProviders.Linkedin:
+      return "simple-icons:linkedin";
+    case EProviders.Twitter:
+      return "simple-icons:x";
   }
 };

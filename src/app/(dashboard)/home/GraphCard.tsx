@@ -1,17 +1,18 @@
-import React, { useMemo } from "react";
-import ReactApexChart, { BaseOptionChart } from "@/components/ui/chart";
-import { merge } from "lodash";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { type EStatType } from "@/types/EStatType";
-import { useAppSelector } from "@/redux/hooks";
-import { EAggregation } from "@/types/EAggregation";
-import { useGetGraphQuery } from "@/redux/api/dashboard/apiSlice";
-import CardDropdown from "./card-dropdown";
-import { Skeleton } from "@/components/ui/skeleton";
 import ErrorCard from "@/components/error-card";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import ReactApexChart, { BaseOptionChart } from "@/components/ui/chart";
+import Iconify from "@/components/ui/icon";
 import { ScrollBar } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getProviderIcon } from "@/lib/utils";
+import { useGetGraphQuery } from "@/redux/api/dashboard/apiSlice";
+import { useAppSelector } from "@/redux/hooks";
 import { EProviders } from "@/types/EProviders";
+import { type EStatType } from "@/types/EStatType";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
+import { merge } from "lodash";
+import { useMemo } from "react";
+import CardDropdown from "./card-dropdown";
 
 export default function GraphCard({
   title,
@@ -19,44 +20,26 @@ export default function GraphCard({
   i,
   handleRemoveCard,
   query,
-  aggregation,
-  handleChangeAggregation,
+  provider,
 }: {
   title: string;
   query: EStatType;
   description?: string;
-  aggregation: EAggregation;
   i: string;
   handleRemoveCard: (i: string) => () => void;
-  handleChangeAggregation: (i: string, aggregation: EAggregation) => () => void;
+  provider: EProviders;
 }) {
   const { currentAccount } = useAppSelector((state) => state.auth);
   const { endDate, startDate } = useAppSelector((state) => state.dashboard);
 
-  const aggregationText = useMemo(() => {
-    switch (aggregation) {
-      case EAggregation.Average:
-        return "Average";
-      case EAggregation.Sum:
-        return "Total of priod";
-      case EAggregation.Total:
-        return "All time Total";
-      default:
-        return "All time Total";
-    }
-  }, [aggregation]);
-
   const { data, isLoading, isError, refetch } = useGetGraphQuery(
     {
-      provider: currentAccount?.accountType ?? EProviders.Twitter,
-      aggregation: aggregation,
+      provider: provider ?? currentAccount?.accountType ?? EProviders.Twitter,
       statType: query,
       startDate,
       endDate,
     },
-    {
-      skip: !currentAccount,
-    },
+    { refetchOnMountOrArgChange: true },
   );
 
   const chartOptions = useMemo(() => {
@@ -93,17 +76,12 @@ export default function GraphCard({
     <Card className="flex h-full flex-col">
       <CardHeader className="flex w-full flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="flex flex-col font-medium">
-          <span>{title}</span>
-          <span className="text-sm text-muted-foreground">
-            {aggregationText}
-          </span>
+          <div className="flex items-center gap-2">
+            <Iconify icon={getProviderIcon(provider)} fontSize={18} />
+            <span>{title}</span>
+          </div>
         </CardTitle>
-        <CardDropdown
-          i={i}
-          handleRemoveCard={handleRemoveCard}
-          handleChangeAggregation={handleChangeAggregation}
-          aggregation={aggregation}
-        />
+        <CardDropdown i={i} handleRemoveCard={handleRemoveCard} />
       </CardHeader>
       <ScrollArea className="h-full w-full flex-1">
         <CardContent className="h-full w-full min-w-[300px] p-1">

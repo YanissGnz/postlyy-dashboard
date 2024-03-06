@@ -30,6 +30,7 @@ import { useAppDispatch } from "@/redux/hooks";
 import { addCard } from "@/redux/slices/dashboardSlice";
 import { EAggregation } from "@/types/EAggregation";
 import { EDashboardCardType } from "@/types/EDashboardCardType";
+import { EProviders } from "@/types/EProviders";
 import { EStatType } from "@/types/EStatType";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback } from "react";
@@ -95,6 +96,9 @@ function getCardTitle(type: EDashboardCardType, value?: number) {
 
 const formSchema = z
   .object({
+    provider: z.enum(["0", "1"], {
+      required_error: "Please select a provider",
+    }),
     type: z.enum(["stat", "graph", "table", "events-calendar"]),
     description: z.string().optional(),
     query: z.enum(["0", "1", "2", "3", "4", "5", "6", "7", "8"]).optional(),
@@ -134,6 +138,8 @@ export default function AddCardDialog() {
           : EStatType.Follows,
         aggregation: EAggregation.Total,
         description: values.description,
+        provider:
+          values.provider === "0" ? EProviders.Twitter : EProviders.Linkedin,
       }),
     );
     setValue(false);
@@ -160,6 +166,31 @@ export default function AddCardDialog() {
               </DialogDescription>
             </DialogHeader>
             <div className="mb-2 space-y-2">
+              <FormField
+                control={form.control}
+                name="provider"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Social</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a social provider" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="0">Twitter</SelectItem>
+                        <SelectItem value="1">LinkedIn</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="type"
