@@ -1774,6 +1774,25 @@ export default function PostPage() {
                               )}
                             >
                               <div className="flex items-center gap-2">
+                                <Tooltip>
+                                  <TooltipTrigger>
+                                    <Button
+                                      size="icon"
+                                      type="button"
+                                      variant="ghost"
+                                      onClick={handleAddThread(post.index + 1)}
+                                    >
+                                      <Iconify
+                                        icon="solar:add-circle-bold-duotone"
+                                        className="text-foreground/80"
+                                        fontSize={26}
+                                      />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="bottom">
+                                    <p>Add a thread</p>
+                                  </TooltipContent>
+                                </Tooltip>
                                 {form.getValues("posts").length > 1 && (
                                   <Tooltip>
                                     <TooltipTrigger>
@@ -1798,28 +1817,7 @@ export default function PostPage() {
                                     </TooltipContent>
                                   </Tooltip>
                                 )}
-
-                                <Tooltip>
-                                  <TooltipTrigger>
-                                    <Button
-                                      size="icon"
-                                      type="button"
-                                      variant="ghost"
-                                      onClick={handleAddThread(post.index + 1)}
-                                    >
-                                      <Iconify
-                                        icon="solar:add-circle-bold-duotone"
-                                        className="text-foreground/80"
-                                        fontSize={26}
-                                      />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="bottom">
-                                    <p>Add a thread</p>
-                                  </TooltipContent>
-                                </Tooltip>
                               </div>
-
                               <div className={cn("flex items-center gap-2")}>
                                 <Tooltip>
                                   <TooltipTrigger>
