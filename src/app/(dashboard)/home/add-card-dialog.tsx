@@ -106,7 +106,10 @@ const formSchema = z
     query: z.enum(["0", "1", "2", "3", "4", "5", "6", "7", "8"]).optional(),
   })
   .refine(
-    (data) => (data.type === "graph" || data.type === "stat") && data.query,
+    (data) =>
+      data.type === "stat" || data.type === "graph"
+        ? Boolean(data.query)
+        : true,
     {
       message: "Please select a data type",
       path: ["query"],
