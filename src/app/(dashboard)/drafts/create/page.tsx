@@ -3,37 +3,27 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 "use client";
 
+import { useSession } from "next-auth/react";
+import dynamic from "next/dynamic";
 import {
-  type ChangeEvent,
   Fragment,
   useCallback,
   useEffect,
   useMemo,
   useState,
+  type ChangeEvent,
 } from "react";
-import dynamic from "next/dynamic";
-import { useSession } from "next-auth/react";
 
 import { useAppSelector } from "@/redux/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import { CardContent } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/Spinner";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import Iconify from "@/components/ui/icon";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -43,34 +33,44 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Spinner } from "@/components/ui/Spinner";
-import { type TPostForm, postFormSchema, type TPost } from "@/types/TPostForm";
+import Iconify from "@/components/ui/icon";
+import Image from "@/components/ui/image";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
-  type EmojiClickData,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { env } from "@/env";
+import { LAYOUT } from "@/lib/constants";
+import { fData } from "@/lib/formatNumber";
+import { cn } from "@/lib/utils";
+import { useAddPostNowMutation } from "@/redux/api/post/apiSlice";
+import { EProviders } from "@/types/EProviders";
+import { postFormSchema, type TPost, type TPostForm } from "@/types/TPostForm";
+import { InfoCircledIcon } from "@radix-ui/react-icons";
+import {
   EmojiStyle,
   SkinTonePickerLocation,
+  type EmojiClickData,
   type Theme,
 } from "emoji-picker-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
+import { type TenorImage } from "gif-picker-react";
 import { useTheme } from "next-themes";
 import ImageUploading, { type ImageListType } from "react-images-uploading";
-import Image from "@/components/ui/image";
 import { toast } from "sonner";
-import { fData } from "@/lib/formatNumber";
-import { env } from "@/env";
-import { type TenorImage } from "gif-picker-react";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { InfoCircledIcon } from "@radix-ui/react-icons";
-import { useAddPostNowMutation } from "@/redux/api/post/apiSlice";
 import { useBoolean, useMediaQuery } from "usehooks-ts";
 import PreviewSheet from "./preview-sheet";
-import { LAYOUT } from "@/lib/constants";
-import { EProviders } from "@/types/EProviders";
 const EmojiPicker = dynamic(
   () => {
     return import("emoji-picker-react");
@@ -1299,6 +1299,25 @@ export default function PostPage() {
                               )}
                             >
                               <div className="flex items-center gap-2">
+                                <Tooltip>
+                                  <TooltipTrigger>
+                                    <Button
+                                      size="icon"
+                                      type="button"
+                                      variant="ghost"
+                                      onClick={handleAddThread(post.index + 1)}
+                                    >
+                                      <Iconify
+                                        icon="solar:add-circle-bold-duotone"
+                                        className="text-foreground/80"
+                                        fontSize={26}
+                                      />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="bottom">
+                                    <p>Add a thread</p>
+                                  </TooltipContent>
+                                </Tooltip>{" "}
                                 {form.getValues("posts").length > 1 && (
                                   <Tooltip>
                                     <TooltipTrigger>
@@ -1323,26 +1342,6 @@ export default function PostPage() {
                                     </TooltipContent>
                                   </Tooltip>
                                 )}
-
-                                <Tooltip>
-                                  <TooltipTrigger>
-                                    <Button
-                                      size="icon"
-                                      type="button"
-                                      variant="ghost"
-                                      onClick={handleAddThread(post.index + 1)}
-                                    >
-                                      <Iconify
-                                        icon="solar:add-circle-bold-duotone"
-                                        className="text-foreground/80"
-                                        fontSize={26}
-                                      />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="bottom">
-                                    <p>Add a thread</p>
-                                  </TooltipContent>
-                                </Tooltip>
                               </div>
 
                               <div className={cn("flex items-center gap-2")}>

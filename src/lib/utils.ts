@@ -1,6 +1,7 @@
 import { EDashboardCardType } from "@/types/EDashboardCardType";
 import { EPostSpotType } from "@/types/EPostSpotType";
 import { EProviders } from "@/types/EProviders";
+import { type TAccount } from "@/types/TAccount";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -89,4 +90,10 @@ export const getProviderIcon = (type: EProviders) => {
     case EProviders.Twitter:
       return "simple-icons:x";
   }
+};
+
+export const hasAccount = (accountType: EProviders, accounts?: TAccount[]) => {
+  return Boolean(
+    accounts?.find((account) => account.accountType === accountType),
+  );
 };

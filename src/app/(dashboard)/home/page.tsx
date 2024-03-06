@@ -18,7 +18,7 @@ import { EDashboardCardType } from "@/types/EDashboardCardType";
 import { type DashboardConfig } from "@/types/TDashboardConfig";
 import { max } from "lodash";
 import dynamic from "next/dynamic";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { type Layout } from "react-grid-layout";
 import { useBoolean, useElementSize } from "usehooks-ts";
 import CalendarCard from "./CalendarCard";
@@ -41,7 +41,11 @@ export default function HomePage() {
     isSuccess,
   } = useGetDashboardConfigQuery();
 
-  const [containerRef, { width = 0 }] = useElementSize();
+  const [containerRef, { width: containerWidth = 0 }] = useElementSize();
+
+  const width = useMemo(() => {
+    return max([containerWidth, 650]);
+  }, [containerWidth]);
 
   useEffect(() => {
     if (isSuccess) {
@@ -130,7 +134,7 @@ export default function HomePage() {
               }
               cols={12}
               rowHeight={30}
-              width={max([width, 650])}
+              width={width}
               isDraggable={isEdit}
               isResizable={isEdit}
               onLayoutChange={handleLayoutChange}

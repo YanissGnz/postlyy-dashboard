@@ -47,7 +47,7 @@ import {
 } from "@/components/ui/tooltip";
 import { env } from "@/env";
 import { fData } from "@/lib/formatNumber";
-import { cn } from "@/lib/utils";
+import { cn, hasAccount } from "@/lib/utils";
 import {
   useGetNextFiveSpotsQuery,
   useGetRecurringSpotsQuery,
@@ -283,17 +283,6 @@ export default function PostPage() {
 
   const [selectedSpot, setSelectedSpot] = useState<string | null>(null);
   const [scheduleDate, setScheduleDate] = useState("");
-
-  const hasAccount = useCallback(
-    (accountType: EProviders) => {
-      return Boolean(
-        session.data?.user.accounts.find(
-          (account) => account.accountType === accountType,
-        ),
-      );
-    },
-    [session.data?.user.accounts],
-  );
 
   const getPostContent = useCallback(
     (index: number) => {
@@ -1304,7 +1293,10 @@ export default function PostPage() {
                                     <Switch
                                       id="onTwitter"
                                       disabled={
-                                        !hasAccount(EProviders.Linkedin) ||
+                                        !hasAccount(
+                                          EProviders.Linkedin,
+                                          session.data?.user.accounts,
+                                        ) ||
                                         (!form.getValues("onLinkedIn") &&
                                           field.value)
                                       }
@@ -1318,27 +1310,37 @@ export default function PostPage() {
                                 </FormControl>
                               )}
                             />
-                            <FormField
-                              control={form.control}
-                              name={`onLinkedIn`}
-                              render={({ field }) => (
-                                <FormControl>
-                                  <div className="flex items-center space-x-2">
-                                    <Switch
-                                      id="onLinkedIn"
-                                      disabled={
-                                        !hasAccount(EProviders.Twitter) ||
-                                        (!form.getValues("onTwitter") &&
-                                          field.value)
-                                      }
-                                      checked={field.value}
-                                      onCheckedChange={field.onChange}
-                                    />{" "}
-                                    <Label htmlFor="onLinkedIn">LinkedIn</Label>
-                                  </div>
-                                </FormControl>
-                              )}
-                            />
+                            {hasAccount(
+                              EProviders.Linkedin,
+                              session.data?.user.accounts,
+                            ) && (
+                              <FormField
+                                control={form.control}
+                                name={`onLinkedIn`}
+                                render={({ field }) => (
+                                  <FormControl>
+                                    <div className="flex items-center space-x-2">
+                                      <Switch
+                                        id="onLinkedIn"
+                                        disabled={
+                                          !hasAccount(
+                                            EProviders.Twitter,
+                                            session.data?.user.accounts,
+                                          ) ||
+                                          (!form.getValues("onTwitter") &&
+                                            field.value)
+                                        }
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                      />{" "}
+                                      <Label htmlFor="onLinkedIn">
+                                        LinkedIn
+                                      </Label>
+                                    </div>
+                                  </FormControl>
+                                )}
+                              />
+                            )}
                           </PopoverContent>
                         </Popover>
                       </TooltipTrigger>

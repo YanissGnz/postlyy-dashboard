@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { hasAccount } from "@/lib/utils";
 import { useAppDispatch } from "@/redux/hooks";
 import { addCard } from "@/redux/slices/dashboardSlice";
 import { EAggregation } from "@/types/EAggregation";
@@ -33,6 +34,7 @@ import { EDashboardCardType } from "@/types/EDashboardCardType";
 import { EProviders } from "@/types/EProviders";
 import { EStatType } from "@/types/EStatType";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useSession } from "next-auth/react";
 import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { useBoolean } from "usehooks-ts";
@@ -112,6 +114,7 @@ const formSchema = z
   );
 
 export default function AddCardDialog() {
+  const { data } = useSession();
   const dispatch = useAppDispatch();
 
   const { setValue, value: isOpen } = useBoolean(false);
@@ -182,8 +185,14 @@ export default function AddCardDialog() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="0">Twitter</SelectItem>
-                        <SelectItem value="1">LinkedIn</SelectItem>
+                        {hasAccount(
+                          EProviders.Twitter,
+                          data?.user.accounts,
+                        ) && <SelectItem value="0">Twitter</SelectItem>}
+                        {hasAccount(
+                          EProviders.Linkedin,
+                          data?.user.accounts,
+                        ) && <SelectItem value="1">LinkedIn</SelectItem>}
                       </SelectContent>
                     </Select>
 
