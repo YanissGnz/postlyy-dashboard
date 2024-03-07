@@ -9,18 +9,9 @@ import React, {
   useState,
 } from "react";
 // calendar
-import FullCalendar from "@fullcalendar/react";
-import dayGridPlugin from "@fullcalendar/daygrid";
-import listPlugin from "@fullcalendar/list";
-import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin from "@fullcalendar/interaction";
-
-import {
-  useGetEventsQuery,
-  useUpdateRecurringPostMutation,
-  useUpdateSpotMutation,
-} from "@/redux/api/calendar/apiSlice";
 import { Spinner } from "@/components/ui/Spinner";
+import { Button } from "@/components/ui/button";
+import Iconify from "@/components/ui/icon";
 import {
   Select,
   SelectContent,
@@ -29,25 +20,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-import { useAppDispatch } from "@/redux/hooks";
-import { openModal } from "@/redux/slices/modalsSlice";
-import { EPostSpotType } from "@/types/EPostSpotType";
-import {
-  type EventDropArg,
-  type EventSourceInput,
-} from "@fullcalendar/core/index.js";
-import Iconify from "@/components/ui/icon";
-import { Button } from "@/components/ui/button";
-import { type TRecurringPost } from "@/types/TRecurringPost";
-import { type TCalendarSpot } from "@/types/TCalendarSpot";
-import { type EventImpl } from "@fullcalendar/core/internal";
-import { type TCalendarEvent } from "@/types/TCalendarEvent";
 import {
   getEventBackgroundColor,
   getEventIcon,
   getEventTextColor,
 } from "@/lib/utils";
+import {
+  useGetEventsQuery,
+  useUpdateRecurringPostMutation,
+  useUpdateSpotMutation,
+} from "@/redux/api/calendar/apiSlice";
+import { useAppDispatch } from "@/redux/hooks";
+import { openModal } from "@/redux/slices/modalsSlice";
+import { EPostSpotType } from "@/types/EPostSpotType";
+import { type TCalendarEvent } from "@/types/TCalendarEvent";
+import { type TCalendarSpot } from "@/types/TCalendarSpot";
+import { type TRecurringPost } from "@/types/TRecurringPost";
+import {
+  type EventDropArg,
+  type EventSourceInput,
+} from "@fullcalendar/core/index.js";
+import { type EventImpl } from "@fullcalendar/core/internal";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import listPlugin from "@fullcalendar/list";
+import FullCalendar from "@fullcalendar/react";
+import timeGridPlugin from "@fullcalendar/timegrid";
 import { addHours, format } from "date-fns";
 import { toast } from "sonner";
 import { DEFAULT_POST_ID } from "./post-details";
@@ -222,8 +220,8 @@ export default function Calender() {
         events={events}
         initialView="timeGrid"
         height="auto"
-        slotMinTime="08:00:00"
-        slotMaxTime="22:00:00"
+        slotMinTime="07:00:00"
+        slotMaxTime="24:00:00"
         allDaySlot={false}
         eventClick={(info) => {
           info.jsEvent.preventDefault();
