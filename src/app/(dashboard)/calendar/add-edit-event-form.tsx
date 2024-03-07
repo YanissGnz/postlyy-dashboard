@@ -1,13 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { type UseFormReturn } from "react-hook-form";
-import { type TCalendarSpot } from "@/types/TCalendarSpot";
-import { type TRecurringPost } from "@/types/TRecurringPost";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -15,8 +7,6 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
-import { cn, getEventIcon } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import {
   Form,
   FormControl,
@@ -25,8 +15,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import Iconify from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -34,9 +29,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toast } from "sonner";
-import { setHours } from "date-fns";
+import { cn, getEventIcon } from "@/lib/utils";
 import {
+  calendarApiUtil,
   useAddRecurringPostMutation,
   useAddSpotMutation,
   useUpdateRecurringPostMutation,
@@ -44,8 +39,14 @@ import {
 } from "@/redux/api/calendar/apiSlice";
 import { useAppDispatch } from "@/redux/hooks";
 import { closeModal } from "@/redux/slices/modalsSlice";
-import Iconify from "@/components/ui/icon";
 import { EPostSpotType } from "@/types/EPostSpotType";
+import { type TCalendarSpot } from "@/types/TCalendarSpot";
+import { type TRecurringPost } from "@/types/TRecurringPost";
+import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
+import { setHours } from "date-fns";
+import { useEffect, useState } from "react";
+import { type UseFormReturn } from "react-hook-form";
+import { toast } from "sonner";
 
 type Props = {
   form: UseFormReturn<TRecurringPost | TCalendarSpot, unknown, undefined>;
@@ -122,6 +123,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
           .then(() => {
             form.reset();
             toast.success("Recurring post updated successfully");
+            calendarApiUtil.invalidateTags(["Recurring"]);
           })
           .catch((err) => {
             toast.error("Something went wrong");
@@ -133,6 +135,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
           .then(() => {
             form.reset();
             toast.success("Recurring post added successfully");
+            calendarApiUtil.invalidateTags(["Recurring"]);
           })
           .catch((err) => {
             toast.error("Something went wrong");
@@ -152,6 +155,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
           .then(() => {
             form.reset();
             toast.success("Spot updated successfully");
+            calendarApiUtil.invalidateTags(["Spot"]);
           })
           .catch((err) => {
             toast.error("Something went wrong");
@@ -169,6 +173,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
           .then(() => {
             form.reset();
             toast.success("Spot added successfully");
+            calendarApiUtil.invalidateTags(["Spot"]);
           })
           .catch((err) => {
             toast.error("Something went wrong");

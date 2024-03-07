@@ -66,7 +66,7 @@ export default function Calender() {
 
   const { data, isLoading, isFetching } = useGetEventsQuery({});
 
-  const [updateSpot] = useUpdateSpotMutation();
+  const [updateSpot, { isLoading: isUpdating }] = useUpdateSpotMutation();
 
   const [updateRecurringSpot] = useUpdateRecurringPostMutation();
 
@@ -238,7 +238,8 @@ export default function Calender() {
             duration: { days: 8 },
           },
         }}
-        eventDrop={handleEditEvent}
+        editable={!isUpdating}
+        eventDrop={!isUpdating ? handleEditEvent : undefined}
         dateClick={(info) => {
           dispatch(
             openModal({

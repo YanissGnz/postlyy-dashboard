@@ -1,11 +1,13 @@
 import { env } from "@/env";
 import { type RootState } from "@/redux/store";
 import { type TCalendarEvent } from "@/types/TCalendarEvent";
-import { type TCalendarSpot } from "@/types/TCalendarSpot";
+import {
+  type TCalendarSpot,
+  type TResponseCalendarSpot,
+} from "@/types/TCalendarSpot";
 import { type TRecurringPost } from "@/types/TRecurringPost";
 import { type TResponse } from "@/types/TResponse";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { type TResponseCalendarSpot } from "@/types/TCalendarSpot";
 
 export const calendarApi = createApi({
   reducerPath: "calendarApi",
@@ -27,8 +29,7 @@ export const calendarApi = createApi({
   endpoints: (builder) => ({
     getEvents: builder.query<
       TResponse<TCalendarEvent[]>,
-      {        startDate?: string;
-      }
+      { startDate?: string }
     >({
       query: (params) => ({
         url: "/api/Calendar",
@@ -56,7 +57,6 @@ export const calendarApi = createApi({
         method: "PUT",
         body,
       }),
-      invalidatesTags: ["Events", "Recurring"],
     }),
     deleteRecurringPost: builder.mutation<TResponse<boolean>, string>({
       query: (id) => ({
@@ -82,7 +82,6 @@ export const calendarApi = createApi({
         method: "PUT",
         body,
       }),
-      invalidatesTags: ["Events", "Spot"],
     }),
     deleteSpot: builder.mutation<TResponse<boolean>, string>({
       query: (id) => ({
