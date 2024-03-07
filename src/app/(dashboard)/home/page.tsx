@@ -109,7 +109,7 @@ export default function HomePage() {
               isEdit={isEdit}
             />
           )}
-          <AddCardDialog />
+          {(layout.length === 0 || isEdit) && <AddCardDialog />}
         </div>
       </div>
       <div ref={containerRef} className="w-full">
