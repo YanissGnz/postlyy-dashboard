@@ -1,3 +1,5 @@
+import RoleBasedGuard from "@/guard/RoleBasedGuard";
+import { EUserType } from "@/types/EUserType";
 import { type Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -10,7 +12,7 @@ interface TeamLayoutProps {
 
 export default function TeamLayout({ children }: TeamLayoutProps) {
   return (
-    <>
+    <RoleBasedGuard accessibleRoles={[EUserType.Manager, EUserType.Owner]}>
       <div className="space-y-2 px-4 py-4 md:px-8">
         <div className="space-y-0.5">
           <h2 className="mb-5 text-2xl font-bold tracking-tight">Team</h2>
@@ -19,6 +21,6 @@ export default function TeamLayout({ children }: TeamLayoutProps) {
           <div className="flex-1">{children}</div>
         </div>
       </div>
-    </>
+    </RoleBasedGuard>
   );
 }

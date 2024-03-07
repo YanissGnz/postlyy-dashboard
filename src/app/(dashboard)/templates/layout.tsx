@@ -1,3 +1,4 @@
+import RoleBasedGuard from "@/guard/RoleBasedGuard";
 import { type Metadata } from "next";
 import Modals from "./modals";
 
@@ -11,9 +12,9 @@ interface TemplateLayoutProps {
 
 export default function TemplateLayout({ children }: TemplateLayoutProps) {
   return (
-    <>
+    <RoleBasedGuard needAccount>
       {children}
       <Modals />
-    </>
+    </RoleBasedGuard>
   );
 }

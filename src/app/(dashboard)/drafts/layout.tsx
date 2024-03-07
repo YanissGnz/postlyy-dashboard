@@ -1,3 +1,4 @@
+import RoleBasedGuard from "@/guard/RoleBasedGuard";
 import { type Metadata } from "next";
 import Modals from "./modals";
 
@@ -11,9 +12,9 @@ interface CalendarLayoutProps {
 
 export default function CalendarLayout({ children }: CalendarLayoutProps) {
   return (
-    <>
+    <RoleBasedGuard needAccount>
       {children}
       <Modals />
-    </>
+    </RoleBasedGuard>
   );
 }

@@ -1,12 +1,9 @@
-"use client";
-
-import Image from "@/components/ui/image";
+import { getServerAuthSession } from "@/server/auth";
 import { ETiers } from "@/types/ETiers";
 import { EUserType } from "@/types/EUserType";
-import { useSession } from "next-auth/react";
+import Image from "next/image";
 import forbidden from "public/images/403.png";
 import { type ReactNode } from "react";
-// ----------------------------------------------------------------------
 
 interface RoleBasedGuardProp {
   accessibleRoles?: EUserType[];
@@ -15,15 +12,15 @@ interface RoleBasedGuardProp {
   children: ReactNode;
 }
 
-export default function RoleBasedGuard({
+export default async function RoleBasedGuard({
   accessibleRoles = [EUserType.Manager, EUserType.Owner, EUserType.TeamMember],
   accessibleTiers = [ETiers.Basic, ETiers.Pro, ETiers.Expert],
   needAccount,
   children,
 }: RoleBasedGuardProp) {
-  const session = useSession();
+  const session = await getServerAuthSession();
 
-  if (!session?.data?.user) {
+  if (!session?.user) {
     return (
       <div className="flex h-full w-full flex-col items-center justify-center gap-4">
         <h1 className="text-4xl font-bold">Permission Denied</h1>
@@ -31,12 +28,12 @@ export default function RoleBasedGuard({
           {" "}
           You do not have permission to access this page
         </p>
-        <Image src={forbidden.src} height={400} width={400} />
+        <Image alt="Forbidden" src={forbidden.src} height={400} width={400} />
       </div>
     );
   }
 
-  if (needAccount && !Boolean(session?.data?.user?.accounts)) {
+  if (needAccount && !Boolean(session?.user?.accounts)) {
     return (
       <div className="flex h-full w-full flex-col items-center justify-center gap-4 p-10">
         <h1 className="text-4xl font-bold">Permission Denied</h1>
@@ -44,15 +41,15 @@ export default function RoleBasedGuard({
           {" "}
           You do not have permission to access this page
         </p>
-        <Image src={forbidden.src} height={400} width={400} />
+        <Image alt="Forbidden" src={forbidden.src} height={400} width={400} />
       </div>
     );
   }
 
   if (
-    Boolean(session?.data?.user) &&
-    (!accessibleRoles?.includes(session?.data?.user.userType) ||
-      !accessibleTiers?.includes(session?.data?.user.tier))
+    Boolean(session?.user) &&
+    (!accessibleRoles?.includes(session?.user.userType) ||
+      !accessibleTiers?.includes(session?.user.tier))
   ) {
     return (
       <div className="flex h-full w-full flex-col items-center justify-center gap-4 p-10">
@@ -61,7 +58,7 @@ export default function RoleBasedGuard({
           {" "}
           You do not have permission to access this page
         </p>
-        <Image src={forbidden.src} height={400} width={400} />
+        <Image alt="Forbidden" src={forbidden.src} height={400} width={400} />
       </div>
     );
   }
