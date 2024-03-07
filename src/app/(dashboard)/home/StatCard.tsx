@@ -83,6 +83,7 @@ export default function StatCard({
           <span className="text-sm text-muted-foreground">
             {aggregationText}
           </span>
+          <p className="text-xs text-muted-foreground">{description}</p>
         </CardTitle>
         <CardDropdown
           i={i}
@@ -96,7 +97,6 @@ export default function StatCard({
         <div className="text-2xl font-bold">
           {data?.data.value} {unit}
         </div>
-        <p className="text-xs text-muted-foreground">{description}</p>
       </CardContent>
     </Card>
   );

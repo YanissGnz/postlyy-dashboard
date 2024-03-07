@@ -75,11 +75,12 @@ export default function GraphCard({
   return (
     <Card className="flex h-full flex-col">
       <CardHeader className="flex w-full flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="flex flex-col font-medium">
+        <CardTitle className="flex flex-col gap-1 font-medium">
           <div className="flex items-center gap-2">
             <Iconify icon={getProviderIcon(provider)} fontSize={18} />
             <span>{title}</span>
           </div>
+          <p className="text-xs text-muted-foreground">{description}</p>
         </CardTitle>
         <CardDropdown i={i} handleRemoveCard={handleRemoveCard} />
       </CardHeader>
@@ -92,7 +93,6 @@ export default function GraphCard({
             height="100%"
             width="100%"
           />
-          <p className="text-xs text-muted-foreground">{description}</p>
         </CardContent>
         <ScrollBar orientation="vertical" />
         <ScrollBar orientation="horizontal" />
