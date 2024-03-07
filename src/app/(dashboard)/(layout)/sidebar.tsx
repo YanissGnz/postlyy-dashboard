@@ -1,20 +1,20 @@
 "use client";
 
-import { useCallback } from "react";
-import Image from "next/image";
-import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import { useCallback } from "react";
 // redux
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { toggleCollapseSidebar } from "@/redux/slices/layoutSlice";
 // constants
 import { LAYOUT } from "@/lib/constants";
 // components
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "../../../components/ui/button";
 import Iconify from "../../../components/ui/icon";
 import AccountPopover from "./account-popover";
 import NavItem from "./nav-item";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function Sidebar() {
   const session = useSession();
@@ -33,7 +33,7 @@ export default function Sidebar() {
 
   return (
     <div
-      className="fixed left-0 top-0 flex h-screen flex-col border-r bg-card p-3 transition-all duration-500"
+      className="fixed left-0 top-0 flex h-screen flex-col border-r bg-card transition-all duration-500"
       style={{
         width: isCollapsed
           ? LAYOUT.COLLAPSED_SIDEBAR_WIDTH
@@ -60,7 +60,7 @@ export default function Sidebar() {
           fontSize={20}
         />
       </Button>
-      <div className="mb-4">
+      <div className="mb-4 p-3 pb-0">
         <Image
           src="/icons/logo-transparent.png"
           alt="logo"
@@ -69,6 +69,7 @@ export default function Sidebar() {
         />
       </div>
       <ScrollArea
+        className="px-3"
         style={{
           height: "calc(100% - 100px)",
         }}
@@ -86,8 +87,9 @@ export default function Sidebar() {
           )}
         </div>
       </ScrollArea>
-
-      <AccountPopover />
+      <div className="px-3 pb-3">
+        <AccountPopover />
+      </div>
     </div>
   );
 }
