@@ -62,6 +62,5 @@ export default async function RoleBasedGuard({
       </div>
     );
   }
-
   return <>{children}</>;
 }
