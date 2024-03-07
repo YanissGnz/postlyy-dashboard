@@ -58,7 +58,7 @@ export default function GraphCard({
         },
       },
     });
-  }, []);
+  }, [data]);
 
   if (isLoading) return <Skeleton className="h-full w-full " />;
 
