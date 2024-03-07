@@ -103,13 +103,13 @@ export default function HomePage() {
         <h2 className="text-2xl font-bold">Home</h2>
         <div className="flex flex-wrap items-center gap-2">
           <DashboardRangePicker />
+          {(layout.length === 0 || isEdit) && <AddCardDialog />}
           {layout.length > 0 && (
             <EditLayoutButton
               handleToggleEditLayout={handleToggleEditLayout}
               isEdit={isEdit}
             />
           )}
-          {(layout.length === 0 || isEdit) && <AddCardDialog />}
         </div>
       </div>
       <div ref={containerRef} className="w-full">
