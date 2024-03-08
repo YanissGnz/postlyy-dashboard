@@ -114,3 +114,7 @@ export const hasAccount = (accountType: EProviders, accounts?: TAccount[]) => {
     accounts?.find((account) => account.accountType === accountType),
   );
 };
+
+export function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
