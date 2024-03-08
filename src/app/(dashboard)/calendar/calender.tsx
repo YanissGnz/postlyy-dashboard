@@ -1,14 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 "use client";
 
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-// calendar
 import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/button";
 import Iconify from "@/components/ui/icon";
@@ -21,9 +13,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  cn,
   getEventBackgroundColor,
   getEventIcon,
+  getEventTWBackgroundColor,
   getEventTextColor,
+  hasAccount,
 } from "@/lib/utils";
 import {
   useGetEventsQuery,
@@ -33,6 +28,7 @@ import {
 import { useAppDispatch } from "@/redux/hooks";
 import { openModal } from "@/redux/slices/modalsSlice";
 import { EPostSpotType } from "@/types/EPostSpotType";
+import { EProviders } from "@/types/EProviders";
 import { type TCalendarEvent } from "@/types/TCalendarEvent";
 import { type TCalendarSpot } from "@/types/TCalendarSpot";
 import { type TRecurringPost } from "@/types/TRecurringPost";
@@ -47,12 +43,23 @@ import listPlugin from "@fullcalendar/list";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import { addHours, format } from "date-fns";
+import { useSession } from "next-auth/react";
+import { useTheme } from "next-themes";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { toast } from "sonner";
 import { DEFAULT_POST_ID } from "./post-details";
 
 export default function Calender() {
   const calenderRef = useRef<FullCalendar>(null);
   const dispatch = useAppDispatch();
+  const session = useSession();
+  const { theme } = useTheme();
 
   const [title, setTitle] = useState(
     calenderRef.current?.getApi().view.title ?? "",
@@ -72,23 +79,34 @@ export default function Calender() {
 
   const events: EventSourceInput = useMemo(() => {
     if (data?.data) {
-      return data.data.map((event) => ({
-        ...event,
-        end: addHours(new Date(event.start), 1),
-        backgroundColor: getEventBackgroundColor(event.type),
-        textColor: getEventTextColor(event.type),
-        editable: true,
-        eventDurationEditable: false,
-        eventResizableFromStart: false,
-        extendedProps: {
-          icon: getEventIcon(event.type),
+      return data.data
+        .filter(
+          (event) =>
+            (event.forLinkedIn &&
+              hasAccount(EProviders.Linkedin, session.data?.user.accounts)) ||
+            (event.forTwitter &&
+              hasAccount(EProviders.Twitter, session.data?.user.accounts)),
+        )
+        .map((event) => ({
           ...event,
-        },
-        ...(event.type === EPostSpotType.Recurring && {
-          daysOfWeek: event.days,
-          startTime: format(new Date(event.startTime), "HH:mm"),
-        }),
-      }));
+          end: addHours(new Date(event.start), 1),
+          backgroundColor:
+            event.postId !== DEFAULT_POST_ID
+              ? getEventBackgroundColor(event.type, theme === "dark")
+              : "#f3f4f6",
+          textColor: getEventTextColor(event.type),
+          editable: true,
+          eventDurationEditable: false,
+          eventResizableFromStart: false,
+          extendedProps: {
+            icon: getEventIcon(event.type),
+            ...event,
+          },
+          ...(event.type === EPostSpotType.Recurring && {
+            daysOfWeek: event.days,
+            startTime: format(new Date(event.startTime), "HH:mm"),
+          }),
+        }));
     }
     return [];
   }, [data?.data, isLoading, isFetching]);
@@ -265,6 +283,11 @@ export default function Calender() {
         eventContent={(eventInfo) => {
           const { event } = eventInfo;
 
+          const backgroundColor = getEventTWBackgroundColor(
+            event.extendedProps.type as EPostSpotType,
+            theme === "dark",
+          );
+
           if (calenderRef.current?.getApi().view.type === "list")
             return (
               <div className="flex items-center gap-2">
@@ -322,7 +345,14 @@ export default function Calender() {
               </div>
             );
           return (
-            <div className="flex h-12 items-center gap-2 px-2">
+            <div
+              className={cn(
+                "flex h-12 w-full items-center gap-2 px-2 text-foreground",
+                event.extendedProps.postId !== DEFAULT_POST_ID
+                  ? backgroundColor
+                  : "bg-[#f3f4f6] dark:bg-[#1c1e20]",
+              )}
+            >
               <Iconify
                 icon={event.extendedProps.icon}
                 className="flex-none"

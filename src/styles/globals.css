@@ -172,3 +172,9 @@ span.react-resizable-handle.react-resizable-handle-se {
   background-position: var(--grid-padding) var(--grid-padding);
   background-size: var(--grid-size) var(--grid-size);
 }
+
+/* Calender */
+
+a.fc-event.fc-event-draggable.fc-event-resizable.fc-event-start.fc-event-end.fc-event-future.fc-timegrid-event.fc-v-event {
+  @apply border-muted-foreground dark:border-none;
+}

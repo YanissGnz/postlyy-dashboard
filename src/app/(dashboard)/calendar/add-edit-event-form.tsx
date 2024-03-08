@@ -29,7 +29,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn, getEventIcon } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
+import { cn, getEventIcon, hasAccount } from "@/lib/utils";
 import {
   calendarApiUtil,
   useAddRecurringPostMutation,
@@ -40,10 +41,12 @@ import {
 import { useAppDispatch } from "@/redux/hooks";
 import { closeModal } from "@/redux/slices/modalsSlice";
 import { EPostSpotType } from "@/types/EPostSpotType";
+import { EProviders } from "@/types/EProviders";
 import { type TCalendarSpot } from "@/types/TCalendarSpot";
 import { type TRecurringPost } from "@/types/TRecurringPost";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { setHours } from "date-fns";
+import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { type UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
@@ -86,6 +89,8 @@ export const DAYS_OF_WEEK = [
 ];
 
 export default function AddEditEventForm({ form, isEdit, id }: Props) {
+  const { data } = useSession();
+
   const [addSpot, { isLoading: isAddSpotLoading }] = useAddSpotMutation();
   const [updateSpot, { isLoading: isUpdateSpotLoading }] =
     useUpdateSpotMutation();
@@ -392,6 +397,44 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
                   </FormControl>
 
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+          {hasAccount(EProviders.Twitter, data?.user.accounts) && (
+            <FormField
+              control={form.control}
+              name="forTwitter"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <FormLabel>Twitter Slot</FormLabel>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          )}
+          {hasAccount(EProviders.Linkedin, data?.user.accounts) && (
+            <FormField
+              control={form.control}
+              name="forLinkedIn"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <FormLabel>LinkedIn Slot</FormLabel>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
                 </FormItem>
               )}
             />

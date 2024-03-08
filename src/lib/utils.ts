@@ -9,14 +9,31 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const getEventBackgroundColor = (type: EPostSpotType) => {
+export const getEventBackgroundColor = (
+  type: EPostSpotType,
+  isDark: boolean,
+) => {
   switch (type) {
     case EPostSpotType.Evergreen:
-      return "#6EE7B7";
+      return isDark ? "#1F2937" : "#6EE7B7";
     case EPostSpotType.Scheduled:
-      return "#7fb7d9";
+      return isDark ? "#2056a2" : "#7fb7d9";
     case EPostSpotType.Recurring:
       return "#A5B4FC";
+  }
+};
+
+export const getEventTWBackgroundColor = (
+  type: EPostSpotType,
+  isDark: boolean,
+) => {
+  switch (type) {
+    case EPostSpotType.Evergreen:
+      return isDark ? "bg-[#1F2937]" : "bg-[#6EE7B7]";
+    case EPostSpotType.Scheduled:
+      return isDark ? "bg-[#2056a2]" : "bg-[#7fb7d9]";
+    case EPostSpotType.Recurring:
+      return "bg-[#A5B4FC]";
   }
 };
 
