@@ -1,23 +1,22 @@
-import Iconify from "@/components/ui/icon";
-import { getEventIcon, getTypeName } from "@/lib/utils";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { EPostSpotType } from "@/types/EPostSpotType";
-import { type TCalendarEvent } from "@/types/TCalendarEvent";
-import { format } from "date-fns";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { DAYS_OF_WEEK } from "./add-edit-event-form";
-import { useGetScheduledPostByIdQuery } from "@/redux/api/post/apiSlice";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useSession } from "next-auth/react";
 import ErrorCard from "@/components/error-card";
 import { Spinner } from "@/components/ui/Spinner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
-import Link from "next/link";
-import { ROUTES } from "@/routes";
+import Iconify from "@/components/ui/icon";
 import { SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getEventIcon, getTypeName } from "@/lib/utils";
+import { useGetScheduledPostByIdQuery } from "@/redux/api/post/apiSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { openModal } from "@/redux/slices/modalsSlice";
+import { EPostSpotType } from "@/types/EPostSpotType";
 import { EProviders } from "@/types/EProviders";
+import { type TCalendarEvent } from "@/types/TCalendarEvent";
+import { format } from "date-fns";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { DAYS_OF_WEEK } from "./add-edit-event-form";
 
 export const DEFAULT_POST_ID = "00000000-0000-0000-0000-000000000000";
 
@@ -189,65 +188,130 @@ export default function PostDetails() {
                 <Spinner />
               </div>
             ) : isPostSuccess ? (
-              <div className="">
-                <div className="mb-5 mt-5 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {postData.data.onTwitter && (
-                      <Button
-                        className="p-2"
-                        variant={
-                          previewSocial === "twitter" ? "default" : "outline"
-                        }
-                        onClick={() => setPreviewSocial("twitter")}
-                      >
-                        <Iconify
-                          icon="simple-icons:x"
-                          className="mr-1"
-                          fontSize={20}
-                        />
-                        X (Twitter)
-                      </Button>
-                    )}
-                    {postData.data.onLinkedIn && (
-                      <Button
-                        className="p-2"
-                        variant={
-                          previewSocial === "linkedin" ? "default" : "outline"
-                        }
-                        onClick={() => setPreviewSocial("linkedin")}
-                      >
-                        <Iconify
-                          icon="simple-icons:linkedin"
-                          className="mr-1"
-                          fontSize={20}
-                        />
-                        LinkedIn
-                      </Button>
-                    )}
-                  </div>
-                  <Button size="icon" variant="ghost">
-                    <Link href={ROUTES.post.edit(postId)}>
-                      <Iconify
-                        icon="solar:pen-bold-duotone"
-                        className="mr-1"
-                        fontSize={20}
-                      />
-                    </Link>
-                  </Button>
-                </div>
-                {previewSocial === "twitter" && (
-                  <div className="space-y-2 divide-y">
-                    {postData.data.posts.map((post) => (
-                      <div key={post.index}>
+              <Tabs
+                defaultValue={previewSocial}
+                className="my-3 w-full"
+                onValueChange={(value) => setPreviewSocial(value)}
+              >
+                <TabsList className="flex w-full gap-2">
+                  {postData.data.onTwitter && (
+                    <TabsTrigger value="twitter" className="flex-1">
+                      Twitter
+                    </TabsTrigger>
+                  )}{" "}
+                  {postData.data.onLinkedIn && (
+                    <TabsTrigger value="linkedin">Linkedin</TabsTrigger>
+                  )}
+                </TabsList>
+                {postData.data.onTwitter && (
+                  <TabsContent value="twitter">
+                    <div className="space-y-2 divide-y">
+                      {postData.data.posts.map((post) => (
+                        <div key={post.index}>
+                          <div className="my-3 flex items-center gap-2 ">
+                            <Avatar>
+                              <AvatarImage
+                                src={
+                                  currentAccount?.photoUrl
+                                    ? currentAccount?.photoUrl
+                                    : session.data?.user.profilePicture ?? ""
+                                }
+                                alt={`@${currentAccount?.username}`}
+                                className="object-cover"
+                              />
+                              <AvatarFallback>
+                                {currentAccount?.username
+                                  ?.slice(0, 2)
+                                  .toUpperCase() ??
+                                  session.data?.user.fullName
+                                    ?.slice(0, 2)
+                                    .toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 space-y-1">
+                              <p className="text-sm font-semibold">
+                                {session.data?.user.fullName}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                @
+                                {currentAccount?.username
+                                  .toLowerCase()
+                                  .split(" ")
+                                  .join("")}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <p>{post.text}</p>
+                            <div className="mb-2 flex items-center gap-2">
+                              {post.imageLinks.map((image, index) => (
+                                <div
+                                  key={index}
+                                  className="group relative w-fit overflow-hidden rounded"
+                                >
+                                  <Image
+                                    src={image}
+                                    alt={index.toString()}
+                                    width={110}
+                                    height={110}
+                                    className="rounded object-cover"
+                                  />
+                                </div>
+                              ))}
+                              {post.gifLink && (
+                                <div className="group relative w-fit overflow-hidden rounded">
+                                  <Image
+                                    src={post.gifLink}
+                                    alt="gif"
+                                    width={110}
+                                    height={110}
+                                    className="rounded object-cover"
+                                  />
+                                </div>
+                              )}
+
+                              {post.poll && (
+                                <div className="space-y-2">
+                                  <p className="font-medium">Poll:</p>
+                                  <div className="ml-2 space-y-1">
+                                    {post.poll.options.map((option, index) => (
+                                      <p>
+                                        {index + 1}. {option}
+                                      </p>
+                                    ))}
+                                  </div>
+                                  <p>
+                                    Duration in minutes:{" "}
+                                    {post.poll.durationMins}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </TabsContent>
+                )}
+                {postData.data.onTwitter && (
+                  <TabsContent value="linkedin">
+                    <div className="space-y-2 divide-y">
+                      <div>
                         <div className="my-3 flex items-center gap-2 ">
                           <Avatar>
                             <AvatarImage
                               src={
-                                currentAccount?.photoUrl
-                                  ? currentAccount?.photoUrl
-                                  : session.data?.user.profilePicture ?? ""
+                                session.data?.user.accounts.find(
+                                  (account) =>
+                                    account.accountType === EProviders.Linkedin,
+                                )?.photoUrl ??
+                                session.data?.user.profilePicture ??
+                                ""
                               }
-                              alt={`@${currentAccount?.username}`}
+                              alt={`@${session.data?.user.accounts.find(
+                                (account) =>
+                                  account.accountType === EProviders.Linkedin,
+                              )?.username}`}
                               className="object-cover"
                             />
                             <AvatarFallback>
@@ -273,147 +337,56 @@ export default function PostDetails() {
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <p>{post.text}</p>
-                          <div className="mb-2 flex items-center gap-2">
-                            {post.imageLinks.map((image, index) => (
-                              <div
-                                key={index}
-                                className="group relative w-fit overflow-hidden rounded"
-                              >
-                                <Image
-                                  src={image}
-                                  alt={index.toString()}
-                                  width={110}
-                                  height={110}
-                                  className="rounded object-cover"
-                                />
-                              </div>
-                            ))}
-                            {post.gifLink && (
-                              <div className="group relative w-fit overflow-hidden rounded">
-                                <Image
-                                  src={post.gifLink}
-                                  alt="gif"
-                                  width={110}
-                                  height={110}
-                                  className="rounded object-cover"
-                                />
-                              </div>
-                            )}
-
-                            {post.poll && (
-                              <div className="space-y-2">
-                                <p className="font-medium">Poll:</p>
-                                <div className="ml-2 space-y-1">
-                                  {post.poll.options.map((option, index) => (
-                                    <p>
-                                      {index + 1}. {option}
-                                    </p>
-                                  ))}
+                          <p className="whitespace-pre-wrap">
+                            {postData.data.posts
+                              .map((post) => post.text)
+                              .join("\n")}
+                          </p>
+                          <div className="mb-2 flex w-full flex-wrap items-center gap-2">
+                            {postData.data.posts
+                              .map((post) => post.imageLinks)
+                              .flat()
+                              .slice(0, 20)
+                              .map((image, index) => (
+                                <div
+                                  key={index}
+                                  className="group relative w-fit overflow-hidden rounded"
+                                >
+                                  <Image
+                                    src={image}
+                                    alt={index.toString()}
+                                    width={100}
+                                    height={100}
+                                    className="rounded object-cover"
+                                  />
                                 </div>
-                                <p>
-                                  Duration in minutes: {post.poll.durationMins}
-                                </p>
-                              </div>
-                            )}
+                              ))}
+                            {postData.data.posts
+                              .filter((post) => Boolean(post.gifLink))
+                              .map((post) => post.gifLink)
+                              .filter((gifLink) => Boolean(gifLink))
+                              .slice(0, 20)
+                              .map((gif, index) => (
+                                <div
+                                  key={index}
+                                  className="group relative w-fit overflow-hidden rounded"
+                                >
+                                  <Image
+                                    src={gif!}
+                                    alt="gif"
+                                    width={110}
+                                    height={110}
+                                    className="rounded object-cover"
+                                  />
+                                </div>
+                              ))}
                           </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
-                {previewSocial === "linkedin" && (
-                  <div className="space-y-2 divide-y">
-                    <div>
-                      <div className="my-3 flex items-center gap-2 ">
-                        <Avatar>
-                          <AvatarImage
-                            src={
-                              session.data?.user.accounts.find(
-                                (account) =>
-                                  account.accountType === EProviders.Linkedin,
-                              )?.photoUrl ??
-                              session.data?.user.profilePicture ??
-                              ""
-                            }
-                            alt={`@${session.data?.user.accounts.find(
-                              (account) =>
-                                account.accountType === EProviders.Linkedin,
-                            )?.username}`}
-                            className="object-cover"
-                          />
-                          <AvatarFallback>
-                            {currentAccount?.username
-                              ?.slice(0, 2)
-                              .toUpperCase() ??
-                              session.data?.user.fullName
-                                ?.slice(0, 2)
-                                .toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 space-y-1">
-                          <p className="text-sm font-semibold">
-                            {session.data?.user.fullName}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            @
-                            {currentAccount?.username
-                              .toLowerCase()
-                              .split(" ")
-                              .join("")}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <p className="whitespace-pre-wrap">
-                          {postData.data.posts
-                            .map((post) => post.text)
-                            .join("\n")}
-                        </p>
-                        <div className="mb-2 flex w-full flex-wrap items-center gap-2">
-                          {postData.data.posts
-                            .map((post) => post.imageLinks)
-                            .flat()
-                            .slice(0, 20)
-                            .map((image, index) => (
-                              <div
-                                key={index}
-                                className="group relative w-fit overflow-hidden rounded"
-                              >
-                                <Image
-                                  src={image}
-                                  alt={index.toString()}
-                                  width={100}
-                                  height={100}
-                                  className="rounded object-cover"
-                                />
-                              </div>
-                            ))}
-                          {postData.data.posts
-                            .filter((post) => Boolean(post.gifLink))
-                            .map((post) => post.gifLink)
-                            .filter((gifLink) => Boolean(gifLink))
-                            .slice(0, 20)
-                            .map((gif, index) => (
-                              <div
-                                key={index}
-                                className="group relative w-fit overflow-hidden rounded"
-                              >
-                                <Image
-                                  src={gif!}
-                                  alt="gif"
-                                  width={110}
-                                  height={110}
-                                  className="rounded object-cover"
-                                />
-                              </div>
-                            ))}
-                        </div>
-                      </div>
                     </div>
-                  </div>
+                  </TabsContent>
                 )}
-              </div>
+              </Tabs>
             ) : (
               <ErrorCard
                 title="Error while fetching post"
