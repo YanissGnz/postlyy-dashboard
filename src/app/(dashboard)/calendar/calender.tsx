@@ -16,6 +16,7 @@ import {
   cn,
   getEventBackgroundColor,
   getEventIcon,
+  getEventTWBackgroundColor,
   getEventTextColor,
   hasAccount,
 } from "@/lib/utils";
@@ -92,7 +93,7 @@ export default function Calender() {
           backgroundColor:
             event.postId !== DEFAULT_POST_ID
               ? getEventBackgroundColor(event.type, theme === "dark")
-              : "#ef4444",
+              : "#ef4444cc",
           textColor: getEventTextColor(event.type),
           editable: true,
           eventDurationEditable: false,
@@ -330,6 +331,11 @@ export default function Calender() {
         eventContent={(eventInfo) => {
           const { event } = eventInfo;
 
+          const backgroundColor = getEventTWBackgroundColor(
+            event.extendedProps.type as EPostSpotType,
+            theme === "dark",
+          );
+
           if (calenderRef.current?.getApi().view.type === "list")
             return (
               <div className="flex items-center gap-2">
@@ -386,6 +392,43 @@ export default function Calender() {
                 </div>
               </div>
             );
+
+          if (calenderRef.current?.getApi().view.type === "dayGridMonth")
+            return (
+              <div
+                className={cn(
+                  "flex h-12 w-full items-center gap-2 px-2 text-foreground",
+                  event.extendedProps.postId !== DEFAULT_POST_ID
+                    ? backgroundColor
+                    : "bg-destructive/80",
+                )}
+              >
+                <Iconify
+                  icon={event.extendedProps.icon}
+                  className="flex-none"
+                  fontSize={22}
+                />
+                <div>
+                  <div className="flex items-center gap-2">
+                    {event.extendedProps.forTwitter && (
+                      <Iconify
+                        icon="simple-icons:x"
+                        className="flex-none"
+                        fontSize={14}
+                      />
+                    )}
+                    {event.extendedProps.forLinkedIn && (
+                      <Iconify
+                        icon="simple-icons:linkedin"
+                        className="flex-none"
+                        fontSize={14}
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+
           return (
             <div
               className={cn(
