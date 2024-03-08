@@ -31,7 +31,7 @@ export const getEventTWBackgroundColor = (
     case EPostSpotType.Evergreen:
       return isDark ? "bg-[#1F2937]" : "bg-[#6EE7B7]";
     case EPostSpotType.Scheduled:
-      return isDark ? "bg-[#2056a2]" : "bg-[#7fb7d9]";
+      return isDark ? "bg-[#1ca0f2]" : "bg-[#7fb7d9]";
     case EPostSpotType.Recurring:
       return "bg-[#A5B4FC]";
   }
