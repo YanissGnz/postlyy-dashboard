@@ -82,6 +82,7 @@ export const calendarApi = createApi({
         method: "PUT",
         body,
       }),
+      invalidatesTags: ["Events", "Spot"],
     }),
     deleteSpot: builder.mutation<TResponse<boolean>, string>({
       query: (id) => ({

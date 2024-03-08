@@ -71,7 +71,7 @@ export default function Calender() {
     }
   }, [calenderRef.current?.getApi().view.title]);
 
-  const { data, isLoading, isFetching } = useGetEventsQuery({});
+  const { data, isLoading } = useGetEventsQuery({});
 
   const [updateSpot, { isLoading: isUpdating }] = useUpdateSpotMutation();
 
@@ -109,7 +109,7 @@ export default function Calender() {
         }));
     }
     return [];
-  }, [data?.data, isLoading, isFetching]);
+  }, [data?.data, isLoading]);
 
   const emptyDays: EventInput[] = useMemo(() => {
     const availableDays =
@@ -185,7 +185,7 @@ export default function Calender() {
   );
 
   const handleEditEvent = useCallback(
-    (info: EventDropArg) => {
+    async (info: EventDropArg) => {
       const event = info.event.extendedProps as TCalendarEvent;
 
       if (!event) return;
@@ -205,7 +205,9 @@ export default function Calender() {
 
         toast.promise(updatePromise, {
           loading: `Updating ${event.title}...`,
-          success: "Spot updated successfully",
+          success: async () => {
+            return "Spot updated successfully";
+          },
           error: "Something went wrong",
         });
       } else {
@@ -221,7 +223,9 @@ export default function Calender() {
 
         toast.promise(updatePromise, {
           loading: `Updating ${event.title}...`,
-          success: "Spot updated successfully",
+          success: async () => {
+            return "Spot updated successfully";
+          },
           error: "Something went wrong",
         });
       }
@@ -305,7 +309,7 @@ export default function Calender() {
           },
         }}
         editable={!isUpdating}
-        eventDrop={!isUpdating ? handleEditEvent : undefined}
+        eventDrop={handleEditEvent}
         dateClick={(info) => {
           dispatch(
             openModal({
