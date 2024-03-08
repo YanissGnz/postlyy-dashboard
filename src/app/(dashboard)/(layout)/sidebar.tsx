@@ -55,7 +55,7 @@ export default function Sidebar() {
           icon="solar:double-alt-arrow-left-bold-duotone"
           className={cn(
             "transition-transform duration-500",
-            isCollapsed ? "rotate-180" : "",
+            isCollapsed && "rotate-180",
           )}
           fontSize={20}
         />
@@ -75,16 +75,25 @@ export default function Sidebar() {
         }}
       >
         <div className="flex flex-1 flex-col gap-2">
-          {navItems.map((item) =>
-            item.needAccount
-              ? item.roles.includes(session.data.user.userType) &&
-                session.data.user.accounts.length > 0 && (
-                  <NavItem key={item.path} {...item} />
-                )
-              : item.roles.includes(session.data.user.userType) && (
-                  <NavItem key={item.path} {...item} />
-                ),
-          )}
+          {navItems.map((item) => (
+            <div className="w-full space-y-2">
+              {!isCollapsed && <h6>{item.name}</h6>}
+              <div className="w-full">
+                {item.children.map((nav) => (
+                  <div className={cn("w-full", !isCollapsed && "ml-2")}>
+                    {nav.needAccount
+                      ? nav.roles.includes(session.data.user.userType) &&
+                        session.data.user.accounts.length > 0 && (
+                          <NavItem key={nav.path} {...nav} />
+                        )
+                      : nav.roles.includes(session.data.user.userType) && (
+                          <NavItem key={nav.path} {...nav} />
+                        )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </ScrollArea>
       <div className="px-3 pb-3">

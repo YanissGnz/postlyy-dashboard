@@ -12,7 +12,10 @@ export type TNavItem = {
 
 type LayoutState = {
   isCollapsed: boolean;
-  navItems: TNavItem[];
+  navItems: {
+    name: string;
+    children: TNavItem[];
+  }[];
   isMobileSidebarOpen: boolean;
 };
 
@@ -20,71 +23,80 @@ const initialState = {
   isCollapsed: false,
   navItems: [
     {
-      name: "Home",
-      path: "/home",
-      icon: "solar:home-smile-bold-duotone",
-      roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
+      name: "Management",
+      children: [
+        {
+          name: "Home",
+          path: "/home",
+          icon: "solar:home-smile-bold-duotone",
+          roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
+        },
+        {
+          name: "Team",
+          path: "/team",
+          icon: "solar:users-group-rounded-bold-duotone",
+          roles: [EUserType.Manager, EUserType.Owner],
+        },
+        {
+          name: "Calendar",
+          path: "/calendar",
+          icon: "solar:calendar-bold-duotone",
+          roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
+          needAccount: true,
+        },
+      ],
     },
     {
-      name: "Team",
-      path: "/team",
-      icon: "solar:users-group-rounded-bold-duotone",
-      roles: [EUserType.Manager, EUserType.Owner],
-    },
-    // {
-    //   name: "Team Analytics",
-    //   path: "/team-analytics",
-    //   icon: "solar:round-graph-bold-duotone",
-    //   roles: [EUserType.Manager, EUserType.Owner],
-    // },
-    {
-      name: "Post",
-      path: "/post",
-      icon: "solar:pen-new-square-bold-duotone",
-      roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
-      needAccount: true,
-    },
-    {
-      name: "Calendar",
-      path: "/calendar",
-      icon: "solar:calendar-bold-duotone",
-      roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
-      needAccount: true,
-    },
-    {
-      name: "Brainstorm",
-      path: "/notes",
-      icon: "solar:lightbulb-bold-duotone",
-      roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
-      needAccount: true,
-    },
-    {
-      name: "Templates",
-      path: "/templates",
-      icon: "solar:documents-bold-duotone",
-      roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
-      needAccount: true,
+      name: "Content Creation",
+      children: [
+        {
+          name: "Post",
+          path: "/post",
+          icon: "solar:pen-new-square-bold-duotone",
+          roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
+          needAccount: true,
+        },
+        {
+          name: "Brainstorm",
+          path: "/notes",
+          icon: "solar:lightbulb-bold-duotone",
+          roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
+          needAccount: true,
+        },
+        {
+          name: "Templates",
+          path: "/templates",
+          icon: "solar:documents-bold-duotone",
+          roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
+          needAccount: true,
+        },
+        {
+          name: "Drafts",
+          path: "/drafts",
+          icon: "solar:file-text-bold-duotone",
+          roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
+          needAccount: true,
+        },
+      ],
     },
     {
-      name: "Drafts",
-      path: "/drafts",
-      icon: "solar:file-text-bold-duotone",
-      roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
-      needAccount: true,
-    },
-    {
-      name: "Powerups",
-      path: "/powerups",
-      icon: "solar:bolt-circle-bold-duotone",
-      roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
-      needAccount: true,
-    },
-    {
-      name: "Text to Image",
-      path: "/image-to-text",
-      icon: "solar:magic-stick-3-bold-duotone",
-      roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
-      needAccount: true,
+      name: "Advanced Features",
+      children: [
+        {
+          name: "Powerups",
+          path: "/powerups",
+          icon: "solar:bolt-circle-bold-duotone",
+          roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
+          needAccount: true,
+        },
+        {
+          name: "Text to Image",
+          path: "/image-to-text",
+          icon: "solar:magic-stick-3-bold-duotone",
+          roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
+          needAccount: true,
+        },
+      ],
     },
   ],
   isMobileSidebarOpen: false,

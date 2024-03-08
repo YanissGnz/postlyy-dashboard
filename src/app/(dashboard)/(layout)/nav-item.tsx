@@ -1,16 +1,16 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 // next
-import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 // redux
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 // components
 import Iconify from "../../../components/ui/icon";
 // utils
-import { type TNavItem, closeMobileSidebar } from "@/redux/slices/layoutSlice";
 import { cn } from "@/lib/utils";
+import { closeMobileSidebar, type TNavItem } from "@/redux/slices/layoutSlice";
 import {
   Tooltip,
   TooltipContent,
@@ -45,7 +45,7 @@ export default function NavItem({ icon, name, path }: TNavItem) {
   return (
     <TooltipProvider>
       <Tooltip delayDuration={0}>
-        <TooltipTrigger>
+        <TooltipTrigger className="w-full">
           <Link
             href={path}
             onClick={handleToggleCollapse}
