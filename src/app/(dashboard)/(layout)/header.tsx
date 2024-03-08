@@ -1,25 +1,28 @@
-import React, { useCallback } from "react";
-import Image from "next/image";
-import {
-  openMobileSidebar,
-  closeMobileSidebar,
-} from "@/redux/slices/layoutSlice";
 import { LAYOUT } from "@/lib/constants";
+import { cn } from "@/lib/utils";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import {
+  closeMobileSidebar,
+  openMobileSidebar,
+} from "@/redux/slices/layoutSlice";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import { useCallback } from "react";
 import { Button } from "../../../components/ui/button";
 import Iconify from "../../../components/ui/icon";
-import NavItem from "./nav-item";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
 } from "../../../components/ui/sheet";
 import MobileAccountPopover from "./mobile-account-popover";
+import NavItem from "./nav-item";
 
 export default function Header() {
   const { navItems, isMobileSidebarOpen } = useAppSelector(
     (state) => state.layout,
   );
+  const session = useSession();
 
   const dispatch = useAppDispatch();
 
@@ -31,6 +34,10 @@ export default function Header() {
     if (open) dispatch(openMobileSidebar());
     else dispatch(closeMobileSidebar());
   }, []);
+
+  if (!session.data) {
+    return null;
+  }
 
   return (
     <>
@@ -64,7 +71,25 @@ export default function Header() {
               </div>
               <div className="flex flex-1 flex-col gap-2">
                 {navItems.map((item) => (
-                  <NavItem {...item} />
+                  <div className="w-full space-y-2">
+                    <h6>{item.name}</h6>
+                    <div className="w-full">
+                      {item.children.map((nav) => (
+                        <div className={cn("ml-2 w-full")}>
+                          {nav.needAccount
+                            ? nav.roles.includes(
+                                session?.data?.user.userType,
+                              ) &&
+                              session.data?.user?.accounts?.length > 0 && (
+                                <NavItem key={nav.path} {...nav} />
+                              )
+                            : nav.roles.includes(
+                                session.data.user.userType,
+                              ) && <NavItem key={nav.path} {...nav} />}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
