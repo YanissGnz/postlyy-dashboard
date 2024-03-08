@@ -1,22 +1,23 @@
-import { useMemo } from "react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { useMemo } from "react";
 
-import CardDropdown from "./card-dropdown";
-import { Skeleton } from "@/components/ui/skeleton";
 import ErrorCard from "@/components/error-card";
-import { addHours, format } from "date-fns";
-import { type EventSourceInput } from "@fullcalendar/core/index.js";
+import Iconify from "@/components/ui/icon";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
-  getEventBackgroundColor,
   getEventIcon,
+  getEventTWBackgroundColor,
   getEventTextColor,
 } from "@/lib/utils";
-import { EPostSpotType } from "@/types/EPostSpotType";
-import Iconify from "@/components/ui/icon";
-import dynamic from "next/dynamic";
-import listPlugin from "@fullcalendar/list";
 import { useGetEventsQuery } from "@/redux/api/calendar/apiSlice";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { EPostSpotType } from "@/types/EPostSpotType";
+import { type EventSourceInput } from "@fullcalendar/core/index.js";
+import listPlugin from "@fullcalendar/list";
+import { addHours, format } from "date-fns";
+import { useTheme } from "next-themes";
+import dynamic from "next/dynamic";
+import CardDropdown from "./card-dropdown";
 const FullCalendar = dynamic(() => import("@fullcalendar/react"), {
   ssr: false,
 });
@@ -29,13 +30,17 @@ export default function CalendarCard({
   handleRemoveCard: (i: string) => () => void;
 }) {
   const { data, isLoading, isError, refetch } = useGetEventsQuery({});
+  const { theme } = useTheme();
 
   const events: EventSourceInput = useMemo(() => {
     if (data?.data) {
       return data.data.map((event) => ({
         ...event,
         end: addHours(new Date(event.start), 1),
-        backgroundColor: getEventBackgroundColor(event.type),
+        backgroundColor: getEventTWBackgroundColor(
+          event.type,
+          theme === "dark",
+        ),
         textColor: getEventTextColor(event.type),
         editable: true,
         eventDurationEditable: false,

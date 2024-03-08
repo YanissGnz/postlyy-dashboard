@@ -34,7 +34,7 @@ import { type TCalendarSpot } from "@/types/TCalendarSpot";
 import { type TRecurringPost } from "@/types/TRecurringPost";
 import {
   type EventDropArg,
-  type EventSourceInput,
+  type EventInput,
 } from "@fullcalendar/core/index.js";
 import { type EventImpl } from "@fullcalendar/core/internal";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -42,7 +42,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import { addHours, format } from "date-fns";
+import { addHours, format, isAfter, isBefore } from "date-fns";
 import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import React, {
@@ -77,7 +77,7 @@ export default function Calender() {
 
   const [updateRecurringSpot] = useUpdateRecurringPostMutation();
 
-  const events: EventSourceInput = useMemo(() => {
+  const events: EventInput[] = useMemo(() => {
     if (data?.data) {
       return data.data
         .filter(
@@ -110,6 +110,55 @@ export default function Calender() {
     }
     return [];
   }, [data?.data, isLoading, isFetching]);
+
+  const emptyDays: EventInput[] = useMemo(() => {
+    const availableDays =
+      data?.data
+        .filter(
+          (event) =>
+            (event.forLinkedIn &&
+              hasAccount(EProviders.Linkedin, session.data?.user.accounts)) ||
+            (event.forTwitter &&
+              hasAccount(EProviders.Twitter, session.data?.user.accounts)),
+        )
+        .filter((event) => event.postId !== DEFAULT_POST_ID)
+        .map((event) => {
+          const start = new Date(event.start);
+          const end = new Date(event.start);
+          end.setHours(end.getHours() + 1);
+
+          return {
+            start: new Date(start.setHours(0, 0, 0)),
+            end: new Date(end.setHours(23, 59, 59)),
+          };
+        }) ?? [];
+    const monthDays = Array.from(
+      { length: 31 },
+      (_, i) => {
+        const day = new Date();
+        day.setDate(i + 1);
+        return day;
+      },
+      [],
+    );
+
+    return monthDays
+      .map((day) => {
+        if (
+          !availableDays?.some(
+            (d) => isAfter(day, d.start) && isBefore(day, d.end),
+          )
+        )
+          return {
+            start: new Date(day.setHours(0, 0, 0)),
+            end: new Date(day.setHours(23, 59, 59)),
+            display: "background",
+            backgroundColor: "#f00",
+          };
+        else return null;
+      })
+      .filter(Boolean) as EventInput[];
+  }, [data]);
 
   const handleOpenDeleteEventModal = useCallback(
     (id: string, type: EPostSpotType) =>
@@ -235,7 +284,7 @@ export default function Calender() {
         ref={calenderRef}
         headerToolbar={false}
         plugins={[timeGridPlugin, dayGridPlugin, listPlugin, interactionPlugin]}
-        events={events}
+        events={[...events, ...emptyDays]}
         initialView="timeGrid"
         height="auto"
         slotMinTime="07:00:00"
@@ -368,13 +417,6 @@ export default function Calender() {
                     />
                   )}
                   {event.extendedProps.forLinkedIn && (
-                    <Iconify
-                      icon="simple-icons:linkedin"
-                      className="flex-none"
-                      fontSize={14}
-                    />
-                  )}
-                  {event.extendedProps.postId !== DEFAULT_POST_ID && (
                     <Iconify
                       icon="simple-icons:linkedin"
                       className="flex-none"
