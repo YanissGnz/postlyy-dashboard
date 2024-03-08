@@ -16,7 +16,6 @@ import {
   cn,
   getEventBackgroundColor,
   getEventIcon,
-  getEventTWBackgroundColor,
   getEventTextColor,
   hasAccount,
 } from "@/lib/utils";
@@ -93,7 +92,7 @@ export default function Calender() {
           backgroundColor:
             event.postId !== DEFAULT_POST_ID
               ? getEventBackgroundColor(event.type, theme === "dark")
-              : "#f3f4f6",
+              : "#ef4444",
           textColor: getEventTextColor(event.type),
           editable: true,
           eventDurationEditable: false,
@@ -121,7 +120,6 @@ export default function Calender() {
             (event.forTwitter &&
               hasAccount(EProviders.Twitter, session.data?.user.accounts)),
         )
-        .filter((event) => event.postId !== DEFAULT_POST_ID)
         .map((event) => {
           const start = new Date(event.start);
           const end = new Date(event.start);
@@ -332,11 +330,6 @@ export default function Calender() {
         eventContent={(eventInfo) => {
           const { event } = eventInfo;
 
-          const backgroundColor = getEventTWBackgroundColor(
-            event.extendedProps.type as EPostSpotType,
-            theme === "dark",
-          );
-
           if (calenderRef.current?.getApi().view.type === "list")
             return (
               <div className="flex items-center gap-2">
@@ -397,9 +390,6 @@ export default function Calender() {
             <div
               className={cn(
                 "flex h-12 w-full items-center gap-2 px-2 text-foreground",
-                event.extendedProps.postId !== DEFAULT_POST_ID
-                  ? backgroundColor
-                  : "bg-[#f3f4f6] dark:bg-[#1c1e20]",
               )}
             >
               <Iconify
