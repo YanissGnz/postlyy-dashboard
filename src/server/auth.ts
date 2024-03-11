@@ -6,9 +6,9 @@ import {
   type NextAuthOptions,
 } from "next-auth";
 // providers
-import TwitterProvider from "next-auth/providers/twitter";
-import LinkedInProvider from "next-auth/providers/linkedin";
 import CredentialsProvider from "next-auth/providers/credentials";
+import LinkedInProvider from "next-auth/providers/linkedin";
+import TwitterProvider from "next-auth/providers/twitter";
 
 import { env } from "@/env";
 import { type TDBUser } from "@/types/TDBUser";
@@ -154,7 +154,7 @@ export const authOptions: NextAuthOptions = {
             email: profile?.email,
             userName: profile?.screen_name,
             picture: user.profilePicture ?? "Images/Default.jpeg",
-            date: new Date().toISOString(),
+            date: new Date().toString(),
           });
           const response = await fetch(
             `${env.API_BASE_URL}/api/Authentication/External`,
@@ -198,7 +198,7 @@ export const authOptions: NextAuthOptions = {
             email: profile?.email,
             userName: profile?.name,
             picture: user.profilePicture ?? "Images/Default.jpeg",
-            date: new Date().toISOString(),
+            date: new Date().toString(),
           });
 
           const response = await fetch(
@@ -377,7 +377,7 @@ export const authOptions: NextAuthOptions = {
             body: JSON.stringify({
               email: credentials?.email ?? "",
               password: credentials?.password ?? "",
-              date: new Date().toISOString(),
+              date: new Date().toString(),
             }),
           },
         );
