@@ -12,6 +12,7 @@ import TwitterProvider from "next-auth/providers/twitter";
 
 import { env } from "@/env";
 import { type TDBUser } from "@/types/TDBUser";
+import { formatISO } from 'date-fns';
 
 declare module "next-auth" {
   interface Session extends DefaultSession {
@@ -80,10 +81,8 @@ async function refreshAccessToken(refetchToken: string) {
       userType: user.userType,
       accounts: user.accounts,
       username: user?.accounts[0]?.username ?? "",
-      //  3 hours
-      accessTokenExpires: Date.now() + 1000 * 60 * 60 * 3,
-      // 30 days
-      refetchTokenExpires: Date.now() + 1000 * 60 * 60 * 24 * 30,
+      accessTokenExpires: Date.now() + 1000 * 60 * 60 * 3, //  3 hours
+      refetchTokenExpires: Date.now() + 1000 * 60 * 60 * 24 * 30, // 30 days
     };
   } catch (error) {
     return {
@@ -154,7 +153,7 @@ export const authOptions: NextAuthOptions = {
             email: profile?.email,
             userName: profile?.screen_name,
             picture: user.profilePicture ?? "Images/Default.jpeg",
-            date: new Date().toString(),
+            date: formatISO(new Date().toString())
           });
           const response = await fetch(
             `${env.API_BASE_URL}/api/Authentication/External`,
@@ -171,7 +170,10 @@ export const authOptions: NextAuthOptions = {
               console.log("🚀 ~ jwt ~ err:", err);
               throw new Error("Failed to login");
             });
-
+            
+          
+          
+            
           token.accessToken = response.accessToken;
           token.refreshToken = response.refreshToken;
           token.fullName = response.fullName;
@@ -198,7 +200,7 @@ export const authOptions: NextAuthOptions = {
             email: profile?.email,
             userName: profile?.name,
             picture: user.profilePicture ?? "Images/Default.jpeg",
-            date: new Date().toString(),
+            date: formatISO(new Date().toString()),
           });
 
           const response = await fetch(
@@ -298,6 +300,7 @@ export const authOptions: NextAuthOptions = {
       },
       // @ts-expect-error - twitter does not support wellKnown
       async profile(profile, tokens) {
+        console.log('🚀 ~ profile ~ tokens:', tokens)
         return {
           id: profile.id,
           refreshToken: tokens.oauth_token_secret,
@@ -377,7 +380,7 @@ export const authOptions: NextAuthOptions = {
             body: JSON.stringify({
               email: credentials?.email ?? "",
               password: credentials?.password ?? "",
-              date: new Date().toString(),
+              date: formatISO(new Date().toString()),
             }),
           },
         );
