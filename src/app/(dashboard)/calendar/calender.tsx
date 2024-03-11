@@ -295,6 +295,7 @@ export default function Calender() {
         allDaySlot={false}
         eventClick={(info) => {
           info.jsEvent.preventDefault();
+          if (info.event.display === "background") return;
           dispatch(
             openModal({
               id: "calendar-post-details-modal",
