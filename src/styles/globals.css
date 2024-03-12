@@ -256,12 +256,12 @@ span.react-resizable-handle.react-resizable-handle-se {
 }
 
 html[class*="dark"] .ce-popover {
-  --color-border: hsl(var(--accent));
+  --color-border: hsl(var(--border));
   --color-shadow: rgba(13, 20, 33, 0.13);
   --color-background: hsl(var(--popover));
   --color-text-primary: var(--popover-foreground);
   --color-text-secondary: hsl(var(--popover-foreground));
-  --color-border-icon: hsl(var(--accent));
+  --color-border-icon: hsl(var(--border));
   --color-border-icon-disabled: hsl(var(--muted));
   --color-text-icon-active: hsl(var(--primary));
   --color-background-icon-active: rgba(56, 138, 229, 0.1);
@@ -282,4 +282,24 @@ html[class*="dark"] .ce-popover {
 
 .ce-block--selected .ce-block__content {
   @apply bg-primary/10;
+}
+
+.ce-inline-toolbar {
+  @apply border-border bg-popover text-foreground;
+}
+
+.ce-inline-tool {
+  @apply !fill-foreground hover:bg-accent;
+}
+
+#color-left-btn #color-btn-text svg {
+  @apply !fill-foreground;
+}
+
+.color-sign {
+  @apply !bg-popover;
+}
+
+:host {
+  @apply bg-popover;
 }
