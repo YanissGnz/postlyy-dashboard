@@ -34,6 +34,11 @@ export const calendarSpotSchema = z
   }, {
     message: "Date is required.",
     path: ["start"],
+  }).refine((data) => {
+    return data.forLinkedIn || data.forTwitter;
+  }, {
+    message: 'At least one social media platform must be selected.',
+    path: ["forTwitter", "forLinkedIn"],
   });
 
 export type TCalendarSpot = z.infer<typeof calendarSpotSchema>;
