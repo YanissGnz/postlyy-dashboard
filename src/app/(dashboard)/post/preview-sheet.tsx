@@ -15,44 +15,17 @@ import { type TPostForm } from "@/types/TPostForm";
 import { useSession } from "next-auth/react";
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { type UseFormReturn } from "react-hook-form";
-import { type ImageListType } from "react-images-uploading";
 
 type Props = {
   isPreviewSheetOpen: boolean;
   setIsPreviewSheetOpen: Dispatch<SetStateAction<boolean>>;
   form: UseFormReturn<TPostForm, unknown, undefined>;
-  getPostContent: (index: number) =>
-    | {
-        index: number;
-        images: ImageListType;
-        gif?: string | null | undefined;
-        poll?:
-          | {
-              durationMins: number;
-              options: string[];
-            }
-          | undefined;
-      }
-    | undefined;
-  postsContent: {
-    index: number;
-    images: ImageListType;
-    gif?: string | null | undefined;
-    poll?:
-      | {
-          durationMins: number;
-          options: string[];
-        }
-      | undefined;
-  }[];
 };
 
 export default function PreviewSheet({
   isPreviewSheetOpen,
   setIsPreviewSheetOpen,
   form,
-  getPostContent,
-  postsContent,
 }: Props) {
   const { currentAccount } = useAppSelector((state) => state.auth);
   const session = useSession();
@@ -125,26 +98,21 @@ export default function PreviewSheet({
                     <div className="space-y-2">
                       <p>{post.text}</p>
                       <div className="mb-2 flex items-center gap-2">
-                        {getPostContent(post.index)?.images &&
-                          postsContent
-                            .find(
-                              (postImages) => postImages.index === post.index,
-                            )
-                            ?.images.map((image, index) => (
-                              <div
-                                key={index}
-                                className="group relative w-fit overflow-hidden rounded"
-                              >
-                                <Image
-                                  src={image.dataURL}
-                                  alt={index.toString()}
-                                  width={110}
-                                  height={110}
-                                  className="rounded object-cover"
-                                />
-                              </div>
-                            ))}
-                        {Boolean(getPostContent(post.index)?.gif) && (
+                        {post.images?.map((image, index) => (
+                          <div
+                            key={index}
+                            className="group relative w-fit overflow-hidden rounded"
+                          >
+                            <Image
+                              src={URL.createObjectURL(image)}
+                              alt={index.toString()}
+                              width={110}
+                              height={110}
+                              className="rounded object-cover"
+                            />
+                          </div>
+                        ))}
+                        {Boolean(post.gif) && (
                           <div className="group relative w-fit overflow-hidden rounded">
                             <Image
                               src={post.gif as string}
@@ -233,7 +201,8 @@ export default function PreviewSheet({
                         .join("\n")}
                     </p>
                     <div className="mb-2 flex w-full flex-wrap items-center gap-2">
-                      {postsContent
+                      {form
+                        .getValues("posts")
                         .map((post) => post.images)
                         .flat()
                         .slice(0, 20)
@@ -243,7 +212,7 @@ export default function PreviewSheet({
                             className="group relative w-fit overflow-hidden rounded"
                           >
                             <Image
-                              src={image.dataURL}
+                              src={URL.createObjectURL(image)}
                               alt={index.toString()}
                               width={100}
                               height={100}
@@ -251,7 +220,8 @@ export default function PreviewSheet({
                             />
                           </div>
                         ))}
-                      {postsContent
+                      {form
+                        .getValues("posts")
                         .filter((post) => Boolean(post.gif))
                         .map((post) => post.gif)
                         .filter((gif) => Boolean(gif))
@@ -262,7 +232,7 @@ export default function PreviewSheet({
                             className="group relative w-fit overflow-hidden rounded"
                           >
                             <Image
-                              src={gif!}
+                              src={gif as string}
                               alt="gif"
                               width={110}
                               height={110}

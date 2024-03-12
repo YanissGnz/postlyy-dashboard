@@ -316,6 +316,7 @@ export default function PostPage() {
   }, [currentAccount]);
 
   const form = useForm<TPostForm>({
+    mode: "all",
     resolver: zodResolver(postFormSchema),
     defaultValues,
   });
@@ -419,6 +420,8 @@ export default function PostPage() {
           "posts",
           newThreads.map((thread, i) => ({ ...thread, index: i })),
         );
+
+        form.setFocus(`posts.${index + 1}.text`);
 
         setPostsContent((prev) =>
           [
@@ -852,7 +855,6 @@ export default function PostPage() {
       });
 
       form.setValue("posts", newThreads);
-      await form.trigger("posts");
     },
     [form],
   );
@@ -894,7 +896,6 @@ export default function PostPage() {
       });
 
       form.setValue("posts", newThreads);
-      await form.trigger("posts");
     },
     [form],
   );
@@ -1019,6 +1020,8 @@ export default function PostPage() {
     });
   }, [selectedSpot, form]);
 
+  // Draft
+
   const handleSaveDraft = useCallback(async () => {
     if (form.getValues("posts").length === 0 && !form.formState.isValid) {
       await form.trigger();
@@ -1055,35 +1058,6 @@ export default function PostPage() {
 
     setScheduleDate("");
   }, [scheduleDate]);
-
-  const handleSaveTemplate = useCallback(async () => {
-    if (form.getValues("posts").length === 0 && !form.formState.isValid) {
-      await form.trigger();
-      return;
-    }
-
-    const data = await generateFormData(form.getValues());
-    data.append("isTemplate", "true");
-    data.append("isDraft", "false");
-
-    const saveTemplatePromise = postNowOrSchedule(data).unwrap();
-    toast.promise(saveTemplatePromise, {
-      loading: "Saving template...",
-      success: () => {
-        form.reset(defaultValues);
-        setPostsContent([
-          {
-            index: 0,
-            images: [],
-          },
-        ]);
-        return "Saved template!";
-      },
-      error: "Something went wrong",
-    });
-  }, []);
-
-  // Draft
 
   const handleUpdateDraft = useCallback(async () => {
     if (!selectedDraftId) return;
@@ -1180,6 +1154,33 @@ export default function PostPage() {
   }, []);
 
   // Template
+
+  const handleSaveTemplate = useCallback(async () => {
+    if (form.getValues("posts").length === 0 && !form.formState.isValid) {
+      await form.trigger();
+      return;
+    }
+
+    const data = await generateFormData(form.getValues());
+    data.append("isTemplate", "true");
+    data.append("isDraft", "false");
+
+    const saveTemplatePromise = postNowOrSchedule(data).unwrap();
+    toast.promise(saveTemplatePromise, {
+      loading: "Saving template...",
+      success: () => {
+        form.reset(defaultValues);
+        setPostsContent([
+          {
+            index: 0,
+            images: [],
+          },
+        ]);
+        return "Saved template!";
+      },
+      error: "Something went wrong",
+    });
+  }, []);
 
   const handleUseTemplate = useCallback((id: string) => {
     const getTemplatePromise = getTemplate(id).unwrap();
@@ -1555,57 +1556,51 @@ export default function PostPage() {
                                     </div>
                                   </div>
                                 ))}
-                              {getPostContent(post.index)?.images &&
-                                postsContent
-                                  .find(
-                                    (postImages) =>
-                                      postImages.index === post.index,
-                                  )
-                                  ?.images.map((image, index) => (
-                                    <div
-                                      key={index}
-                                      className="group relative w-fit overflow-hidden rounded"
-                                    >
-                                      <Image
-                                        src={image.dataURL}
-                                        alt={index.toString()}
-                                        width={110}
-                                        height={110}
-                                        className="rounded object-cover"
-                                      />
-                                      <div className="absolute right-0 top-0 hidden p-1 group-hover:block">
-                                        <Tooltip>
-                                          <TooltipTrigger>
-                                            <Button
-                                              variant="destructive"
-                                              size="icon"
-                                              type="button"
-                                              onClick={onImageRemove(
-                                                index,
-                                                post.index,
-                                              )}
-                                            >
-                                              <Iconify
-                                                icon="solar:trash-bin-2-bold-duotone"
-                                                className="text-destructive-foreground"
-                                                fontSize={16}
-                                              />
-                                            </Button>
-                                          </TooltipTrigger>
-                                          <TooltipContent
-                                            side="bottom"
-                                            className="bg-destructive text-destructive-foreground"
-                                          >
-                                            <p>Delete image</p>
-                                          </TooltipContent>
-                                        </Tooltip>
-                                      </div>
-                                    </div>
-                                  ))}
-                              {Boolean(getPostContent(post.index)?.gif) && (
+                              {post?.images?.map((image, index) => (
+                                <div
+                                  key={index}
+                                  className="group relative w-fit overflow-hidden rounded"
+                                >
+                                  <Image
+                                    src={URL.createObjectURL(image)}
+                                    alt={index.toString()}
+                                    width={110}
+                                    height={110}
+                                    className="rounded object-cover"
+                                  />
+                                  <div className="absolute right-0 top-0 hidden p-1 group-hover:block">
+                                    <Tooltip>
+                                      <TooltipTrigger>
+                                        <Button
+                                          variant="destructive"
+                                          size="icon"
+                                          type="button"
+                                          onClick={onImageRemove(
+                                            index,
+                                            post.index,
+                                          )}
+                                        >
+                                          <Iconify
+                                            icon="solar:trash-bin-2-bold-duotone"
+                                            className="text-destructive-foreground"
+                                            fontSize={16}
+                                          />
+                                        </Button>
+                                      </TooltipTrigger>
+                                      <TooltipContent
+                                        side="bottom"
+                                        className="bg-destructive text-destructive-foreground"
+                                      >
+                                        <p>Delete image</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </div>
+                                </div>
+                              ))}
+                              {post?.gif && (
                                 <div className="group relative w-fit overflow-hidden rounded">
                                   <Image
-                                    src={getPostContent(post.index)?.gif ?? ""}
+                                    src={post.gif as string}
                                     alt="gif"
                                     width={110}
                                     height={110}
@@ -1639,7 +1634,7 @@ export default function PostPage() {
                                 </div>
                               )}
 
-                              {Boolean(getPostContent(post.index)?.poll) && (
+                              {post?.poll && (
                                 <div className="space-y-2">
                                   <p className="font-medium">Poll:</p>
                                   {post.poll?.options.map((option, index) => (
@@ -1890,30 +1885,21 @@ export default function PostPage() {
                                   <TooltipContent
                                     side="bottom"
                                     className={cn(
-                                      Boolean(
-                                        getPostContent(post.index)?.gif,
-                                      ) ||
+                                      Boolean(post?.gif) ||
                                         Boolean(post.poll) ||
-                                        ((
-                                          getPostContent(post.index)?.images ??
-                                          []
-                                        ).length === 4 &&
+                                        ((post?.images ?? []).length === 4 &&
                                           "bg-destructive text-destructive-foreground"),
                                     )}
                                   >
                                     <p className="text-center">
-                                      {Boolean(
-                                        getPostContent(post.index)?.gif,
-                                      ) || Boolean(post.poll) ? (
+                                      {Boolean(post?.gif) ||
+                                      Boolean(post.poll) ? (
                                         `You can only add a gif or ${
                                           form.getValues("onTwitter")
                                             ? TWITTER_MAX_IMAGES
                                             : LINKEDIN_MAX_IMAGES
                                         } images or a poll`
-                                      ) : (
-                                          getPostContent(post.index)?.images ??
-                                          []
-                                        ).length < 4 ? (
+                                      ) : (post?.images ?? []).length < 4 ? (
                                         <>
                                           Add photos
                                           <br /> (Up to 4 photos, 15MB each)
@@ -1939,10 +1925,8 @@ export default function PostPage() {
                                           type="button"
                                           variant="ghost"
                                           disabled={
-                                            (
-                                              getPostContent(post.index)
-                                                ?.images ?? []
-                                            ).length > 0 || Boolean(post.poll)
+                                            (post.images ?? []).length > 0 ||
+                                            Boolean(post.poll)
                                           }
                                         >
                                           <Iconify
@@ -1975,21 +1959,15 @@ export default function PostPage() {
                                   <TooltipContent
                                     side="bottom"
                                     className={cn(
-                                      Boolean(
-                                        getPostContent(post.index)?.gif,
-                                      ) ||
+                                      Boolean(post.gif) ||
                                         Boolean(post.poll) ||
-                                        ((
-                                          getPostContent(post.index)?.images ??
-                                          []
-                                        ).length > 0 &&
+                                        ((post.images ?? []).length > 0 &&
                                           "bg-destructive text-destructive-foreground"),
                                     )}
                                   >
                                     <p className="text-center">
-                                      {(
-                                        getPostContent(post.index)?.images ?? []
-                                      ).length > 0 || Boolean(post.poll) ? (
+                                      {(post.images ?? []).length > 0 ||
+                                      Boolean(post.poll) ? (
                                         `You can only add a gif or ${
                                           form.getValues("onTwitter")
                                             ? TWITTER_MAX_IMAGES
@@ -2012,10 +1990,7 @@ export default function PostPage() {
                                         variant="ghost"
                                         onClick={handleAddPoll(post.index)}
                                         disabled={
-                                          (
-                                            getPostContent(post.index)
-                                              ?.images ?? []
-                                          ).length > 0 ||
+                                          (post.images ?? []).length > 0 ||
                                           Boolean(post.gif) ||
                                           Boolean(post.poll)
                                         }
@@ -2030,22 +2005,14 @@ export default function PostPage() {
                                     <TooltipContent
                                       side="bottom"
                                       className={cn(
-                                        Boolean(
-                                          getPostContent(post.index)?.gif,
-                                        ) ||
+                                        Boolean(post.gif) ||
                                           Boolean(post.poll) ||
-                                          ((
-                                            getPostContent(post.index)
-                                              ?.images ?? []
-                                          ).length > 0 &&
+                                          ((post.images ?? []).length > 0 &&
                                             "bg-destructive text-destructive-foreground"),
                                       )}
                                     >
                                       <p className="text-center">
-                                        {(
-                                          getPostContent(post.index)?.images ??
-                                          []
-                                        ).length > 0 ||
+                                        {(post.images ?? []).length > 0 ||
                                         Boolean(post.gif) ||
                                         Boolean(post.poll)
                                           ? `You can only add a gif or ${
@@ -2509,8 +2476,6 @@ export default function PostPage() {
         isPreviewSheetOpen={isPreviewSheetOpen}
         setIsPreviewSheetOpen={setIsPreviewSheetOpen}
         form={form}
-        postsContent={postsContent}
-        getPostContent={getPostContent}
       />
       <DraftSheet
         isOpen={isDraftSheetOpen}

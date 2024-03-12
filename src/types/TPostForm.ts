@@ -39,11 +39,20 @@ export const postFormSchema = z.object({
     z.object({
       id: z.string().optional().nullable(),
       index: z.number(),
-      text: z.string().min(1).max(280),
+      text: z
+        .string()
+        .min(1, "Post text must be at least 1 character long.")
+        .max(280),
       poll: z
         .object({
           durationMins: z.number(),
-          options: z.array(z.string().min(1)).min(2),
+          options: z
+            .array(
+              z
+                .string()
+                .min(1, "Poll option must be at least 1 character long."),
+            )
+            .min(2, "Poll must have at least 2 options."),
         })
         .optional()
         .nullable(),
