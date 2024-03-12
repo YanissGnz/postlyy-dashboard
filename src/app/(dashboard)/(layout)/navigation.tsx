@@ -1,8 +1,7 @@
-import React from "react";
-import { EUserType } from "@/types/EUserType";
-import { ETiers } from "@/types/ETiers";
-import NavItem from "./nav-item";
 import { getServerAuthSession } from "@/server/auth";
+import { ETiers } from "@/types/ETiers";
+import { EUserType } from "@/types/EUserType";
+import NavItem from "./nav-item";
 
 export type TNavItem = {
   name: string;
@@ -85,7 +84,7 @@ const navItems = [
   },
   {
     name: "Image to text",
-    path: "/image-to-text",
+    path: "/text-to-image",
     icon: "solar:magic-stick-3-bold-duotone",
     roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
     tiers: [ETiers.Pro, ETiers.Expert],

@@ -3,9 +3,7 @@
 import BottomButtons from "@/components/bottom-buttons";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Parser } from "@alkhipce/editorjs-react";
-import { type IParser } from "@alkhipce/editorjs-react/dist/types/ParserData";
-
+import Output from "editorjs-react-renderer";
 import { toPng } from "html-to-image";
 import dynamic from "next/dynamic";
 import { useCallback, useRef, useState } from "react";
@@ -30,7 +28,7 @@ export default function CreateNotePage() {
         pixelRatio: 2,
       }).then((dataUrl) => {
         const link = document.createElement("a");
-        link.download = `postlyy-image-to-text-${Date.now()}.png`;
+        link.download = `postlyy-text-to-image-${Date.now()}.png`;
         link.href = dataUrl;
         link.click();
       });
@@ -54,9 +52,9 @@ export default function CreateNotePage() {
       <div className="sr-only top-0 h-fit w-fit whitespace-normal">
         <div
           ref={ref}
-          className="font-sans! prose min-w-[300px] break-words px-5"
+          className="prose min-w-[300px] break-words px-5 !font-sans"
         >
-          <Parser data={JSON.parse(content ?? "null") as IParser} />
+          <Output data={JSON.parse(content ?? "null") as unknown} />
           <div className="flex justify-end p-2 text-xs text-muted-foreground">
             <p>Made with Postlyy</p>
           </div>

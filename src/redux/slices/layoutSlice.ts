@@ -91,7 +91,7 @@ const initialState = {
         },
         {
           name: "Text to Image",
-          path: "/image-to-text",
+          path: "/text-to-image",
           icon: "solar:magic-stick-3-bold-duotone",
           roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
           needAccount: true,
