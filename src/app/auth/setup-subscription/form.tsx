@@ -9,7 +9,6 @@ import { useCallback, useMemo, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { env } from "@/env";
-import { ROUTES } from "@/routes";
 import { type TResponse } from "@/types/TResponse";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -59,7 +58,7 @@ export default function SetupForm() {
               replace(res.data.url);
             }, 3000);
           } else {
-            replace(ROUTES.home);
+            refresh();
           }
         })
         .catch(() => {
