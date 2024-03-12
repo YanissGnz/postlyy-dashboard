@@ -42,7 +42,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import { addHours, format, isAfter, isBefore } from "date-fns";
+import { addDays, addHours, format, isAfter, isBefore } from "date-fns";
 import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import React, {
@@ -132,12 +132,8 @@ export default function Calender() {
           };
         }) ?? [];
     const monthDays = Array.from(
-      { length: 31 },
-      (_, i) => {
-        const day = new Date();
-        day.setDate(i + 1);
-        return day;
-      },
+      { length: 30 },
+      (_, i) => addDays(new Date(), i + 1),
       [],
     );
 

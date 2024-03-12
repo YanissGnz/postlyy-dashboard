@@ -50,6 +50,7 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { type UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
+import { DEFAULT_POST_ID } from "./post-details";
 
 type Props = {
   form: UseFormReturn<TRecurringPost | TCalendarSpot, unknown, undefined>;
@@ -107,7 +108,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
     if (isRecurring) {
       const startTime = new Date(
         setHours(
-          new Date(),
+          new Date().toISOString(),
           Number((values.startTime as string)!.split(":")[0]! + 1),
         ).setMinutes(Number((values.startTime as string)!.split(":")[1])),
       );
@@ -116,10 +117,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
         ...values,
         startTime,
         start: startTime.toISOString(),
-        postId:
-          values.postId === "00000000-0000-0000-0000-000000000000"
-            ? null
-            : values.postId,
+        postId: values.postId === DEFAULT_POST_ID ? null : values.postId,
       };
 
       if (isEdit && id)
@@ -151,10 +149,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
         updateSpot({
           ...values,
           id,
-          postId:
-            values.postId === "00000000-0000-0000-0000-000000000000"
-              ? null
-              : values.postId,
+          postId: values.postId === DEFAULT_POST_ID ? null : values.postId,
         } as TCalendarSpot & { id: string })
           .unwrap()
           .then(() => {
@@ -169,10 +164,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
       else
         addSpot({
           ...values,
-          postId:
-            values.postId === "00000000-0000-0000-0000-000000000000"
-              ? null
-              : values.postId,
+          postId: values.postId === DEFAULT_POST_ID ? null : values.postId,
         } as TCalendarSpot)
           .unwrap()
           .then(() => {
