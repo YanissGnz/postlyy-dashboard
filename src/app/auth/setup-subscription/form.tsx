@@ -1,19 +1,19 @@
 "use client";
 
-import React, { useCallback, useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Iconify from "@/components/ui/icon";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useCallback, useMemo, useState } from "react";
 
-import { env } from "@/env";
-import { useSession } from "next-auth/react";
-import { useBoolean } from "usehooks-ts";
-import { useRouter } from "next/navigation";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { type TResponse } from "@/types/TResponse";
+import { Switch } from "@/components/ui/switch";
+import { env } from "@/env";
 import { ROUTES } from "@/routes";
+import { type TResponse } from "@/types/TResponse";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useBoolean } from "usehooks-ts";
 
 export default function SetupForm() {
   const { value: isLoading, setFalse, setTrue } = useBoolean(false);
@@ -161,9 +161,11 @@ export default function SetupForm() {
                 <div className="flex items-center justify-between">
                   <p className="text-4xl font-semibold">
                     <span className="mr-1 text-2xl text-foreground/60"> $</span>
-                    {(isYearly
-                      ? env.NEXT_PUBLIC_BASIC_YEARLY_PRICE
-                      : env.NEXT_PUBLIC_BASIC_MONTHLY_PRICE) * percentage}
+                    {Math.round(
+                      (isYearly
+                        ? env.NEXT_PUBLIC_BASIC_YEARLY_PRICE
+                        : env.NEXT_PUBLIC_BASIC_MONTHLY_PRICE) * percentage,
+                    )}
                     <span className="ml-1 mr-1 text-xl text-foreground/60">
                       Per seat / {isYearly ? "year" : "month"}
                     </span>
@@ -178,9 +180,8 @@ export default function SetupForm() {
                         percentage *
                         (isYearly
                           ? env.NEXT_PUBLIC_BASIC_YEARLY_PRICE
-                          : env.NEXT_PUBLIC_BASIC_MONTHLY_PRICE) *
-                        100,
-                    ) / 100}
+                          : env.NEXT_PUBLIC_BASIC_MONTHLY_PRICE),
+                    )}
                     <span className="ml-1 mr-1 text-xl text-foreground/60">
                       / {isYearly ? "year" : "month"}
                     </span>
@@ -260,9 +261,11 @@ export default function SetupForm() {
                 <div className="flex items-center justify-between">
                   <p className="text-4xl font-semibold">
                     <span className="mr-1 text-2xl text-foreground/60"> $</span>
-                    {(isYearly
-                      ? env.NEXT_PUBLIC_PRO_YEARLY_PRICE
-                      : env.NEXT_PUBLIC_PRO_MONTHLY_PRICE) * percentage}
+                    {Math.round(
+                      (isYearly
+                        ? env.NEXT_PUBLIC_PRO_YEARLY_PRICE
+                        : env.NEXT_PUBLIC_PRO_MONTHLY_PRICE) * percentage,
+                    )}
 
                     <span className="ml-1 mr-1 text-xl text-foreground/60">
                       Per seat / {isYearly ? "year" : "month"}
@@ -278,9 +281,8 @@ export default function SetupForm() {
                         percentage *
                         (isYearly
                           ? env.NEXT_PUBLIC_PRO_YEARLY_PRICE
-                          : env.NEXT_PUBLIC_PRO_MONTHLY_PRICE) *
-                        100,
-                    ) / 100}
+                          : env.NEXT_PUBLIC_PRO_MONTHLY_PRICE),
+                    )}
                     <span className="ml-1 mr-1 text-xl text-foreground/60">
                       / {isYearly ? "year" : "month"}
                     </span>
@@ -371,9 +373,11 @@ export default function SetupForm() {
                 <div className="flex items-center justify-between">
                   <p className="text-4xl font-semibold">
                     <span className="mr-1 text-2xl text-foreground/60"> $</span>
-                    {(isYearly
-                      ? env.NEXT_PUBLIC_EXPERT_YEARLY_PRICE
-                      : env.NEXT_PUBLIC_EXPERT_MONTHLY_PRICE) * percentage}
+                    {Math.round(
+                      (isYearly
+                        ? env.NEXT_PUBLIC_EXPERT_YEARLY_PRICE
+                        : env.NEXT_PUBLIC_EXPERT_MONTHLY_PRICE) * percentage,
+                    )}
                     <span className="ml-1 mr-1 text-xl text-foreground/60">
                       Per seat / {isYearly ? "year" : "month"}
                     </span>
@@ -388,9 +392,8 @@ export default function SetupForm() {
                         percentage *
                         (isYearly
                           ? env.NEXT_PUBLIC_EXPERT_YEARLY_PRICE
-                          : env.NEXT_PUBLIC_EXPERT_MONTHLY_PRICE) *
-                        100,
-                    ) / 100}
+                          : env.NEXT_PUBLIC_EXPERT_MONTHLY_PRICE),
+                    )}
                     <span className="ml-1 mr-1 text-xl text-foreground/60">
                       / {isYearly ? "year" : "month"}
                     </span>
