@@ -1,20 +1,21 @@
 import { z } from "zod";
+import { EPostSpotType } from './EPostSpotType';
 
 export const calendarSpotSchema = z
   .object({
-    type: z.number(),
+    type: z.nativeEnum(EPostSpotType),
     title: z.string(),
-    start: z.string().optional().nullable(),
-    forTwitter: z.boolean(),
-    forLinkedIn: z.boolean(),
+    start: z.string(),
+    forTwitter: z.boolean().optional().nullable(),
+    forLinkedIn: z.boolean().optional().nullable(),
     postId: z.string().optional().nullable(),
     daysOfWeek: z.array(z.number()).optional().nullable(),
-    startTime: z.string().optional().nullable(),
+    startTime: z.string(),
   })
   .refine(
     (data) => {
       return !(
-        data.type === 3 &&
+        data.type === EPostSpotType.Recurring &&
         (data.startTime === "" ||
           data.startTime === null ||
           data.startTime === undefined)
@@ -25,9 +26,14 @@ export const calendarSpotSchema = z
       path: ["startTime"],
     },
   )
-  .refine((data) => !(data.type === 3 && data.daysOfWeek?.length === 0), {
+  .refine((data) => !(data.type === EPostSpotType.Recurring && data.daysOfWeek?.length === 0), {
     message: "Days of week are required for recurring posts.",
     path: ["daysOfWeek"],
+  }).refine((data) => {
+    return data.type !== EPostSpotType.Recurring && data.start !== "";
+  }, {
+    message: "Date is required.",
+    path: ["start"],
   });
 
 export type TCalendarSpot = z.infer<typeof calendarSpotSchema>;

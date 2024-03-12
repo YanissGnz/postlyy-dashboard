@@ -1,19 +1,19 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { type TCalendarSpot, calendarSpotSchema } from "@/types/TCalendarSpot";
-import { closeModal } from "@/redux/slices/modalsSlice";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { closeModal } from "@/redux/slices/modalsSlice";
+import { calendarSpotSchema, type TCalendarSpot } from "@/types/TCalendarSpot";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   useDeleteRecurringPostMutation,
@@ -22,7 +22,6 @@ import {
 import { type TRecurringPost } from "@/types/TRecurringPost";
 import { toast } from "sonner";
 
-import { EPostSpotType } from "@/types/EPostSpotType";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,10 +32,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import AddEditEventForm from "./add-edit-event-form";
+import { EPostSpotType } from "@/types/EPostSpotType";
 import { type TCalendarEvent } from "@/types/TCalendarEvent";
-import PostDetails from "./post-details";
 import { addHours, format } from "date-fns";
+import AddEditEventForm from "./add-edit-event-form";
+import PostDetails from "./post-details";
 
 export default function Modals() {
   const { list } = useAppSelector((state) => state.modals);
@@ -72,12 +72,12 @@ export default function Modals() {
     return {
       type: 0,
       title: "",
-      start: data?.date
-        ? addHours(new Date(data.date), 1).toISOString().slice(0, 16)
-        : "",
+      start: data?.date ? new Date(data.date).toISOString() : "",
       postId: null,
       startTime: "",
       daysOfWeek: [],
+      forTwitter: false,
+      forLinkedIn: false,
     };
   }, [list]);
 

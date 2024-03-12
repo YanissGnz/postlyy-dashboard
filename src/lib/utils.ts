@@ -118,3 +118,7 @@ export const hasAccount = (accountType: EProviders, accounts?: TAccount[]) => {
 export function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+export const getTimezonedDate = (date: string, timezone: string) => {
+  return new Date(new Date(date).toLocaleString("en-US", { timeZone: timezone }));
+};

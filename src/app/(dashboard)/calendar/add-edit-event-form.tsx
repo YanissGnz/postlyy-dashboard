@@ -412,7 +412,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
                   </div>
                   <FormControl>
                     <Switch
-                      checked={field.value}
+                      checked={Boolean(field.value)}
                       onCheckedChange={field.onChange}
                     />
                   </FormControl>
@@ -431,7 +431,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
                   </div>
                   <FormControl>
                     <Switch
-                      checked={field.value}
+                      checked={Boolean(field.value)}
                       onCheckedChange={field.onChange}
                     />
                   </FormControl>
