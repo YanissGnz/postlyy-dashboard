@@ -125,9 +125,11 @@ async function getUser(refetchToken: string) {
       userType: user.userType,
       accounts: user.accounts,
       username: user?.accounts ? user?.accounts[0]?.username : "",
+      accessToken: user.accessToken,
+      refetchToken: user.refreshToken,
     };
   } catch (error) {
-    console.log("🚀 ~ file: auth.ts:128 ~ getUser ~ error:", error);
+    env.NODE_ENV === 'development' &&console.log("🚀 ~ file: auth.ts:128 ~ getUser ~ error:", error);
     return {
       error: "GetUserError",
     };
@@ -167,7 +169,7 @@ export const authOptions: NextAuthOptions = {
           )
             .then((res) => res.json() as Promise<TDBUser>)
             .catch((err) => {
-              console.log("🚀 ~ jwt ~ err:", err);
+              env.NODE_ENV === 'development' && console.log("🚀 ~ jwt ~ err:", err);
               throw new Error("Failed to login");
             });
             
@@ -217,7 +219,7 @@ export const authOptions: NextAuthOptions = {
               return res.json() as Promise<TDBUser>;
             })
             .catch((err) => {
-              console.log("🚀 ~ jwt ~ err:", err);
+               env.NODE_ENV === 'development' &&console.log("🚀 ~ jwt ~ err:", err);
               throw new Error("Failed to login");
             });
 
@@ -240,17 +242,6 @@ export const authOptions: NextAuthOptions = {
 
           return token;
         }
-
-      if (!token.refreshToken) {
-        return token;
-      }
-
-      if (Date.now() > (token.accessTokenExpires as number)) {
-        return {
-          ...token,
-          ...(await refreshAccessToken(token.refreshToken as string)),
-        };
-      }
 
       if (
         token.refreshTokenExpires &&
