@@ -13,7 +13,7 @@ import { useGetNoteQuery } from "@/redux/api/notes/apiSlice";
 import { Parser } from "@alkhipce/editorjs-react";
 import { type IParser } from "@alkhipce/editorjs-react/dist/types/ParserData";
 import { isString } from "lodash";
-import React, { useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 export default function Note({
   noteId,
@@ -62,7 +62,7 @@ export default function Note({
     );
 
   return (
-    <div className="sticky top-0 h-max md:min-w-[400px]">
+    <div className="sticky top-0 h-max w-full md:min-w-[400px] md:max-w-lg">
       <ScrollArea
         className="space-y-2 px-4 py-4"
         style={{
@@ -93,7 +93,7 @@ export default function Note({
             </Tooltip>
           </TooltipProvider>
         </div>
-        <article className="prose dark:prose-invert prose-sm mx-auto max-w-4xl">
+        <article className="prose prose-sm mx-auto max-w-4xl dark:prose-invert">
           {content && <Parser data={content} />}
         </article>
       </ScrollArea>

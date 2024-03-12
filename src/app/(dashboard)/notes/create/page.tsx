@@ -1,9 +1,6 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import BottomButtons from "@/components/bottom-buttons";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -14,12 +11,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { ROUTES } from "@/routes";
-import { useAppSelector } from "@/redux/hooks";
-import { LAYOUT } from "../../../../lib/constants";
 import { useAddNoteMutation } from "@/redux/api/notes/apiSlice";
+import { ROUTES } from "@/routes";
+import { zodResolver } from "@hookform/resolvers/zod";
+import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
 const Editor = dynamic(() => import("@/components/ui/editor"), {
   ssr: false,
 });
@@ -31,7 +30,6 @@ const formSchema = z.object({
 
 export default function CreateNotePage() {
   const [addNote, { isLoading }] = useAddNoteMutation();
-  const { isCollapsed } = useAppSelector((state) => state.layout);
 
   const { push } = useRouter();
 
@@ -109,18 +107,11 @@ export default function CreateNotePage() {
                   </FormItem>
                 )}
               />
-              <div
-                className="fixed bottom-0 w-full bg-background p-2 transition-all duration-500"
-                style={{
-                  left: isCollapsed
-                    ? LAYOUT.COLLAPSED_SIDEBAR_WIDTH
-                    : LAYOUT.SIDEBAR_WIDTH,
-                }}
-              >
+              <BottomButtons>
                 <Button type="submit" disabled={isLoading} loading={isLoading}>
                   Add note
                 </Button>
-              </div>
+              </BottomButtons>
             </form>
           </Form>
         </div>

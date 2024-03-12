@@ -1243,7 +1243,7 @@ export default function PostPage() {
   return (
     <>
       <TooltipProvider>
-        <div className="flex w-full">
+        <div className="flex w-full flex-wrap md:flex-nowrap">
           <Form {...form}>
             <CardContent className="mx-auto max-w-5xl flex-1 transition-all">
               <div className="space-y-2 border-b py-4">
