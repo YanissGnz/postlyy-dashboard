@@ -245,3 +245,41 @@ span.react-resizable-handle.react-resizable-handle-se {
   background-position: var(--grid-padding) var(--grid-padding);
   background-size: var(--grid-size) var(--grid-size);
 }
+
+/* EditorJs */
+.ce-toolbar__settings-btn {
+  @apply text-foreground dark:hover:bg-white/40;
+}
+
+.ce-toolbar__plus {
+  @apply text-foreground dark:hover:bg-white/40;
+}
+
+html[class*="dark"] .ce-popover {
+  --color-border: hsl(var(--accent));
+  --color-shadow: rgba(13, 20, 33, 0.13);
+  --color-background: hsl(var(--popover));
+  --color-text-primary: var(--popover-foreground);
+  --color-text-secondary: hsl(var(--popover-foreground));
+  --color-border-icon: hsl(var(--accent));
+  --color-border-icon-disabled: hsl(var(--muted));
+  --color-text-icon-active: hsl(var(--primary));
+  --color-background-icon-active: rgba(56, 138, 229, 0.1);
+  --color-background-item-focus: rgba(34, 186, 255, 0.08);
+  --color-shadow-item-focus: rgba(7, 161, 227, 0.08);
+  --color-background-item-hover: hsl(var(--accent));
+  --color-background-item-confirm: hsl(var(--destructive));
+  --color-background-item-confirm-hover: hsl(var(--destructive));
+}
+
+.ce-popover-item__icon {
+  @apply bg-popover text-foreground;
+}
+
+.cdx-search-field {
+  @apply bg-popover text-foreground;
+}
+
+.ce-block--selected .ce-block__content {
+  @apply bg-primary/10;
+}
