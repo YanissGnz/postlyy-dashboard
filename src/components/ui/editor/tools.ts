@@ -4,7 +4,7 @@ import Embed from "@editorjs/embed";
 import Image from "@editorjs/image";
 import Link from "@editorjs/link";
 import List from "@editorjs/list";
-import Table from "@editorjs/table";
+// import Table from "@editorjs/table";
 // import Raw from "@editorjs/raw";
 import Header from "@editorjs/header";
 import Marker from "@editorjs/marker";
@@ -19,7 +19,7 @@ import ColorPlugin from "editorjs-text-color-plugin";
 
 export const EDITOR_JS_TOOLS = {
   embed: Embed,
-  table: Table,
+  // table: Table,
   list: List,
   code: Code,
   linkTool: Link,
