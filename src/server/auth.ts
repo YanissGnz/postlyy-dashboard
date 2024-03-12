@@ -300,7 +300,6 @@ export const authOptions: NextAuthOptions = {
       },
       // @ts-expect-error - twitter does not support wellKnown
       async profile(profile, tokens) {
-        console.log('🚀 ~ profile ~ tokens:', tokens)
         return {
           id: profile.id,
           refreshToken: tokens.oauth_token_secret,
