@@ -1762,8 +1762,6 @@ export default function PostPage() {
         isPreviewSheetOpen={isPreviewSheetOpen}
         setIsPreviewSheetOpen={setIsPreviewSheetOpen}
         form={form}
-        postsContent={postsContent}
-        getPostContent={getPostContent}
       />
     </div>
   );

@@ -3,37 +3,29 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 "use client";
 
+import { useSession } from "next-auth/react";
+import dynamic from "next/dynamic";
 import {
-  type ChangeEvent,
   Fragment,
   useCallback,
   useEffect,
   useMemo,
   useState,
+  type ChangeEvent,
 } from "react";
-import dynamic from "next/dynamic";
-import { useSession } from "next-auth/react";
 
 import { useAppSelector } from "@/redux/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import { CardContent } from "@/components/ui/card";
+import ErrorCard from "@/components/error-card";
+import LoadingCard from "@/components/loading-card";
+import { Spinner } from "@/components/ui/Spinner";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import Iconify from "@/components/ui/icon";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -43,41 +35,49 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Spinner } from "@/components/ui/Spinner";
-import { type TPostForm, postFormSchema, type TPost } from "@/types/TPostForm";
-import {
-  type EmojiClickData,
-  EmojiStyle,
-  SkinTonePickerLocation,
-  type Theme,
-} from "emoji-picker-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
-import { useTheme } from "next-themes";
-import ImageUploading, { type ImageListType } from "react-images-uploading";
+import Iconify from "@/components/ui/icon";
 import Image from "@/components/ui/image";
-import { toast } from "sonner";
-import { fData } from "@/lib/formatNumber";
-import { env } from "@/env";
-import { type TenorImage } from "gif-picker-react";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { InfoCircledIcon } from "@radix-ui/react-icons";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { env } from "@/env";
+import { LAYOUT } from "@/lib/constants";
+import { fData } from "@/lib/formatNumber";
+import { cn } from "@/lib/utils";
 import {
   useGetDraftByIdQuery,
   useUpdateDraftMutation,
 } from "@/redux/api/post/apiSlice";
-import { useBoolean, useMediaQuery } from "usehooks-ts";
-import PreviewSheet from "./preview-sheet";
-import { LAYOUT } from "@/lib/constants";
-import LoadingCard from "@/components/loading-card";
-import ErrorCard from "@/components/error-card";
-import { useRouter } from "next/navigation";
 import { ROUTES } from "@/routes";
 import { EProviders } from "@/types/EProviders";
+import { postFormSchema, type TPost, type TPostForm } from "@/types/TPostForm";
+import { InfoCircledIcon } from "@radix-ui/react-icons";
+import {
+  EmojiStyle,
+  SkinTonePickerLocation,
+  type EmojiClickData,
+  type Theme,
+} from "emoji-picker-react";
+import { type TenorImage } from "gif-picker-react";
+import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
+import ImageUploading, { type ImageListType } from "react-images-uploading";
+import { toast } from "sonner";
+import { useBoolean, useMediaQuery } from "usehooks-ts";
+import PreviewSheet from "./preview-sheet";
 const EmojiPicker = dynamic(
   () => {
     return import("emoji-picker-react");
@@ -1860,8 +1860,6 @@ export default function EditDraftPage({ params: { id } }: Props) {
             isPreviewSheetOpen={isPreviewSheetOpen}
             setIsPreviewSheetOpen={setIsPreviewSheetOpen}
             form={form}
-            postsContent={postsContent}
-            getPostContent={getPostContent}
           />
         </>
       ) : (
