@@ -15,11 +15,11 @@ export const getEventBackgroundColor = (
 ) => {
   switch (type) {
     case EPostSpotType.Evergreen:
-      return isDark ? "#1F2937" : "#6EE7B7";
+      return isDark ? "#165a3f" : "#6EE7B7";
     case EPostSpotType.Scheduled:
       return isDark ? "#1e5b80" : "#75cbff";
     case EPostSpotType.Recurring:
-      return "#A5B4FC";
+      return isDark ? "#8f2d00" : "#ff9867";
   }
 };
 
@@ -29,11 +29,11 @@ export const getEventTWBackgroundColor = (
 ) => {
   switch (type) {
     case EPostSpotType.Evergreen:
-      return isDark ? "bg-[#1F2937]" : "bg-[#6EE7B7]";
+      return isDark ? "bg-[#165a3f]" : "bg-[#6EE7B7]";
     case EPostSpotType.Scheduled:
-      return isDark ? "bg-[#1ca0f2]" : "bg-[#7fb7d9]";
+      return isDark ? "bg-[#8f2d00]" : "bg-[#ff9867]";
     case EPostSpotType.Recurring:
-      return "bg-[#A5B4FC]";
+      return isDark ? "bg-[#1e5b80]" : "bg-[#75cbff]";
   }
 };
 
