@@ -17,7 +17,7 @@ export const getEventBackgroundColor = (
     case EPostSpotType.Evergreen:
       return isDark ? "#1F2937" : "#6EE7B7";
     case EPostSpotType.Scheduled:
-      return isDark ? "#2056a2" : "#7fb7d9";
+      return isDark ? "#1e5b80" : "#75cbff";
     case EPostSpotType.Recurring:
       return "#A5B4FC";
   }
@@ -120,5 +120,7 @@ export function delay(ms: number) {
 }
 
 export const getTimezonedDate = (date: string, timezone: string) => {
-  return new Date(new Date(date).toLocaleString("en-US", { timeZone: timezone }));
+  return new Date(
+    new Date(date).toLocaleString("en-US", { timeZone: timezone }),
+  );
 };

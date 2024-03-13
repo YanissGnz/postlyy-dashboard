@@ -144,7 +144,7 @@
 }
 
 a.fc-event.fc-event-draggable.fc-event-resizable.fc-event-start.fc-event-end.fc-event-future.fc-timegrid-event.fc-v-event {
-  @apply border-muted-foreground dark:border-none;
+  @apply border-none dark:border-none;
 }
 
 tr.fc-event.fc-event-start.fc-event-end.fc-event-future.fc-list-event {

@@ -93,7 +93,7 @@ export default function Calender() {
           backgroundColor:
             event.postId !== DEFAULT_POST_ID
               ? getEventBackgroundColor(event.type, theme === "dark")
-              : "#ef4444cc",
+              : "#0000",
           textColor: getEventTextColor(event.type),
           editable: true,
           eventDurationEditable: false,
@@ -109,7 +109,7 @@ export default function Calender() {
         }));
     }
     return [];
-  }, [data?.data, isLoading]);
+  }, [data?.data, isLoading, theme]);
 
   const emptyDays: EventInput[] = useMemo(() => {
     const availableDays =
@@ -398,10 +398,10 @@ export default function Calender() {
             return (
               <div
                 className={cn(
-                  "flex h-12 w-full items-center gap-2 px-2 text-foreground",
+                  "flex h-12 w-full items-center gap-2 rounded px-2 text-foreground",
                   event.extendedProps.postId !== DEFAULT_POST_ID
                     ? backgroundColor
-                    : "bg-destructive/80",
+                    : "border border-foreground",
                 )}
               >
                 <Iconify
@@ -433,7 +433,9 @@ export default function Calender() {
           return (
             <div
               className={cn(
-                "flex h-12 w-full items-center gap-2 px-2 text-foreground",
+                "flex h-12 w-full items-center gap-2 rounded px-2 text-foreground",
+                event.extendedProps.postId === DEFAULT_POST_ID &&
+                  "border border-foreground hover:bg-accent",
               )}
             >
               <Iconify

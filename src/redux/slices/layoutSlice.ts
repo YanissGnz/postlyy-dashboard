@@ -77,6 +77,13 @@ const initialState = {
           roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
           needAccount: true,
         },
+        {
+          name: "Inspiration",
+          path: "/inspiration",
+          icon: "solar:stars-minimalistic-bold-duotone",
+          roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
+          needAccount: true,
+        },
       ],
     },
     {
