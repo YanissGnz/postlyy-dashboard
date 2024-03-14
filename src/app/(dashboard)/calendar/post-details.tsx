@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getEventIcon, getTypeName } from "@/lib/utils";
 import { useGetScheduledPostByIdQuery } from "@/redux/api/post/apiSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { openModal } from "@/redux/slices/modalsSlice";
+import { closeModal, openModal } from "@/redux/slices/modalsSlice";
 import { ROUTES } from "@/routes";
 import { EPostSpotType } from "@/types/EPostSpotType";
 import { EProviders } from "@/types/EProviders";
@@ -210,6 +210,7 @@ export default function PostDetails() {
                     variant="outline"
                     onClick={() => {
                       push(ROUTES.post.edit(postId));
+                      dispatch(closeModal("calendar-post-details-modal"));
                     }}
                   >
                     <Iconify

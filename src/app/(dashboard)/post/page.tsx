@@ -49,6 +49,7 @@ import { env } from "@/env";
 import { fData } from "@/lib/formatNumber";
 import { cn, hasAccount } from "@/lib/utils";
 import {
+  calendarApiUtil,
   useGetNextFiveSpotsQuery,
   useGetRecurringSpotsQuery,
 } from "@/redux/api/calendar/apiSlice";
@@ -983,6 +984,14 @@ export default function PostPage() {
       setIsQueueDialogOpen(false);
 
       selectedSpots.forEach(async (spot) => {
+        if (spot.provider === EProviders.Linkedin) {
+          data.append("onLinkedIn", "true");
+          data.delete("onTwitter");
+        } else {
+          data.append("onTwitter", "true");
+          data.delete("onLinkedIn");
+        }
+
         const schedulePostPromise = addPostToSpot({
           body: data,
           spotId: spot.id,
@@ -1005,6 +1014,7 @@ export default function PostPage() {
       toast.error("Please select a date or a spot");
     }
     setScheduleDate("");
+    calendarApiUtil.invalidateTags(["Events", "Spot"]);
   }, [scheduleDate, selectedSpots, form]);
 
   const handleAddRecurringPost = useCallback(async () => {
@@ -1039,6 +1049,8 @@ export default function PostPage() {
         },
         error: "Something went wrong",
       });
+
+      calendarApiUtil.invalidateTags(["Events", "Recurring"]);
     });
   }, [selectedSpots, form]);
 
