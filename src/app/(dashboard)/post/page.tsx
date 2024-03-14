@@ -217,11 +217,6 @@ export default function PostPage() {
   const { theme, systemTheme } = useTheme();
 
   const {
-    data: nextSpots,
-    isLoading: isSpotsLoading,
-    isSuccess,
-  } = useGetNextFiveSpotsQuery();
-  const {
     data: recurringSpots,
     isLoading: isRecurringSpotsLoading,
     isSuccess: isRecurringSpotSuccess,
@@ -281,7 +276,12 @@ export default function PostPage() {
   const { value: isRecurringDialogOpen, setValue: setIsRecurringDialogOpen } =
     useBoolean(false);
 
-  const [selectedSpot, setSelectedSpot] = useState<string | null>(null);
+  const [selectedSpots, setSelectedSpots] = useState<
+    Array<{
+      id: string;
+      provider: EProviders;
+    }>
+  >([]);
   const [scheduleDate, setScheduleDate] = useState("");
 
   const getPostContent = useCallback(
@@ -320,6 +320,22 @@ export default function PostPage() {
     resolver: zodResolver(postFormSchema),
     defaultValues,
   });
+
+  const {
+    data: nextSpots,
+    isLoading: isSpotsLoading,
+    isSuccess,
+  } = useGetNextFiveSpotsQuery(
+    {
+      providers: [
+        ...(form.getValues("onLinkedIn") ? [EProviders.Linkedin] : []),
+        ...(form.getValues("onTwitter") ? [EProviders.Twitter] : []),
+      ],
+    },
+    {
+      refetchOnMountOrArgChange: true,
+    },
+  );
 
   useEffect(() => {
     if (
@@ -902,7 +918,7 @@ export default function PostPage() {
 
   const handleCustomDateChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      setSelectedSpot(null);
+      setSelectedSpots([]);
       setScheduleDate(e.target.value);
     },
     [],
@@ -962,18 +978,22 @@ export default function PostPage() {
         },
         error: "Something went wrong",
       });
-    } else if (selectedSpot !== null) {
+    } else if (selectedSpots.length > 0) {
       setIsScheduleDialogOpen(false);
       setIsQueueDialogOpen(false);
-      const schedulePostPromise = addPostToSpot({
-        body: data,
-        spotId: selectedSpot,
-      }).unwrap();
-      toast.promise(schedulePostPromise, {
-        loading: "Scheduling post...",
-        success: "Scheduled post!",
-        error: "Something went wrong",
+
+      selectedSpots.forEach(async (spot) => {
+        const schedulePostPromise = addPostToSpot({
+          body: data,
+          spotId: spot.id,
+        }).unwrap();
+        toast.promise(schedulePostPromise, {
+          loading: "Scheduling post...",
+          success: "Scheduled post!",
+          error: "Something went wrong",
+        });
       });
+
       form.reset(defaultValues);
       setPostsContent([
         {
@@ -985,10 +1005,10 @@ export default function PostPage() {
       toast.error("Please select a date or a spot");
     }
     setScheduleDate("");
-  }, [scheduleDate, selectedSpot, form]);
+  }, [scheduleDate, selectedSpots, form]);
 
   const handleAddRecurringPost = useCallback(async () => {
-    if (!selectedSpot) return;
+    if (!selectedSpots) return;
     if (form.getValues("posts").length === 0 && !form.formState.isValid) {
       await form.trigger();
       return;
@@ -998,27 +1018,29 @@ export default function PostPage() {
 
     const data = await generateFormData(form.getValues());
 
-    const addRecurringPostPromise = addRecurringPost({
-      body: data,
-      recurringId: selectedSpot,
-    }).unwrap();
-    toast.promise(addRecurringPostPromise, {
-      loading: "Adding recurring post...",
-      success: () => {
-        setSelectedSpot(null);
-        form.reset(defaultValues);
-        setPostsContent([
-          {
-            index: 0,
-            images: [],
-          },
-        ]);
+    selectedSpots.forEach(async (spot) => {
+      const addRecurringPostPromise = addRecurringPost({
+        body: data,
+        recurringId: spot.id,
+      }).unwrap();
+      toast.promise(addRecurringPostPromise, {
+        loading: "Adding recurring post...",
+        success: () => {
+          setSelectedSpots([]);
+          form.reset(defaultValues);
+          setPostsContent([
+            {
+              index: 0,
+              images: [],
+            },
+          ]);
 
-        return "Added recurring post!";
-      },
-      error: "Something went wrong",
+          return "Added recurring post!";
+        },
+        error: "Something went wrong",
+      });
     });
-  }, [selectedSpot, form]);
+  }, [selectedSpots, form]);
 
   // Draft
 
@@ -2248,7 +2270,7 @@ export default function PostPage() {
                           open={isRecurringDialogOpen}
                           onOpenChange={(open) => {
                             setIsRecurringDialogOpen(open);
-                            if (!open) setSelectedSpot(null);
+                            if (!open) setSelectedSpots([]);
                           }}
                         >
                           <DialogTrigger asChild>
@@ -2286,12 +2308,51 @@ export default function PostPage() {
                                     {recurringSpots.data.map((spot) => (
                                       <Button
                                         variant={
-                                          selectedSpot === spot.id
+                                          selectedSpots.some(
+                                            (s) => s.id === spot.id,
+                                          )
                                             ? "default"
                                             : "outline"
                                         }
                                         onClick={() => {
-                                          setSelectedSpot(spot.id);
+                                          setScheduleDate("");
+                                          setSelectedSpots((prev) => {
+                                            if (
+                                              prev.some((s) => s.id === spot.id)
+                                            ) {
+                                              return prev.filter(
+                                                (s) => s.id !== spot.id,
+                                              );
+                                            }
+
+                                            if (
+                                              prev.some(
+                                                (s) =>
+                                                  s.provider ===
+                                                  EProviders.Twitter,
+                                              )
+                                            ) {
+                                              return [
+                                                ...prev.filter(
+                                                  (s) =>
+                                                    s.provider !==
+                                                    EProviders.Twitter,
+                                                ),
+                                                {
+                                                  id: spot.id,
+                                                  provider: EProviders.Twitter,
+                                                },
+                                              ];
+                                            } else {
+                                              return [
+                                                ...prev,
+                                                {
+                                                  id: spot.id,
+                                                  provider: EProviders.Twitter,
+                                                },
+                                              ];
+                                            }
+                                          });
                                         }}
                                       >
                                         {spot.days
@@ -2321,7 +2382,7 @@ export default function PostPage() {
                               <Button
                                 type="button"
                                 onClick={handleAddRecurringPost}
-                                disabled={!selectedSpot}
+                                disabled={selectedSpots.length === 0}
                               >
                                 Schedule
                               </Button>
@@ -2393,7 +2454,7 @@ export default function PostPage() {
                           open={isQueueDialogOpen}
                           onOpenChange={(open) => {
                             setIsQueueDialogOpen(open);
-                            if (!open) setSelectedSpot(null);
+                            if (!open) setSelectedSpots([]);
                           }}
                         >
                           <DialogTrigger asChild>
@@ -2423,26 +2484,155 @@ export default function PostPage() {
                                 </div>
                               ) : isSuccess && nextSpots?.data.length > 0 ? (
                                 <>
-                                  <Label className="mb-2">Time Slots</Label>
+                                  {form.getValues("onTwitter") && (
+                                    <Label className="mb-2">
+                                      Twitter Slots
+                                    </Label>
+                                  )}{" "}
+                                  <div className="mb-2 flex flex-wrap gap-2">
+                                    {nextSpots.data
+                                      .filter((spot) => spot.forTwitter)
+                                      .map((spot) => (
+                                        <Button
+                                          variant={
+                                            selectedSpots.some(
+                                              (s) => s.id === spot.id,
+                                            )
+                                              ? "default"
+                                              : "outline"
+                                          }
+                                          onClick={() => {
+                                            setScheduleDate("");
+                                            setSelectedSpots((prev) => {
+                                              if (
+                                                prev.some(
+                                                  (s) => s.id === spot.id,
+                                                )
+                                              ) {
+                                                return prev.filter(
+                                                  (s) => s.id !== spot.id,
+                                                );
+                                              }
+
+                                              if (
+                                                prev.some(
+                                                  (s) =>
+                                                    s.provider ===
+                                                    EProviders.Twitter,
+                                                )
+                                              ) {
+                                                return [
+                                                  ...prev.filter(
+                                                    (s) =>
+                                                      s.provider !==
+                                                      EProviders.Twitter,
+                                                  ),
+                                                  {
+                                                    id: spot.id,
+                                                    provider:
+                                                      EProviders.Twitter,
+                                                  },
+                                                ];
+                                              } else {
+                                                return [
+                                                  ...prev,
+                                                  {
+                                                    id: spot.id,
+                                                    provider:
+                                                      EProviders.Twitter,
+                                                  },
+                                                ];
+                                              }
+                                            });
+                                          }}
+                                        >
+                                          <Iconify
+                                            icon="simple-icons:x"
+                                            className="mr-2"
+                                            fontSize={16}
+                                          />
+
+                                          {format(
+                                            new Date(spot.start ?? ""),
+                                            "dd MMM yyyy, HH:mm",
+                                          )}
+                                        </Button>
+                                      ))}
+                                  </div>
+                                  {form.getValues("onLinkedIn") && (
+                                    <Label className="mb-2">
+                                      LinkedIn Slots
+                                    </Label>
+                                  )}
                                   <div className="flex flex-wrap gap-2">
-                                    {nextSpots.data.map((spot) => (
-                                      <Button
-                                        variant={
-                                          selectedSpot === spot.id
-                                            ? "default"
-                                            : "outline"
-                                        }
-                                        onClick={() => {
-                                          setScheduleDate("");
-                                          setSelectedSpot(spot.id);
-                                        }}
-                                      >
-                                        {format(
-                                          new Date(spot.start ?? ""),
-                                          "dd MMM yyyy, HH:mm",
-                                        )}
-                                      </Button>
-                                    ))}
+                                    {nextSpots.data
+                                      .filter((spot) => spot.forLinkedIn)
+                                      .map((spot) => (
+                                        <Button
+                                          variant={
+                                            selectedSpots.some(
+                                              (s) => s.id === spot.id,
+                                            )
+                                              ? "default"
+                                              : "outline"
+                                          }
+                                          onClick={() => {
+                                            setScheduleDate("");
+                                            setSelectedSpots((prev) => {
+                                              if (
+                                                prev.some(
+                                                  (s) => s.id === spot.id,
+                                                )
+                                              ) {
+                                                return prev.filter(
+                                                  (s) => s.id !== spot.id,
+                                                );
+                                              }
+
+                                              if (
+                                                prev.some(
+                                                  (s) =>
+                                                    s.provider ===
+                                                    EProviders.Linkedin,
+                                                )
+                                              ) {
+                                                return [
+                                                  ...prev.filter(
+                                                    (s) =>
+                                                      s.provider !==
+                                                      EProviders.Linkedin,
+                                                  ),
+                                                  {
+                                                    id: spot.id,
+                                                    provider:
+                                                      EProviders.Linkedin,
+                                                  },
+                                                ];
+                                              } else {
+                                                return [
+                                                  ...prev,
+                                                  {
+                                                    id: spot.id,
+                                                    provider:
+                                                      EProviders.Linkedin,
+                                                  },
+                                                ];
+                                              }
+                                            });
+                                          }}
+                                        >
+                                          <Iconify
+                                            icon="simple-icons:linkedin"
+                                            className="mr-2"
+                                            fontSize={16}
+                                          />
+
+                                          {format(
+                                            new Date(spot.start ?? ""),
+                                            "dd MMM yyyy, HH:mm",
+                                          )}
+                                        </Button>
+                                      ))}
                                   </div>
                                 </>
                               ) : (
@@ -2455,7 +2645,7 @@ export default function PostPage() {
                               <Button
                                 type="button"
                                 onClick={handleSchedulePost}
-                                disabled={!selectedSpot}
+                                disabled={selectedSpots.length === 0}
                               >
                                 Schedule
                               </Button>

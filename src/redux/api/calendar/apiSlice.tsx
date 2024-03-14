@@ -1,5 +1,6 @@
 import { env } from "@/env";
 import { type RootState } from "@/redux/store";
+import { type EProviders } from "@/types/EProviders";
 import { type TCalendarEvent } from "@/types/TCalendarEvent";
 import {
   type TCalendarSpot,
@@ -91,8 +92,16 @@ export const calendarApi = createApi({
       }),
       invalidatesTags: ["Events", "Spot"],
     }),
-    getNextFiveSpots: builder.query<TResponse<TResponseCalendarSpot[]>, void>({
-      query: () => "/api/Calendar/next5",
+    getNextFiveSpots: builder.query<
+      TResponse<TResponseCalendarSpot[]>,
+      { providers: Array<EProviders> }
+    >({
+      query: ({ providers }) => ({
+        url: "/api/Calendar/next5",
+        params: {
+          providers,
+        },
+      }),
       providesTags: ["Spot"],
     }),
     getRecurringSpots: builder.query<TResponse<TResponseCalendarSpot[]>, void>({
