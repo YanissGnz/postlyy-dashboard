@@ -9,12 +9,14 @@ import { getEventIcon, getTypeName } from "@/lib/utils";
 import { useGetScheduledPostByIdQuery } from "@/redux/api/post/apiSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { openModal } from "@/redux/slices/modalsSlice";
+import { ROUTES } from "@/routes";
 import { EPostSpotType } from "@/types/EPostSpotType";
 import { EProviders } from "@/types/EProviders";
 import { type TCalendarEvent } from "@/types/TCalendarEvent";
 import { format } from "date-fns";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { DAYS_OF_WEEK } from "./add-edit-event-form";
 
@@ -25,6 +27,7 @@ export default function PostDetails() {
   const { currentAccount } = useAppSelector((state) => state.auth);
   const session = useSession();
   const dispatch = useAppDispatch();
+  const { push } = useRouter();
 
   const postId = useMemo(() => {
     const found = list.find(
@@ -53,14 +56,10 @@ export default function PostDetails() {
   );
 
   useEffect(() => {
-    if (postData?.data.onTwitter && postData?.data.onLinkedIn) {
+    if (postData?.data.onTwitter) {
       setPreviewSocial("twitter");
-    } else if (postData?.data.onTwitter) {
-      setPreviewSocial("twitter");
-    } else if (postData?.data.onLinkedIn) {
-      setPreviewSocial("linkedin");
-    }
-  }, [postData?.data.onLinkedIn, postData?.data.onTwitter]);
+    } else setPreviewSocial("linkedin");
+  }, [postData]);
 
   const event: TCalendarEvent | null = useMemo(() => {
     const found = list.find(
@@ -136,10 +135,12 @@ export default function PostDetails() {
             <span>{getTypeName(event.type)}</span>
           </div>
         </div>
-        <div className="flex items-center gap-5">
-          <p className="font-medium">Title:</p>
-          <p>{event.title}</p>
-        </div>
+        {event.title && (
+          <div className="flex items-center gap-5">
+            <p className="font-medium">Title:</p>
+            <p>{event.title}</p>
+          </div>
+        )}
         <div className="flex items-center gap-5">
           <p className="font-medium">Date / Time:</p>
           {event.type === EPostSpotType.Recurring ? (
@@ -193,16 +194,32 @@ export default function PostDetails() {
                 className="my-3 w-full"
                 onValueChange={(value) => setPreviewSocial(value)}
               >
-                <TabsList className="flex w-full gap-2">
-                  {postData.data.onTwitter && (
-                    <TabsTrigger value="twitter" className="flex-1">
-                      Twitter
-                    </TabsTrigger>
-                  )}{" "}
-                  {postData.data.onLinkedIn && (
-                    <TabsTrigger value="linkedin">Linkedin</TabsTrigger>
-                  )}
-                </TabsList>
+                <div className="flex items-center gap-2">
+                  <TabsList className="flex w-full gap-2">
+                    {postData.data.onTwitter && (
+                      <TabsTrigger value="twitter" className="flex-1">
+                        Twitter
+                      </TabsTrigger>
+                    )}{" "}
+                    {postData.data.onLinkedIn && (
+                      <TabsTrigger value="linkedin">Linkedin</TabsTrigger>
+                    )}
+                  </TabsList>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={() => {
+                      push(ROUTES.post.edit(postId));
+                    }}
+                  >
+                    <Iconify
+                      icon="solar:pen-bold-duotone"
+                      className="flex-none"
+                      fontSize={18}
+                    />
+                  </Button>
+                </div>
+
                 {postData.data.onTwitter && (
                   <TabsContent value="twitter">
                     <div className="space-y-2 divide-y">
