@@ -95,7 +95,7 @@ export default function StatCard({
 
       <CardContent>
         <div className="text-2xl font-bold">
-          {data?.data.value} {unit}
+          {Math.round(data?.data.value)} {unit}
         </div>
       </CardContent>
     </Card>
