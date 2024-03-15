@@ -74,7 +74,7 @@ export default function CalendarCard({
     <Card className="flex h-full flex-col">
       <CardHeader className="flex w-full flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="flex flex-col font-medium">
-          Today's Shedule
+          Today's Schedule
         </CardTitle>
         <CardDropdown i={i} handleRemoveCard={handleRemoveCard} />
       </CardHeader>
