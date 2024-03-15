@@ -105,7 +105,6 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
   const dispatch = useAppDispatch();
 
   function onSubmit(values: TCalendarSpot | TRecurringPost) {
-    console.log("🚀 ~ onSubmit ~ values:", values);
     if (isRecurring) {
       const startTime = new Date(
         setHours(
