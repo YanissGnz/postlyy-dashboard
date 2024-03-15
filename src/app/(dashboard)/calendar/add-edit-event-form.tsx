@@ -45,7 +45,7 @@ import { EProviders } from "@/types/EProviders";
 import { type TCalendarSpot } from "@/types/TCalendarSpot";
 import { type TRecurringPost } from "@/types/TRecurringPost";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
-import { setHours } from "date-fns";
+import { format, setHours } from "date-fns";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { type UseFormReturn } from "react-hook-form";
@@ -105,6 +105,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
   const dispatch = useAppDispatch();
 
   function onSubmit(values: TCalendarSpot | TRecurringPost) {
+    console.log("🚀 ~ onSubmit ~ values:", values);
     if (isRecurring) {
       const startTime = new Date(
         setHours(
@@ -148,6 +149,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
       if (isEdit)
         updateSpot({
           ...values,
+          start: new Date((values as TCalendarSpot).start).toISOString(),
           id,
           postId: values.postId === DEFAULT_POST_ID ? null : values.postId,
         } as TCalendarSpot & { id: string })
@@ -164,6 +166,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
       else
         addSpot({
           ...values,
+          start: new Date((values as TCalendarSpot).start).toISOString(),
           postId: values.postId === DEFAULT_POST_ID ? null : values.postId,
         } as TCalendarSpot)
           .unwrap()
@@ -269,11 +272,18 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
                   <FormLabel>Date</FormLabel>
                   <FormControl>
                     <Input
-                      type="datetime-local"
                       {...field}
+                      type="datetime-local"
                       value={
-                        field.value ?? new Date().toISOString().slice(0, 16)
+                        Boolean(field.value)
+                          ? format(new Date(field.value), "yyyy-MM-dd'T'HH:mm")
+                          : ""
                       }
+                      onChange={(e) => {
+                        field.onChange(
+                          new Date(e.target.value).toLocaleString(),
+                        );
+                      }}
                     />
                   </FormControl>
 
