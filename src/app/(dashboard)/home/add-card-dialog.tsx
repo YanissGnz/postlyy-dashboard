@@ -82,7 +82,7 @@ const DASHBOARD_QUERIES = [
 function getCardTitle(type: EDashboardCardType, value?: number) {
   if (
     (type === EDashboardCardType.Graph || type === EDashboardCardType.Stat) &&
-    value
+    value !== undefined
   ) {
     return (
       DASHBOARD_QUERIES.find((query) => query.value === value)?.name ?? "Card"
@@ -135,6 +135,7 @@ export default function AddCardDialog() {
       values.query ? parseInt(values.query) : undefined,
     );
 
+    console.log("🚀 ~ onSubmit ~ title:", title);
     dispatch(
       addCard({
         title,
