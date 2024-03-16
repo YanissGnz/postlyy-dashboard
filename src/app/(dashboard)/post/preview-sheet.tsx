@@ -54,7 +54,9 @@ export default function PreviewSheet({
               </TabsTrigger>
             )}{" "}
             {form.getValues("onLinkedIn") && (
-              <TabsTrigger value="linkedin">Linkedin</TabsTrigger>
+              <TabsTrigger value="linkedin" className="flex-1">
+                Linkedin
+              </TabsTrigger>
             )}
           </TabsList>
           {form.getValues("onTwitter") && (
