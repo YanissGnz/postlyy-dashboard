@@ -99,7 +99,9 @@ export const calendarApi = createApi({
       query: ({ providers }) => ({
         url: "/api/Calendar/next5",
         params: {
-          providers,
+          ...Object.fromEntries(
+            providers.map((provider, i) => [`providers[${i}]`, provider]),
+          ),
         },
       }),
       providesTags: ["Spot"],

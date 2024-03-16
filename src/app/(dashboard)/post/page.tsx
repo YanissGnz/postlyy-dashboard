@@ -2497,155 +2497,161 @@ export default function PostPage() {
                               ) : isSuccess && nextSpots?.data.length > 0 ? (
                                 <>
                                   {form.getValues("onTwitter") && (
-                                    <Label className="mb-2">
-                                      Twitter Slots
-                                    </Label>
+                                    <div className="space-y-2">
+                                      <Label className="mb-2">
+                                        Twitter Slots
+                                      </Label>
+
+                                      <div className="mb-2 flex flex-wrap gap-2">
+                                        {nextSpots.data
+                                          .filter((spot) => spot.forTwitter)
+                                          .map((spot) => (
+                                            <Button
+                                              variant={
+                                                selectedSpots.some(
+                                                  (s) => s.id === spot.id,
+                                                )
+                                                  ? "default"
+                                                  : "outline"
+                                              }
+                                              onClick={() => {
+                                                setScheduleDate("");
+                                                setSelectedSpots((prev) => {
+                                                  if (
+                                                    prev.some(
+                                                      (s) => s.id === spot.id,
+                                                    )
+                                                  ) {
+                                                    return prev.filter(
+                                                      (s) => s.id !== spot.id,
+                                                    );
+                                                  }
+
+                                                  if (
+                                                    prev.some(
+                                                      (s) =>
+                                                        s.provider ===
+                                                        EProviders.Twitter,
+                                                    )
+                                                  ) {
+                                                    return [
+                                                      ...prev.filter(
+                                                        (s) =>
+                                                          s.provider !==
+                                                          EProviders.Twitter,
+                                                      ),
+                                                      {
+                                                        id: spot.id,
+                                                        provider:
+                                                          EProviders.Twitter,
+                                                      },
+                                                    ];
+                                                  } else {
+                                                    return [
+                                                      ...prev,
+                                                      {
+                                                        id: spot.id,
+                                                        provider:
+                                                          EProviders.Twitter,
+                                                      },
+                                                    ];
+                                                  }
+                                                });
+                                              }}
+                                            >
+                                              <Iconify
+                                                icon="simple-icons:x"
+                                                className="mr-2"
+                                                fontSize={16}
+                                              />
+
+                                              {format(
+                                                new Date(spot.start ?? ""),
+                                                "dd MMM yyyy, HH:mm",
+                                              )}
+                                            </Button>
+                                          ))}
+                                      </div>
+                                    </div>
                                   )}{" "}
-                                  <div className="mb-2 flex flex-wrap gap-2">
-                                    {nextSpots.data
-                                      .filter((spot) => spot.forTwitter)
-                                      .map((spot) => (
-                                        <Button
-                                          variant={
-                                            selectedSpots.some(
-                                              (s) => s.id === spot.id,
-                                            )
-                                              ? "default"
-                                              : "outline"
-                                          }
-                                          onClick={() => {
-                                            setScheduleDate("");
-                                            setSelectedSpots((prev) => {
-                                              if (
-                                                prev.some(
-                                                  (s) => s.id === spot.id,
-                                                )
-                                              ) {
-                                                return prev.filter(
-                                                  (s) => s.id !== spot.id,
-                                                );
-                                              }
-
-                                              if (
-                                                prev.some(
-                                                  (s) =>
-                                                    s.provider ===
-                                                    EProviders.Twitter,
-                                                )
-                                              ) {
-                                                return [
-                                                  ...prev.filter(
-                                                    (s) =>
-                                                      s.provider !==
-                                                      EProviders.Twitter,
-                                                  ),
-                                                  {
-                                                    id: spot.id,
-                                                    provider:
-                                                      EProviders.Twitter,
-                                                  },
-                                                ];
-                                              } else {
-                                                return [
-                                                  ...prev,
-                                                  {
-                                                    id: spot.id,
-                                                    provider:
-                                                      EProviders.Twitter,
-                                                  },
-                                                ];
-                                              }
-                                            });
-                                          }}
-                                        >
-                                          <Iconify
-                                            icon="simple-icons:x"
-                                            className="mr-2"
-                                            fontSize={16}
-                                          />
-
-                                          {format(
-                                            new Date(spot.start ?? ""),
-                                            "dd MMM yyyy, HH:mm",
-                                          )}
-                                        </Button>
-                                      ))}
-                                  </div>
                                   {form.getValues("onLinkedIn") && (
-                                    <Label className="mb-2">
-                                      LinkedIn Slots
-                                    </Label>
-                                  )}
-                                  <div className="flex flex-wrap gap-2">
-                                    {nextSpots.data
-                                      .filter((spot) => spot.forLinkedIn)
-                                      .map((spot) => (
-                                        <Button
-                                          variant={
-                                            selectedSpots.some(
-                                              (s) => s.id === spot.id,
-                                            )
-                                              ? "default"
-                                              : "outline"
-                                          }
-                                          onClick={() => {
-                                            setScheduleDate("");
-                                            setSelectedSpots((prev) => {
-                                              if (
-                                                prev.some(
+                                    <div className="space-y-2">
+                                      {" "}
+                                      <Label className="mb-2">
+                                        LinkedIn Slots
+                                      </Label>
+                                      <div className="flex flex-wrap gap-2">
+                                        {nextSpots.data
+                                          .filter((spot) => spot.forLinkedIn)
+                                          .map((spot) => (
+                                            <Button
+                                              variant={
+                                                selectedSpots.some(
                                                   (s) => s.id === spot.id,
                                                 )
-                                              ) {
-                                                return prev.filter(
-                                                  (s) => s.id !== spot.id,
-                                                );
+                                                  ? "default"
+                                                  : "outline"
                                               }
+                                              onClick={() => {
+                                                setScheduleDate("");
+                                                setSelectedSpots((prev) => {
+                                                  if (
+                                                    prev.some(
+                                                      (s) => s.id === spot.id,
+                                                    )
+                                                  ) {
+                                                    return prev.filter(
+                                                      (s) => s.id !== spot.id,
+                                                    );
+                                                  }
 
-                                              if (
-                                                prev.some(
-                                                  (s) =>
-                                                    s.provider ===
-                                                    EProviders.Linkedin,
-                                                )
-                                              ) {
-                                                return [
-                                                  ...prev.filter(
-                                                    (s) =>
-                                                      s.provider !==
-                                                      EProviders.Linkedin,
-                                                  ),
-                                                  {
-                                                    id: spot.id,
-                                                    provider:
-                                                      EProviders.Linkedin,
-                                                  },
-                                                ];
-                                              } else {
-                                                return [
-                                                  ...prev,
-                                                  {
-                                                    id: spot.id,
-                                                    provider:
-                                                      EProviders.Linkedin,
-                                                  },
-                                                ];
-                                              }
-                                            });
-                                          }}
-                                        >
-                                          <Iconify
-                                            icon="simple-icons:linkedin"
-                                            className="mr-2"
-                                            fontSize={16}
-                                          />
+                                                  if (
+                                                    prev.some(
+                                                      (s) =>
+                                                        s.provider ===
+                                                        EProviders.Linkedin,
+                                                    )
+                                                  ) {
+                                                    return [
+                                                      ...prev.filter(
+                                                        (s) =>
+                                                          s.provider !==
+                                                          EProviders.Linkedin,
+                                                      ),
+                                                      {
+                                                        id: spot.id,
+                                                        provider:
+                                                          EProviders.Linkedin,
+                                                      },
+                                                    ];
+                                                  } else {
+                                                    return [
+                                                      ...prev,
+                                                      {
+                                                        id: spot.id,
+                                                        provider:
+                                                          EProviders.Linkedin,
+                                                      },
+                                                    ];
+                                                  }
+                                                });
+                                              }}
+                                            >
+                                              <Iconify
+                                                icon="simple-icons:linkedin"
+                                                className="mr-2"
+                                                fontSize={16}
+                                              />
 
-                                          {format(
-                                            new Date(spot.start ?? ""),
-                                            "dd MMM yyyy, HH:mm",
-                                          )}
-                                        </Button>
-                                      ))}
-                                  </div>
+                                              {format(
+                                                new Date(spot.start ?? ""),
+                                                "dd MMM yyyy, HH:mm",
+                                              )}
+                                            </Button>
+                                          ))}
+                                      </div>
+                                    </div>
+                                  )}
                                 </>
                               ) : (
                                 <div className="flex h-24 items-center justify-center text-destructive">
