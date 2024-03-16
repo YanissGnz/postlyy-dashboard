@@ -108,15 +108,15 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
     if (isRecurring) {
       const startTime = new Date(
         setHours(
-          new Date().toISOString(),
-          Number((values.startTime as string)!.split(":")[0]! + 1),
+          new Date(),
+          Number((values.startTime as string)!.split(":")[0]!),
         ).setMinutes(Number((values.startTime as string)!.split(":")[1])),
       );
 
       const body = {
         ...values,
         startTime,
-        start: startTime.toISOString(),
+        start: startTime,
         postId: values.postId === DEFAULT_POST_ID ? null : values.postId,
       };
 

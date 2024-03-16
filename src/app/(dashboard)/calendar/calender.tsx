@@ -209,10 +209,7 @@ export default function Calender() {
       } else {
         const body: TCalendarSpot & { id: string } = {
           ...event,
-          start: addHours(
-            new Date(info.event.start?.toISOString() ?? ""),
-            1,
-          )?.toISOString(),
+          start: new Date(info.event.start ?? "").toISOString(),
         };
 
         const updatePromise = updateSpot(body).unwrap();

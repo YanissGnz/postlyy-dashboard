@@ -47,7 +47,7 @@ import {
 } from "@/components/ui/tooltip";
 import { env } from "@/env";
 import { fData } from "@/lib/formatNumber";
-import { cn, hasAccount } from "@/lib/utils";
+import { cn, convertToUTC, hasAccount } from "@/lib/utils";
 import {
   calendarApiUtil,
   useGetNextFiveSpotsQuery,
@@ -961,7 +961,7 @@ export default function PostPage() {
     if (scheduleDate !== "") {
       setIsScheduleDialogOpen(false);
       setIsQueueDialogOpen(false);
-      data.append("scheduleDate", scheduleDate);
+      data.append("ScheduleDate", convertToUTC(scheduleDate));
 
       const schedulePostPromise = postNowOrSchedule(data).unwrap();
       toast.promise(schedulePostPromise, {
@@ -1069,7 +1069,7 @@ export default function PostPage() {
     data.append("isDraft", "true");
     data.append("isTemplate", "false");
     data.append(
-      "scheduleDate",
+      "ScheduleDate",
       scheduleDate ? scheduleDate : addDays(new Date(), 7).toISOString(),
     );
 
@@ -1107,7 +1107,7 @@ export default function PostPage() {
     data.append("isDraft", "true");
     data.append("isTemplate", "false");
     data.append(
-      "scheduleDate",
+      "ScheduleDate",
       scheduleDate ? scheduleDate : form.getValues("scheduleDate"),
     );
 

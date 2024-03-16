@@ -128,3 +128,9 @@ export const getTimezonedDate = (date: string, timezone: string) => {
 export const convertToUTC = (date: string | Date) => {
   return new Date(date).toISOString();
 };
+
+export const convertToLocalDate = (utcDate: string) => {
+  const offset = new Date().getTimezoneOffset();
+
+  return new Date(new Date(utcDate).getTime() - offset * 60 * 1000);
+};

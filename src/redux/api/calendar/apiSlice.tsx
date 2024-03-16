@@ -1,4 +1,5 @@
 import { env } from "@/env";
+import { convertToLocalDate, convertToUTC } from "@/lib/utils";
 import { type RootState } from "@/redux/store";
 import { type EProviders } from "@/types/EProviders";
 import { type TCalendarEvent } from "@/types/TCalendarEvent";
@@ -36,6 +37,15 @@ export const calendarApi = createApi({
         url: "/api/Calendar",
         params,
       }),
+      transformResponse: (response: TResponse<TCalendarEvent[]>) => {
+        return {
+          ...response,
+          data: response.data.map((event) => ({
+            ...event,
+            start: convertToLocalDate(event.start).toISOString(),
+          })),
+        };
+      },
       providesTags: ["Events"],
     }),
     addRecurringPost: builder.mutation<
@@ -70,7 +80,10 @@ export const calendarApi = createApi({
       query: (body) => ({
         url: "/api/Calendar/spot",
         method: "POST",
-        body,
+        body: {
+          ...body,
+          start: convertToUTC(body.start),
+        },
       }),
       invalidatesTags: ["Events", "Spot"],
     }),
@@ -81,7 +94,10 @@ export const calendarApi = createApi({
       query: (body) => ({
         url: `/api/Calendar/spot/${body.id}`,
         method: "PUT",
-        body,
+        body: {
+          ...body,
+          start: convertToUTC(body.start),
+        },
       }),
       invalidatesTags: ["Events", "Spot"],
     }),
