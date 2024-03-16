@@ -35,14 +35,7 @@ export const calendarSpotSchema = z
     },
   )
   .refine(
-    (data) => {
-      console.log(
-        "🚀 ~ data:",
-        data.type !== EPostSpotType.Recurring,
-        data.start !== "",
-      );
-      return !(data.type !== EPostSpotType.Recurring && data.start !== "");
-    },
+    (data) => !(data.type !== EPostSpotType.Recurring && data.start !== ""),
     {
       message: "Date is required.",
       path: ["start"],
