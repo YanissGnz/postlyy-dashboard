@@ -43,6 +43,7 @@ export const calendarApi = createApi({
           data: response.data.map((event) => ({
             ...event,
             start: convertToLocalDate(event.start).toISOString(),
+            startTime: convertToLocalDate(event.startTime).toISOString(),
           })),
         };
       },
@@ -68,6 +69,7 @@ export const calendarApi = createApi({
         method: "PUT",
         body,
       }),
+      invalidatesTags: ["Events", "Recurring"],
     }),
     deleteRecurringPost: builder.mutation<TResponse<boolean>, string>({
       query: (id) => ({
