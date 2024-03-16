@@ -6,17 +6,21 @@ import Iconify from "@/components/ui/icon";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  getEventBackgroundColor,
   getEventIcon,
-  getEventTWBackgroundColor,
   getEventTextColor,
+  hasAccount,
 } from "@/lib/utils";
 import { useGetEventsQuery } from "@/redux/api/calendar/apiSlice";
 import { EPostSpotType } from "@/types/EPostSpotType";
-import { type EventSourceInput } from "@fullcalendar/core/index.js";
+import { EProviders } from "@/types/EProviders";
+import { type EventInput } from "@fullcalendar/core/index.js";
 import listPlugin from "@fullcalendar/list";
 import { addHours, format } from "date-fns";
+import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import dynamic from "next/dynamic";
+import { DEFAULT_POST_ID } from "../calendar/post-details";
 import CardDropdown from "./card-dropdown";
 const FullCalendar = dynamic(() => import("@fullcalendar/react"), {
   ssr: false,
@@ -31,32 +35,41 @@ export default function CalendarCard({
 }) {
   const { data, isLoading, isError, refetch } = useGetEventsQuery({});
   const { theme } = useTheme();
+  const session = useSession();
 
-  const events: EventSourceInput = useMemo(() => {
+  const events: EventInput[] = useMemo(() => {
     if (data?.data) {
-      return data.data.map((event) => ({
-        ...event,
-        end: addHours(new Date(event.start), 1),
-        backgroundColor: getEventTWBackgroundColor(
-          event.type,
-          theme === "dark",
-        ),
-        textColor: getEventTextColor(event.type),
-        editable: true,
-        eventDurationEditable: false,
-        eventResizableFromStart: false,
-        extendedProps: {
-          icon: getEventIcon(event.type),
+      return data.data
+        .filter(
+          (event) =>
+            (event.forLinkedIn &&
+              hasAccount(EProviders.Linkedin, session.data?.user.accounts)) ||
+            (event.forTwitter &&
+              hasAccount(EProviders.Twitter, session.data?.user.accounts)),
+        )
+        .map((event) => ({
           ...event,
-        },
-        ...(event.type === EPostSpotType.Recurring && {
-          daysOfWeek: event.days,
-          startTime: format(new Date(event.startTime), "HH:mm"),
-        }),
-      }));
+          end: addHours(new Date(event.start), 1),
+          backgroundColor:
+            event.postId !== DEFAULT_POST_ID
+              ? getEventBackgroundColor(event.type, theme === "dark")
+              : "#0000",
+          textColor: getEventTextColor(event.type),
+          editable: true,
+          eventDurationEditable: false,
+          eventResizableFromStart: false,
+          extendedProps: {
+            icon: getEventIcon(event.type),
+            ...event,
+          },
+          ...(event.type === EPostSpotType.Recurring && {
+            daysOfWeek: event.days,
+            startTime: format(new Date(event.startTime), "HH:mm"),
+          }),
+        }));
     }
     return [];
-  }, [data?.data, isLoading]);
+  }, [data?.data, isLoading, theme]);
 
   if (isLoading) return <Skeleton className="h-full w-full" />;
 
