@@ -1,23 +1,24 @@
-import { setupListeners } from "@reduxjs/toolkit/dist/query";
 import { configureStore } from "@reduxjs/toolkit";
-import { layout } from "./slices/layoutSlice";
-import { auth } from "./slices/authSlice";
-import { setup } from "./slices/setupSlice";
-import { modals } from "./slices/modalsSlice";
-import { profileApi } from "./api/user/profile/apiSlice";
+import { setupListeners } from "@reduxjs/toolkit/dist/query";
+import { calendarApi } from "./api/calendar/apiSlice";
+import { dashboardStatsApi } from "./api/dashboard/apiSlice";
+import { newsLetterApi } from "./api/newsLetterApi";
+import { notesApi } from "./api/notes/apiSlice";
+import { postApi } from "./api/post/apiSlice";
+import { supportApi } from "./api/support/apiSlice";
+import { accountApi } from "./api/user/account/apiSlice";
+import { authApi } from "./api/user/auth/apiSlice";
+import { dashboardApi } from "./api/user/dashboard/apiSlice";
 import { notificationsSettingsApi } from "./api/user/notifications-settings/apiSlice";
+import { powerupsApi } from "./api/user/powerups/apiSlice";
+import { profileApi } from "./api/user/profile/apiSlice";
 import { subscriptionApi } from "./api/user/subscription/apiSlice";
 import { teamApi } from "./api/user/team/apiSlice";
-import { authApi } from "./api/user/auth/apiSlice";
-import { accountApi } from "./api/user/account/apiSlice";
-import { newsLetterApi } from "./api/newsLetterApi";
-import { calendarApi } from "./api/calendar/apiSlice";
-import { postApi } from "./api/post/apiSlice";
-import { notesApi } from "./api/notes/apiSlice";
-import { powerupsApi } from "./api/user/powerups/apiSlice";
+import { auth } from "./slices/authSlice";
 import { dashboard } from "./slices/dashboardSlice";
-import { dashboardApi } from "./api/user/dashboard/apiSlice";
-import { dashboardStatsApi } from "./api/dashboard/apiSlice";
+import { layout } from "./slices/layoutSlice";
+import { modals } from "./slices/modalsSlice";
+import { setup } from "./slices/setupSlice";
 
 export const store = configureStore({
   reducer: {
@@ -39,6 +40,7 @@ export const store = configureStore({
     [powerupsApi.reducerPath]: powerupsApi.reducer,
     [dashboardApi.reducerPath]: dashboardApi.reducer,
     [dashboardStatsApi.reducerPath]: dashboardStatsApi.reducer,
+    [supportApi.reducerPath]: supportApi.reducer,
   },
   devTools: process.env.NODE_ENV !== "production",
   middleware: (getDefaultMiddleware) =>
@@ -55,7 +57,8 @@ export const store = configureStore({
       .concat(notesApi.middleware)
       .concat(powerupsApi.middleware)
       .concat(dashboardApi.middleware)
-      .concat(dashboardStatsApi.middleware),
+      .concat(dashboardStatsApi.middleware)
+      .concat(supportApi.middleware),
 });
 
 setupListeners(store.dispatch);

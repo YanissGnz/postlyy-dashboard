@@ -13,8 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useMemo } from "react";
 import { type TDataTablePaginationProps } from "@/types/DataTablePaginationProps";
+import { useMemo } from "react";
 
 export function DataTablePagination({
   pageNumber,
@@ -55,7 +55,7 @@ export function DataTablePagination({
           </Select>
         </div>
         <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-          Page {pageNumber} of {totalPages}
+          Page {pageNumber} of {totalPages || 1}
         </div>
         <div className="flex items-center space-x-2">
           <Button
