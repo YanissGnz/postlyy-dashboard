@@ -124,3 +124,7 @@ export const getTimezonedDate = (date: string, timezone: string) => {
     new Date(date).toLocaleString("en-US", { timeZone: timezone }),
   );
 };
+
+export const convertToUTC = (date: string | Date) => {
+  return new Date(date).toISOString();
+};
