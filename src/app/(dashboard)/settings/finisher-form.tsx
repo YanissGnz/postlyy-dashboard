@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
 // api
 import {
   useGetFinisherQuery,
@@ -11,8 +11,8 @@ import {
 // types
 import { finisherSchema, type TFinisher } from "@/types/TFinisher";
 // components
-import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -20,21 +20,20 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { toast } from "sonner";
-import { Card, CardContent } from "@/components/ui/card";
+import Iconify from "@/components/ui/icon";
+import Image from "@/components/ui/image";
+import { Spinner } from "@/components/ui/Spinner";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { fData } from "@/lib/formatNumber";
 import ReactImageUploading, {
   type ImageListType,
 } from "react-images-uploading";
-import { fData } from "@/lib/formatNumber";
-import Iconify from "@/components/ui/icon";
-import Image from "@/components/ui/image";
+import { toast } from "sonner";
 
 const ACCEPTED_IMAGE_TYPES = ["jpg", "png"];
 const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
@@ -87,7 +86,8 @@ export default function FinisherForm() {
   }
 
   const onImagesUpload = useCallback(
-    () => (imageList: ImageListType) => {
+    (imageList: ImageListType) => {
+      console.log("🚀 ~ FinisherForm ~ imageList:", imageList);
       const images = imageList.map((image) => image.file);
       const image = images[0];
       if (image) {
@@ -97,6 +97,11 @@ export default function FinisherForm() {
     },
     [form],
   );
+
+  const onImageRemoveImage = useCallback(() => {
+    setFinisherImage([]);
+    form.setValue("finisherImage", "");
+  }, [form]);
 
   return (
     <Card className="w-full">
@@ -125,66 +130,88 @@ export default function FinisherForm() {
                 )}
               />
               {finisherImage[0]?.dataURL && (
-                <div className="group w-fit overflow-hidden rounded">
+                <div className="group relative w-fit overflow-hidden rounded">
                   <Image
-                    src={finisherImage[0]?.dataURL}
-                    alt="Finisher image"
+                    src={finisherImage[0].dataURL}
+                    alt={finisherImage[0].file?.name ?? "Finisher image"}
                     width={110}
                     height={110}
                     className="rounded object-cover"
                   />
+                  <div className="absolute right-0 top-0 hidden p-1 group-hover:block">
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          type="button"
+                          onClick={onImageRemoveImage}
+                        >
+                          <Iconify
+                            icon="solar:trash-bin-2-bold-duotone"
+                            className="text-destructive-foreground"
+                            fontSize={16}
+                          />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="bottom"
+                        className="bg-destructive text-destructive-foreground"
+                      >
+                        <p>Delete image</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                 </div>
               )}
               <div className="flex justify-end">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <div>
-                        <ReactImageUploading
-                          onChange={onImagesUpload}
-                          value={finisherImage}
-                          acceptType={ACCEPTED_IMAGE_TYPES}
-                          maxFileSize={MAX_FILE_SIZE}
-                          onError={(errors) => {
-                            if (errors?.maxFileSize) {
-                              toast.error(
-                                `File size is too big. Max file size is ${fData(
-                                  MAX_FILE_SIZE,
-                                )}MB`,
-                              );
-                            } else if (errors?.acceptType) {
-                              toast.error(
-                                `File type is not supported. Supported file types are ${ACCEPTED_IMAGE_TYPES.join(
-                                  ", ",
-                                )}`,
-                              );
-                            }
-                          }}
-                        >
-                          {({ onImageUpload }) => (
-                            <div className="upload__image-wrapper">
-                              <Button
-                                size="icon"
-                                type="button"
-                                variant="ghost"
-                                onClick={onImageUpload}
-                              >
-                                <Iconify
-                                  icon="solar:gallery-minimalistic-bold-duotone"
-                                  className="text-foreground/80"
-                                  fontSize={28}
-                                />
-                              </Button>
-                            </div>
-                          )}
-                        </ReactImageUploading>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom">
-                      <p className="text-center">Add photo</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <div>
+                      <ReactImageUploading
+                        onChange={onImagesUpload}
+                        value={finisherImage}
+                        acceptType={ACCEPTED_IMAGE_TYPES}
+                        maxFileSize={MAX_FILE_SIZE}
+                        onError={(errors) => {
+                          if (errors?.maxFileSize) {
+                            toast.error(
+                              `File size is too big. Max file size is ${fData(
+                                MAX_FILE_SIZE,
+                              )}MB`,
+                            );
+                          } else if (errors?.acceptType) {
+                            toast.error(
+                              `File type is not supported. Supported file types are ${ACCEPTED_IMAGE_TYPES.join(
+                                ", ",
+                              )}`,
+                            );
+                          }
+                        }}
+                      >
+                        {({ onImageUpload }) => (
+                          <div className="upload__image-wrapper">
+                            <Button
+                              size="icon"
+                              type="button"
+                              variant="ghost"
+                              onClick={onImageUpload}
+                            >
+                              <Iconify
+                                icon="solar:gallery-minimalistic-bold-duotone"
+                                className="text-foreground/80"
+                                fontSize={28}
+                              />
+                            </Button>
+                          </div>
+                        )}
+                      </ReactImageUploading>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <p className="text-center">Add photo</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
               <Button
                 type="submit"

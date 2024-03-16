@@ -1,18 +1,19 @@
 import "@/styles/globals.css";
+import { type Metadata } from "next";
 import "/node_modules/react-grid-layout/css/styles.css";
 import "/node_modules/react-resizable/css/styles.css";
-import { type Metadata } from "next";
 // font
 import { Outfit } from "next/font/google";
 // providers
-import ReduxProvider from "@/providers/redux-provider";
 import AuthProvider from "@/providers/auth-provider";
+import ReduxProvider from "@/providers/redux-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 import UserProvider from "@/providers/token-provider";
 // components
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { env } from "@/env";
 import { Toaster } from "sonner";
 import ComingSoon from "./coming-soon";
-import { env } from "@/env";
 
 const font = Outfit({
   subsets: ["latin"],
@@ -62,11 +63,13 @@ export default async function RootLayout({
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <ReduxProvider>
               <UserProvider>
-                {env.NEXT_PUBLIC_ENVIRONMENT === "production" ? (
-                  <ComingSoon />
-                ) : (
-                  children
-                )}
+                <TooltipProvider>
+                  {env.NEXT_PUBLIC_ENVIRONMENT === "production" ? (
+                    <ComingSoon />
+                  ) : (
+                    children
+                  )}
+                </TooltipProvider>
               </UserProvider>
             </ReduxProvider>
             <Toaster richColors closeButton />
