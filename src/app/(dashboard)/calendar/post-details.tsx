@@ -70,7 +70,6 @@ export default function PostDetails() {
     }
     return null;
   }, [list]);
-  console.log("🚀 ~ constevent:TCalendarEvent|null=useMemo ~ event:", event);
 
   const handleOpenDeleteEventModal = useCallback(
     (id: string, type: EPostSpotType) => () => {
