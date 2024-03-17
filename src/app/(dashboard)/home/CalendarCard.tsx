@@ -12,7 +12,7 @@ import {
   hasAccount,
 } from "@/lib/utils";
 import { useGetEventsQuery } from "@/redux/api/calendar/apiSlice";
-import { EPostSpotType } from "@/types/EPostSpotType";
+import { EPostSlotType } from "@/types/EPostSlotType";
 import { EProviders } from "@/types/EProviders";
 import { type EventInput } from "@fullcalendar/core/index.js";
 import listPlugin from "@fullcalendar/list";
@@ -62,7 +62,7 @@ export default function CalendarCard({
             icon: getEventIcon(event.type),
             ...event,
           },
-          ...(event.type === EPostSpotType.Recurring && {
+          ...(event.type === EPostSlotType.Recurring && {
             daysOfWeek: event.days,
             startTime: format(new Date(event.startTime), "HH:mm"),
           }),

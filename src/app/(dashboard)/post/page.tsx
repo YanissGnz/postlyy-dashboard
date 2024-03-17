@@ -50,12 +50,12 @@ import { fData } from "@/lib/formatNumber";
 import { cn, convertToUTC, hasAccount } from "@/lib/utils";
 import {
   calendarApiUtil,
-  useGetNextFiveSpotsQuery,
-  useGetRecurringSpotsQuery,
+  useGetNextFiveSlotsQuery,
+  useGetRecurringSlotsQuery,
 } from "@/redux/api/calendar/apiSlice";
 import {
   useAddPostNowMutation,
-  useAddPostToSpotMutation,
+  useAddPostToSlotMutation,
   useAddRecurringPostMutation,
   useDeleteDraftImageMutation,
   useGetDraftMutation,
@@ -218,15 +218,15 @@ export default function PostPage() {
   const { theme, systemTheme } = useTheme();
 
   const {
-    data: recurringSpots,
-    isLoading: isRecurringSpotsLoading,
-    isSuccess: isRecurringSpotSuccess,
-  } = useGetRecurringSpotsQuery();
+    data: recurringSlots,
+    isLoading: isRecurringSlotsLoading,
+    isSuccess: isRecurringSlotSuccess,
+  } = useGetRecurringSlotsQuery();
 
   const [postNowOrSchedule, { isLoading: isPostingNowOrScheduling }] =
     useAddPostNowMutation();
-  const [addPostToSpot, { isLoading: isAddingPostToSpot }] =
-    useAddPostToSpotMutation();
+  const [addPostToSlot, { isLoading: isAddingPostToSlot }] =
+    useAddPostToSlotMutation();
   const [addRecurringPost, { isLoading: isAddingRecurringPost }] =
     useAddRecurringPostMutation();
 
@@ -277,7 +277,7 @@ export default function PostPage() {
   const { value: isRecurringDialogOpen, setValue: setIsRecurringDialogOpen } =
     useBoolean(false);
 
-  const [selectedSpots, setSelectedSpots] = useState<
+  const [selectedSlots, setSelectedSlots] = useState<
     Array<{
       id: string;
       provider: EProviders;
@@ -323,10 +323,10 @@ export default function PostPage() {
   });
 
   const {
-    data: nextSpots,
-    isLoading: isSpotsLoading,
+    data: nextSlots,
+    isLoading: isSlotsLoading,
     isSuccess,
-  } = useGetNextFiveSpotsQuery(
+  } = useGetNextFiveSlotsQuery(
     {
       providers: [
         ...(form.getValues("onLinkedIn") ? [EProviders.Linkedin] : []),
@@ -919,7 +919,7 @@ export default function PostPage() {
 
   const handleCustomDateChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      setSelectedSpots([]);
+      setSelectedSlots([]);
       setScheduleDate(e.target.value);
     },
     [],
@@ -979,12 +979,12 @@ export default function PostPage() {
         },
         error: "Something went wrong",
       });
-    } else if (selectedSpots.length > 0) {
+    } else if (selectedSlots.length > 0) {
       setIsScheduleDialogOpen(false);
       setIsQueueDialogOpen(false);
 
-      selectedSpots.forEach(async (spot) => {
-        if (spot.provider === EProviders.Linkedin) {
+      selectedSlots.forEach(async (slot) => {
+        if (slot.provider === EProviders.Linkedin) {
           data.append("onLinkedIn", "true");
           data.delete("onTwitter");
         } else {
@@ -992,9 +992,9 @@ export default function PostPage() {
           data.delete("onLinkedIn");
         }
 
-        const schedulePostPromise = addPostToSpot({
+        const schedulePostPromise = addPostToSlot({
           body: data,
-          spotId: spot.id,
+          slotId: slot.id,
         }).unwrap();
         toast.promise(schedulePostPromise, {
           loading: "Scheduling post...",
@@ -1011,14 +1011,14 @@ export default function PostPage() {
         },
       ]);
     } else {
-      toast.error("Please select a date or a spot");
+      toast.error("Please select a date or a slot");
     }
     setScheduleDate("");
-    calendarApiUtil.invalidateTags(["Events", "Spot"]);
-  }, [scheduleDate, selectedSpots, form]);
+    calendarApiUtil.invalidateTags(["Events", "Slot"]);
+  }, [scheduleDate, selectedSlots, form]);
 
   const handleAddRecurringPost = useCallback(async () => {
-    if (!selectedSpots) return;
+    if (!selectedSlots) return;
     if (form.getValues("posts").length === 0 && !form.formState.isValid) {
       await form.trigger();
       return;
@@ -1028,15 +1028,15 @@ export default function PostPage() {
 
     const data = await generateFormData(form.getValues());
 
-    selectedSpots.forEach(async (spot) => {
+    selectedSlots.forEach(async (slot) => {
       const addRecurringPostPromise = addRecurringPost({
         body: data,
-        recurringId: spot.id,
+        recurringId: slot.id,
       }).unwrap();
       toast.promise(addRecurringPostPromise, {
         loading: "Adding recurring post...",
         success: () => {
-          setSelectedSpots([]);
+          setSelectedSlots([]);
           form.reset(defaultValues);
           setPostsContent([
             {
@@ -1052,7 +1052,7 @@ export default function PostPage() {
 
       calendarApiUtil.invalidateTags(["Events", "Recurring"]);
     });
-  }, [selectedSpots, form]);
+  }, [selectedSlots, form]);
 
   // Draft
 
@@ -2225,7 +2225,7 @@ export default function PostPage() {
                               disabled={
                                 !form.formState.isValid ||
                                 isPostingNowOrScheduling ||
-                                isAddingPostToSpot
+                                isAddingPostToSlot
                               }
                             >
                               {selectedDraftId
@@ -2270,7 +2270,7 @@ export default function PostPage() {
                           disabled={
                             !form.formState.isValid ||
                             isPostingNowOrScheduling ||
-                            isAddingPostToSpot
+                            isAddingPostToSlot
                           }
                           onClick={handleSaveTemplate}
                         >
@@ -2282,7 +2282,7 @@ export default function PostPage() {
                           open={isRecurringDialogOpen}
                           onOpenChange={(open) => {
                             setIsRecurringDialogOpen(open);
-                            if (!open) setSelectedSpots([]);
+                            if (!open) setSelectedSlots([]);
                           }}
                         >
                           <DialogTrigger asChild>
@@ -2291,11 +2291,11 @@ export default function PostPage() {
                               disabled={
                                 !form.formState.isValid ||
                                 isPostingNowOrScheduling ||
-                                isAddingPostToSpot ||
+                                isAddingPostToSlot ||
                                 isAddingRecurringPost
                               }
                             >
-                              Pick recurring spot
+                              Pick recurring slot
                             </Button>
                           </DialogTrigger>
                           <DialogContent className="sm:max-w-[425px]">
@@ -2306,34 +2306,34 @@ export default function PostPage() {
                               </DialogDescription>
                             </DialogHeader>
                             <div className="">
-                              {isRecurringSpotsLoading ? (
+                              {isRecurringSlotsLoading ? (
                                 <div className="flex h-24 items-center justify-center">
                                   <Spinner />
                                 </div>
-                              ) : isRecurringSpotSuccess &&
-                                recurringSpots?.data.length > 0 ? (
+                              ) : isRecurringSlotSuccess &&
+                                recurringSlots?.data.length > 0 ? (
                                 <>
                                   <Label className="mb-2">
                                     Recurring Slots
                                   </Label>
                                   <div className="flex flex-wrap gap-2">
-                                    {recurringSpots.data.map((spot) => (
+                                    {recurringSlots.data.map((slot) => (
                                       <Button
                                         variant={
-                                          selectedSpots.some(
-                                            (s) => s.id === spot.id,
+                                          selectedSlots.some(
+                                            (s) => s.id === slot.id,
                                           )
                                             ? "default"
                                             : "outline"
                                         }
                                         onClick={() => {
                                           setScheduleDate("");
-                                          setSelectedSpots((prev) => {
+                                          setSelectedSlots((prev) => {
                                             if (
-                                              prev.some((s) => s.id === spot.id)
+                                              prev.some((s) => s.id === slot.id)
                                             ) {
                                               return prev.filter(
-                                                (s) => s.id !== spot.id,
+                                                (s) => s.id !== slot.id,
                                               );
                                             }
 
@@ -2351,7 +2351,7 @@ export default function PostPage() {
                                                     EProviders.Twitter,
                                                 ),
                                                 {
-                                                  id: spot.id,
+                                                  id: slot.id,
                                                   provider: EProviders.Twitter,
                                                 },
                                               ];
@@ -2359,7 +2359,7 @@ export default function PostPage() {
                                               return [
                                                 ...prev,
                                                 {
-                                                  id: spot.id,
+                                                  id: slot.id,
                                                   provider: EProviders.Twitter,
                                                 },
                                               ];
@@ -2367,7 +2367,7 @@ export default function PostPage() {
                                           });
                                         }}
                                       >
-                                        {spot.days
+                                        {slot.days
                                           ?.map(
                                             (day) =>
                                               DAYS_OF_WEEK.find(
@@ -2377,7 +2377,7 @@ export default function PostPage() {
                                           .join(", ")}{" "}
                                         at{" "}
                                         {format(
-                                          new Date(spot.startTime ?? ""),
+                                          new Date(slot.startTime ?? ""),
                                           "HH:mm",
                                         )}
                                       </Button>
@@ -2386,7 +2386,7 @@ export default function PostPage() {
                                 </>
                               ) : (
                                 <div className="flex h-24 items-center justify-center text-destructive">
-                                  <p>No spots available</p>
+                                  <p>No slots available</p>
                                 </div>
                               )}
                             </div>
@@ -2394,7 +2394,7 @@ export default function PostPage() {
                               <Button
                                 type="button"
                                 onClick={handleAddRecurringPost}
-                                disabled={selectedSpots.length === 0}
+                                disabled={selectedSlots.length === 0}
                               >
                                 Schedule
                               </Button>
@@ -2414,7 +2414,7 @@ export default function PostPage() {
                               disabled={
                                 !form.formState.isValid ||
                                 isPostingNowOrScheduling ||
-                                isAddingPostToSpot
+                                isAddingPostToSlot
                               }
                             >
                               Pick a time
@@ -2455,7 +2455,7 @@ export default function PostPage() {
                           disabled={
                             !form.formState.isValid ||
                             isPostingNowOrScheduling ||
-                            isAddingPostToSpot ||
+                            isAddingPostToSlot ||
                             isAddingRecurringPost
                           }
                           onClick={handlePostNow}
@@ -2466,7 +2466,7 @@ export default function PostPage() {
                           open={isQueueDialogOpen}
                           onOpenChange={(open) => {
                             setIsQueueDialogOpen(open);
-                            if (!open) setSelectedSpots([]);
+                            if (!open) setSelectedSlots([]);
                           }}
                         >
                           <DialogTrigger asChild>
@@ -2475,7 +2475,7 @@ export default function PostPage() {
                               disabled={
                                 !form.formState.isValid ||
                                 isPostingNowOrScheduling ||
-                                isAddingPostToSpot ||
+                                isAddingPostToSlot ||
                                 isAddingRecurringPost
                               }
                             >
@@ -2490,11 +2490,11 @@ export default function PostPage() {
                               </DialogDescription>
                             </DialogHeader>
                             <div className="">
-                              {isSpotsLoading ? (
+                              {isSlotsLoading ? (
                                 <div className="flex h-24 items-center justify-center">
                                   <Spinner />
                                 </div>
-                              ) : isSuccess && nextSpots?.data.length > 0 ? (
+                              ) : isSuccess && nextSlots?.data.length > 0 ? (
                                 <>
                                   {form.getValues("onTwitter") && (
                                     <div className="space-y-2">
@@ -2503,27 +2503,27 @@ export default function PostPage() {
                                       </Label>
 
                                       <div className="mb-2 flex flex-wrap gap-2">
-                                        {nextSpots.data
-                                          .filter((spot) => spot.forTwitter)
-                                          .map((spot) => (
+                                        {nextSlots.data
+                                          .filter((slot) => slot.forTwitter)
+                                          .map((slot) => (
                                             <Button
                                               variant={
-                                                selectedSpots.some(
-                                                  (s) => s.id === spot.id,
+                                                selectedSlots.some(
+                                                  (s) => s.id === slot.id,
                                                 )
                                                   ? "default"
                                                   : "outline"
                                               }
                                               onClick={() => {
                                                 setScheduleDate("");
-                                                setSelectedSpots((prev) => {
+                                                setSelectedSlots((prev) => {
                                                   if (
                                                     prev.some(
-                                                      (s) => s.id === spot.id,
+                                                      (s) => s.id === slot.id,
                                                     )
                                                   ) {
                                                     return prev.filter(
-                                                      (s) => s.id !== spot.id,
+                                                      (s) => s.id !== slot.id,
                                                     );
                                                   }
 
@@ -2541,7 +2541,7 @@ export default function PostPage() {
                                                           EProviders.Twitter,
                                                       ),
                                                       {
-                                                        id: spot.id,
+                                                        id: slot.id,
                                                         provider:
                                                           EProviders.Twitter,
                                                       },
@@ -2550,7 +2550,7 @@ export default function PostPage() {
                                                     return [
                                                       ...prev,
                                                       {
-                                                        id: spot.id,
+                                                        id: slot.id,
                                                         provider:
                                                           EProviders.Twitter,
                                                       },
@@ -2566,7 +2566,7 @@ export default function PostPage() {
                                               />
 
                                               {format(
-                                                new Date(spot.start ?? ""),
+                                                new Date(slot.start ?? ""),
                                                 "dd MMM yyyy, HH:mm",
                                               )}
                                             </Button>
@@ -2581,27 +2581,27 @@ export default function PostPage() {
                                         LinkedIn Slots
                                       </Label>
                                       <div className="flex flex-wrap gap-2">
-                                        {nextSpots.data
-                                          .filter((spot) => spot.forLinkedIn)
-                                          .map((spot) => (
+                                        {nextSlots.data
+                                          .filter((slot) => slot.forLinkedIn)
+                                          .map((slot) => (
                                             <Button
                                               variant={
-                                                selectedSpots.some(
-                                                  (s) => s.id === spot.id,
+                                                selectedSlots.some(
+                                                  (s) => s.id === slot.id,
                                                 )
                                                   ? "default"
                                                   : "outline"
                                               }
                                               onClick={() => {
                                                 setScheduleDate("");
-                                                setSelectedSpots((prev) => {
+                                                setSelectedSlots((prev) => {
                                                   if (
                                                     prev.some(
-                                                      (s) => s.id === spot.id,
+                                                      (s) => s.id === slot.id,
                                                     )
                                                   ) {
                                                     return prev.filter(
-                                                      (s) => s.id !== spot.id,
+                                                      (s) => s.id !== slot.id,
                                                     );
                                                   }
 
@@ -2619,7 +2619,7 @@ export default function PostPage() {
                                                           EProviders.Linkedin,
                                                       ),
                                                       {
-                                                        id: spot.id,
+                                                        id: slot.id,
                                                         provider:
                                                           EProviders.Linkedin,
                                                       },
@@ -2628,7 +2628,7 @@ export default function PostPage() {
                                                     return [
                                                       ...prev,
                                                       {
-                                                        id: spot.id,
+                                                        id: slot.id,
                                                         provider:
                                                           EProviders.Linkedin,
                                                       },
@@ -2644,7 +2644,7 @@ export default function PostPage() {
                                               />
 
                                               {format(
-                                                new Date(spot.start ?? ""),
+                                                new Date(slot.start ?? ""),
                                                 "dd MMM yyyy, HH:mm",
                                               )}
                                             </Button>
@@ -2655,7 +2655,7 @@ export default function PostPage() {
                                 </>
                               ) : (
                                 <div className="flex h-24 items-center justify-center text-destructive">
-                                  <p>No spots available</p>
+                                  <p>No slots available</p>
                                 </div>
                               )}
                             </div>
@@ -2663,7 +2663,7 @@ export default function PostPage() {
                               <Button
                                 type="button"
                                 onClick={handleSchedulePost}
-                                disabled={selectedSpots.length === 0}
+                                disabled={selectedSlots.length === 0}
                               >
                                 Schedule
                               </Button>

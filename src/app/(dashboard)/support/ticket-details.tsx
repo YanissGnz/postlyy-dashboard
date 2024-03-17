@@ -13,10 +13,10 @@ export default function TicketDetails() {
 
   return (
     <Sheet
-      open={list.some((modal) => modal.id === "add-calendar-post-modal")}
+      open={list.some((modal) => modal.id === "add-calendar-slot-modal")}
       onOpenChange={(isOpen) => {
         if (!isOpen) {
-          dispatch(closeModal("add-calendar-post-modal"));
+          dispatch(closeModal("add-calendar-slot-modal"));
         }
       }}
     >

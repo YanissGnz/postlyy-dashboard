@@ -27,12 +27,12 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { hasAccount } from "@/lib/utils";
 import {
-  useGetNextFiveSpotsQuery,
-  useGetRecurringSpotsQuery,
+  useGetNextFiveSlotsQuery,
+  useGetRecurringSlotsQuery,
 } from "@/redux/api/calendar/apiSlice";
 import {
   useAddPostNowMutation,
-  useAddPostToSpotMutation,
+  useAddPostToSlotMutation,
   useAddRecurringPostMutation,
 } from "@/redux/api/post/apiSlice";
 import { useAppSelector } from "@/redux/hooks";
@@ -104,10 +104,10 @@ export default function page({ params }: { params: { id: string } }) {
   } = useGetNoteQuery(params.id);
 
   const {
-    data: recurringSpots,
-    isLoading: isRecurringSpotsLoading,
-    isSuccess: isRecurringSpotSuccess,
-  } = useGetRecurringSpotsQuery();
+    data: recurringSlots,
+    isLoading: isRecurringSlotsLoading,
+    isSuccess: isRecurringSlotSuccess,
+  } = useGetRecurringSlotsQuery();
 
   const { currentAccount } = useAppSelector((state) => state.auth);
 
@@ -152,10 +152,10 @@ export default function page({ params }: { params: { id: string } }) {
   }, [currentAccount?.accountType]);
 
   const {
-    data: nextSpots,
-    isLoading: isSpotsLoading,
-    isSuccess: isSpotsSuccess,
-  } = useGetNextFiveSpotsQuery(
+    data: nextSlots,
+    isLoading: isSlotsLoading,
+    isSuccess: isSlotsSuccess,
+  } = useGetNextFiveSlotsQuery(
     {
       providers: [
         ...(form.getValues("onTwitter") ? [EProviders.Twitter] : []),
@@ -169,8 +169,8 @@ export default function page({ params }: { params: { id: string } }) {
 
   const [postNowOrSchedule, { isLoading: isPostingNowOrScheduling }] =
     useAddPostNowMutation();
-  const [addPostToSpot, { isLoading: isAddingPostToSpot }] =
-    useAddPostToSpotMutation();
+  const [addPostToSlot, { isLoading: isAddingPostToSlot }] =
+    useAddPostToSlotMutation();
   const [addRecurringPost, { isLoading: isAddingRecurringPost }] =
     useAddRecurringPostMutation();
 
@@ -180,7 +180,7 @@ export default function page({ params }: { params: { id: string } }) {
     useBoolean(false);
   const { value: isPostNowDialogOpen, setValue: setIsPostNowDialogOpen } =
     useBoolean(false);
-  const [selectedSpots, setSelectedSpots] = useState<
+  const [selectedSlots, setSelectedSlots] = useState<
     Array<{
       id: string;
       provider: EProviders;
@@ -199,7 +199,7 @@ export default function page({ params }: { params: { id: string } }) {
 
   const handleCustomDateChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      setSelectedSpots([]);
+      setSelectedSlots([]);
       setScheduleDate(e.target.value);
     },
     [],
@@ -278,7 +278,7 @@ export default function page({ params }: { params: { id: string } }) {
   }, [scheduleDate, form]);
 
   const handleAddRecurringPost = useCallback(async () => {
-    if (selectedSpots.length === 0) return;
+    if (selectedSlots.length === 0) return;
 
     if (!ref.current || !note) return;
 
@@ -298,13 +298,13 @@ export default function page({ params }: { params: { id: string } }) {
 
           const postNowPromise = addRecurringPost({
             body: data,
-            recurringId: selectedSpots[0]?.id ?? "",
+            recurringId: selectedSlots[0]?.id ?? "",
           }).unwrap();
           toast.promise(postNowPromise, {
             loading: "Scheduling...",
             success: () => {
               setIsScheduleDialogOpen(false);
-              setSelectedSpots([]);
+              setSelectedSlots([]);
               form.reset();
               return "Scheduled!";
             },
@@ -315,10 +315,10 @@ export default function page({ params }: { params: { id: string } }) {
       .catch((err) => {
         console.log(err);
       });
-  }, [selectedSpots, ref, form]);
+  }, [selectedSlots, ref, form]);
 
   const handleSchedulePostToSlot = useCallback(async () => {
-    if (selectedSpots.length === 0) return;
+    if (selectedSlots.length === 0) return;
 
     if (!ref.current || !note) return;
 
@@ -336,8 +336,8 @@ export default function page({ params }: { params: { id: string } }) {
           });
           data.append("posts[0].images", file);
 
-          selectedSpots.forEach((spot) => {
-            if (spot.provider === EProviders.Twitter) {
+          selectedSlots.forEach((slot) => {
+            if (slot.provider === EProviders.Twitter) {
               data.append("onTwitter", "true");
               data.delete("onLinkedIn");
             } else {
@@ -345,15 +345,15 @@ export default function page({ params }: { params: { id: string } }) {
               data.delete("onTwitter");
             }
 
-            const postNowPromise = addPostToSpot({
+            const postNowPromise = addPostToSlot({
               body: data,
-              spotId: spot.id,
+              slotId: slot.id,
             }).unwrap();
             toast.promise(postNowPromise, {
               loading: "Scheduling...",
               success: () => {
                 setIsQueueDialogOpen(false);
-                setSelectedSpots([]);
+                setSelectedSlots([]);
                 form.reset();
                 return "Scheduled!";
               },
@@ -365,7 +365,7 @@ export default function page({ params }: { params: { id: string } }) {
       .catch((err) => {
         console.log(err);
       });
-  }, [selectedSpots, ref, form]);
+  }, [selectedSlots, ref, form]);
 
   return (
     <>
@@ -399,11 +399,11 @@ export default function page({ params }: { params: { id: string } }) {
                     type="button"
                     disabled={
                       isPostingNowOrScheduling ||
-                      isAddingPostToSpot ||
+                      isAddingPostToSlot ||
                       isAddingRecurringPost
                     }
                   >
-                    Pick recurring spot
+                    Pick recurring slot
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
@@ -543,27 +543,27 @@ export default function page({ params }: { params: { id: string } }) {
                         )}
                       </div>
                     </Form>
-                    {isRecurringSpotsLoading ? (
+                    {isRecurringSlotsLoading ? (
                       <div className="flex h-24 items-center justify-center">
                         <Spinner />
                       </div>
-                    ) : isRecurringSpotSuccess &&
-                      recurringSpots?.data.length > 0 ? (
+                    ) : isRecurringSlotSuccess &&
+                      recurringSlots?.data.length > 0 ? (
                       <>
                         <Label className="mb-2">Recurring Slots</Label>
                         <div className="flex flex-wrap gap-2">
-                          {recurringSpots.data.map((spot) => (
+                          {recurringSlots.data.map((slot) => (
                             <Button
                               variant={
-                                selectedSpots.some((s) => s.id === spot.id)
+                                selectedSlots.some((s) => s.id === slot.id)
                                   ? "default"
                                   : "outline"
                               }
                               onClick={() => {
                                 setScheduleDate("");
-                                setSelectedSpots((prev) => {
-                                  if (prev.some((s) => s.id === spot.id)) {
-                                    return prev.filter((s) => s.id !== spot.id);
+                                setSelectedSlots((prev) => {
+                                  if (prev.some((s) => s.id === slot.id)) {
+                                    return prev.filter((s) => s.id !== slot.id);
                                   }
 
                                   if (
@@ -577,7 +577,7 @@ export default function page({ params }: { params: { id: string } }) {
                                           s.provider !== EProviders.Twitter,
                                       ),
                                       {
-                                        id: spot.id,
+                                        id: slot.id,
                                         provider: EProviders.Twitter,
                                       },
                                     ];
@@ -585,7 +585,7 @@ export default function page({ params }: { params: { id: string } }) {
                                     return [
                                       ...prev,
                                       {
-                                        id: spot.id,
+                                        id: slot.id,
                                         provider: EProviders.Twitter,
                                       },
                                     ];
@@ -593,7 +593,7 @@ export default function page({ params }: { params: { id: string } }) {
                                 });
                               }}
                             >
-                              {spot.days
+                              {slot.days
                                 ?.map(
                                   (day) =>
                                     DAYS_OF_WEEK.find((d) => d.value === day)
@@ -601,14 +601,14 @@ export default function page({ params }: { params: { id: string } }) {
                                 )
                                 .join(", ")}{" "}
                               at{" "}
-                              {format(new Date(spot.startTime ?? ""), "HH:mm")}
+                              {format(new Date(slot.startTime ?? ""), "HH:mm")}
                             </Button>
                           ))}
                         </div>
                       </>
                     ) : (
                       <div className="flex h-24 items-center justify-center text-destructive">
-                        <p>No spots available</p>
+                        <p>No slots available</p>
                       </div>
                     )}
                   </div>
@@ -617,7 +617,7 @@ export default function page({ params }: { params: { id: string } }) {
                       type="button"
                       onClick={handleAddRecurringPost}
                       disabled={
-                        selectedSpots.length === 0 || !form.formState.isValid
+                        selectedSlots.length === 0 || !form.formState.isValid
                       }
                     >
                       Schedule
@@ -634,7 +634,7 @@ export default function page({ params }: { params: { id: string } }) {
                     type="button"
                     disabled={
                       isPostingNowOrScheduling ||
-                      isAddingPostToSpot ||
+                      isAddingPostToSlot ||
                       isAddingRecurringPost
                     }
                   >
@@ -808,7 +808,7 @@ export default function page({ params }: { params: { id: string } }) {
                     type="button"
                     disabled={
                       isPostingNowOrScheduling ||
-                      isAddingPostToSpot ||
+                      isAddingPostToSlot ||
                       isAddingRecurringPost
                     }
                   >
@@ -951,31 +951,31 @@ export default function page({ params }: { params: { id: string } }) {
                         )}
                       </div>
                     </Form>
-                    {isSpotsLoading ? (
+                    {isSlotsLoading ? (
                       <div className="flex h-24 items-center justify-center">
                         <Spinner />
                       </div>
-                    ) : isSpotsSuccess && nextSpots?.data.length > 0 ? (
+                    ) : isSlotsSuccess && nextSlots?.data.length > 0 ? (
                       <>
                         {form.getValues("onTwitter") && (
                           <Label className="mb-2">Twitter Slots</Label>
                         )}{" "}
                         <div className="mb-2 flex flex-wrap gap-2">
-                          {nextSpots.data
-                            .filter((spot) => spot.forTwitter)
-                            .map((spot) => (
+                          {nextSlots.data
+                            .filter((slot) => slot.forTwitter)
+                            .map((slot) => (
                               <Button
                                 variant={
-                                  selectedSpots.some((s) => s.id === spot.id)
+                                  selectedSlots.some((s) => s.id === slot.id)
                                     ? "default"
                                     : "outline"
                                 }
                                 onClick={() => {
                                   setScheduleDate("");
-                                  setSelectedSpots((prev) => {
-                                    if (prev.some((s) => s.id === spot.id)) {
+                                  setSelectedSlots((prev) => {
+                                    if (prev.some((s) => s.id === slot.id)) {
                                       return prev.filter(
-                                        (s) => s.id !== spot.id,
+                                        (s) => s.id !== slot.id,
                                       );
                                     }
 
@@ -991,7 +991,7 @@ export default function page({ params }: { params: { id: string } }) {
                                             s.provider !== EProviders.Twitter,
                                         ),
                                         {
-                                          id: spot.id,
+                                          id: slot.id,
                                           provider: EProviders.Twitter,
                                         },
                                       ];
@@ -999,7 +999,7 @@ export default function page({ params }: { params: { id: string } }) {
                                       return [
                                         ...prev,
                                         {
-                                          id: spot.id,
+                                          id: slot.id,
                                           provider: EProviders.Twitter,
                                         },
                                       ];
@@ -1014,7 +1014,7 @@ export default function page({ params }: { params: { id: string } }) {
                                 />
 
                                 {format(
-                                  new Date(spot.start ?? ""),
+                                  new Date(slot.start ?? ""),
                                   "dd MMM yyyy, HH:mm",
                                 )}
                               </Button>
@@ -1024,21 +1024,21 @@ export default function page({ params }: { params: { id: string } }) {
                           <Label className="mb-2">LinkedIn Slots</Label>
                         )}
                         <div className="flex flex-wrap gap-2">
-                          {nextSpots.data
-                            .filter((spot) => spot.forLinkedIn)
-                            .map((spot) => (
+                          {nextSlots.data
+                            .filter((slot) => slot.forLinkedIn)
+                            .map((slot) => (
                               <Button
                                 variant={
-                                  selectedSpots.some((s) => s.id === spot.id)
+                                  selectedSlots.some((s) => s.id === slot.id)
                                     ? "default"
                                     : "outline"
                                 }
                                 onClick={() => {
                                   setScheduleDate("");
-                                  setSelectedSpots((prev) => {
-                                    if (prev.some((s) => s.id === spot.id)) {
+                                  setSelectedSlots((prev) => {
+                                    if (prev.some((s) => s.id === slot.id)) {
                                       return prev.filter(
-                                        (s) => s.id !== spot.id,
+                                        (s) => s.id !== slot.id,
                                       );
                                     }
 
@@ -1054,7 +1054,7 @@ export default function page({ params }: { params: { id: string } }) {
                                             s.provider !== EProviders.Linkedin,
                                         ),
                                         {
-                                          id: spot.id,
+                                          id: slot.id,
                                           provider: EProviders.Linkedin,
                                         },
                                       ];
@@ -1062,7 +1062,7 @@ export default function page({ params }: { params: { id: string } }) {
                                       return [
                                         ...prev,
                                         {
-                                          id: spot.id,
+                                          id: slot.id,
                                           provider: EProviders.Linkedin,
                                         },
                                       ];
@@ -1077,7 +1077,7 @@ export default function page({ params }: { params: { id: string } }) {
                                 />
 
                                 {format(
-                                  new Date(spot.start ?? ""),
+                                  new Date(slot.start ?? ""),
                                   "dd MMM yyyy, HH:mm",
                                 )}
                               </Button>
@@ -1086,7 +1086,7 @@ export default function page({ params }: { params: { id: string } }) {
                       </>
                     ) : (
                       <div className="flex h-24 items-center justify-center text-destructive">
-                        <p>No spots available</p>
+                        <p>No slots available</p>
                       </div>
                     )}
                   </div>
@@ -1095,7 +1095,7 @@ export default function page({ params }: { params: { id: string } }) {
                       type="button"
                       onClick={handleSchedulePostToSlot}
                       disabled={
-                        selectedSpots.length === 0 || !form.formState.isValid
+                        selectedSlots.length === 0 || !form.formState.isValid
                       }
                     >
                       Schedule
@@ -1112,7 +1112,7 @@ export default function page({ params }: { params: { id: string } }) {
                     type="button"
                     disabled={
                       isPostingNowOrScheduling ||
-                      isAddingPostToSpot ||
+                      isAddingPostToSlot ||
                       isAddingRecurringPost
                     }
                   >

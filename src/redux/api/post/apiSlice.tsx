@@ -1,10 +1,10 @@
+import { env } from "@/env";
 import { type RootState } from "@/redux/store";
 import { type TDraft } from "@/types/TDraft";
 import { type TPaginatedRequest } from "@/types/TPaginatedRequest";
 import { type TPaginatedResponse } from "@/types/TPaginatedResponse";
 import { type TPostForm } from "@/types/TPostForm";
 import { type TResponse } from "@/types/TResponse";
-import { env } from "@/env";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const postApi = createApi({
@@ -35,21 +35,21 @@ export const postApi = createApi({
     }),
     addPostToQueue: builder.mutation<TResponse<boolean>, FormData>({
       query: (body) => ({
-        url: "/api/Posting/Post/NextEmptySpot",
+        url: "/api/Posting/Post/NextEmptySlot",
         method: "POST",
         body,
       }),
       invalidatesTags: ["Posts"],
     }),
-    addPostToSpot: builder.mutation<
+    addPostToSlot: builder.mutation<
       TResponse<boolean>,
       {
-        spotId: string;
+        slotId: string;
         body: FormData;
       }
     >({
-      query: ({ body, spotId }) => ({
-        url: `/api/Posting/Post/NewInSpot/${spotId}`,
+      query: ({ body, slotId }) => ({
+        url: `/api/Posting/Post/NewInSlot/${slotId}`,
         method: "POST",
         body,
       }),
@@ -196,7 +196,7 @@ export const postApi = createApi({
 export const {
   useAddPostNowMutation,
   useAddPostToQueueMutation,
-  useAddPostToSpotMutation,
+  useAddPostToSlotMutation,
   useAddRecurringPostMutation,
   useGetDraftsQuery,
   useDeleteDraftMutation,

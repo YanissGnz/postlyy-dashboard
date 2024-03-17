@@ -10,7 +10,7 @@ import { useGetScheduledPostByIdQuery } from "@/redux/api/post/apiSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { closeModal, openModal } from "@/redux/slices/modalsSlice";
 import { ROUTES } from "@/routes";
-import { EPostSpotType } from "@/types/EPostSpotType";
+import { EPostSlotType } from "@/types/EPostSlotType";
 import { EProviders } from "@/types/EProviders";
 import { type TCalendarEvent } from "@/types/TCalendarEvent";
 import { format } from "date-fns";
@@ -72,9 +72,9 @@ export default function PostDetails() {
   }, [list]);
 
   const handleOpenDeleteEventModal = useCallback(
-    (id: string, type: EPostSpotType) => () => {
+    (id: string, type: EPostSlotType) => () => {
       dispatch(
-        openModal({ id: "delete-calendar-post-modal", data: { id, type } }),
+        openModal({ id: "delete-calendar-slot-modal", data: { id, type } }),
       );
     },
     [],
@@ -84,7 +84,7 @@ export default function PostDetails() {
     (event: TCalendarEvent) => () => {
       dispatch(
         openModal({
-          id: "edit-calendar-post-modal",
+          id: "edit-calendar-slot-modal",
           data: event,
         }),
       );
@@ -143,7 +143,7 @@ export default function PostDetails() {
         )}
         <div className="flex items-center gap-5">
           <p className="font-medium">Date / Time:</p>
-          {event.type === EPostSpotType.Recurring ? (
+          {event.type === EPostSlotType.Recurring ? (
             <p>
               {event.days
                 .map((day) => {

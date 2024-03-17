@@ -23,14 +23,14 @@ import {
 import {
   useGetEventsQuery,
   useUpdateRecurringPostMutation,
-  useUpdateSpotMutation,
+  useUpdateSlotMutation,
 } from "@/redux/api/calendar/apiSlice";
 import { useAppDispatch } from "@/redux/hooks";
 import { openModal } from "@/redux/slices/modalsSlice";
-import { EPostSpotType } from "@/types/EPostSpotType";
+import { EPostSlotType } from "@/types/EPostSlotType";
 import { EProviders } from "@/types/EProviders";
 import { type TCalendarEvent } from "@/types/TCalendarEvent";
-import { type TCalendarSpot } from "@/types/TCalendarSpot";
+import { type TCalendarSlot } from "@/types/TCalendarSlot";
 import { type TRecurringPost } from "@/types/TRecurringPost";
 import {
   type EventDropArg,
@@ -73,9 +73,9 @@ export default function Calender() {
 
   const { data, isLoading } = useGetEventsQuery({});
 
-  const [updateSpot, { isLoading: isUpdating }] = useUpdateSpotMutation();
+  const [updateSlot, { isLoading: isUpdating }] = useUpdateSlotMutation();
 
-  const [updateRecurringSpot] = useUpdateRecurringPostMutation();
+  const [updateRecurringSlot] = useUpdateRecurringPostMutation();
 
   const events: EventInput[] = useMemo(() => {
     if (data?.data) {
@@ -102,7 +102,7 @@ export default function Calender() {
             icon: getEventIcon(event.type),
             ...event,
           },
-          ...(event.type === EPostSpotType.Recurring && {
+          ...(event.type === EPostSlotType.Recurring && {
             daysOfWeek: event.days,
             startTime: format(new Date(event.startTime), "HH:mm"),
           }),
@@ -156,11 +156,11 @@ export default function Calender() {
   }, [data]);
 
   const handleOpenDeleteEventModal = useCallback(
-    (id: string, type: EPostSpotType) =>
+    (id: string, type: EPostSlotType) =>
       (e: React.MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) => {
         e.stopPropagation();
         dispatch(
-          openModal({ id: "delete-calendar-post-modal", data: { id, type } }),
+          openModal({ id: "delete-calendar-slot-modal", data: { id, type } }),
         );
       },
     [],
@@ -172,8 +172,8 @@ export default function Calender() {
         e.stopPropagation();
         dispatch(
           openModal({
-            id: "edit-calendar-post-modal",
-            data: event.extendedProps as TCalendarSpot | TRecurringPost,
+            id: "edit-calendar-slot-modal",
+            data: event.extendedProps as TCalendarSlot | TRecurringPost,
           }),
         );
       },
@@ -187,37 +187,37 @@ export default function Calender() {
       if (!event) return;
 
       if (info.event.start && info.event.start < new Date()) {
-        toast.error("You can't move a spot to the past");
+        toast.error("You can't move a slot to the past");
         info.revert();
         return;
       }
-      if (event.type === EPostSpotType.Recurring) {
+      if (event.type === EPostSlotType.Recurring) {
         const body: TRecurringPost & { id: string } = {
           ...event,
           daysOfWeek: event.days,
         };
 
-        const updatePromise = updateRecurringSpot(body).unwrap();
+        const updatePromise = updateRecurringSlot(body).unwrap();
 
         toast.promise(updatePromise, {
           loading: `Updating ${event.title}...`,
           success: async () => {
-            return "Spot updated successfully";
+            return "Slot updated successfully";
           },
           error: "Something went wrong",
         });
       } else {
-        const body: TCalendarSpot & { id: string } = {
+        const body: TCalendarSlot & { id: string } = {
           ...event,
           start: new Date(info.event.start ?? "").toISOString(),
         };
 
-        const updatePromise = updateSpot(body).unwrap();
+        const updatePromise = updateSlot(body).unwrap();
 
         toast.promise(updatePromise, {
           loading: `Updating ${event.title}...`,
           success: async () => {
-            return "Spot updated successfully";
+            return "Slot updated successfully";
           },
           error: "Something went wrong",
         });
@@ -266,7 +266,7 @@ export default function Calender() {
           onClick={() =>
             dispatch(
               openModal({
-                id: "add-calendar-post-modal",
+                id: "add-calendar-slot-modal",
                 data: null,
               }),
             )
@@ -307,7 +307,7 @@ export default function Calender() {
         dateClick={(info) => {
           dispatch(
             openModal({
-              id: "add-calendar-post-modal",
+              id: "add-calendar-slot-modal",
               data: {
                 date: info.dateStr,
               },
@@ -330,7 +330,7 @@ export default function Calender() {
           const { event } = eventInfo;
 
           const backgroundColor = getEventTWBackgroundColor(
-            event.extendedProps.type as EPostSpotType,
+            event.extendedProps.type as EPostSlotType,
             theme === "dark",
           );
 
@@ -378,7 +378,7 @@ export default function Calender() {
                     variant="outline"
                     onClick={handleOpenDeleteEventModal(
                       event.id,
-                      event.extendedProps.type as EPostSpotType,
+                      event.extendedProps.type as EPostSlotType,
                     )}
                   >
                     <Iconify

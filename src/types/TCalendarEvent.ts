@@ -1,9 +1,9 @@
-import { type EPostSpotType } from "./EPostSpotType";
+import { type EPostSlotType } from "./EPostSlotType";
 
 export type TCalendarEvent = {
   id: string;
   title: string;
-  type: EPostSpotType;
+  type: EPostSlotType;
   days: number[];
   start: string;
   startTime: string;

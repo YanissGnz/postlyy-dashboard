@@ -4,9 +4,9 @@ import { type RootState } from "@/redux/store";
 import { type EProviders } from "@/types/EProviders";
 import { type TCalendarEvent } from "@/types/TCalendarEvent";
 import {
-  type TCalendarSpot,
-  type TResponseCalendarSpot,
-} from "@/types/TCalendarSpot";
+  type TCalendarSlot,
+  type TResponseCalendarSlot,
+} from "@/types/TCalendarSlot";
 import { type TRecurringPost } from "@/types/TRecurringPost";
 import { type TResponse } from "@/types/TResponse";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
@@ -27,7 +27,7 @@ export const calendarApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Events", "Recurring", "Spot"],
+  tagTypes: ["Events", "Recurring", "Slot"],
   endpoints: (builder) => ({
     getEvents: builder.query<
       TResponse<TCalendarEvent[]>,
@@ -78,40 +78,40 @@ export const calendarApi = createApi({
       }),
       invalidatesTags: ["Events", "Recurring"],
     }),
-    addSpot: builder.mutation<TResponse<TCalendarSpot>, TCalendarSpot>({
+    addSlot: builder.mutation<TResponse<TCalendarSlot>, TCalendarSlot>({
       query: (body) => ({
-        url: "/api/Calendar/spot",
+        url: "/api/Calendar/slot",
         method: "POST",
         body: {
           ...body,
           start: convertToUTC(body.start),
         },
       }),
-      invalidatesTags: ["Events", "Spot"],
+      invalidatesTags: ["Events", "Slot"],
     }),
-    updateSpot: builder.mutation<
-      TResponse<TCalendarSpot>,
-      TCalendarSpot & { id: string }
+    updateSlot: builder.mutation<
+      TResponse<TCalendarSlot>,
+      TCalendarSlot & { id: string }
     >({
       query: (body) => ({
-        url: `/api/Calendar/spot/${body.id}`,
+        url: `/api/Calendar/slot/${body.id}`,
         method: "PUT",
         body: {
           ...body,
           start: convertToUTC(body.start),
         },
       }),
-      invalidatesTags: ["Events", "Spot"],
+      invalidatesTags: ["Events", "Slot"],
     }),
-    deleteSpot: builder.mutation<TResponse<boolean>, string>({
+    deleteSlot: builder.mutation<TResponse<boolean>, string>({
       query: (id) => ({
-        url: `/api/Calendar/spot/${id}`,
+        url: `/api/Calendar/slot/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Events", "Spot"],
+      invalidatesTags: ["Events", "Slot"],
     }),
-    getNextFiveSpots: builder.query<
-      TResponse<TResponseCalendarSpot[]>,
+    getNextFiveSlots: builder.query<
+      TResponse<TResponseCalendarSlot[]>,
       { providers: Array<EProviders> }
     >({
       query: ({ providers }) => ({
@@ -122,9 +122,9 @@ export const calendarApi = createApi({
           ),
         },
       }),
-      providesTags: ["Spot"],
+      providesTags: ["Slot"],
     }),
-    getRecurringSpots: builder.query<TResponse<TResponseCalendarSpot[]>, void>({
+    getRecurringSlots: builder.query<TResponse<TResponseCalendarSlot[]>, void>({
       query: () => "/api/Calendar/recurring",
       providesTags: ["Recurring"],
     }),
@@ -136,10 +136,10 @@ export const {
   useAddRecurringPostMutation,
   useDeleteRecurringPostMutation,
   useUpdateRecurringPostMutation,
-  useAddSpotMutation,
-  useDeleteSpotMutation,
-  useUpdateSpotMutation,
-  useGetNextFiveSpotsQuery,
-  useGetRecurringSpotsQuery,
+  useAddSlotMutation,
+  useDeleteSlotMutation,
+  useUpdateSlotMutation,
+  useGetNextFiveSlotsQuery,
+  useGetRecurringSlotsQuery,
   util: calendarApiUtil,
 } = calendarApi;
