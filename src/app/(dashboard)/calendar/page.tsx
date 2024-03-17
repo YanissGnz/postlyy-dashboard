@@ -42,7 +42,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import { addDays, addHours, format, isAfter, isBefore } from "date-fns";
+import { addDays, format, isAfter, isBefore } from "date-fns";
 import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import React, {
@@ -89,7 +89,7 @@ export default function Calender() {
         )
         .map((event) => ({
           ...event,
-          end: addHours(new Date(event.start), 1),
+          // end: addHours(new Date(event.start), 1),
           backgroundColor:
             event.postId !== DEFAULT_POST_ID
               ? getEventBackgroundColor(event.type, theme === "dark")
