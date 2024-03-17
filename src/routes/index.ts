@@ -18,6 +18,7 @@ export const ROUTES = {
   team: getPath("team"),
   billing: getPath("billing"),
   accounts: getPath("accounts"),
+  support: getPath("support"),
   notes: {
     root: getPath("notes"),
     create: getPath("notes/create"),

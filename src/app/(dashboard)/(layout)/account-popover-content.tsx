@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
+import { useCallback } from "react";
 // redux
 import { useAppSelector } from "@/redux/hooks";
 // components
@@ -13,22 +13,22 @@ import {
   DropdownMenuItem,
   DropdownMenuPortal,
   DropdownMenuSeparator,
+  DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
-  DropdownMenuSub,
 } from "@/components/ui/dropdown-menu";
 import Iconify from "@/components/ui/icon";
 import { Skeleton } from "@/components/ui/skeleton";
 // utils
 import { cn } from "@/lib/utils";
 // types
-import { type TAccount } from "@/types/TAccount";
-import { useDispatch } from "react-redux";
-import { setAccount } from "@/redux/slices/authSlice";
-import Link from "next/link";
-import { ROUTES } from "@/routes";
 import { useGetAccountsQuery } from "@/redux/api/user/account/apiSlice";
+import { setAccount } from "@/redux/slices/authSlice";
+import { ROUTES } from "@/routes";
 import { EUserType } from "@/types/EUserType";
+import { type TAccount } from "@/types/TAccount";
+import Link from "next/link";
+import { useDispatch } from "react-redux";
 
 export default function AccountPopoverContent() {
   const { theme, setTheme } = useTheme();
@@ -83,6 +83,16 @@ export default function AccountPopoverContent() {
           </DropdownMenuItem>
         )}
       </DropdownMenuGroup>
+      <DropdownMenuItem asChild>
+        <Link href={ROUTES.support}>
+          <Iconify
+            icon="solar:chat-dots-bold-duotone"
+            fontSize={22}
+            className="mr-2 text-foreground/80"
+          />
+          Support
+        </Link>
+      </DropdownMenuItem>
       <DropdownMenuSeparator />
       <DropdownMenuGroup>
         <DropdownMenuSub>

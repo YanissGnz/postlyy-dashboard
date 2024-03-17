@@ -4,6 +4,7 @@ import { type TPaginatedRequest } from "@/types/TPaginatedRequest";
 import { type TPaginatedResponse } from "@/types/TPaginatedResponse";
 import { type TResponse } from "@/types/TResponse";
 import { type TTicket } from "@/types/TTicket";
+import { type TTicketDetails } from "@/types/TTicketDetails";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const supportApi = createApi({
@@ -44,7 +45,7 @@ export const supportApi = createApi({
             ]
           : ["Tickets"],
     }),
-    getTicket: builder.query<TResponse<TTicket>, string>({
+    getTicket: builder.query<TResponse<TTicketDetails>, string>({
       query: (id) => `/api/Support/${id}`,
       providesTags: (result, error, id) => [{ type: "Tickets", id }],
     }),

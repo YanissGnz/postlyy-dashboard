@@ -16,23 +16,41 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useAppDispatch } from "@/redux/hooks";
+import { openModal } from "@/redux/slices/modalsSlice";
+import { type TTicket } from "@/types/TTicket";
+import { useCallback } from "react";
 
-interface TTicketsDataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+interface TTicketsDataTableProps<TValue> {
+  columns: ColumnDef<TTicket, TValue>[];
+  data: TTicket[];
   loading?: boolean;
 }
 
-export function TicketsDataTable<TData, TValue>({
+export function TicketsDataTable<TValue>({
   columns,
   data,
   loading,
-}: TTicketsDataTableProps<TData, TValue>) {
+}: TTicketsDataTableProps<TValue>) {
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
+
+  const dispatch = useAppDispatch();
+
+  const handleOpenTicketDetails = useCallback(
+    (id: string) => () => {
+      dispatch(
+        openModal({
+          id: "ticket-details-modal",
+          data: { id },
+        }),
+      );
+    },
+    [],
+  );
 
   return (
     <div className="mb-2 rounded-md border">
@@ -74,6 +92,7 @@ export function TicketsDataTable<TData, TValue>({
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
+                onClick={handleOpenTicketDetails(row.original.id)}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
