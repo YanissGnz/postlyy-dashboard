@@ -78,7 +78,7 @@ export default function Sidebar() {
           {navItems.map((item) => (
             <div className="w-full space-y-2">
               {!isCollapsed && <h6>{item.name}</h6>}
-              <div className="w-full">
+              <div className="w-full space-y-1">
                 {item.children.map((nav) => (
                   <div className={cn("w-full", !isCollapsed && "ml-2")}>
                     {nav.needAccount
