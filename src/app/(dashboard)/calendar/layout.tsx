@@ -1,6 +1,6 @@
 import RoleBasedGuard from "@/guard/RoleBasedGuard";
 import { type Metadata } from "next";
-import Modals from "../support/modals";
+import Modals from "./modals";
 
 export const metadata: Metadata = {
   title: "Calendar | Postlyy",
