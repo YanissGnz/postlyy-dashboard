@@ -125,7 +125,13 @@ export default function TicketDetails() {
                   <span>{getTicketStatusText(ticket.data.status)}</span>
                 </div>
               </div>
-              <div>
+              <div className="space-y-2">
+                <p className="font-medium">Context:</p>
+                <div className="flex items-center gap-1">
+                  <span>{ticket.data.context}</span>
+                </div>
+              </div>
+              <div className="space-y-2">
                 <p className="font-medium">Respones:</p>
                 {ticket.data.responses.length === 0 ? (
                   <div className="flex h-16 items-center justify-center">
@@ -133,7 +139,18 @@ export default function TicketDetails() {
                   </div>
                 ) : (
                   ticket.data.responses.map((response) => (
-                    <p key={response.id}>{response.response}</p>
+                    <div key={response.id} className="rounded border p-2">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium">{response.writtenBy}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {format(
+                            convertToLocalDate(response.writtenAt),
+                            "PPp",
+                          )}
+                        </p>
+                      </div>
+                      <p>{response.response}</p>
+                    </div>
                   ))
                 )}
               </div>

@@ -1,6 +1,8 @@
 type TTickerResponse = {
   id: string;
   response: string;
+  writtenAt: string;
+  writtenBy: string;
 };
 
 export type TTicketDetails = {
