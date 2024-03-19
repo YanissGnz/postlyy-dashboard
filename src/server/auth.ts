@@ -12,7 +12,7 @@ import TwitterProvider from "next-auth/providers/twitter";
 
 import { env } from "@/env";
 import { type TDBUser } from "@/types/TDBUser";
-import { formatISO } from 'date-fns';
+import { formatISO } from "date-fns";
 
 declare module "next-auth" {
   interface Session extends DefaultSession {
@@ -126,10 +126,11 @@ async function getUser(refetchToken: string) {
       accounts: user.accounts,
       username: user?.accounts ? user?.accounts[0]?.username : "",
       accessToken: user.accessToken,
-      refetchToken: user.refreshToken,
+      refreshToken: user.refreshToken,
     };
   } catch (error) {
-    env.NODE_ENV === 'development' &&console.log("🚀 ~ file: auth.ts:128 ~ getUser ~ error:", error);
+    env.NODE_ENV === "development" &&
+      console.log("🚀 ~ file: auth.ts:128 ~ getUser ~ error:", error);
     return {
       error: "GetUserError",
     };
@@ -155,7 +156,7 @@ export const authOptions: NextAuthOptions = {
             email: profile?.email,
             userName: profile?.screen_name,
             picture: user.profilePicture ?? "Images/Default.jpeg",
-            date: formatISO(new Date().toString())
+            date: formatISO(new Date().toString()),
           });
           const response = await fetch(
             `${env.API_BASE_URL}/api/Authentication/External`,
@@ -169,13 +170,11 @@ export const authOptions: NextAuthOptions = {
           )
             .then((res) => res.json() as Promise<TDBUser>)
             .catch((err) => {
-              env.NODE_ENV === 'development' && console.log("🚀 ~ jwt ~ err:", err);
+              env.NODE_ENV === "development" &&
+                console.log("🚀 ~ jwt ~ err:", err);
               throw new Error("Failed to login");
             });
-            
-          
-          
-            
+
           token.accessToken = response.accessToken;
           token.refreshToken = response.refreshToken;
           token.fullName = response.fullName;
@@ -219,7 +218,8 @@ export const authOptions: NextAuthOptions = {
               return res.json() as Promise<TDBUser>;
             })
             .catch((err) => {
-               env.NODE_ENV === 'development' &&console.log("🚀 ~ jwt ~ err:", err);
+              env.NODE_ENV === "development" &&
+                console.log("🚀 ~ jwt ~ err:", err);
               throw new Error("Failed to login");
             });
 
