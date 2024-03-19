@@ -47,14 +47,14 @@ declare module "next-auth" {
   }
 }
 
-async function refreshAccessToken(refetchToken: string) {
+async function refreshAccessToken(refreshToken: string) {
   try {
     const response = await fetch(
       `${env.API_BASE_URL}/api/Authentication/RefreshToken`,
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${refetchToken}`,
+          Authorization: `Bearer ${refreshToken}`,
         },
         method: "GET",
       },
@@ -82,7 +82,7 @@ async function refreshAccessToken(refetchToken: string) {
       accounts: user.accounts,
       username: user?.accounts[0]?.username ?? "",
       accessTokenExpires: Date.now() + 1000 * 60 * 60 * 3, //  3 hours
-      refetchTokenExpires: Date.now() + 1000 * 60 * 60 * 24 * 30, // 30 days
+      refreshTokenExpires: Date.now() + 1000 * 60 * 60 * 24 * 30, // 30 days
     };
   } catch (error) {
     return {
@@ -91,14 +91,14 @@ async function refreshAccessToken(refetchToken: string) {
   }
 }
 
-async function getUser(refetchToken: string) {
+async function getUser(refreshToken: string) {
   try {
     const response = await fetch(
       `${env.API_BASE_URL}/api/Authentication/RefreshToken`,
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${refetchToken}`,
+          Authorization: `Bearer ${refreshToken}`,
         },
         method: "GET",
       },
