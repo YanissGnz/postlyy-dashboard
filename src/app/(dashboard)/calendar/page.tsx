@@ -5,25 +5,25 @@ import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/button";
 import Iconify from "@/components/ui/icon";
 import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import {
-    cn,
-    getEventBackgroundColor,
-    getEventIcon,
-    getEventTWBackgroundColor,
-    getEventTextColor,
-    hasAccount,
+  cn,
+  getEventBackgroundColor,
+  getEventIcon,
+  getEventTWBackgroundColor,
+  getEventTextColor,
+  hasAccount,
 } from "@/lib/utils";
 import {
-    useGetEventsQuery,
-    useUpdateRecurringPostMutation,
-    useUpdateSpotMutation,
+  useGetEventsQuery,
+  useUpdateRecurringPostMutation,
+  useUpdateSpotMutation,
 } from "@/redux/api/calendar/apiSlice";
 import { useAppDispatch } from "@/redux/hooks";
 import { openModal } from "@/redux/slices/modalsSlice";
@@ -33,8 +33,8 @@ import { type TCalendarEvent } from "@/types/TCalendarEvent";
 import { type TCalendarSpot } from "@/types/TCalendarSpot";
 import { type TRecurringPost } from "@/types/TRecurringPost";
 import {
-    type EventDropArg,
-    type EventInput,
+  type EventDropArg,
+  type EventInput,
 } from "@fullcalendar/core/index.js";
 import { type EventImpl } from "@fullcalendar/core/internal";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -46,11 +46,11 @@ import { addDays, format, isAfter, isBefore } from "date-fns";
 import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import React, {
-    useCallback,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from "react";
 import { toast } from "sonner";
 import { DEFAULT_POST_ID } from "./post-details";
@@ -285,7 +285,6 @@ export default function Calender() {
         height="auto"
         slotMinTime="07:00:00"
         slotMaxTime="24:00:00"
-        allDaySpot={false}
         eventClick={(info) => {
           info.jsEvent.preventDefault();
           if (info.event.display === "background") return;
@@ -314,6 +313,7 @@ export default function Calender() {
             }),
           );
         }}
+        allDaySlot={false}
         dayHeaderClassNames="font-bold bg-background text-foreground"
         visibleRange={(currentDate) => {
           const startDate = new Date(currentDate.valueOf());
