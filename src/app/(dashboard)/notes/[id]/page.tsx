@@ -4,21 +4,21 @@ import BottomButtons from "@/components/bottom-buttons";
 import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormMessage,
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormMessage,
 } from "@/components/ui/form";
 import Iconify from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
@@ -27,13 +27,13 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { hasAccount } from "@/lib/utils";
 import {
-  useGetNextFiveSlotsQuery,
-  useGetRecurringSlotsQuery,
+    useGetNextFiveSpotsQuery,
+    useGetRecurringSpotsQuery,
 } from "@/redux/api/calendar/apiSlice";
 import {
-  useAddPostNowMutation,
-  useAddPostToSlotMutation,
-  useAddRecurringPostMutation,
+    useAddPostNowMutation,
+    useAddPostToSpotMutation,
+    useAddRecurringPostMutation,
 } from "@/redux/api/post/apiSlice";
 import { useAppSelector } from "@/redux/hooks";
 import { EProviders } from "@/types/EProviders";
@@ -45,12 +45,12 @@ import { format } from "date-fns";
 import { toBlob } from "html-to-image";
 import { useSession } from "next-auth/react";
 import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ChangeEvent,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+    type ChangeEvent,
 } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -104,10 +104,10 @@ export default function page({ params }: { params: { id: string } }) {
   } = useGetNoteQuery(params.id);
 
   const {
-    data: recurringSlots,
-    isLoading: isRecurringSlotsLoading,
-    isSuccess: isRecurringSlotSuccess,
-  } = useGetRecurringSlotsQuery();
+    data: recurringSpots,
+    isLoading: isRecurringSpotsLoading,
+    isSuccess: isRecurringSpotSuccess,
+  } = useGetRecurringSpotsQuery();
 
   const { currentAccount } = useAppSelector((state) => state.auth);
 
@@ -152,10 +152,10 @@ export default function page({ params }: { params: { id: string } }) {
   }, [currentAccount?.accountType]);
 
   const {
-    data: nextSlots,
-    isLoading: isSlotsLoading,
-    isSuccess: isSlotsSuccess,
-  } = useGetNextFiveSlotsQuery(
+    data: nextSpots,
+    isLoading: isSpotsLoading,
+    isSuccess: isSpotsSuccess,
+  } = useGetNextFiveSpotsQuery(
     {
       providers: [
         ...(form.getValues("onTwitter") ? [EProviders.Twitter] : []),
@@ -169,8 +169,8 @@ export default function page({ params }: { params: { id: string } }) {
 
   const [postNowOrSchedule, { isLoading: isPostingNowOrScheduling }] =
     useAddPostNowMutation();
-  const [addPostToSlot, { isLoading: isAddingPostToSlot }] =
-    useAddPostToSlotMutation();
+  const [addPostToSpot, { isLoading: isAddingPostToSpot }] =
+    useAddPostToSpotMutation();
   const [addRecurringPost, { isLoading: isAddingRecurringPost }] =
     useAddRecurringPostMutation();
 
@@ -180,7 +180,7 @@ export default function page({ params }: { params: { id: string } }) {
     useBoolean(false);
   const { value: isPostNowDialogOpen, setValue: setIsPostNowDialogOpen } =
     useBoolean(false);
-  const [selectedSlots, setSelectedSlots] = useState<
+  const [selectedSpots, setSelectedSpots] = useState<
     Array<{
       id: string;
       provider: EProviders;
@@ -199,7 +199,7 @@ export default function page({ params }: { params: { id: string } }) {
 
   const handleCustomDateChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      setSelectedSlots([]);
+      setSelectedSpots([]);
       setScheduleDate(e.target.value);
     },
     [],
@@ -278,7 +278,7 @@ export default function page({ params }: { params: { id: string } }) {
   }, [scheduleDate, form]);
 
   const handleAddRecurringPost = useCallback(async () => {
-    if (selectedSlots.length === 0) return;
+    if (selectedSpots.length === 0) return;
 
     if (!ref.current || !note) return;
 
@@ -298,13 +298,13 @@ export default function page({ params }: { params: { id: string } }) {
 
           const postNowPromise = addRecurringPost({
             body: data,
-            recurringId: selectedSlots[0]?.id ?? "",
+            recurringId: selectedSpots[0]?.id ?? "",
           }).unwrap();
           toast.promise(postNowPromise, {
             loading: "Scheduling...",
             success: () => {
               setIsScheduleDialogOpen(false);
-              setSelectedSlots([]);
+              setSelectedSpots([]);
               form.reset();
               return "Scheduled!";
             },
@@ -315,10 +315,10 @@ export default function page({ params }: { params: { id: string } }) {
       .catch((err) => {
         console.log(err);
       });
-  }, [selectedSlots, ref, form]);
+  }, [selectedSpots, ref, form]);
 
-  const handleSchedulePostToSlot = useCallback(async () => {
-    if (selectedSlots.length === 0) return;
+  const handleSchedulePostToSpot = useCallback(async () => {
+    if (selectedSpots.length === 0) return;
 
     if (!ref.current || !note) return;
 
@@ -336,7 +336,7 @@ export default function page({ params }: { params: { id: string } }) {
           });
           data.append("posts[0].images", file);
 
-          selectedSlots.forEach((slot) => {
+          selectedSpots.forEach((slot) => {
             if (slot.provider === EProviders.Twitter) {
               data.append("onTwitter", "true");
               data.delete("onLinkedIn");
@@ -345,7 +345,7 @@ export default function page({ params }: { params: { id: string } }) {
               data.delete("onTwitter");
             }
 
-            const postNowPromise = addPostToSlot({
+            const postNowPromise = addPostToSpot({
               body: data,
               slotId: slot.id,
             }).unwrap();
@@ -353,7 +353,7 @@ export default function page({ params }: { params: { id: string } }) {
               loading: "Scheduling...",
               success: () => {
                 setIsQueueDialogOpen(false);
-                setSelectedSlots([]);
+                setSelectedSpots([]);
                 form.reset();
                 return "Scheduled!";
               },
@@ -365,7 +365,7 @@ export default function page({ params }: { params: { id: string } }) {
       .catch((err) => {
         console.log(err);
       });
-  }, [selectedSlots, ref, form]);
+  }, [selectedSpots, ref, form]);
 
   return (
     <>
@@ -399,7 +399,7 @@ export default function page({ params }: { params: { id: string } }) {
                     type="button"
                     disabled={
                       isPostingNowOrScheduling ||
-                      isAddingPostToSlot ||
+                      isAddingPostToSpot ||
                       isAddingRecurringPost
                     }
                   >
@@ -543,25 +543,25 @@ export default function page({ params }: { params: { id: string } }) {
                         )}
                       </div>
                     </Form>
-                    {isRecurringSlotsLoading ? (
+                    {isRecurringSpotsLoading ? (
                       <div className="flex h-24 items-center justify-center">
                         <Spinner />
                       </div>
-                    ) : isRecurringSlotSuccess &&
-                      recurringSlots?.data.length > 0 ? (
+                    ) : isRecurringSpotSuccess &&
+                      recurringSpots?.data.length > 0 ? (
                       <>
-                        <Label className="mb-2">Recurring Slots</Label>
+                        <Label className="mb-2">Recurring Spots</Label>
                         <div className="flex flex-wrap gap-2">
-                          {recurringSlots.data.map((slot) => (
+                          {recurringSpots.data.map((slot) => (
                             <Button
                               variant={
-                                selectedSlots.some((s) => s.id === slot.id)
+                                selectedSpots.some((s) => s.id === slot.id)
                                   ? "default"
                                   : "outline"
                               }
                               onClick={() => {
                                 setScheduleDate("");
-                                setSelectedSlots((prev) => {
+                                setSelectedSpots((prev) => {
                                   if (prev.some((s) => s.id === slot.id)) {
                                     return prev.filter((s) => s.id !== slot.id);
                                   }
@@ -617,7 +617,7 @@ export default function page({ params }: { params: { id: string } }) {
                       type="button"
                       onClick={handleAddRecurringPost}
                       disabled={
-                        selectedSlots.length === 0 || !form.formState.isValid
+                        selectedSpots.length === 0 || !form.formState.isValid
                       }
                     >
                       Schedule
@@ -634,7 +634,7 @@ export default function page({ params }: { params: { id: string } }) {
                     type="button"
                     disabled={
                       isPostingNowOrScheduling ||
-                      isAddingPostToSlot ||
+                      isAddingPostToSpot ||
                       isAddingRecurringPost
                     }
                   >
@@ -808,7 +808,7 @@ export default function page({ params }: { params: { id: string } }) {
                     type="button"
                     disabled={
                       isPostingNowOrScheduling ||
-                      isAddingPostToSlot ||
+                      isAddingPostToSpot ||
                       isAddingRecurringPost
                     }
                   >
@@ -951,28 +951,28 @@ export default function page({ params }: { params: { id: string } }) {
                         )}
                       </div>
                     </Form>
-                    {isSlotsLoading ? (
+                    {isSpotsLoading ? (
                       <div className="flex h-24 items-center justify-center">
                         <Spinner />
                       </div>
-                    ) : isSlotsSuccess && nextSlots?.data.length > 0 ? (
+                    ) : isSpotsSuccess && nextSpots?.data.length > 0 ? (
                       <>
                         {form.getValues("onTwitter") && (
-                          <Label className="mb-2">Twitter Slots</Label>
+                          <Label className="mb-2">Twitter Spots</Label>
                         )}{" "}
                         <div className="mb-2 flex flex-wrap gap-2">
-                          {nextSlots.data
+                          {nextSpots.data
                             .filter((slot) => slot.forTwitter)
                             .map((slot) => (
                               <Button
                                 variant={
-                                  selectedSlots.some((s) => s.id === slot.id)
+                                  selectedSpots.some((s) => s.id === slot.id)
                                     ? "default"
                                     : "outline"
                                 }
                                 onClick={() => {
                                   setScheduleDate("");
-                                  setSelectedSlots((prev) => {
+                                  setSelectedSpots((prev) => {
                                     if (prev.some((s) => s.id === slot.id)) {
                                       return prev.filter(
                                         (s) => s.id !== slot.id,
@@ -1021,21 +1021,21 @@ export default function page({ params }: { params: { id: string } }) {
                             ))}
                         </div>
                         {form.getValues("onLinkedIn") && (
-                          <Label className="mb-2">LinkedIn Slots</Label>
+                          <Label className="mb-2">LinkedIn Spots</Label>
                         )}
                         <div className="flex flex-wrap gap-2">
-                          {nextSlots.data
+                          {nextSpots.data
                             .filter((slot) => slot.forLinkedIn)
                             .map((slot) => (
                               <Button
                                 variant={
-                                  selectedSlots.some((s) => s.id === slot.id)
+                                  selectedSpots.some((s) => s.id === slot.id)
                                     ? "default"
                                     : "outline"
                                 }
                                 onClick={() => {
                                   setScheduleDate("");
-                                  setSelectedSlots((prev) => {
+                                  setSelectedSpots((prev) => {
                                     if (prev.some((s) => s.id === slot.id)) {
                                       return prev.filter(
                                         (s) => s.id !== slot.id,
@@ -1093,9 +1093,9 @@ export default function page({ params }: { params: { id: string } }) {
                   <DialogFooter>
                     <Button
                       type="button"
-                      onClick={handleSchedulePostToSlot}
+                      onClick={handleSchedulePostToSpot}
                       disabled={
-                        selectedSlots.length === 0 || !form.formState.isValid
+                        selectedSpots.length === 0 || !form.formState.isValid
                       }
                     >
                       Schedule
@@ -1112,7 +1112,7 @@ export default function page({ params }: { params: { id: string } }) {
                     type="button"
                     disabled={
                       isPostingNowOrScheduling ||
-                      isAddingPostToSlot ||
+                      isAddingPostToSpot ||
                       isAddingRecurringPost
                     }
                   >

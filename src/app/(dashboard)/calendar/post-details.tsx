@@ -10,7 +10,7 @@ import { useGetScheduledPostByIdQuery } from "@/redux/api/post/apiSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { closeModal, openModal } from "@/redux/slices/modalsSlice";
 import { ROUTES } from "@/routes";
-import { EPostSlotType } from "@/types/EPostSlotType";
+import { EPostSpotType } from "@/types/EPostSpotType";
 import { EProviders } from "@/types/EProviders";
 import { type TCalendarEvent } from "@/types/TCalendarEvent";
 import { format } from "date-fns";
@@ -72,7 +72,7 @@ export default function PostDetails() {
   }, [list]);
 
   const handleOpenDeleteEventModal = useCallback(
-    (id: string, type: EPostSlotType) => () => {
+    (id: string, type: EPostSpotType) => () => {
       dispatch(
         openModal({ id: "delete-calendar-slot-modal", data: { id, type } }),
       );
@@ -100,7 +100,7 @@ export default function PostDetails() {
     <SheetContent>
       <SheetHeader>
         <SheetTitle className="mt- flex items-center justify-between">
-          Slot Details
+          Spot Details
           <div className="space-x-2">
             <Button
               size={"icon"}
@@ -143,7 +143,7 @@ export default function PostDetails() {
         )}
         <div className="flex items-center gap-5">
           <p className="font-medium">Date / Time:</p>
-          {event.type === EPostSlotType.Recurring ? (
+          {event.type === EPostSpotType.Recurring ? (
             <p>
               {event.days
                 .map((day) => {

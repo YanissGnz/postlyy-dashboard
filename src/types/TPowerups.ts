@@ -20,7 +20,7 @@ export type TPowerups = {
     userName: string;
     accountId: string;
   }>;
-  emptySlotsActAsEvergreen: boolean;
+  emptySpotsActAsEvergreen: boolean;
   splitLongTextToThreads: boolean;
   expandThreadsAfterThreeLines: boolean;
 };

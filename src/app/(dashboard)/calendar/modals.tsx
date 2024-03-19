@@ -1,14 +1,14 @@
 "use client";
 
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
 } from "@/components/ui/sheet";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { closeModal } from "@/redux/slices/modalsSlice";
-import { calendarSlotSchema, type TCalendarSlot } from "@/types/TCalendarSlot";
+import { calendarSpotSchema, type TCalendarSpot } from "@/types/TCalendarSpot";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
@@ -16,23 +16,23 @@ import { buttonVariants } from "@/components/ui/button";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
-  useDeleteRecurringPostMutation,
-  useDeleteSlotMutation,
+    useDeleteRecurringPostMutation,
+    useDeleteSpotMutation,
 } from "@/redux/api/calendar/apiSlice";
 import { type TRecurringPost } from "@/types/TRecurringPost";
 import { toast } from "sonner";
 
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { EPostSlotType } from "@/types/EPostSlotType";
+import { EPostSpotType } from "@/types/EPostSpotType";
 import { type TCalendarEvent } from "@/types/TCalendarEvent";
 import { addHours, format } from "date-fns";
 import AddEditEventForm from "./add-edit-event-form";
@@ -43,7 +43,7 @@ export default function Modals() {
   const dispatch = useAppDispatch();
 
   const [deleteRecurringPost] = useDeleteRecurringPostMutation();
-  const [deleteSlot] = useDeleteSlotMutation();
+  const [deleteSpot] = useDeleteSpotMutation();
 
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
 
@@ -81,8 +81,8 @@ export default function Modals() {
     };
   }, [list]);
 
-  const form = useForm<TCalendarSlot | TRecurringPost>({
-    resolver: zodResolver(calendarSlotSchema),
+  const form = useForm<TCalendarSpot | TRecurringPost>({
+    resolver: zodResolver(calendarSpotSchema),
     defaultValues,
   });
 
@@ -119,10 +119,10 @@ export default function Modals() {
       (modal) => modal.id === "delete-calendar-slot-modal",
     )?.data as {
       id: string;
-      type: EPostSlotType;
+      type: EPostSpotType;
     };
 
-    if (type === EPostSlotType.Recurring) {
+    if (type === EPostSpotType.Recurring) {
       const deletePostPromise = deleteRecurringPost(id).unwrap();
 
       toast.promise(deletePostPromise, {
@@ -133,12 +133,12 @@ export default function Modals() {
         error: "Something went wrong",
       });
     } else {
-      const deleteSlotPromise = deleteSlot(id).unwrap();
+      const deleteSpotPromise = deleteSpot(id).unwrap();
 
-      toast.promise(deleteSlotPromise, {
+      toast.promise(deleteSpotPromise, {
         loading: "Deleting slot..",
         success: () => {
-          return `Slot deleted successfully`;
+          return `Spot deleted successfully`;
         },
         error: "Something went wrong",
       });
@@ -159,7 +159,7 @@ export default function Modals() {
       >
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>Add Slot</SheetTitle>
+            <SheetTitle>Add Spot</SheetTitle>
             <AddEditEventForm form={form} />
           </SheetHeader>
         </SheetContent>
@@ -176,7 +176,7 @@ export default function Modals() {
       >
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>Edit Slot</SheetTitle>
+            <SheetTitle>Edit Spot</SheetTitle>
             <AddEditEventForm form={form} isEdit id={selectedEventId} />
           </SheetHeader>
         </SheetContent>

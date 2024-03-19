@@ -1,5 +1,5 @@
 import { EDashboardCardType } from "@/types/EDashboardCardType";
-import { EPostSlotType } from "@/types/EPostSlotType";
+import { EPostSpotType } from "@/types/EPostSpotType";
 import { EProviders } from "@/types/EProviders";
 import { type TAccount } from "@/types/TAccount";
 import { clsx, type ClassValue } from "clsx";
@@ -10,62 +10,62 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const getEventBackgroundColor = (
-  type: EPostSlotType,
+  type: EPostSpotType,
   isDark: boolean,
 ) => {
   switch (type) {
-    case EPostSlotType.Evergreen:
+    case EPostSpotType.Evergreen:
       return isDark ? "#165a3f" : "#6EE7B7";
-    case EPostSlotType.Scheduled:
+    case EPostSpotType.Scheduled:
       return isDark ? "#1e5b80" : "#75cbff";
-    case EPostSlotType.Recurring:
+    case EPostSpotType.Recurring:
       return isDark ? "#8f2d00" : "#ff9867";
   }
 };
 
 export const getEventTWBackgroundColor = (
-  type: EPostSlotType,
+  type: EPostSpotType,
   isDark: boolean,
 ) => {
   switch (type) {
-    case EPostSlotType.Evergreen:
+    case EPostSpotType.Evergreen:
       return isDark ? "bg-[#165a3f]" : "bg-[#6EE7B7]";
-    case EPostSlotType.Scheduled:
+    case EPostSpotType.Scheduled:
       return isDark ? "bg-[#8f2d00]" : "bg-[#ff9867]";
-    case EPostSlotType.Recurring:
+    case EPostSpotType.Recurring:
       return isDark ? "bg-[#1e5b80]" : "bg-[#75cbff]";
   }
 };
 
-export const getEventTextColor = (type: EPostSlotType) => {
+export const getEventTextColor = (type: EPostSpotType) => {
   switch (type) {
-    case EPostSlotType.Evergreen:
+    case EPostSpotType.Evergreen:
       return "#1F2937";
-    case EPostSlotType.Scheduled:
+    case EPostSpotType.Scheduled:
       return "#000";
-    case EPostSlotType.Recurring:
+    case EPostSpotType.Recurring:
       return "#1F2937";
   }
 };
 
-export const getEventIcon = (type: EPostSlotType) => {
+export const getEventIcon = (type: EPostSpotType) => {
   switch (type) {
-    case EPostSlotType.Evergreen:
+    case EPostSpotType.Evergreen:
       return "solar:leaf-bold-duotone";
-    case EPostSlotType.Scheduled:
+    case EPostSpotType.Scheduled:
       return "solar:calendar-mark-bold-duotone";
-    case EPostSlotType.Recurring:
+    case EPostSpotType.Recurring:
       return "solar:refresh-square-bold-duotone";
   }
 };
 
-export const getTypeName = (type: EPostSlotType) => {
+export const getTypeName = (type: EPostSpotType) => {
   switch (type) {
-    case EPostSlotType.Evergreen:
+    case EPostSpotType.Evergreen:
       return "Evergreen";
-    case EPostSlotType.Scheduled:
+    case EPostSpotType.Scheduled:
       return "Scheduled";
-    case EPostSlotType.Recurring:
+    case EPostSpotType.Recurring:
       return "Recurring";
   }
 };

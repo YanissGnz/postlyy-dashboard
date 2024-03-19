@@ -5,36 +5,36 @@ import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/button";
 import Iconify from "@/components/ui/icon";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 import {
-  cn,
-  getEventBackgroundColor,
-  getEventIcon,
-  getEventTWBackgroundColor,
-  getEventTextColor,
-  hasAccount,
+    cn,
+    getEventBackgroundColor,
+    getEventIcon,
+    getEventTWBackgroundColor,
+    getEventTextColor,
+    hasAccount,
 } from "@/lib/utils";
 import {
-  useGetEventsQuery,
-  useUpdateRecurringPostMutation,
-  useUpdateSlotMutation,
+    useGetEventsQuery,
+    useUpdateRecurringPostMutation,
+    useUpdateSpotMutation,
 } from "@/redux/api/calendar/apiSlice";
 import { useAppDispatch } from "@/redux/hooks";
 import { openModal } from "@/redux/slices/modalsSlice";
-import { EPostSlotType } from "@/types/EPostSlotType";
+import { EPostSpotType } from "@/types/EPostSpotType";
 import { EProviders } from "@/types/EProviders";
 import { type TCalendarEvent } from "@/types/TCalendarEvent";
-import { type TCalendarSlot } from "@/types/TCalendarSlot";
+import { type TCalendarSpot } from "@/types/TCalendarSpot";
 import { type TRecurringPost } from "@/types/TRecurringPost";
 import {
-  type EventDropArg,
-  type EventInput,
+    type EventDropArg,
+    type EventInput,
 } from "@fullcalendar/core/index.js";
 import { type EventImpl } from "@fullcalendar/core/internal";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -46,11 +46,11 @@ import { addDays, format, isAfter, isBefore } from "date-fns";
 import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
 } from "react";
 import { toast } from "sonner";
 import { DEFAULT_POST_ID } from "./post-details";
@@ -73,9 +73,9 @@ export default function Calender() {
 
   const { data, isLoading } = useGetEventsQuery({});
 
-  const [updateSlot, { isLoading: isUpdating }] = useUpdateSlotMutation();
+  const [updateSpot, { isLoading: isUpdating }] = useUpdateSpotMutation();
 
-  const [updateRecurringSlot] = useUpdateRecurringPostMutation();
+  const [updateRecurringSpot] = useUpdateRecurringPostMutation();
 
   const events: EventInput[] = useMemo(() => {
     if (data?.data) {
@@ -102,7 +102,7 @@ export default function Calender() {
             icon: getEventIcon(event.type),
             ...event,
           },
-          ...(event.type === EPostSlotType.Recurring && {
+          ...(event.type === EPostSpotType.Recurring && {
             daysOfWeek: event.days,
             startTime: format(new Date(event.startTime), "HH:mm"),
           }),
@@ -156,7 +156,7 @@ export default function Calender() {
   }, [data]);
 
   const handleOpenDeleteEventModal = useCallback(
-    (id: string, type: EPostSlotType) =>
+    (id: string, type: EPostSpotType) =>
       (e: React.MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) => {
         e.stopPropagation();
         dispatch(
@@ -173,7 +173,7 @@ export default function Calender() {
         dispatch(
           openModal({
             id: "edit-calendar-slot-modal",
-            data: event.extendedProps as TCalendarSlot | TRecurringPost,
+            data: event.extendedProps as TCalendarSpot | TRecurringPost,
           }),
         );
       },
@@ -191,33 +191,33 @@ export default function Calender() {
         info.revert();
         return;
       }
-      if (event.type === EPostSlotType.Recurring) {
+      if (event.type === EPostSpotType.Recurring) {
         const body: TRecurringPost & { id: string } = {
           ...event,
           daysOfWeek: event.days,
         };
 
-        const updatePromise = updateRecurringSlot(body).unwrap();
+        const updatePromise = updateRecurringSpot(body).unwrap();
 
         toast.promise(updatePromise, {
           loading: `Updating ${event.title}...`,
           success: async () => {
-            return "Slot updated successfully";
+            return "Spot updated successfully";
           },
           error: "Something went wrong",
         });
       } else {
-        const body: TCalendarSlot & { id: string } = {
+        const body: TCalendarSpot & { id: string } = {
           ...event,
           start: new Date(info.event.start ?? "").toISOString(),
         };
 
-        const updatePromise = updateSlot(body).unwrap();
+        const updatePromise = updateSpot(body).unwrap();
 
         toast.promise(updatePromise, {
           loading: `Updating ${event.title}...`,
           success: async () => {
-            return "Slot updated successfully";
+            return "Spot updated successfully";
           },
           error: "Something went wrong",
         });
@@ -273,7 +273,7 @@ export default function Calender() {
           }
         >
           <Iconify icon="solar:add-circle-bold-duotone" fontSize={18} />
-          <span className="ml-2">Add Slot</span>
+          <span className="ml-2">Add Spot</span>
         </Button>
       </div>
       <FullCalendar
@@ -285,7 +285,7 @@ export default function Calender() {
         height="auto"
         slotMinTime="07:00:00"
         slotMaxTime="24:00:00"
-        allDaySlot={false}
+        allDaySpot={false}
         eventClick={(info) => {
           info.jsEvent.preventDefault();
           if (info.event.display === "background") return;
@@ -330,7 +330,7 @@ export default function Calender() {
           const { event } = eventInfo;
 
           const backgroundColor = getEventTWBackgroundColor(
-            event.extendedProps.type as EPostSlotType,
+            event.extendedProps.type as EPostSpotType,
             theme === "dark",
           );
 
@@ -378,7 +378,7 @@ export default function Calender() {
                     variant="outline"
                     onClick={handleOpenDeleteEventModal(
                       event.id,
-                      event.extendedProps.type as EPostSlotType,
+                      event.extendedProps.type as EPostSpotType,
                     )}
                   >
                     <Iconify

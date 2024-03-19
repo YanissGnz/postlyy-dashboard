@@ -11,7 +11,7 @@
     "build:digitalocean": "yarn install --production=false && yarn run build && rm -rf node_modules && yarn install --production --frozen-lockfile"
   },
   "engines": {
-    "node": "18.x",
+    "node": "20.x",
     "yarn": "^1.22.19"
   },
   "dependencies": {

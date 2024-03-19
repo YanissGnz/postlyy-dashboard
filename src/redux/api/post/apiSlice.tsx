@@ -35,13 +35,13 @@ export const postApi = createApi({
     }),
     addPostToQueue: builder.mutation<TResponse<boolean>, FormData>({
       query: (body) => ({
-        url: "/api/Posting/Post/NextEmptySlot",
+        url: "/api/Posting/Post/NextEmptySpot",
         method: "POST",
         body,
       }),
       invalidatesTags: ["Posts"],
     }),
-    addPostToSlot: builder.mutation<
+    addPostToSpot: builder.mutation<
       TResponse<boolean>,
       {
         slotId: string;
@@ -49,7 +49,7 @@ export const postApi = createApi({
       }
     >({
       query: ({ body, slotId }) => ({
-        url: `/api/Posting/Post/NewInSlot/${slotId}`,
+        url: `/api/Posting/Post/NewInSpot/${slotId}`,
         method: "POST",
         body,
       }),
@@ -196,7 +196,7 @@ export const postApi = createApi({
 export const {
   useAddPostNowMutation,
   useAddPostToQueueMutation,
-  useAddPostToSlotMutation,
+  useAddPostToSpotMutation,
   useAddRecurringPostMutation,
   useGetDraftsQuery,
   useDeleteDraftMutation,

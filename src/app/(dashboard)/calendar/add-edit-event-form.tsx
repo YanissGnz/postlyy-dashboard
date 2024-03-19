@@ -34,15 +34,15 @@ import { cn, getEventIcon, hasAccount } from "@/lib/utils";
 import {
   calendarApiUtil,
   useAddRecurringPostMutation,
-  useAddSlotMutation,
+  useAddSpotMutation,
   useUpdateRecurringPostMutation,
-  useUpdateSlotMutation,
+  useUpdateSpotMutation,
 } from "@/redux/api/calendar/apiSlice";
 import { useAppDispatch } from "@/redux/hooks";
 import { closeModal } from "@/redux/slices/modalsSlice";
-import { EPostSlotType } from "@/types/EPostSlotType";
+import { EPostSpotType } from "@/types/EPostSpotType";
 import { EProviders } from "@/types/EProviders";
-import { type TCalendarSlot } from "@/types/TCalendarSlot";
+import { type TCalendarSpot } from "@/types/TCalendarSpot";
 import { type TRecurringPost } from "@/types/TRecurringPost";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { format, setHours } from "date-fns";
@@ -53,7 +53,7 @@ import { toast } from "sonner";
 import { DEFAULT_POST_ID } from "./post-details";
 
 type Props = {
-  form: UseFormReturn<TRecurringPost | TCalendarSlot, unknown, undefined>;
+  form: UseFormReturn<TRecurringPost | TCalendarSpot, unknown, undefined>;
   isEdit?: boolean;
   id?: string | null;
 };
@@ -92,19 +92,19 @@ export const DAYS_OF_WEEK = [
 export default function AddEditEventForm({ form, isEdit, id }: Props) {
   const { data } = useSession();
 
-  const [addSlot, { isLoading: isAddSlotLoading }] = useAddSlotMutation();
-  const [updateSlot, { isLoading: isUpdateSlotLoading }] =
-    useUpdateSlotMutation();
-  const [addRecurringSlot, { isLoading: isAddRecurringSlotLoading }] =
+  const [addSpot, { isLoading: isAddSpotLoading }] = useAddSpotMutation();
+  const [updateSpot, { isLoading: isUpdateSpotLoading }] =
+    useUpdateSpotMutation();
+  const [addRecurringSpot, { isLoading: isAddRecurringSpotLoading }] =
     useAddRecurringPostMutation();
-  const [updateRecurringSlot, { isLoading: isUpdateRecurringSlotLoading }] =
+  const [updateRecurringSpot, { isLoading: isUpdateRecurringSpotLoading }] =
     useUpdateRecurringPostMutation();
 
   const [isRecurring, setIsRecurring] = useState(false);
 
   const dispatch = useAppDispatch();
 
-  function onSubmit(values: TCalendarSlot | TRecurringPost) {
+  function onSubmit(values: TCalendarSpot | TRecurringPost) {
     if (isRecurring) {
       const startTime = new Date(
         setHours(
@@ -121,7 +121,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
       };
 
       if (isEdit && id)
-        updateRecurringSlot({ ...body, id } as TRecurringPost & { id: string })
+        updateRecurringSpot({ ...body, id } as TRecurringPost & { id: string })
           .unwrap()
           .then(() => {
             form.reset();
@@ -133,7 +133,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
             console.log(err);
           });
       else
-        addRecurringSlot(body as TRecurringPost)
+        addRecurringSpot(body as TRecurringPost)
           .unwrap()
           .then(() => {
             form.reset();
@@ -146,33 +146,33 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
           });
     } else {
       if (isEdit)
-        updateSlot({
+        updateSpot({
           ...values,
-          start: new Date((values as TCalendarSlot).start).toISOString(),
+          start: new Date((values as TCalendarSpot).start).toISOString(),
           id,
           postId: values.postId === DEFAULT_POST_ID ? null : values.postId,
-        } as TCalendarSlot & { id: string })
+        } as TCalendarSpot & { id: string })
           .unwrap()
           .then(() => {
             form.reset();
-            toast.success("Slot updated successfully");
-            calendarApiUtil.invalidateTags(["Slot"]);
+            toast.success("Spot updated successfully");
+            calendarApiUtil.invalidateTags(["Spot"]);
           })
           .catch((err) => {
             toast.error("Something went wrong");
             console.log(err);
           });
       else
-        addSlot({
+        addSpot({
           ...values,
-          start: new Date((values as TCalendarSlot).start).toISOString(),
+          start: new Date((values as TCalendarSpot).start).toISOString(),
           postId: values.postId === DEFAULT_POST_ID ? null : values.postId,
-        } as TCalendarSlot)
+        } as TCalendarSpot)
           .unwrap()
           .then(() => {
             form.reset();
-            toast.success("Slot added successfully");
-            calendarApiUtil.invalidateTags(["Slot"]);
+            toast.success("Spot added successfully");
+            calendarApiUtil.invalidateTags(["Spot"]);
           })
           .catch((err) => {
             toast.error("Something went wrong");
@@ -217,7 +217,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
                     <SelectItem value="0">
                       <div className="flex items-center gap-2">
                         <Iconify
-                          icon={getEventIcon(EPostSlotType.Scheduled)}
+                          icon={getEventIcon(EPostSpotType.Scheduled)}
                           fontSize={18}
                         />
                         Scheduled
@@ -226,7 +226,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
                     <SelectItem value="2">
                       <div className="flex items-center gap-2">
                         <Iconify
-                          icon={getEventIcon(EPostSlotType.Evergreen)}
+                          icon={getEventIcon(EPostSpotType.Evergreen)}
                           fontSize={18}
                         />
                         Evergreen
@@ -235,7 +235,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
                     <SelectItem value="3">
                       <div className="flex items-center gap-2">
                         <Iconify
-                          icon={getEventIcon(EPostSlotType.Recurring)}
+                          icon={getEventIcon(EPostSpotType.Recurring)}
                           fontSize={18}
                         />
                         Recurring
@@ -409,7 +409,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                   <div className="space-y-0.5">
-                    <FormLabel>Twitter Slot</FormLabel>
+                    <FormLabel>Twitter Spot</FormLabel>
                   </div>
                   <FormControl>
                     <Switch
@@ -428,7 +428,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                   <div className="space-y-0.5">
-                    <FormLabel>LinkedIn Slot</FormLabel>
+                    <FormLabel>LinkedIn Spot</FormLabel>
                   </div>
                   <FormControl>
                     <Switch
@@ -443,16 +443,16 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
           <Button
             type="submit"
             disabled={
-              isAddSlotLoading ||
-              isAddRecurringSlotLoading ||
-              isUpdateSlotLoading ||
-              isUpdateRecurringSlotLoading
+              isAddSpotLoading ||
+              isAddRecurringSpotLoading ||
+              isUpdateSpotLoading ||
+              isUpdateRecurringSpotLoading
             }
             loading={
-              isAddSlotLoading ||
-              isAddRecurringSlotLoading ||
-              isUpdateSlotLoading ||
-              isUpdateRecurringSlotLoading
+              isAddSpotLoading ||
+              isAddRecurringSpotLoading ||
+              isUpdateSpotLoading ||
+              isUpdateRecurringSpotLoading
             }
           >
             {isEdit ? "Update" : "Add"}

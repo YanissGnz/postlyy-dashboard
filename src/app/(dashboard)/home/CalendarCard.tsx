@@ -6,13 +6,13 @@ import Iconify from "@/components/ui/icon";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  getEventBackgroundColor,
-  getEventIcon,
-  getEventTextColor,
-  hasAccount,
+    getEventBackgroundColor,
+    getEventIcon,
+    getEventTextColor,
+    hasAccount,
 } from "@/lib/utils";
 import { useGetEventsQuery } from "@/redux/api/calendar/apiSlice";
-import { EPostSlotType } from "@/types/EPostSlotType";
+import { EPostSpotType } from "@/types/EPostSpotType";
 import { EProviders } from "@/types/EProviders";
 import { type EventInput } from "@fullcalendar/core/index.js";
 import listPlugin from "@fullcalendar/list";
@@ -62,7 +62,7 @@ export default function CalendarCard({
             icon: getEventIcon(event.type),
             ...event,
           },
-          ...(event.type === EPostSlotType.Recurring && {
+          ...(event.type === EPostSpotType.Recurring && {
             daysOfWeek: event.days,
             startTime: format(new Date(event.startTime), "HH:mm"),
           }),
@@ -100,7 +100,7 @@ export default function CalendarCard({
           height="auto"
           slotMinTime="08:00:00"
           slotMaxTime="22:00:00"
-          allDaySlot={false}
+          allDaySpot={false}
           views={{
             list: {
               type: "listDay",

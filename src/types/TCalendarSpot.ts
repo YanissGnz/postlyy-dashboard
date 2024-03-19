@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { EPostSlotType } from "./EPostSlotType";
+import { EPostSpotType } from "./EPostSpotType";
 
-export const calendarSlotSchema = z
+export const calendarSpotSchema = z
   .object({
-    type: z.nativeEnum(EPostSlotType),
+    type: z.nativeEnum(EPostSpotType),
     title: z.string(),
     start: z.string(),
     forTwitter: z.boolean().optional().nullable(),
@@ -15,7 +15,7 @@ export const calendarSlotSchema = z
   .refine(
     (data) => {
       return !(
-        data.type === EPostSlotType.Recurring &&
+        data.type === EPostSpotType.Recurring &&
         (data.startTime === "" ||
           data.startTime === null ||
           data.startTime === undefined)
@@ -28,7 +28,7 @@ export const calendarSlotSchema = z
   )
   .refine(
     (data) =>
-      !(data.type === EPostSlotType.Recurring && data.daysOfWeek?.length === 0),
+      !(data.type === EPostSpotType.Recurring && data.daysOfWeek?.length === 0),
     {
       message: "Days of week are required for recurring posts.",
       path: ["daysOfWeek"],
@@ -36,7 +36,7 @@ export const calendarSlotSchema = z
   )
   .refine(
     (data) => {
-      return data.type !== EPostSlotType.Recurring || data.start !== "";
+      return data.type !== EPostSpotType.Recurring || data.start !== "";
     },
     {
       message: "Date is required.",
@@ -53,9 +53,9 @@ export const calendarSlotSchema = z
     },
   );
 
-export type TCalendarSlot = z.infer<typeof calendarSlotSchema>;
+export type TCalendarSpot = z.infer<typeof calendarSpotSchema>;
 
-export type TResponseCalendarSlot = TCalendarSlot & {
+export type TResponseCalendarSpot = TCalendarSpot & {
   id: string;
   days?: number[] | null;
 };
