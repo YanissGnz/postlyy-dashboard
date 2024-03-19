@@ -6,10 +6,10 @@ import Iconify from "@/components/ui/icon";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-    getEventBackgroundColor,
-    getEventIcon,
-    getEventTextColor,
-    hasAccount,
+  getEventBackgroundColor,
+  getEventIcon,
+  getEventTextColor,
+  hasAccount,
 } from "@/lib/utils";
 import { useGetEventsQuery } from "@/redux/api/calendar/apiSlice";
 import { EPostSpotType } from "@/types/EPostSpotType";
@@ -100,13 +100,13 @@ export default function CalendarCard({
           height="auto"
           slotMinTime="08:00:00"
           slotMaxTime="22:00:00"
-          allDaySpot={false}
           views={{
             list: {
               type: "listDay",
               duration: { days: 1 },
             },
           }}
+          allDaySlot={false}
           contentHeight="100%"
           dayHeaderClassNames="font-bold bg-background text-foreground"
           visibleRange={(currentDate) => {
