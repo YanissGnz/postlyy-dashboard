@@ -243,6 +243,9 @@ export const authOptions: NextAuthOptions = {
           return token;
         }
 
+      if (!token.refreshToken) {
+        throw new Error("No refresh token");
+      }
       if (
         token.refreshTokenExpires &&
         Date.now() > (token.refreshTokenExpires as number)

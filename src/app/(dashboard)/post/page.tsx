@@ -11,56 +11,56 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import Iconify from "@/components/ui/icon";
 import Image from "@/components/ui/image";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
 } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { env } from "@/env";
 import { fData } from "@/lib/formatNumber";
 import { cn, convertToUTC, hasAccount } from "@/lib/utils";
 import {
-    calendarApiUtil,
-    useGetNextFiveSpotsQuery,
-    useGetRecurringSpotsQuery,
+  calendarApiUtil,
+  useGetNextFiveSpotsQuery,
+  useGetRecurringSpotsQuery,
 } from "@/redux/api/calendar/apiSlice";
 import {
-    useAddPostNowMutation,
-    useAddPostToSpotMutation,
-    useAddRecurringPostMutation,
-    useDeleteDraftImageMutation,
-    useGetDraftMutation,
-    useGetTemplateMutation,
-    useUpdateDraftMutation,
+  useAddPostNowMutation,
+  useAddPostToSpotMutation,
+  useAddRecurringPostMutation,
+  useDeleteDraftImageMutation,
+  useGetDraftMutation,
+  useGetTemplateMutation,
+  useUpdateDraftMutation,
 } from "@/redux/api/post/apiSlice";
 import { useAppSelector } from "@/redux/hooks";
 import { EProviders } from "@/types/EProviders";
@@ -69,22 +69,22 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { addDays, format } from "date-fns";
 import {
-    EmojiStyle,
-    SkinTonePickerLocation,
-    type EmojiClickData,
-    type Theme,
+  EmojiStyle,
+  SkinTonePickerLocation,
+  type EmojiClickData,
+  type Theme,
 } from "emoji-picker-react";
 import { type TenorImage } from "gif-picker-react";
 import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import dynamic from "next/dynamic";
 import {
-    Fragment,
-    useCallback,
-    useEffect,
-    useMemo,
-    useState,
-    type ChangeEvent,
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ChangeEvent,
 } from "react";
 import { useForm } from "react-hook-form";
 import ImageUploading, { type ImageListType } from "react-images-uploading";
@@ -998,18 +998,20 @@ export default function PostPage() {
         }).unwrap();
         toast.promise(schedulePostPromise, {
           loading: "Scheduling post...",
-          success: "Scheduled post!",
+          success: () => {
+            form.reset(defaultValues);
+            setPostsContent([
+              {
+                index: 0,
+                images: [],
+              },
+            ]);
+            setScheduleDate("");
+            return "Scheduled post!";
+          },
           error: "Something went wrong",
         });
       });
-
-      form.reset(defaultValues);
-      setPostsContent([
-        {
-          index: 0,
-          images: [],
-        },
-      ]);
     } else {
       toast.error("Please select a date or a slot");
     }
