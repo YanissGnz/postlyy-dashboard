@@ -34,6 +34,7 @@ import {
 } from "@/types/EInspiration";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { TypeAnimation } from "react-type-animation";
 import { z } from "zod";
 
 const inspirationSchema = z.object({
@@ -48,7 +49,6 @@ const inspirationSchema = z.object({
 export default function Inspiration() {
   const [generateInspiration, { isLoading, data, isSuccess }] =
     useGenrateInspirationMutation();
-  console.log("🚀 ~ Inspiration ~ data:", data);
 
   const form = useForm<z.infer<typeof inspirationSchema>>({
     resolver: zodResolver(inspirationSchema),
@@ -56,12 +56,10 @@ export default function Inspiration() {
 
   async function onSubmit(values: z.infer<typeof inspirationSchema>) {
     await generateInspiration(values).unwrap();
-
-    console.log(values);
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-5">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-6">
@@ -246,7 +244,11 @@ export default function Inspiration() {
           />
           <div className="flex w-full justify-end ">
             <Button type="submit" disabled={isLoading} loading={isLoading}>
-              Generate
+              {isLoading
+                ? "Generating..."
+                : isSuccess
+                  ? "Regenerate"
+                  : "Generate"}
             </Button>
           </div>
         </form>
@@ -273,7 +275,12 @@ export default function Inspiration() {
             </p>
             {data?.data.content.map((text, i) => (
               <div key={i} className="rounded-lg border p-2">
-                <p>{text}</p>
+                <TypeAnimation
+                  sequence={[text]}
+                  wrapper="span"
+                  speed={99}
+                  cursor={false}
+                />
               </div>
             ))}
           </div>
