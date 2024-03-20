@@ -1,6 +1,6 @@
 "use client";
 
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,11 +9,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { closeModal } from "@/redux/slices/modalsSlice";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -22,8 +17,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useCallback, useMemo } from "react";
-import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -33,6 +26,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useUpdateSelfRetweetMutation } from "@/redux/api/user/powerups/apiSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { closeModal } from "@/redux/slices/modalsSlice";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useCallback, useMemo } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 
 const formSchema = z.object({
   condition: z.number(),
@@ -60,7 +60,7 @@ export default function SelfRetweetDialog() {
     defaultValues: {
       delayHours: 0,
       condition: 0,
-      conditionValue: 0,
+      conditionValue: 1,
     },
   });
 
