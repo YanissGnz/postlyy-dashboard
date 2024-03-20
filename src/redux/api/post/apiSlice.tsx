@@ -44,12 +44,12 @@ export const postApi = createApi({
     addPostToSpot: builder.mutation<
       TResponse<boolean>,
       {
-        slotId: string;
+        spotId: string;
         body: FormData;
       }
     >({
-      query: ({ body, slotId }) => ({
-        url: `/api/Posting/Post/NewInSpot/${slotId}`,
+      query: ({ body, spotId }) => ({
+        url: `/api/Posting/Post/NewInSpot/${spotId}`,
         method: "POST",
         body,
       }),

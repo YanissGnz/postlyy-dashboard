@@ -983,8 +983,8 @@ export default function PostPage() {
       setIsScheduleDialogOpen(false);
       setIsQueueDialogOpen(false);
 
-      selectedSpots.forEach(async (slot) => {
-        if (slot.provider === EProviders.Linkedin) {
+      selectedSpots.forEach(async (spot) => {
+        if (spot.provider === EProviders.Linkedin) {
           data.append("onLinkedIn", "true");
           data.delete("onTwitter");
         } else {
@@ -994,7 +994,7 @@ export default function PostPage() {
 
         const schedulePostPromise = addPostToSpot({
           body: data,
-          slotId: slot.id,
+          spotId: spot.id,
         }).unwrap();
         toast.promise(schedulePostPromise, {
           loading: "Scheduling post...",
@@ -1013,7 +1013,7 @@ export default function PostPage() {
         });
       });
     } else {
-      toast.error("Please select a date or a slot");
+      toast.error("Please select a date or a spot");
     }
     setScheduleDate("");
     calendarApiUtil.invalidateTags(["Events", "Spot"]);
@@ -1030,10 +1030,10 @@ export default function PostPage() {
 
     const data = await generateFormData(form.getValues());
 
-    selectedSpots.forEach(async (slot) => {
+    selectedSpots.forEach(async (spot) => {
       const addRecurringPostPromise = addRecurringPost({
         body: data,
-        recurringId: slot.id,
+        recurringId: spot.id,
       }).unwrap();
       toast.promise(addRecurringPostPromise, {
         loading: "Adding recurring post...",
@@ -2297,14 +2297,14 @@ export default function PostPage() {
                                 isAddingRecurringPost
                               }
                             >
-                              Pick recurring slot
+                              Pick recurring spot
                             </Button>
                           </DialogTrigger>
                           <DialogContent className="sm:max-w-[425px]">
                             <DialogHeader>
-                              <DialogTitle>Pick a slot</DialogTitle>
+                              <DialogTitle>Pick a spot</DialogTitle>
                               <DialogDescription>
-                                Choose a recurring slot to post your content
+                                Choose a recurring spot to post your content
                               </DialogDescription>
                             </DialogHeader>
                             <div className="">
@@ -2319,11 +2319,11 @@ export default function PostPage() {
                                     Recurring Spots
                                   </Label>
                                   <div className="flex flex-wrap gap-2">
-                                    {recurringSpots.data.map((slot) => (
+                                    {recurringSpots.data.map((spot) => (
                                       <Button
                                         variant={
                                           selectedSpots.some(
-                                            (s) => s.id === slot.id,
+                                            (s) => s.id === spot.id,
                                           )
                                             ? "default"
                                             : "outline"
@@ -2332,10 +2332,10 @@ export default function PostPage() {
                                           setScheduleDate("");
                                           setSelectedSpots((prev) => {
                                             if (
-                                              prev.some((s) => s.id === slot.id)
+                                              prev.some((s) => s.id === spot.id)
                                             ) {
                                               return prev.filter(
-                                                (s) => s.id !== slot.id,
+                                                (s) => s.id !== spot.id,
                                               );
                                             }
 
@@ -2353,7 +2353,7 @@ export default function PostPage() {
                                                     EProviders.Twitter,
                                                 ),
                                                 {
-                                                  id: slot.id,
+                                                  id: spot.id,
                                                   provider: EProviders.Twitter,
                                                 },
                                               ];
@@ -2361,7 +2361,7 @@ export default function PostPage() {
                                               return [
                                                 ...prev,
                                                 {
-                                                  id: slot.id,
+                                                  id: spot.id,
                                                   provider: EProviders.Twitter,
                                                 },
                                               ];
@@ -2369,7 +2369,7 @@ export default function PostPage() {
                                           });
                                         }}
                                       >
-                                        {slot.days
+                                        {spot.days
                                           ?.map(
                                             (day) =>
                                               DAYS_OF_WEEK.find(
@@ -2379,7 +2379,7 @@ export default function PostPage() {
                                           .join(", ")}{" "}
                                         at{" "}
                                         {format(
-                                          new Date(slot.startTime ?? ""),
+                                          new Date(spot.startTime ?? ""),
                                           "HH:mm",
                                         )}
                                       </Button>
@@ -2388,7 +2388,7 @@ export default function PostPage() {
                                 </>
                               ) : (
                                 <div className="flex h-24 items-center justify-center text-destructive">
-                                  <p>No slots available</p>
+                                  <p>No spots available</p>
                                 </div>
                               )}
                             </div>
@@ -2506,12 +2506,12 @@ export default function PostPage() {
 
                                       <div className="mb-2 flex flex-wrap gap-2">
                                         {nextSpots.data
-                                          .filter((slot) => slot.forTwitter)
-                                          .map((slot) => (
+                                          .filter((spot) => spot.forTwitter)
+                                          .map((spot) => (
                                             <Button
                                               variant={
                                                 selectedSpots.some(
-                                                  (s) => s.id === slot.id,
+                                                  (s) => s.id === spot.id,
                                                 )
                                                   ? "default"
                                                   : "outline"
@@ -2521,11 +2521,11 @@ export default function PostPage() {
                                                 setSelectedSpots((prev) => {
                                                   if (
                                                     prev.some(
-                                                      (s) => s.id === slot.id,
+                                                      (s) => s.id === spot.id,
                                                     )
                                                   ) {
                                                     return prev.filter(
-                                                      (s) => s.id !== slot.id,
+                                                      (s) => s.id !== spot.id,
                                                     );
                                                   }
 
@@ -2543,7 +2543,7 @@ export default function PostPage() {
                                                           EProviders.Twitter,
                                                       ),
                                                       {
-                                                        id: slot.id,
+                                                        id: spot.id,
                                                         provider:
                                                           EProviders.Twitter,
                                                       },
@@ -2552,7 +2552,7 @@ export default function PostPage() {
                                                     return [
                                                       ...prev,
                                                       {
-                                                        id: slot.id,
+                                                        id: spot.id,
                                                         provider:
                                                           EProviders.Twitter,
                                                       },
@@ -2568,7 +2568,7 @@ export default function PostPage() {
                                               />
 
                                               {format(
-                                                new Date(slot.start ?? ""),
+                                                new Date(spot.start ?? ""),
                                                 "dd MMM yyyy, HH:mm",
                                               )}
                                             </Button>
@@ -2584,12 +2584,12 @@ export default function PostPage() {
                                       </Label>
                                       <div className="flex flex-wrap gap-2">
                                         {nextSpots.data
-                                          .filter((slot) => slot.forLinkedIn)
-                                          .map((slot) => (
+                                          .filter((spot) => spot.forLinkedIn)
+                                          .map((spot) => (
                                             <Button
                                               variant={
                                                 selectedSpots.some(
-                                                  (s) => s.id === slot.id,
+                                                  (s) => s.id === spot.id,
                                                 )
                                                   ? "default"
                                                   : "outline"
@@ -2599,11 +2599,11 @@ export default function PostPage() {
                                                 setSelectedSpots((prev) => {
                                                   if (
                                                     prev.some(
-                                                      (s) => s.id === slot.id,
+                                                      (s) => s.id === spot.id,
                                                     )
                                                   ) {
                                                     return prev.filter(
-                                                      (s) => s.id !== slot.id,
+                                                      (s) => s.id !== spot.id,
                                                     );
                                                   }
 
@@ -2621,7 +2621,7 @@ export default function PostPage() {
                                                           EProviders.Linkedin,
                                                       ),
                                                       {
-                                                        id: slot.id,
+                                                        id: spot.id,
                                                         provider:
                                                           EProviders.Linkedin,
                                                       },
@@ -2630,7 +2630,7 @@ export default function PostPage() {
                                                     return [
                                                       ...prev,
                                                       {
-                                                        id: slot.id,
+                                                        id: spot.id,
                                                         provider:
                                                           EProviders.Linkedin,
                                                       },
@@ -2646,7 +2646,7 @@ export default function PostPage() {
                                               />
 
                                               {format(
-                                                new Date(slot.start ?? ""),
+                                                new Date(spot.start ?? ""),
                                                 "dd MMM yyyy, HH:mm",
                                               )}
                                             </Button>
@@ -2657,7 +2657,7 @@ export default function PostPage() {
                                 </>
                               ) : (
                                 <div className="flex h-24 items-center justify-center text-destructive">
-                                  <p>No slots available</p>
+                                  <p>No spots available</p>
                                 </div>
                               )}
                             </div>

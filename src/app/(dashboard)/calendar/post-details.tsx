@@ -74,7 +74,7 @@ export default function PostDetails() {
   const handleOpenDeleteEventModal = useCallback(
     (id: string, type: EPostSpotType) => () => {
       dispatch(
-        openModal({ id: "delete-calendar-slot-modal", data: { id, type } }),
+        openModal({ id: "delete-calendar-spot-modal", data: { id, type } }),
       );
     },
     [],
@@ -84,7 +84,7 @@ export default function PostDetails() {
     (event: TCalendarEvent) => () => {
       dispatch(
         openModal({
-          id: "edit-calendar-slot-modal",
+          id: "edit-calendar-spot-modal",
           data: event,
         }),
       );

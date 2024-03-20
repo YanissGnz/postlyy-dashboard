@@ -98,8 +98,8 @@ export default function CalendarCard({
           events={events}
           initialView="listDay"
           height="auto"
-          slotMinTime="08:00:00"
-          slotMaxTime="22:00:00"
+          spotMinTime="08:00:00"
+          spotMaxTime="22:00:00"
           views={{
             list: {
               type: "listDay",
@@ -118,8 +118,8 @@ export default function CalendarCard({
 
             return { start: startDate, end: endDate };
           }}
-          slotDuration={"01:00:00"}
-          slotLaneClassNames="!h-14"
+          spotDuration={"01:00:00"}
+          spotLaneClassNames="!h-14"
           eventContent={(eventInfo) => {
             const { event } = eventInfo;
 
