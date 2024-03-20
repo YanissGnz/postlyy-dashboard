@@ -283,8 +283,8 @@ export default function Calender() {
         events={[...events, ...emptyDays]}
         initialView="timeGrid"
         height="auto"
-        spotMinTime="07:00:00"
-        spotMaxTime="24:00:00"
+        slotMinTime="07:00:00"
+        slotMaxTime="24:00:00"
         eventClick={(info) => {
           info.jsEvent.preventDefault();
           if (info.event.display === "background") return;
