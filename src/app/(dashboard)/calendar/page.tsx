@@ -324,8 +324,8 @@ export default function Calender() {
 
           return { start: startDate, end: endDate };
         }}
-        spotDuration={"01:00:00"}
-        spotLaneClassNames="!h-14"
+        slotDuration={"01:00:00"}
+        slotLaneClassNames="!h-14"
         eventContent={(eventInfo) => {
           const { event } = eventInfo;
 
