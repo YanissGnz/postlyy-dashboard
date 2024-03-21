@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/dist/query";
 import { calendarApi } from "./api/calendar/apiSlice";
 import { dashboardStatsApi } from "./api/dashboard/apiSlice";
+import { inspirationApi } from "./api/inspiration/apiSlice";
 import { newsLetterApi } from "./api/newsLetterApi";
 import { notesApi } from "./api/notes/apiSlice";
 import { postApi } from "./api/post/apiSlice";
@@ -41,6 +42,7 @@ export const store = configureStore({
     [dashboardApi.reducerPath]: dashboardApi.reducer,
     [dashboardStatsApi.reducerPath]: dashboardStatsApi.reducer,
     [supportApi.reducerPath]: supportApi.reducer,
+    [inspirationApi.reducerPath]: inspirationApi.reducer,
   },
   devTools: process.env.NODE_ENV !== "production",
   middleware: (getDefaultMiddleware) =>
@@ -58,7 +60,8 @@ export const store = configureStore({
       .concat(powerupsApi.middleware)
       .concat(dashboardApi.middleware)
       .concat(dashboardStatsApi.middleware)
-      .concat(supportApi.middleware),
+      .concat(supportApi.middleware)
+      .concat(inspirationApi.middleware),
 });
 
 setupListeners(store.dispatch);

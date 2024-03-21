@@ -14,6 +14,12 @@ import { env } from "@/env";
 import { type TDBUser } from "@/types/TDBUser";
 import { formatISO } from "date-fns";
 
+/**
+ * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
+ * object and keep type safety.
+ *
+ * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
+ */
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
@@ -393,8 +399,8 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
-  pages: {
-    signIn: "/auth/login",
-  },
+  // pages: {
+  //   signIn: "/login",
+  // },
 };
 export const getServerAuthSession = () => getServerSession(authOptions);

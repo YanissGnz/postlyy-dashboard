@@ -20,7 +20,10 @@ type LayoutState = {
 };
 
 const initialState = {
-  isCollapsed: false,
+  isCollapsed:
+    typeof window !== "undefined"
+      ? localStorage.getItem("isCollapsed") === "true" ?? false
+      : false,
   navItems: [
     {
       name: "Management",
@@ -114,6 +117,8 @@ export const layout = createSlice({
   initialState,
   reducers: {
     toggleCollapseSidebar: (state) => {
+      typeof window !== undefined &&
+        localStorage.setItem("isCollapsed", (!state.isCollapsed).toString());
       state.isCollapsed = !state.isCollapsed;
     },
     openMobileSidebar: (state) => {

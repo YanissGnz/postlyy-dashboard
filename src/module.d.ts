@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 declare module "@editorjs/embed" {
@@ -78,4 +79,35 @@ declare module "@editorjs/simple-image" {
 declare module "editorjs-text-color-plugin" {
   const ColorPlugin: any;
   export = ColorPlugin;
+}
+// import { TypeAnimation } from "react-type-animation";
+
+type TypeAnimationProps = {
+  sequence: string[];
+  wrapper?: string;
+  speed?:
+    | number
+    | {
+        type: "keyStrokeDelayInMs";
+        value: number;
+      };
+  deletionSpeed?:
+    | number
+    | {
+        type: "keyStrokeDelayInMs";
+        value: number;
+      };
+  omitDeletionAnimation?: boolean;
+  repeat?: boolean;
+  cursor?: boolean;
+  preRenderFirstString?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
+  ref?: React.Ref<any>;
+  splitter?: (text: string) => string[];
+};
+declare module "react-type-animation" {
+  function TypeAnimation(props: TypeAnimationProps): JSX.Element;
+
+  export { TypeAnimation };
 }
