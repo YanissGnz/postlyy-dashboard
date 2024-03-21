@@ -174,7 +174,7 @@ const ACCEPTED_IMAGE_TYPES = ["jpg", "png"];
 const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
 const TWITTER_TEXT_MAX_LENGTH = 280;
 
-export const generateFormData = async (data: TPostForm) => {
+const generateFormData = async (data: TPostForm) => {
   const formData = new FormData();
 
   formData.append("AsEvergreen", data.asEvergreen ? "true" : "false");

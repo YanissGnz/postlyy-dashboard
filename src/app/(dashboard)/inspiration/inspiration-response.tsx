@@ -26,7 +26,6 @@ import { useCallback, useState } from "react";
 import { TypeAnimation } from "react-type-animation";
 import { toast } from "sonner";
 import { useBoolean } from "usehooks-ts";
-import { generateFormData } from "../post/page";
 
 const TWITTER_TEXT_MAX_LENGTH = 280;
 
@@ -127,15 +126,12 @@ export default function InspirationResponse({
 
     const posts = splitText(text, 0);
 
-    const data = await generateFormData({
-      addFinisher: false,
-      asEvergreen: false,
-      isDraft: true,
-      isTemplate: false,
-      onLinkedIn: false,
-      onTwitter: false,
-      posts,
-      scheduleDate: convertToUTC(addDays(new Date(), 7).toISOString()),
+    const data = new FormData();
+
+    posts.forEach((post, index) => {
+      data.append(`Posts[${index}].index`, post.index.toString());
+      data.append(`Posts[${index}].text`, post.text);
+      data.append(`Posts[${index}].twitterDirectLink`, "false");
     });
 
     data.append("isDraft", "true");
@@ -146,6 +142,9 @@ export default function InspirationResponse({
         ? convertToUTC(scheduleDate)
         : convertToUTC(addDays(new Date(), 7).toISOString()),
     );
+    data.append("AsEvergreen", "false");
+    data.append("OnLinkedIn", "true");
+    data.append("OnTwitter", "true");
 
     const saveDraftPromise = saveDraft(data).unwrap();
     toast.promise(saveDraftPromise, {
