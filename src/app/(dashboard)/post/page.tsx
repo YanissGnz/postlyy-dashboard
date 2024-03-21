@@ -412,46 +412,53 @@ export default function PostPage() {
     }
   }, [form.getValues("onTwitter")]);
 
+  const splitText = useCallback((text: string, i: number): string[] => {
+    if (text.length > TWITTER_TEXT_MAX_LENGTH) {
+      const remainingText = text.slice(TWITTER_TEXT_MAX_LENGTH);
+
+      const newTexts: string[] = [
+        text.slice(0, TWITTER_TEXT_MAX_LENGTH),
+
+        ...splitText(remainingText, i + 1),
+      ];
+      return newTexts;
+    } else return [text];
+  }, []);
+
   const handleTextChange = useCallback(
     (index: number) => (e: ChangeEvent<HTMLTextAreaElement>) => {
-      const text = e.target.value.slice(0, 280);
-      const extraText = e.target.value.slice(280);
+      const text = e.target.value;
 
-      if (
-        extraText.length > 0 &&
-        index === form.getValues("posts").length - 1
-      ) {
-        const newThread = {
-          index: index + 1,
-          text: extraText,
+      if (text.length > TWITTER_TEXT_MAX_LENGTH) {
+        const newTexts = splitText(text, index);
+
+        const newThreads = newTexts.map((text, i) => ({
+          index: index + i,
+          text,
           gif: null,
           images: [],
           poll: null,
           twitterDirectLink: false,
           gifLink: "",
           imageLinks: [],
-        };
-
-        const newThreads = [
-          ...form.getValues("posts").slice(0, index + 1),
-          newThread,
-          ...form.getValues("posts").slice(index + 1),
-        ];
+        }));
 
         form.setValue(
           "posts",
-          newThreads.map((thread, i) => ({ ...thread, index: i })),
+          [
+            ...form.getValues("posts").slice(0, index),
+            ...newThreads,
+            ...form.getValues("posts").slice(index + 1),
+          ].map((thread, i) => ({ ...thread, index: i })),
         );
-
-        form.setFocus(`posts.${index + 1}.text`);
 
         setPostsContent((prev) =>
           [
-            ...prev.slice(0, index + 1),
-            {
-              index,
+            ...prev.slice(0, index),
+            ...newThreads.map((thread, i) => ({
+              index: index + i,
               images: [],
-            },
+            })),
             ...prev.slice(index + 1),
           ].map((post, i) => ({ ...post, index: i })),
         );
@@ -930,49 +937,25 @@ export default function PostPage() {
     [],
   );
 
-  const addInspirationText = useCallback(
-    (text: string, i: number): Array<TPost> => {
-      if (text.length > TWITTER_TEXT_MAX_LENGTH) {
-        const remainingText = text.slice(TWITTER_TEXT_MAX_LENGTH);
-
-        const newThreads: TPost[] = [
-          {
-            index: i,
-            text: text.slice(0, TWITTER_TEXT_MAX_LENGTH),
-            gif: "",
-            gifLink: "",
-            images: [],
-            imageLinks: [],
-            poll: null,
-            twitterDirectLink: false,
-          },
-          ...addInspirationText(remainingText, i + 1),
-        ];
-        return newThreads;
-      } else
-        return [
-          {
-            index: i,
-            text,
-            gif: "",
-            gifLink: "",
-            images: [],
-            imageLinks: [],
-            poll: null,
-            twitterDirectLink: false,
-          },
-        ];
-    },
-    [form],
-  );
-
   useEffect(() => {
     if (withInspiration) {
       const inspiration = localStorage.getItem("inspiration");
 
       if (inspiration) {
         const promise = new Promise<TPost[]>((resolve) => {
-          const newThreads = addInspirationText(inspiration, 0);
+          const texts = splitText(inspiration, 0);
+
+          const newThreads = texts.map((text, i) => ({
+            index: i,
+            text,
+            gif: null,
+            images: [],
+            poll: null,
+            twitterDirectLink: false,
+            gifLink: "",
+            imageLinks: [],
+          }));
+
           resolve(newThreads);
         });
 

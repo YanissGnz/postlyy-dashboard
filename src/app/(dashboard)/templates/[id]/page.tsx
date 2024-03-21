@@ -1,21 +1,20 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useGetTemplateByIdQuery } from "@/redux/api/post/apiSlice";
-import LoadingCard from "@/components/loading-card";
 import ErrorCard from "@/components/error-card";
-import { Button } from "@/components/ui/button";
-import Iconify from "@/components/ui/icon";
+import LoadingCard from "@/components/loading-card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { env } from "@/env";
+import { useGetTemplateByIdQuery } from "@/redux/api/post/apiSlice";
+import { EProviders } from "@/types/EProviders";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { env } from "@/env";
-import { EProviders } from "@/types/EProviders";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 export default function page({ params: { id } }: { params: { id: string } }) {
   const {
     data: templateData,
-    isLoading: isLoadingNote,
+    isLoading: isLoadingTemplate,
     isSuccess,
     refetch,
   } = useGetTemplateByIdQuery(id, {
@@ -51,51 +50,31 @@ export default function page({ params: { id } }: { params: { id: string } }) {
 
   return (
     <>
-      {isLoadingNote ? (
+      {isLoadingTemplate ? (
         <LoadingCard />
       ) : isSuccess ? (
         <div className="space-y-2 px-4 py-4 md:px-8">
           <div className="mb-10 flex items-center justify-between">
             <h2 className="text-2xl font-bold">Template preview</h2>
           </div>
-          <div className="">
-            <div className="mb-5 mt-5 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {templateData.data.onTwitter && (
-                  <Button
-                    className="p-2"
-                    variant={
-                      previewSocial === "twitter" ? "default" : "outline"
-                    }
-                    onClick={() => setPreviewSocial("twitter")}
-                  >
-                    <Iconify
-                      icon="simple-icons:x"
-                      className="mr-1"
-                      fontSize={20}
-                    />
-                    X (Twitter)
-                  </Button>
-                )}
-                {templateData.data.onLinkedIn && (
-                  <Button
-                    className="p-2"
-                    variant={
-                      previewSocial === "linkedin" ? "default" : "outline"
-                    }
-                    onClick={() => setPreviewSocial("linkedin")}
-                  >
-                    <Iconify
-                      icon="simple-icons:linkedin"
-                      className="mr-1"
-                      fontSize={20}
-                    />
-                    LinkedIn
-                  </Button>
-                )}
-              </div>
-            </div>
-            {previewSocial === "twitter" && (
+          <Tabs
+            defaultValue={previewSocial}
+            className="my-3 w-full"
+            onValueChange={(value) => setPreviewSocial(value)}
+          >
+            <TabsList className="flex w-full gap-2">
+              {templateData.data.onTwitter && (
+                <TabsTrigger value="twitter" className="flex-1">
+                  Twitter
+                </TabsTrigger>
+              )}{" "}
+              {templateData.data.onLinkedIn && (
+                <TabsTrigger value="linkedin" className="flex-1">
+                  Linkedin
+                </TabsTrigger>
+              )}
+            </TabsList>
+            <TabsContent value="twitter">
               <div className="space-y-2 divide-y">
                 {templateData.data.posts.map((post) => (
                   <div key={post.index}>
@@ -123,7 +102,7 @@ export default function page({ params: { id } }: { params: { id: string } }) {
                         </p>
                         <p className="text-xs text-gray-500">
                           @
-                          {getAccount(EProviders.Twitter)
+                          {getAccount(0)
                             ?.username.toLowerCase()
                             .split(" ")
                             .join("")}
@@ -150,7 +129,7 @@ export default function page({ params: { id } }: { params: { id: string } }) {
                         {post.gifLink && (
                           <div className="group relative w-fit overflow-hidden rounded">
                             <Image
-                              src={post.gifLink}
+                              src={`${env.NEXT_PUBLIC_API_BASE_URL}/${post.gifLink}`}
                               alt="gif"
                               width={110}
                               height={110}
@@ -177,8 +156,8 @@ export default function page({ params: { id } }: { params: { id: string } }) {
                   </div>
                 ))}
               </div>
-            )}
-            {previewSocial === "linkedin" && (
+            </TabsContent>
+            <TabsContent value="linkedin">
               <div className="space-y-2 divide-y">
                 <div>
                   <div className="my-3 flex items-center gap-2 ">
@@ -199,9 +178,7 @@ export default function page({ params: { id } }: { params: { id: string } }) {
                         className="object-cover"
                       />
                       <AvatarFallback>
-                        {getAccount(EProviders.Twitter)
-                          ?.username?.slice(0, 2)
-                          .toUpperCase() ??
+                        {getAccount(0)?.username?.slice(0, 2).toUpperCase() ??
                           data?.user.fullName?.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
@@ -211,7 +188,7 @@ export default function page({ params: { id } }: { params: { id: string } }) {
                       </p>
                       <p className="text-xs text-gray-500">
                         @
-                        {getAccount(EProviders.Twitter)
+                        {getAccount(0)
                           ?.username.toLowerCase()
                           .split(" ")
                           .join("")}
@@ -235,7 +212,7 @@ export default function page({ params: { id } }: { params: { id: string } }) {
                             className="group relative w-fit overflow-hidden rounded"
                           >
                             <Image
-                              src={image}
+                              src={`${env.NEXT_PUBLIC_API_BASE_URL}/${image}`}
                               alt={index.toString()}
                               width={100}
                               height={100}
@@ -254,7 +231,7 @@ export default function page({ params: { id } }: { params: { id: string } }) {
                             className="group relative w-fit overflow-hidden rounded"
                           >
                             <Image
-                              src={gif!}
+                              src={`${env.NEXT_PUBLIC_API_BASE_URL}/${gif}`}
                               alt="gif"
                               width={110}
                               height={110}
@@ -266,8 +243,8 @@ export default function page({ params: { id } }: { params: { id: string } }) {
                   </div>
                 </div>
               </div>
-            )}
-          </div>
+            </TabsContent>
+          </Tabs>
         </div>
       ) : (
         <ErrorCard title="Template not found" refetchFunction={refetch} />
