@@ -34,8 +34,8 @@ import {
 } from "@/types/EInspiration";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { TypeAnimation } from "react-type-animation";
 import { z } from "zod";
+import InspirationResponse from "./inspiration-response";
 
 const inspirationSchema = z.object({
   postType: z.nativeEnum(EInspirationPostType),
@@ -59,7 +59,7 @@ export default function Inspiration() {
   }
 
   return (
-    <div className="space-y-4 pb-5">
+    <div className="grid grid-cols-1 gap-4 pb-5 md:grid-cols-2">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-6">
@@ -254,35 +254,31 @@ export default function Inspiration() {
         </form>
       </Form>
 
-      <div className="">
-        {isLoading && (
-          <div className="space-y-2">
-            <p className="text-center text-muted-foreground">
-              Generating inspiration based on the provided information. Please
-              wait...
+      <div className="min-h-[300px] rounded-lg border p-2">
+        {isLoading ? (
+          <div className="relative flex h-full flex-col justify-center gap-2 ">
+            <Skeleton className="h-full w-full" />
+            <p className="absolute left-1/2 top-1/2 w-full -translate-x-1/2 text-center text-muted-foreground">
+              Generating inspiration based on the provided informations 🙌...
             </p>
-            <Skeleton className="h-3 w-11/12" />
-            <Skeleton className="h-3 w-full" />
-            <Skeleton className="h-3 w-full" />
-            <Skeleton className="h-3 w-full" />
           </div>
-        )}
-        {isSuccess && (
-          <div className="space-y-2">
+        ) : isSuccess ? (
+          <div className="flex h-full flex-col space-y-2">
             <p className="text-center text-muted-foreground">
               Here is the generated inspirations based on the provided
               informations ✨
             </p>
-            {data?.data.content.map((text, i) => (
-              <div key={i} className="rounded-lg border p-2">
-                <TypeAnimation
-                  sequence={[text]}
-                  wrapper="span"
-                  speed={99}
-                  cursor={false}
-                />
-              </div>
-            ))}
+
+            <InspirationResponse
+              postType={form.watch("postType")}
+              text={data?.data.content.join("\n") ?? ""}
+            />
+          </div>
+        ) : (
+          <div className="flex h-full items-center justify-center text-muted-foreground">
+            <p className="text-center">
+              Once the inspiration ✨ is generated, it will be displayed here 🚀
+            </p>
           </div>
         )}
       </div>
