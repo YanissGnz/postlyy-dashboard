@@ -160,7 +160,7 @@ export default function Calender() {
       (e: React.MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) => {
         e.stopPropagation();
         dispatch(
-          openModal({ id: "delete-calendar-slot-modal", data: { id, type } }),
+          openModal({ id: "delete-calendar-spot-modal", data: { id, type } }),
         );
       },
     [],
@@ -172,7 +172,7 @@ export default function Calender() {
         e.stopPropagation();
         dispatch(
           openModal({
-            id: "edit-calendar-slot-modal",
+            id: "edit-calendar-spot-modal",
             data: event.extendedProps as TCalendarSpot | TRecurringPost,
           }),
         );
@@ -187,7 +187,7 @@ export default function Calender() {
       if (!event) return;
 
       if (info.event.start && info.event.start < new Date()) {
-        toast.error("You can't move a slot to the past");
+        toast.error("You can't move a spot to the past");
         info.revert();
         return;
       }
@@ -266,7 +266,7 @@ export default function Calender() {
           onClick={() =>
             dispatch(
               openModal({
-                id: "add-calendar-slot-modal",
+                id: "add-calendar-spot-modal",
                 data: null,
               }),
             )
@@ -306,7 +306,7 @@ export default function Calender() {
         dateClick={(info) => {
           dispatch(
             openModal({
-              id: "add-calendar-slot-modal",
+              id: "add-calendar-spot-modal",
               data: {
                 date: info.dateStr,
               },
