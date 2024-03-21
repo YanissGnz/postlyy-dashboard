@@ -78,6 +78,7 @@ import { type TenorImage } from "gif-picker-react";
 import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import dynamic from "next/dynamic";
+import { useSearchParams } from "next/navigation";
 import {
   Fragment,
   useCallback,
@@ -173,7 +174,7 @@ const ACCEPTED_IMAGE_TYPES = ["jpg", "png"];
 const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
 const TWITTER_TEXT_MAX_LENGTH = 280;
 
-const generateFormData = async (data: TPostForm) => {
+export const generateFormData = async (data: TPostForm) => {
   const formData = new FormData();
 
   formData.append("AsEvergreen", data.asEvergreen ? "true" : "false");
@@ -216,6 +217,10 @@ export default function PostPage() {
   const { currentAccount } = useAppSelector((state) => state.auth);
   const session = useSession();
   const { theme, systemTheme } = useTheme();
+
+  const searchParams = useSearchParams();
+
+  const withInspiration = searchParams.get("inspiration") === "true";
 
   const {
     data: recurringSpots,
@@ -925,6 +930,64 @@ export default function PostPage() {
     [],
   );
 
+  const addInspirationText = useCallback(
+    (text: string, i: number): Array<TPost> => {
+      if (text.length > TWITTER_TEXT_MAX_LENGTH) {
+        const remainingText = text.slice(TWITTER_TEXT_MAX_LENGTH);
+
+        const newThreads: TPost[] = [
+          {
+            index: i,
+            text: text.slice(0, TWITTER_TEXT_MAX_LENGTH),
+            gif: "",
+            gifLink: "",
+            images: [],
+            imageLinks: [],
+            poll: null,
+            twitterDirectLink: false,
+          },
+          ...addInspirationText(remainingText, i + 1),
+        ];
+        return newThreads;
+      } else
+        return [
+          {
+            index: i,
+            text,
+            gif: "",
+            gifLink: "",
+            images: [],
+            imageLinks: [],
+            poll: null,
+            twitterDirectLink: false,
+          },
+        ];
+    },
+    [form],
+  );
+
+  useEffect(() => {
+    if (withInspiration) {
+      const inspiration = localStorage.getItem("inspiration");
+
+      if (inspiration) {
+        const promise = new Promise<TPost[]>((resolve) => {
+          const newThreads = addInspirationText(inspiration, 0);
+          resolve(newThreads);
+        });
+
+        toast.promise(promise, {
+          loading: "Adding inspiration...",
+          success: (newThreads) => {
+            form.setValue(`posts`, newThreads);
+            return "Added inspiration!";
+          },
+          error: "Something went wrong",
+        });
+      }
+    }
+  }, [withInspiration, form]);
+
   // Posting
 
   const handlePostNow = useCallback(async () => {
@@ -1072,7 +1135,9 @@ export default function PostPage() {
     data.append("isTemplate", "false");
     data.append(
       "ScheduleDate",
-      scheduleDate ? scheduleDate : addDays(new Date(), 7).toISOString(),
+      scheduleDate
+        ? convertToUTC(scheduleDate)
+        : convertToUTC(addDays(new Date(), 7).toISOString()),
     );
 
     const saveDraftPromise = postNowOrSchedule(data).unwrap();
@@ -1110,7 +1175,9 @@ export default function PostPage() {
     data.append("isTemplate", "false");
     data.append(
       "ScheduleDate",
-      scheduleDate ? scheduleDate : form.getValues("scheduleDate"),
+      scheduleDate
+        ? convertToUTC(scheduleDate)
+        : convertToUTC(form.getValues("scheduleDate")),
     );
 
     form.getValues("posts").forEach((post, index) => {
@@ -1476,6 +1543,22 @@ export default function PostPage() {
                     </Alert>
                   </p>
                 )}
+                {withInspiration && (
+                  <p>
+                    <Alert>
+                      <InfoCircledIcon className="h-4 w-4" />
+                      <AlertTitle>Note</AlertTitle>
+                      <AlertDescription>
+                        The auto-generated threads are based on the inspiration
+                        you have selected. You can edit, delete, or add more
+                        threads. <br />
+                        (Some threads may be split into multiple threads due to
+                        the character limit on Twitter make sure to check all
+                        the threads before posting)
+                      </AlertDescription>
+                    </Alert>
+                  </p>
+                )}
               </div>
               <div>
                 <div>
@@ -1551,7 +1634,7 @@ export default function PostPage() {
                             <div className="mb-2 flex w-full flex-wrap items-center gap-2">
                               {form
                                 .getValues(`posts.${post.index}.imageLinks`)
-                                .map((image, index) => (
+                                ?.map((image, index) => (
                                   <div
                                     key={index}
                                     className="group relative w-fit overflow-hidden rounded"
