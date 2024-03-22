@@ -8,7 +8,7 @@ import { Outfit } from "next/font/google";
 import AuthProvider from "@/providers/auth-provider";
 import ReduxProvider from "@/providers/redux-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
-import UserProvider from "@/providers/token-provider";
+import TokenProvider from "@/providers/token-provider";
 // components
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { env } from "@/env";
@@ -62,7 +62,7 @@ export default async function RootLayout({
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <ReduxProvider>
-              <UserProvider>
+              <TokenProvider>
                 <TooltipProvider>
                   {env.NEXT_PUBLIC_ENVIRONMENT === "production" ? (
                     <ComingSoon />
@@ -70,7 +70,7 @@ export default async function RootLayout({
                     children
                   )}
                 </TooltipProvider>
-              </UserProvider>
+              </TokenProvider>
             </ReduxProvider>
             <Toaster richColors closeButton />
           </ThemeProvider>

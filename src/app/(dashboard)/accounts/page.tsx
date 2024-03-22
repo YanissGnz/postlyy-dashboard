@@ -1,26 +1,31 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 "use client";
 
-import React, { useCallback, useEffect } from "react";
+import { sentenceCase } from "change-case";
+import crypto from "crypto";
+import { decode, type JwtPayload } from "jsonwebtoken";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect } from "react";
 import { toast } from "sonner";
-import { sentenceCase } from "change-case";
-import { type JwtPayload, decode } from "jsonwebtoken";
-import crypto from "crypto";
 // components
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/Spinner";
 import { env } from "@/env";
-import { ROUTES } from "@/routes";
 import {
   useAddAccountMutation,
   useDeleteAccountMutation,
   useGetAccountsQuery,
 } from "@/redux/api/user/account/apiSlice";
-import { Spinner } from "@/components/ui/Spinner";
+import { ROUTES } from "@/routes";
+import { EProviders } from "@/types/EProviders";
 import { type TNewAccount } from "@/types/TNewAccount";
 import { isString } from "lodash";
-import { EProviders } from "@/types/EProviders";
+import Link from "next/link";
+
+const LINKEDIN_AUTH_URL = `${env.NEXT_PUBLIC_AUTH_BASEURL}/auth/linkedin`;
 
 export default function AccountsPage() {
   const {
@@ -38,7 +43,6 @@ export default function AccountsPage() {
 
   const error = searchParams.get("error");
   const token = searchParams.get("token");
-
   useEffect(() => {
     if (error) toast.error(sentenceCase(error));
   }, [error]);
@@ -73,17 +77,11 @@ export default function AccountsPage() {
         .unwrap()
         .then(() => {
           toast.success("Account added successfully");
-          setTimeout(() => {
-            push(ROUTES.accounts);
-          }, 1000);
         })
         .catch((e: string[]) => {
-          if (e) {
-            if (isString(e[0])) {
-              toast.error(e[0]);
-              push(ROUTES.accounts);
-            } else push(ROUTES.accounts);
-          } else window.location.reload();
+          if (e && isString(e[0])) {
+            toast.error(e[0]);
+          }
         });
     }
   }, [token]);
@@ -210,14 +208,11 @@ export default function AccountsPage() {
             Renew
           </Button>
         ) : (
-          <Button
-            variant="outline"
-            onClick={connect("linkedin")}
-            disabled={isLoading}
-            loading={isLoading}
-          >
-            Connect
-          </Button>
+          <Link href={LINKEDIN_AUTH_URL}>
+            <Button variant="outline" disabled={isLoading} loading={isLoading}>
+              Connect
+            </Button>
+          </Link>
         )}
       </div>
     </Card>
