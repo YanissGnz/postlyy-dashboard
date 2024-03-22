@@ -1,6 +1,5 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -44,8 +43,8 @@ const inspirationSchema = z.object({
   tone: z.nativeEnum(EInspirationTone),
   type: z.nativeEnum(EInspirationType),
   audience: z.string(),
-  emoji: z.boolean(),
-  hashtags: z.boolean(),
+  // emoji: z.boolean(),
+  // hashtags: z.boolean(),
   context: z.string(),
 });
 
@@ -77,7 +76,7 @@ export default function Inspiration() {
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a verified email to display" />
+                        <SelectValue placeholder="Select post type" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -203,7 +202,7 @@ export default function Inspiration() {
                   <Select onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select targer audience" />
+                        <SelectValue placeholder="Select target audience" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -226,7 +225,7 @@ export default function Inspiration() {
                 </FormItem>
               )}
             />
-            <FormField
+            {/* <FormField
               control={form.control}
               name="emoji"
               render={({ field }) => (
@@ -263,7 +262,7 @@ export default function Inspiration() {
                   </div>
                 </FormItem>
               )}
-            />
+            /> */}
           </div>
           <FormField
             control={form.control}

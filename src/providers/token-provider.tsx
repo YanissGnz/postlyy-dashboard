@@ -1,9 +1,7 @@
 "use client";
 
 import { setAccount, setToken } from "@/redux/slices/authSlice";
-import { ROUTES } from "@/routes";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
@@ -14,10 +12,11 @@ export default function TokenProvider({
 }) {
   const session = useSession();
   const dispatch = useDispatch();
-  const { push } = useRouter();
 
   useEffect(() => {
     if (session) {
+      if (session.status === "loading") return;
+
       if (session.data?.user) {
         dispatch(setToken(session.data.user.accessToken));
         if (
@@ -27,10 +26,6 @@ export default function TokenProvider({
           dispatch(setAccount(session.data.user.accounts[0]));
         }
       }
-    }
-
-    if (!session) {
-      push(ROUTES.login);
     }
   }, [session]);
 
