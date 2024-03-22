@@ -17,20 +17,19 @@ export default function TokenProvider({
   const { push } = useRouter();
 
   useEffect(() => {
-    if (session.status === "authenticated" && session.data.user.accessToken) {
-      dispatch(setToken(session.data.user.accessToken));
-      localStorage.setItem("token", session.data.user.accessToken);
-      if (
-        session.data.user?.accounts?.length > 0 &&
-        session.data.user.accounts[0]
-      ) {
-        dispatch(setAccount(session.data.user.accounts[0]));
+    if (session) {
+      if (session.data?.user) {
+        dispatch(setToken(session.data.user.accessToken));
+        if (
+          session.data.user.accounts.length > 0 &&
+          session.data.user.accounts[0]
+        ) {
+          dispatch(setAccount(session.data.user.accounts[0]));
+        }
       }
-    } else if (
-      session.status === "unauthenticated" ||
-      (!session?.data?.user?.accessToken && session.status === "loading")
-    ) {
-      localStorage.removeItem("token");
+    }
+
+    if (!session) {
       push(ROUTES.login);
     }
   }, [session]);
