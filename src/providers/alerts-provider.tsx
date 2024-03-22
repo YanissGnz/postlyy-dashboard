@@ -1,5 +1,7 @@
+"use client";
+
 import { useSession } from "next-auth/react";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 
 import { useBoolean } from "usehooks-ts";
 import EmailAlert from "./alerts/email-alert";
