@@ -19,6 +19,7 @@ export default function index() {
   const success = searchParams.get("success") === "true";
   const error = searchParams.get("error");
   const provider = Number(searchParams.get("provider")) as EProviders;
+
   const { push } = useRouter();
 
   const url = useMemo(() => {
@@ -48,7 +49,7 @@ export default function index() {
   }, [token, sendToParent]);
 
   useEffect(() => {
-    if (!success && provider) {
+    if (!success && !error && provider !== undefined) {
       push(url);
     } else if (error) {
       toast.error(sentenceCase(error));
@@ -71,7 +72,9 @@ export default function index() {
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center">
       <p className="text-center">
-        You will be redirected to Linkedin to connect your account.
+        You will be redirected to{" "}
+        {provider === EProviders.Linkedin ? "Linkedin" : "Twitter"} to connect
+        your account.
       </p>
       <p className="text-center">
         If it doesn't redirect you, click
