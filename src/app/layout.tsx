@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   // manifest: "/manifest.json",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -60,20 +60,26 @@ export default async function RootLayout({
         className={`bg-background font-sans transition-colors ${font.variable}`}
       >
         <AuthProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <ReduxProvider>
-              <TokenProvider>
+          <ReduxProvider>
+            <TokenProvider>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+              >
                 <TooltipProvider>
-                  {env.NEXT_PUBLIC_ENVIRONMENT === "production" ? (
-                    <ComingSoon />
-                  ) : (
-                    children
-                  )}
+                  <>
+                    {env.NEXT_PUBLIC_ENVIRONMENT === "production" ? (
+                      <ComingSoon />
+                    ) : (
+                      children
+                    )}
+                  </>
+                  <Toaster richColors closeButton />
                 </TooltipProvider>
-              </TokenProvider>
-            </ReduxProvider>
-            <Toaster richColors closeButton />
-          </ThemeProvider>
+              </ThemeProvider>
+            </TokenProvider>
+          </ReduxProvider>
         </AuthProvider>
       </body>
     </html>
