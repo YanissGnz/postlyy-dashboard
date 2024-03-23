@@ -136,7 +136,7 @@ export default function AccountPopoverContent() {
                 ))
               )}
               <DropdownMenuItem asChild>
-                <Link href={ROUTES.accounts}>
+                <Link href={ROUTES.accounts.root}>
                   <Iconify
                     icon="solar:refresh-circle-bold-duotone"
                     fontSize={22}

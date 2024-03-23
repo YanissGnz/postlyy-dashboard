@@ -1,7 +1,6 @@
 import { env } from "@/env";
 import { type RootState } from "@/redux/store";
 import { type TAccount } from "@/types/TAccount";
-import { type TNewAccount } from "@/types/TNewAccount";
 import { type TResponse } from "@/types/TResponse";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
@@ -27,14 +26,7 @@ export const accountApi = createApi({
       query: () => "/api/Account",
       providesTags: ["Accounts"],
     }),
-    addAccount: builder.mutation<void, TNewAccount>({
-      query: (body) => ({
-        url: "/api/Account",
-        method: "POST",
-        body,
-      }),
-      invalidatesTags: ["Accounts"],
-    }),
+
     deleteAccount: builder.mutation<void, string>({
       query: (id) => ({
         url: `/api/Account/${id}`,
@@ -45,8 +37,4 @@ export const accountApi = createApi({
   }),
 });
 
-export const {
-  useAddAccountMutation,
-  useDeleteAccountMutation,
-  useGetAccountsQuery,
-} = accountApi;
+export const { useDeleteAccountMutation, useGetAccountsQuery } = accountApi;
