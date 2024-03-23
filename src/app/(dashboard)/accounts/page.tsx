@@ -13,10 +13,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { env } from "@/env";
 import {
-  useAddAccountMutation,
   useDeleteAccountMutation,
   useGetAccountsQuery,
 } from "@/redux/api/user/account/apiSlice";
+import { useConnectAccountMutation } from "@/redux/api/user/profile/apiSlice";
 import { ROUTES } from "@/routes";
 import { EProviders } from "@/types/EProviders";
 import { type TNewAccount } from "@/types/TNewAccount";
@@ -30,7 +30,7 @@ export default function AccountsPage() {
     isLoading: isAccountsLoading,
     isFetching: isAccountsFetching,
   } = useGetAccountsQuery();
-  const [addAccount, { isLoading }] = useAddAccountMutation();
+  const [connectAccount, { isLoading }] = useConnectAccountMutation();
   const [deleteAccount, { isLoading: isDeleteLoading }] =
     useDeleteAccountMutation();
 
@@ -59,7 +59,7 @@ export default function AccountsPage() {
       Buffer.from(data, "base64").toString("utf-8"),
     ) as TNewAccount;
 
-    addAccount(decodedData)
+    connectAccount(decodedData)
       .unwrap()
       .then(() => {
         toast.success("Account added successfully");
