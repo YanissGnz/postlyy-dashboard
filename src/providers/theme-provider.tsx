@@ -7,14 +7,6 @@ import { Next13ProgressBar } from "next13-progressbar";
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   return (
     <NextThemesProvider {...props}>
-      {/* <NextProgress
-        color="#1DA1F2"
-        height={3}
-        options={{
-          showSpinner: false,
-        }}
-      /> */}
-      {children}{" "}
       <Next13ProgressBar
         color="#1DA1F2"
         startPosition={0.3}
@@ -23,6 +15,7 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
         options={{ showSpinner: false }}
         showOnShallow
       />
+      {children}
     </NextThemesProvider>
   );
 }

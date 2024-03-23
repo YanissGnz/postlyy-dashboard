@@ -31,6 +31,7 @@ declare module "next-auth" {
   interface User extends TDBUser {
     id: string;
     username: string;
+    error?: string;
   }
 
   interface Account {
@@ -386,6 +387,7 @@ export const authOptions: NextAuthOptions = {
 
         if (!response.ok) {
           const error = (await response.json()) as string[];
+
           throw new Error(error[0]);
         }
 
