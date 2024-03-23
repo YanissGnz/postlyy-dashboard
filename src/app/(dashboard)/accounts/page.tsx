@@ -2,27 +2,23 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 "use client";
 
-import crypto from "crypto";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { toast } from "sonner";
 // components
 import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { env } from "@/env";
 import {
+  accountApiUtil,
   useDeleteAccountMutation,
   useGetAccountsQuery,
 } from "@/redux/api/user/account/apiSlice";
-import { useConnectAccountMutation } from "@/redux/api/user/profile/apiSlice";
 import { ROUTES } from "@/routes";
 import { EProviders } from "@/types/EProviders";
 import { type TNewAccount } from "@/types/TNewAccount";
 import useMessage from "@rottitime/react-hook-message-event";
 import { decode, type JwtPayload } from "jsonwebtoken";
-import { isString } from "lodash";
 
 export default function AccountsPage() {
   const {
@@ -30,13 +26,10 @@ export default function AccountsPage() {
     isLoading: isAccountsLoading,
     isFetching: isAccountsFetching,
   } = useGetAccountsQuery();
-  const [connectAccount, { isLoading }] = useConnectAccountMutation();
   const [deleteAccount, { isLoading: isDeleteLoading }] =
     useDeleteAccountMutation();
 
-  const { push } = useRouter();
-
-  useMessage("authenticate", (send, payload) => {
+  useMessage("authenticate", async (send, payload) => {
     const { token } = payload as {
       token: string;
     };
@@ -59,15 +52,31 @@ export default function AccountsPage() {
       Buffer.from(data, "base64").toString("utf-8"),
     ) as TNewAccount;
 
-    connectAccount(decodedData)
-      .unwrap()
-      .then(() => {
-        toast.success("Account added successfully");
-      })
-      .catch((e: string[]) => {
-        if (e && isString(e[0])) {
-          toast.error(e[0]);
+    await fetch(`/api/connect`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(decodedData),
+    })
+      .then(async (res) => {
+        if (res.ok) {
+          toast.success("Account connected successfully");
+          accountApiUtil.invalidateTags(["Accounts"]);
+        } else {
+          const error = (await res.json()) as { message: string } | string[];
+
+          if (Array.isArray(error)) {
+            toast.error(error.join(", "));
+          } else {
+            toast.error(error.message);
+          }
         }
+      })
+      .catch((e) => {
+        const message = e instanceof Error ? e.message : "Something went wrong";
+
+        toast.error(message);
       });
   });
 
@@ -80,6 +89,7 @@ export default function AccountsPage() {
     },
     [accounts],
   );
+
   const getAccountByType = useCallback(
     (accountType: EProviders) => {
       if (!accounts) return null;
@@ -92,29 +102,16 @@ export default function AccountsPage() {
 
   const handleConnect = useCallback(
     (accountType: EProviders) => () => {
+      const width = 600;
+      const height = 600;
+      const left = (screen.width - width) / 2;
+      const top = (screen.height - height) / 2;
+      const features = `width=${width},height=${height},top=${top},left=${left}`;
       if (accountType === EProviders.Linkedin) {
-        window.open(
-          ROUTES.accounts.connect_linkedin,
-          "_blank",
-          "width=500,height=500,top=50%,left=50%",
-        );
+        window.open(ROUTES.accounts.connect_linkedin, "_blank", features);
       } else {
-        window.open(
-          ROUTES.accounts.connect_twitter,
-          "_blank",
-          "width=500,height=500",
-        );
+        window.open(ROUTES.accounts.connect_twitter, "_blank", features);
       }
-    },
-    [],
-  );
-
-  const connect = useCallback(
-    (method: string) => () => {
-      const hash = crypto
-        .createHmac("sha256", env.NEXT_PUBLIC_AUTH_SECRET_KEY)
-        .digest("hex");
-      push(`${env.NEXT_PUBLIC_AUTH_BASEURL}/auth/${method}?hash=${hash}`);
     },
     [],
   );
@@ -167,12 +164,7 @@ export default function AccountsPage() {
             Delete
           </Button>
         ) : (
-          <Button
-            variant="outline"
-            onClick={connect("twitter")}
-            disabled={isLoading}
-            loading={isLoading}
-          >
+          <Button variant="outline" onClick={handleConnect(EProviders.Twitter)}>
             Connect
           </Button>
         )}
@@ -205,9 +197,7 @@ export default function AccountsPage() {
         ) : getAccountByType(EProviders.Linkedin)?.isExpired ? (
           <Button
             variant="outline"
-            onClick={connect("linkedin")}
-            disabled={isLoading}
-            loading={isLoading}
+            onClick={handleConnect(EProviders.Linkedin)}
           >
             Renew
           </Button>
@@ -215,8 +205,6 @@ export default function AccountsPage() {
           <Button
             onClick={handleConnect(EProviders.Linkedin)}
             variant="outline"
-            disabled={isLoading}
-            loading={isLoading}
           >
             Connect
           </Button>
