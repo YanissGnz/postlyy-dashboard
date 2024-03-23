@@ -58,7 +58,7 @@ export const profileApi = createApi({
     }),
     connectAccount: builder.mutation<void, TNewAccount>({
       query: (body) => ({
-        url: "/api/Account",
+        url: "/api/UserSettings/Connect",
         method: "POST",
         body,
       }),

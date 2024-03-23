@@ -37,6 +37,7 @@ export default function index() {
       push(LINKEDIN_AUTH_URL);
     } else if (error) {
       toast.error(sentenceCase(error));
+      window.close();
     }
   }, [success, error]);
 
