@@ -10,7 +10,6 @@ import ReduxProvider from "@/providers/redux-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 import TokenProvider from "@/providers/token-provider";
 // components
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { env } from "@/env";
 import { Toaster } from "sonner";
 import ComingSoon from "./coming-soon";
@@ -60,20 +59,18 @@ export default async function RootLayout({
         className={`bg-background font-sans transition-colors ${font.variable}`}
       >
         <AuthProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <ReduxProvider>
+          <ReduxProvider>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
               <TokenProvider>
-                <TooltipProvider>
-                  {env.NEXT_PUBLIC_ENVIRONMENT === "production" ? (
-                    <ComingSoon />
-                  ) : (
-                    children
-                  )}
-                </TooltipProvider>
+                {env.NEXT_PUBLIC_ENVIRONMENT === "production" ? (
+                  <ComingSoon />
+                ) : (
+                  children
+                )}
+                <Toaster richColors closeButton />
               </TokenProvider>
-            </ReduxProvider>
-            <Toaster richColors closeButton />
-          </ThemeProvider>
+            </ThemeProvider>
+          </ReduxProvider>
         </AuthProvider>
       </body>
     </html>
