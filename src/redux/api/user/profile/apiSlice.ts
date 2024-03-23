@@ -1,7 +1,6 @@
 import { env } from "@/env";
 import { type RootState } from "@/redux/store";
 import { type TFinisher } from "@/types/TFinisher";
-import { type TNewAccount } from "@/types/TNewAccount";
 import { type TProfile } from "@/types/TProfile";
 import { type TResponse } from "@/types/TResponse";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
@@ -22,7 +21,7 @@ export const profileApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Profile", "Finisher", "Accounts"],
+  tagTypes: ["Profile", "Finisher"],
   endpoints: (builder) => ({
     getProfile: builder.query<TResponse<TProfile>, void>({
       query: () => "/api/UserSettings/Profile",
@@ -56,14 +55,6 @@ export const profileApi = createApi({
       }),
       invalidatesTags: ["Finisher"],
     }),
-    connectAccount: builder.mutation<void, TNewAccount>({
-      query: (body) => ({
-        url: "/api/UserSettings/Connect",
-        method: "POST",
-        body,
-      }),
-      invalidatesTags: ["Accounts"],
-    }),
   }),
 });
 
@@ -73,5 +64,4 @@ export const {
   useChangeProfileImageMutation,
   useGetFinisherQuery,
   useUpdateFinisherMutation,
-  useConnectAccountMutation,
 } = profileApi;
