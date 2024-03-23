@@ -19,6 +19,7 @@ export default function TokenProvider({
 
       if (session.data?.user) {
         dispatch(setToken(session.data.user.accessToken));
+        localStorage.setItem("token", session.data.user.accessToken);
         if (
           session.data.user.accounts.length > 0 &&
           session.data.user.accounts[0]

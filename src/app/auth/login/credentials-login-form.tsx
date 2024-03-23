@@ -1,12 +1,12 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { signIn } from "next-auth/react";
 import { useBoolean } from "usehooks-ts";
+import * as z from "zod";
 // components
 import { Button } from "@/components/ui/button";
 import {
@@ -17,8 +17,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import Iconify from "@/components/ui/icon";
+import { Input } from "@/components/ui/input";
 import { ROUTES } from "@/routes";
 
 export const loginSchema = z.object({
@@ -48,7 +48,7 @@ export default function EnterpriseLoginForm() {
     const { email, password } = values;
     setTrue();
 
-    const response = await signIn("c", {
+    const response = await signIn("credentials", {
       email,
       password,
       redirect: false,
@@ -65,7 +65,8 @@ export default function EnterpriseLoginForm() {
         type: "manual",
         message: "Invalid email or password",
       });
-    } else if (response?.error === "USER_NOT_CONFIRMED") {
+    } else if (response?.error === "The User Has Not Yet Confirmed His Email") {
+      console.log('🚀 ~ onSubmit ~ response?.error:', response?.error)
       replace(`${ROUTES.confirmEmail}?email=${email}`);
     } else if (response?.error === "USER_NOT_FOUND") {
       form.setError("email", {
@@ -77,9 +78,8 @@ export default function EnterpriseLoginForm() {
         type: "manual",
         message: "Wrong password",
       });
-    } else {
-      alert("Something went wrong");
     }
+
     setFalse();
   }
 

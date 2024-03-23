@@ -2238,6 +2238,11 @@
     estree-walker "^1.0.1"
     picomatch "^2.2.2"
 
+"@rottitime/react-hook-message-event@^1.0.10":
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/@rottitime/react-hook-message-event/-/react-hook-message-event-1.0.10.tgz#d87fb2f63befed608877dbd636aabcc3ca9be42c"
+  integrity sha512-xHIV0IfLP8vj1Vc3MhWc8UO2K1yyGeCjOeckD2mzZyoAlDf4j7SUzpEAnB/g7opLL8/e1KUdFQ6F/HTjSYU3YQ==
+
 "@surma/rollup-plugin-off-main-thread@^2.2.3":
   version "2.2.3"
   resolved "https://registry.yarnpkg.com/@surma/rollup-plugin-off-main-thread/-/rollup-plugin-off-main-thread-2.2.3.tgz#ee34985952ca21558ab0d952f00298ad2190c053"
@@ -4100,6 +4105,11 @@ inline-style-parser@0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/inline-style-parser/-/inline-style-parser-0.1.1.tgz#ec8a3b429274e9c0a1f1c4ffa9453a7fef72cea1"
   integrity sha512-7NXolsK4CAS5+xvdj5OMMbI962hU/wvwoxk+LWR9Ek9bVtyuuYScDN6eS0rUm6TxApFpw7CX1o4uJzcd4AyD3Q==
+
+input-otp@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/input-otp/-/input-otp-1.2.2.tgz#0a92e80591c4c64d30684509ebba1fcf59ef2d5e"
+  integrity sha512-9x6UurPuc9Tb+ywWFcFrG4ryvScSmfLyj8D35dl/HNpSr9jZNtWiXufU65kaDHD/KYUop7hDFH+caZCUKdYNsg==
 
 internal-slot@^1.0.5:
   version "1.0.6"

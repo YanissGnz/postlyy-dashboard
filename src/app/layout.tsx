@@ -10,7 +10,6 @@ import ReduxProvider from "@/providers/redux-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 import TokenProvider from "@/providers/token-provider";
 // components
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { env } from "@/env";
 import { Toaster } from "sonner";
 import ComingSoon from "./coming-soon";
@@ -61,24 +60,16 @@ export default function RootLayout({
       >
         <AuthProvider>
           <ReduxProvider>
-            <TokenProvider>
-              <ThemeProvider
-                attribute="class"
-                defaultTheme="system"
-                enableSystem
-              >
-                <TooltipProvider>
-                  <>
-                    {env.NEXT_PUBLIC_ENVIRONMENT === "production" ? (
-                      <ComingSoon />
-                    ) : (
-                      children
-                    )}
-                  </>
-                  <Toaster richColors closeButton />
-                </TooltipProvider>
-              </ThemeProvider>
-            </TokenProvider>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+              <TokenProvider>
+                {env.NEXT_PUBLIC_ENVIRONMENT === "production" ? (
+                  <ComingSoon />
+                ) : (
+                  children
+                )}
+                <Toaster richColors closeButton />
+              </TokenProvider>
+            </ThemeProvider>
           </ReduxProvider>
         </AuthProvider>
       </body>

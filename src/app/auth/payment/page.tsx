@@ -1,4 +1,3 @@
-import React from "react";
 import { env } from "@/env";
 import { ROUTES } from "@/routes";
 import { getServerAuthSession } from "@/server/auth";
@@ -8,6 +7,8 @@ export default async function Payment() {
   const session = await getServerAuthSession();
 
   if (session?.user.isTrial) redirect(ROUTES.home);
+
+  if (session?.user.hasPaidSubscription) redirect(ROUTES.home);
 
   if (
     session?.user.accessToken &&
