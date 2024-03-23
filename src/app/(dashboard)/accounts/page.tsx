@@ -8,7 +8,13 @@ import { toast } from "sonner";
 // components
 import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   accountApiUtil,
   useDeleteAccountMutation,
@@ -19,6 +25,7 @@ import { EProviders } from "@/types/EProviders";
 import { type TNewAccount } from "@/types/TNewAccount";
 import useMessage from "@rottitime/react-hook-message-event";
 import { decode, type JwtPayload } from "jsonwebtoken";
+import { useBoolean } from "usehooks-ts";
 
 export default function AccountsPage() {
   const {
@@ -29,7 +36,14 @@ export default function AccountsPage() {
   const [deleteAccount, { isLoading: isDeleteLoading }] =
     useDeleteAccountMutation();
 
+  const {
+    value: isLoading,
+    setTrue: startLoading,
+    setFalse: stopLoading,
+  } = useBoolean(false);
+
   useMessage("authenticate", async (send, payload) => {
+    startLoading();
     const { token } = payload as {
       token: string;
     };
@@ -75,9 +89,9 @@ export default function AccountsPage() {
       })
       .catch((e) => {
         const message = e instanceof Error ? e.message : "Something went wrong";
-
         toast.error(message);
       });
+    stopLoading();
   });
 
   const isConnected = useCallback(
@@ -106,14 +120,22 @@ export default function AccountsPage() {
       const height = 600;
       const left = (screen.width - width) / 2;
       const top = (screen.height - height) / 2;
-      const features = `width=${width},height=${height},top=${top},left=${left}`;
-      if (accountType === EProviders.Linkedin) {
-        window.open(ROUTES.accounts.connect_linkedin, "_blank", features);
-      } else {
-        window.open(ROUTES.accounts.connect_twitter, "_blank", features);
+
+      const features = `width=${width},height=${height},top=${top},left=${left},popup=yes`;
+      const popup = window.open(
+        ROUTES.accounts.connect(accountType),
+        "_blank",
+        features,
+      );
+
+      if (!popup) {
+        toast.error("Popup blocked");
+        return;
       }
+
+      popup.focus();
     },
-    [],
+    [screen],
   );
 
   const handleDeleteAccount = useCallback(
@@ -137,79 +159,105 @@ export default function AccountsPage() {
       </Card>
     );
   return (
-    <Card className="grid grid-cols-1 gap-5 p-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Image
-            src="/icons/providers/x-logo.png"
-            alt="logo"
-            width="50"
-            height="50"
-            className="rounded-full"
-          />
-          <p className="font-medium">X (Twitter)</p>
-        </div>
-        <p>
-          {isConnected(EProviders.Twitter)
-            ? `@${getAccountByType(EProviders.Twitter)?.username}`
-            : "Not connected"}
-        </p>
-        {isConnected(EProviders.Twitter) ? (
-          <Button
-            variant="destructive"
-            onClick={handleDeleteAccount(EProviders.Twitter)}
-            disabled={isDeleteLoading}
-            loading={isDeleteLoading}
-          >
-            Delete
-          </Button>
-        ) : (
-          <Button variant="outline" onClick={handleConnect(EProviders.Twitter)}>
-            Connect
-          </Button>
-        )}
-      </div>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Image
-            src="/icons/providers/linkedin-logo.png"
-            alt="logo"
-            width="50"
-            height="50"
-            className="rounded-full"
-          />
-          <p className="font-medium">LinkedIn</p>
-        </div>
-        <p>
-          {isConnected(1)
-            ? `@${getAccountByType(1)?.username}`
-            : "Not connected"}
-        </p>
-        {isConnected(EProviders.Linkedin) ? (
-          <Button
-            variant="destructive"
-            onClick={handleDeleteAccount(EProviders.Linkedin)}
-            disabled={isDeleteLoading}
-            loading={isDeleteLoading}
-          >
-            Delete
-          </Button>
-        ) : getAccountByType(EProviders.Linkedin)?.isExpired ? (
-          <Button
-            variant="outline"
-            onClick={handleConnect(EProviders.Linkedin)}
-          >
-            Renew
-          </Button>
-        ) : (
-          <Button
-            onClick={handleConnect(EProviders.Linkedin)}
-            variant="outline"
-          >
-            Connect
-          </Button>
-        )}
-      </div>
-    </Card>
+    <div className="grid grid-cols-1 gap-5 p-4 sm:grid-cols-2">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Image
+              src="/icons/providers/x-logo.png"
+              alt="logo"
+              width="50"
+              height="50"
+              className="rounded-full"
+            />
+            <p className="font-medium">X (Twitter)</p>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>
+            {isConnected(EProviders.Twitter) ? (
+              <p>
+                Connected as{" "}
+                <span className="font-semibold text-primary">
+                  @{getAccountByType(EProviders.Twitter)?.username}
+                </span>
+              </p>
+            ) : (
+              "Not connected"
+            )}
+          </p>
+        </CardContent>
+        <CardFooter className="flex justify-end">
+          {isConnected(EProviders.Twitter) ? (
+            <Button
+              variant="destructive"
+              onClick={handleDeleteAccount(EProviders.Twitter)}
+              disabled={isDeleteLoading}
+              loading={isDeleteLoading}
+            >
+              Delete
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              onClick={handleConnect(EProviders.Twitter)}
+              disabled={isLoading}
+              loading={isLoading}
+            >
+              Connect
+            </Button>
+          )}
+        </CardFooter>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Image
+              src="/icons/providers/linkedin-logo.png"
+              alt="logo"
+              width="50"
+              height="50"
+              className="rounded-full"
+            />
+            <p className="font-medium">Linkedin</p>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>
+            {isConnected(EProviders.Linkedin) ? (
+              <p>
+                Connected as{" "}
+                <span className="font-semibold text-primary">
+                  @{getAccountByType(EProviders.Linkedin)?.username}
+                </span>
+              </p>
+            ) : (
+              "Not connected"
+            )}
+          </p>
+        </CardContent>
+        <CardFooter className="flex justify-end">
+          {isConnected(EProviders.Linkedin) ? (
+            <Button
+              variant="destructive"
+              onClick={handleDeleteAccount(EProviders.Linkedin)}
+              disabled={isDeleteLoading}
+              loading={isDeleteLoading}
+            >
+              Delete
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              onClick={handleConnect(EProviders.Linkedin)}
+              disabled={isLoading}
+              loading={isLoading}
+            >
+              Connect
+            </Button>
+          )}
+        </CardFooter>
+      </Card>
+    </div>
   );
 }

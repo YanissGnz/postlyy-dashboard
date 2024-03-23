@@ -1,3 +1,5 @@
+import { type EProviders } from "@/types/EProviders";
+
 const ROOT_PATH = "/";
 
 const getPath = (path: string) => {
@@ -19,8 +21,7 @@ export const ROUTES = {
   billing: getPath("billing"),
   accounts: {
     root: getPath("accounts"),
-    connect_linkedin: getPath("accounts/connect/linkedin"),
-    connect_twitter: getPath("accounts/connect/twitter"),
+    connect: (provider: EProviders) => getPath(`connect?provider=${provider}`),
   },
   support: getPath("support"),
   notes: {
