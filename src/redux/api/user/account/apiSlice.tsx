@@ -26,7 +26,6 @@ export const accountApi = createApi({
       query: () => "/api/Account",
       providesTags: ["Accounts"],
     }),
-
     deleteAccount: builder.mutation<void, string>({
       query: (id) => ({
         url: `/api/Account/${id}`,
@@ -37,4 +36,8 @@ export const accountApi = createApi({
   }),
 });
 
-export const { useDeleteAccountMutation, useGetAccountsQuery } = accountApi;
+export const {
+  useDeleteAccountMutation,
+  useGetAccountsQuery,
+  util: accountApiUtil,
+} = accountApi;
