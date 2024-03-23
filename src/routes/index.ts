@@ -17,7 +17,11 @@ export const ROUTES = {
   settings: getPath("settings"),
   team: getPath("team"),
   billing: getPath("billing"),
-  accounts: getPath("accounts"),
+  accounts: {
+    root: getPath("accounts"),
+    connect_linkedin: getPath("accounts/connect/linkedin"),
+    connect_twitter: getPath("accounts/connect/twitter"),
+  },
   support: getPath("support"),
   notes: {
     root: getPath("notes"),

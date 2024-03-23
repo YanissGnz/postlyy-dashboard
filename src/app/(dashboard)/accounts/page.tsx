@@ -2,17 +2,15 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 "use client";
 
-import { sentenceCase } from "change-case";
 import crypto from "crypto";
-import { decode, type JwtPayload } from "jsonwebtoken";
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback } from "react";
 import { toast } from "sonner";
 // components
+import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Spinner } from "@/components/ui/Spinner";
 import { env } from "@/env";
 import {
   useAddAccountMutation,
@@ -22,10 +20,9 @@ import {
 import { ROUTES } from "@/routes";
 import { EProviders } from "@/types/EProviders";
 import { type TNewAccount } from "@/types/TNewAccount";
+import useMessage from "@rottitime/react-hook-message-event";
+import { decode, type JwtPayload } from "jsonwebtoken";
 import { isString } from "lodash";
-import Link from "next/link";
-
-const LINKEDIN_AUTH_URL = `${env.NEXT_PUBLIC_AUTH_BASEURL}/auth/linkedin`;
 
 export default function AccountsPage() {
   const {
@@ -39,52 +36,40 @@ export default function AccountsPage() {
 
   const { push } = useRouter();
 
-  const searchParams = useSearchParams();
+  useMessage("authenticate", (send, payload) => {
+    const { token } = payload as {
+      token: string;
+    };
 
-  const error = searchParams.get("error");
-  const token = searchParams.get("token");
-  useEffect(() => {
-    if (error) toast.error(sentenceCase(error));
-  }, [error]);
+    const decoded = decode(token) as (JwtPayload & { data: string }) | null;
 
-  useEffect(() => {
-    if (token) {
-      const decoded = decode(token) as (JwtPayload & { data: string }) | null;
-
-      if (!decoded) {
-        toast.error("Invalid token");
-        setTimeout(() => {
-          push(ROUTES.accounts);
-        }, 1000);
-        return;
-      }
-
-      if (decoded.exp && decoded.exp < Date.now() / 1000) {
-        toast.error("Token expired");
-        setTimeout(() => {
-          push(ROUTES.accounts);
-        }, 1000);
-        return;
-      }
-
-      const { data } = decoded;
-
-      const decodedData = JSON.parse(
-        Buffer.from(data, "base64").toString("utf-8"),
-      ) as TNewAccount;
-
-      addAccount(decodedData)
-        .unwrap()
-        .then(() => {
-          toast.success("Account added successfully");
-        })
-        .catch((e: string[]) => {
-          if (e && isString(e[0])) {
-            toast.error(e[0]);
-          }
-        });
+    if (!decoded) {
+      toast.error("Invalid token");
+      return;
     }
-  }, [token]);
+
+    if (decoded.exp && decoded.exp < Date.now() / 1000) {
+      toast.error("Token expired");
+      return;
+    }
+
+    const { data } = decoded;
+
+    const decodedData = JSON.parse(
+      Buffer.from(data, "base64").toString("utf-8"),
+    ) as TNewAccount;
+
+    addAccount(decodedData)
+      .unwrap()
+      .then(() => {
+        toast.success("Account added successfully");
+      })
+      .catch((e: string[]) => {
+        if (e && isString(e[0])) {
+          toast.error(e[0]);
+        }
+      });
+  });
 
   const isConnected = useCallback(
     (accountType: EProviders) => {
@@ -103,6 +88,25 @@ export default function AccountsPage() {
       );
     },
     [accounts, isAccountsLoading, isAccountsFetching],
+  );
+
+  const handleConnect = useCallback(
+    (accountType: EProviders) => () => {
+      if (accountType === EProviders.Linkedin) {
+        window.open(
+          ROUTES.accounts.connect_linkedin,
+          "_blank",
+          "width=500,height=500,top=50%,left=50%",
+        );
+      } else {
+        window.open(
+          ROUTES.accounts.connect_twitter,
+          "_blank",
+          "width=500,height=500",
+        );
+      }
+    },
+    [],
   );
 
   const connect = useCallback(
@@ -208,11 +212,14 @@ export default function AccountsPage() {
             Renew
           </Button>
         ) : (
-          <Link href={LINKEDIN_AUTH_URL}>
-            <Button variant="outline" disabled={isLoading} loading={isLoading}>
-              Connect
-            </Button>
-          </Link>
+          <Button
+            onClick={handleConnect(EProviders.Linkedin)}
+            variant="outline"
+            disabled={isLoading}
+            loading={isLoading}
+          >
+            Connect
+          </Button>
         )}
       </div>
     </Card>

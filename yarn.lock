@@ -2238,6 +2238,11 @@
     estree-walker "^1.0.1"
     picomatch "^2.2.2"
 
+"@rottitime/react-hook-message-event@^1.0.10":
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/@rottitime/react-hook-message-event/-/react-hook-message-event-1.0.10.tgz#d87fb2f63befed608877dbd636aabcc3ca9be42c"
+  integrity sha512-xHIV0IfLP8vj1Vc3MhWc8UO2K1yyGeCjOeckD2mzZyoAlDf4j7SUzpEAnB/g7opLL8/e1KUdFQ6F/HTjSYU3YQ==
+
 "@surma/rollup-plugin-off-main-thread@^2.2.3":
   version "2.2.3"
   resolved "https://registry.yarnpkg.com/@surma/rollup-plugin-off-main-thread/-/rollup-plugin-off-main-thread-2.2.3.tgz#ee34985952ca21558ab0d952f00298ad2190c053"
