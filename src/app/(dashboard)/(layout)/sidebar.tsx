@@ -90,7 +90,7 @@ export default function Sidebar() {
             <div className="w-full space-y-2">
               <Collapsible
                 key={item.name}
-                open={!collapsed[groupIndex] && isCollapsed}
+                open={isCollapsed ? true : !collapsed[groupIndex]}
                 onOpenChange={(isOpen) => {
                   const newCollapsed = [...collapsed] as boolean[];
 
