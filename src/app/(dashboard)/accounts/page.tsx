@@ -2,9 +2,18 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 "use client";
 
+import Image from "next/image";
 import { useCallback } from "react";
 import { toast } from "sonner";
 // components
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   accountApiUtil,
@@ -160,4 +169,106 @@ export default function AccountsPage() {
         <Skeleton className="h-60 w-full" />
       </div>
     );
+  return (
+    <div className="grid grid-cols-1 gap-5 p-4 sm:grid-cols-2">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Image
+              src="/icons/providers/x-logo.png"
+              alt="logo"
+              width="50"
+              height="50"
+              className="rounded-full"
+            />
+            <p className="font-medium">X (Twitter)</p>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>
+            {isConnected(EProviders.Twitter) ? (
+              <p>
+                Connected as{" "}
+                <span className="font-semibold text-primary">
+                  @{getAccountByType(EProviders.Twitter)?.username}
+                </span>
+              </p>
+            ) : (
+              "Not connected"
+            )}
+          </p>
+        </CardContent>
+        <CardFooter className="flex justify-end">
+          {isConnected(EProviders.Twitter) ? (
+            <Button
+              variant="destructive"
+              onClick={handleDeleteAccount(EProviders.Twitter)}
+              disabled={isDeleteLoading}
+              loading={isDeleteLoading}
+            >
+              Delete
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              onClick={handleConnect(EProviders.Twitter)}
+              disabled={isLoading}
+              loading={isLoading}
+            >
+              Connect
+            </Button>
+          )}
+        </CardFooter>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Image
+              src="/icons/providers/linkedin-logo.png"
+              alt="logo"
+              width="50"
+              height="50"
+              className="rounded-full"
+            />
+            <p className="font-medium">Linkedin</p>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>
+            {isConnected(EProviders.Linkedin) ? (
+              <p>
+                Connected as{" "}
+                <span className="font-semibold text-primary">
+                  @{getAccountByType(EProviders.Linkedin)?.username}
+                </span>
+              </p>
+            ) : (
+              "Not connected"
+            )}
+          </p>
+        </CardContent>
+        <CardFooter className="flex justify-end">
+          {isConnected(EProviders.Linkedin) ? (
+            <Button
+              variant="destructive"
+              onClick={handleDeleteAccount(EProviders.Linkedin)}
+              disabled={isDeleteLoading}
+              loading={isDeleteLoading}
+            >
+              Delete
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              onClick={handleConnect(EProviders.Linkedin)}
+              disabled={isLoading}
+              loading={isLoading}
+            >
+              Connect
+            </Button>
+          )}
+        </CardFooter>
+      </Card>
+    </div>
+  );
 }
