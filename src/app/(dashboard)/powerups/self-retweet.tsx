@@ -10,7 +10,7 @@ import { useUpdateSelfRetweetMutation } from "@/redux/api/user/powerups/apiSlice
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { openModal } from "@/redux/slices/modalsSlice";
 import { type TPowerups } from "@/types/TPowerups";
-import React, { useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { toast } from "sonner";
 
 type Props = {
@@ -63,6 +63,7 @@ export default function SelfRetweet({ selfRetweet }: Props) {
       <CardHeader>
         <div className="flex items-center gap-2">
           <Iconify icon="simple-icons:x" />
+          <Iconify icon="simple-icons:linkedin" />
           Auto Repost
         </div>
       </CardHeader>
