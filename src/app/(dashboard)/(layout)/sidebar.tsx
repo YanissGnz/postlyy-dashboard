@@ -99,8 +99,8 @@ export default function Sidebar() {
                   setCollapsed(newCollapsed);
                 }}
               >
-                <CollapsibleTrigger className="w-full">
-                  {!isCollapsed && (
+                {!isCollapsed && (
+                  <CollapsibleTrigger className="w-full">
                     <div
                       className={cn(
                         "flex w-full items-center justify-between",
@@ -117,8 +117,8 @@ export default function Sidebar() {
                         fontSize={18}
                       />
                     </div>
-                  )}
-                </CollapsibleTrigger>
+                  </CollapsibleTrigger>
+                )}
                 <CollapsibleContent>
                   <div className="w-full space-y-1">
                     {item.children.map((nav) => (
