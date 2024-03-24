@@ -24,6 +24,7 @@ import { ROUTES } from "@/routes";
 import { EProviders } from "@/types/EProviders";
 import { type TNewAccount } from "@/types/TNewAccount";
 import useMessage from "@rottitime/react-hook-message-event";
+import { sentenceCase } from "change-case";
 import { decode, type JwtPayload } from "jsonwebtoken";
 import { useBoolean } from "usehooks-ts";
 
@@ -32,6 +33,7 @@ export default function AccountsPage() {
     data: accounts,
     isLoading: isAccountsLoading,
     isFetching: isAccountsFetching,
+    refetch,
   } = useGetAccountsQuery();
   const [deleteAccount, { isLoading: isDeleteLoading }] =
     useDeleteAccountMutation();
@@ -43,54 +45,62 @@ export default function AccountsPage() {
   } = useBoolean(false);
 
   useMessage("authenticate", async (send, payload) => {
-    startLoading();
-    const { token } = payload as {
-      token: string;
+    const { token, error } = payload as {
+      token?: string;
+      error?: string;
     };
 
-    const decoded = decode(token) as (JwtPayload & { data: string }) | null;
-
-    if (!decoded) {
-      toast.error("Invalid token");
+    if (error) {
+      toast.error(sentenceCase(error));
       return;
-    }
+    } else if (token) {
+      startLoading();
+      const decoded = decode(token) as (JwtPayload & { data: string }) | null;
 
-    if (decoded.exp && decoded.exp < Date.now() / 1000) {
-      toast.error("Token expired");
-      return;
-    }
+      if (!decoded) {
+        toast.error("Invalid token");
+        return;
+      }
 
-    const { data } = decoded;
+      if (decoded.exp && decoded.exp < Date.now() / 1000) {
+        toast.error("Token expired");
+        return;
+      }
 
-    const decodedData = JSON.parse(
-      Buffer.from(data, "base64").toString("utf-8"),
-    ) as TNewAccount;
+      const { data } = decoded;
 
-    await fetch(`/api/connect`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(decodedData),
-    })
-      .then(async (res) => {
-        if (res.ok) {
-          toast.success("Account connected successfully");
-          accountApiUtil.invalidateTags(["Accounts"]);
-        } else {
-          const error = (await res.json()) as { message: string } | string[];
+      const decodedData = JSON.parse(
+        Buffer.from(data, "base64").toString("utf-8"),
+      ) as TNewAccount;
 
-          if (Array.isArray(error)) {
-            toast.error(error.join(", "));
-          } else {
-            toast.error(error.message);
-          }
-        }
+      await fetch(`/api/connect`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(decodedData),
       })
-      .catch((e) => {
-        const message = e instanceof Error ? e.message : "Something went wrong";
-        toast.error(message);
-      });
+        .then(async (res) => {
+          if (res.ok) {
+            toast.success("Account connected successfully");
+            accountApiUtil.invalidateTags(["Accounts"]);
+            void refetch();
+          } else {
+            const error = (await res.json()) as { message: string } | string[];
+
+            if (Array.isArray(error)) {
+              toast.error(error.join(", "));
+            } else {
+              toast.error(error.message);
+            }
+          }
+        })
+        .catch((e) => {
+          const message =
+            e instanceof Error ? e.message : "Something went wrong";
+          toast.error(message);
+        });
+    }
     stopLoading();
   });
 
