@@ -1,5 +1,6 @@
 "use client";
 
+import { useAppSelector } from "@/redux/hooks";
 import { setAccount, setToken } from "@/redux/slices/authSlice";
 import { useSession } from "next-auth/react";
 import React, { useEffect } from "react";
@@ -13,6 +14,8 @@ export default function TokenProvider({
   const session = useSession();
   const dispatch = useDispatch();
 
+  const currentAccount = useAppSelector((state) => state.auth.currentAccount);
+
   useEffect(() => {
     if (session) {
       if (session.status === "loading") return;
@@ -22,13 +25,14 @@ export default function TokenProvider({
         localStorage.setItem("token", session.data.user.accessToken);
         if (
           session.data.user.accounts.length > 0 &&
-          session.data.user.accounts[0]
+          session.data.user.accounts[0] &&
+          !currentAccount
         ) {
           dispatch(setAccount(session.data.user.accounts[0]));
         }
       }
     }
-  }, [session]);
+  }, [session, currentAccount]);
 
   return <>{children}</>;
 }
