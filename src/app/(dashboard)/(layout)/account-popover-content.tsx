@@ -117,7 +117,7 @@ export default function AccountPopoverContent() {
                     key={account.id}
                     className={cn(
                       "font-medium",
-                      currentAccount?.username === account.username &&
+                      currentAccount?.accountType === account.accountType &&
                         "bg-primary/20 hover:bg-primary/30",
                     )}
                     onClick={handleChangeAccount(account)}
