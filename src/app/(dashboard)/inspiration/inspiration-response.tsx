@@ -16,7 +16,6 @@ import { useAddNoteMutation } from "@/redux/api/notes/apiSlice";
 import { useAddPostNowMutation } from "@/redux/api/post/apiSlice";
 import { useAppSelector } from "@/redux/hooks";
 import { ROUTES } from "@/routes";
-import { EInspirationPostType } from "@/types/EInspiration";
 import { type TPost } from "@/types/TPostForm";
 import { type IParser } from "@alkhipce/editorjs-react/dist/types/ParserData";
 import { addDays } from "date-fns";
@@ -25,17 +24,11 @@ import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { TypeAnimation } from "react-type-animation";
 import { toast } from "sonner";
-import { useBoolean } from "usehooks-ts";
+import { useBoolean, useCopyToClipboard } from "usehooks-ts";
 
 const TWITTER_TEXT_MAX_LENGTH = 280;
 
-export default function InspirationResponse({
-  text,
-  postType,
-}: {
-  text: string;
-  postType: EInspirationPostType;
-}) {
+export default function InspirationResponse({ text }: { text: string }) {
   const currentAccount = useAppSelector((state) => state.auth.currentAccount);
   const session = useSession();
   const { push } = useRouter();
@@ -43,15 +36,21 @@ export default function InspirationResponse({
   const [scheduleDate, setScheduleDate] = useState<string | null>(null);
   const { value: isNoteDialogOpen, setValue: setIsNoteDialogOpen } =
     useBoolean(false);
-
   const { value: isDraftDialogOpen, setValue: setIsDraftDialogOpen } =
     useBoolean(false);
+
+  const [_, copy] = useCopyToClipboard();
 
   const [addNote] = useAddNoteMutation();
   const [saveDraft] = useAddPostNowMutation();
   const handleUseInspiration = useCallback(() => {
     localStorage.setItem("inspiration", text);
     push(ROUTES.post.create + "?inspiration=true");
+  }, [text]);
+
+  const handleCopyText = useCallback(async () => {
+    await copy(text);
+    toast.success("Text copied to clipboard");
   }, [text]);
 
   const handleSaveNote = useCallback(() => {
@@ -199,65 +198,66 @@ export default function InspirationResponse({
         </div>
       </div>
       <div className="flex w-full justify-end gap-2">
-        {postType === EInspirationPostType.Draft ? (
-          <Dialog open={isDraftDialogOpen} onOpenChange={setIsDraftDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline">Save as draft</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Save as draft</DialogTitle>
-              </DialogHeader>
-              <div>
-                <Label htmlFor="date" className="text-right">
-                  Reminder date
-                </Label>
-                <Input
-                  id="date"
-                  value={scheduleDate ?? ""}
-                  type="datetime-local"
-                  onChange={(e) => setScheduleDate(e.target.value)}
-                  className="w-full"
-                />
-              </div>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="ghost">Close</Button>
-                </DialogClose>
-                <Button onClick={handleSaveDraft}>Save</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        ) : (
-          <Dialog open={isNoteDialogOpen} onOpenChange={setIsNoteDialogOpen}>
-            <DialogTrigger>
-              <Button variant="outline">Save as note</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Save as note</DialogTitle>
-              </DialogHeader>
-              <div>
-                <Label htmlFor="name" className="text-right">
-                  Note name
-                </Label>
-                <Input
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full"
-                />
-              </div>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="ghost">Close</Button>
-                </DialogClose>
-                <Button onClick={handleSaveNote}>Save</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        )}
-        <Button variant="outline" onClick={handleUseInspiration}>
+        <Button variant="outline" onClick={handleCopyText}>
+          Copy text
+        </Button>
+        <Dialog open={isDraftDialogOpen} onOpenChange={setIsDraftDialogOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline">Save as draft</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Save as draft</DialogTitle>
+            </DialogHeader>
+            <div>
+              <Label htmlFor="date" className="text-right">
+                Reminder date
+              </Label>
+              <Input
+                id="date"
+                value={scheduleDate ?? ""}
+                type="datetime-local"
+                onChange={(e) => setScheduleDate(e.target.value)}
+                className="w-full"
+              />
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="ghost">Close</Button>
+              </DialogClose>
+              <Button onClick={handleSaveDraft}>Save</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isNoteDialogOpen} onOpenChange={setIsNoteDialogOpen}>
+          <DialogTrigger>
+            <Button variant="outline">Save as note</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Save as note</DialogTitle>
+            </DialogHeader>
+            <div>
+              <Label htmlFor="name" className="text-right">
+                Note name
+              </Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full"
+              />
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="ghost">Close</Button>
+              </DialogClose>
+              <Button onClick={handleSaveNote}>Save</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        <Button variant="default" onClick={handleUseInspiration}>
           Post this inspiration
         </Button>
       </div>{" "}

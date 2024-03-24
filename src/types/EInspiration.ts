@@ -21,8 +21,8 @@ export enum EInspirationFormality {
 }
 
 export enum EInspirationPostType {
-  Draft = 0,
-  Note = 1,
+  ShortPost = 0,
+  LongPost = 1,
 }
 
 export enum EInspirationType {
@@ -54,8 +54,8 @@ export const InspirationFormalityOptions = [
 ];
 
 export const InspirationPostTypeOptions = [
-  { value: EInspirationPostType.Draft, label: "Draft" },
-  { value: EInspirationPostType.Note, label: "Note" },
+  { value: EInspirationPostType.LongPost, label: "Long" },
+  { value: EInspirationPostType.ShortPost, label: "Short" },
 ];
 
 export const InspirationTypeOptions = [
