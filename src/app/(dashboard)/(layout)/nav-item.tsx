@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 // next
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -21,7 +21,11 @@ import {
 export default function NavItem({ icon, name, path }: TNavItem) {
   const pathname = usePathname();
 
-  const isActive = pathname?.includes(path);
+  const paths = useMemo(() => pathname.split("/").filter(Boolean), [pathname]);
+
+  const isActive = useMemo(() => {
+    return paths.includes(path.split("/")[1] ?? "");
+  }, [paths]);
 
   const { isCollapsed } = useAppSelector((state) => state.layout);
   const [showName, setShowName] = useState(true);
