@@ -17,9 +17,10 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   accountApiUtil,
-  useDeleteAccountMutation,
   useGetAccountsQuery,
 } from "@/redux/api/user/account/apiSlice";
+import { useAppDispatch } from "@/redux/hooks";
+import { openModal } from "@/redux/slices/modalsSlice";
 import { ROUTES } from "@/routes";
 import { EProviders } from "@/types/EProviders";
 import { type TNewAccount } from "@/types/TNewAccount";
@@ -35,8 +36,8 @@ export default function AccountsPage() {
     isFetching: isAccountsFetching,
     refetch,
   } = useGetAccountsQuery();
-  const [deleteAccount, { isLoading: isDeleteLoading }] =
-    useDeleteAccountMutation();
+
+  const dispatch = useAppDispatch();
 
   const {
     value: isLoading,
@@ -150,14 +151,20 @@ export default function AccountsPage() {
 
   const handleDeleteAccount = useCallback(
     (accountType: number) => () => {
-      deleteAccount(getAccountByType(accountType)?.id ?? "")
-        .unwrap()
-        .then(() => {
-          toast.success("Account deleted successfully");
-        })
-        .catch(() => {
-          toast.error("Something went wrong");
-        });
+      const id = getAccountByType(accountType)?.id;
+
+      if (!id) {
+        return;
+      }
+
+      dispatch(
+        openModal({
+          id: "delete-account-modal",
+          data: {
+            id,
+          },
+        }),
+      );
     },
     [accounts, isAccountsLoading, isAccountsFetching],
   );
@@ -203,8 +210,6 @@ export default function AccountsPage() {
             <Button
               variant="destructive"
               onClick={handleDeleteAccount(EProviders.Twitter)}
-              disabled={isDeleteLoading}
-              loading={isDeleteLoading}
             >
               Delete
             </Button>
@@ -252,8 +257,6 @@ export default function AccountsPage() {
             <Button
               variant="destructive"
               onClick={handleDeleteAccount(EProviders.Linkedin)}
-              disabled={isDeleteLoading}
-              loading={isDeleteLoading}
             >
               Delete
             </Button>
