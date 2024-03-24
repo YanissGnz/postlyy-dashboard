@@ -26,7 +26,7 @@ const initialState = {
       : false,
   navItems: [
     {
-      name: "Management",
+      name: "General",
       children: [
         {
           name: "Home",
@@ -44,6 +44,13 @@ const initialState = {
           name: "Calendar",
           path: "/calendar",
           icon: "solar:calendar-bold-duotone",
+          roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
+          needAccount: true,
+        },
+        {
+          name: "Post history",
+          path: "/post-history",
+          icon: "solar:history-bold-duotone",
           roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
           needAccount: true,
         },

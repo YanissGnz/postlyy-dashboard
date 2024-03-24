@@ -23,7 +23,7 @@ export const postApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Posts", "Drafts", "Template"],
+  tagTypes: ["Posts", "Drafts", "Template", "History"],
   endpoints: (builder) => ({
     addPostNow: builder.mutation<TResponse<boolean>, FormData>({
       query: (body) => ({
@@ -190,6 +190,25 @@ export const postApi = createApi({
       }),
       invalidatesTags: ["Posts", "Drafts", "Template"],
     }),
+    getPostHistory: builder.query<
+      TPaginatedResponse<TDraft>,
+      TPaginatedRequest & { accountId: string }
+    >({
+      query: ({ accountId, ...params }) => ({
+        url: `/api/PostHistory/${accountId}`,
+        params,
+      }),
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.data.map(({ id }) => ({
+                type: "History" as const,
+                id,
+              })),
+              { type: "History" as const },
+            ]
+          : [{ type: "History" as const }],
+    }),
   }),
 });
 
@@ -211,5 +230,6 @@ export const {
   useGetTemplateByIdQuery,
   useUpdateTemplateMutation,
   useGetDraftByIdQuery,
+  useGetPostHistoryQuery,
   util: postApiUtil,
 } = postApi;
