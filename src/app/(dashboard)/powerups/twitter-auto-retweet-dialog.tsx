@@ -1,6 +1,6 @@
 "use client";
 
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,23 +9,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { closeModal } from "@/redux/slices/modalsSlice";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import {
-  useSearchUserQuery,
-  useUpdateAutoRetweetMutation,
-} from "@/redux/api/user/powerups/apiSlice";
-import { EProviders } from "@/types/EProviders";
-import { cn } from "@/lib/utils";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import {
   Command,
   CommandEmpty,
@@ -33,6 +21,18 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import {
+  useSearchUserQuery,
+  useUpdateAutoRetweetMutation,
+} from "@/redux/api/user/powerups/apiSlice";
+import { EProviders } from "@/types/EProviders";
+import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { toast } from "sonner";
 
 export default function TwitterAutoRetweetDialog() {
@@ -76,7 +76,6 @@ export default function TwitterAutoRetweetDialog() {
           accId: user.accId,
         })),
         ...links
-          // remove links that are  in the users list
           .filter(
             (link) => !users.some((user) => user.accId === link.accountId),
           )
@@ -90,7 +89,7 @@ export default function TwitterAutoRetweetDialog() {
       username: link.userName,
       accId: link.accountId,
     }));
-  }, [users]);
+  }, [users, links]);
 
   const accountId = useMemo(() => {
     if (currentAccount) {
@@ -195,8 +194,12 @@ export default function TwitterAutoRetweetDialog() {
                   value={search}
                   onValueChange={setSearch}
                 />
-                <CommandEmpty>No user found.</CommandEmpty>
+                <CommandEmpty>No user found.</CommandEmpty>{" "}
                 <CommandGroup>
+                  {" "}
+                  {!search && usersList.length === 0 && (
+                    <CommandItem>Start typing to search users.</CommandItem>
+                  )}
                   {usersList.map((user) => (
                     <CommandItem
                       key={user.accId}
