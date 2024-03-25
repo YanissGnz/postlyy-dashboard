@@ -3,18 +3,7 @@
 import { type ColumnDef } from "@tanstack/react-table";
 
 import Iconify from "@/components/ui/icon";
-import { openModal } from "@/redux/slices/modalsSlice";
-import { store } from "@/redux/store";
 import { type TPostHistory } from "@/types/TPostHistory";
-
-const handleOpenPostHistoryModal = (post: TPostHistory) => () => {
-  store.dispatch(
-    openModal({
-      id: "post-history-modal",
-      data: post,
-    }),
-  );
-};
 
 export const columns: ColumnDef<TPostHistory>[] = [
   {

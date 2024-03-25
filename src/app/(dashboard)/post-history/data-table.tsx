@@ -34,12 +34,10 @@ export function DataTable() {
       PageSize: pagination.pageSize,
     },
     {
-      refetchOnMountOrArgChange: true,
       skip: !currentAccount,
     },
   );
 
-  console.log("🚀 ~ DataTable ~ data:", data);
   const table = useReactTable({
     data: data?.data ?? [],
     columns,
