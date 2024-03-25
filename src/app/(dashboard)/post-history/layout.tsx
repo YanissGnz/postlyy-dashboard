@@ -2,14 +2,14 @@ import { type Metadata } from "next";
 import Modals from "./modals";
 
 export const metadata: Metadata = {
-  title: "Notes | Postlyy",
+  title: "Post History | Postlyy",
 };
 
-interface CalendarLayoutProps {
+interface HistoryLayoutProps {
   children: React.ReactNode;
 }
 
-export default function CalendarLayout({ children }: CalendarLayoutProps) {
+export default function HistoryLayout({ children }: HistoryLayoutProps) {
   return (
     <>
       {children}

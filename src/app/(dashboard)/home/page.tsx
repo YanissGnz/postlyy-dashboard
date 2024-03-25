@@ -1,11 +1,11 @@
 "use client";
 
-import LoadingCard from "@/components/loading-card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   cn,
-  getDachboardCardMinHeight,
-  getDachboardCardMinWidth,
+  getDashboardCardMinHeight,
+  getDashboardCardMinWidth,
 } from "@/lib/utils";
 import {
   useChangeDashboardConfigMutation,
@@ -114,7 +114,14 @@ export default function HomePage() {
       </div>
       <div ref={containerRef} className="w-full">
         {isLoading ? (
-          <LoadingCard />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+            <Skeleton className="h-40" />
+            <Skeleton className="h-40" />
+            <Skeleton className="h-40" />
+            <Skeleton className="h-40" />
+            <Skeleton className="h-40" />
+            <Skeleton className="h-40" />
+          </div>
         ) : layout.length === 0 ? (
           <div className="flex h-64 w-full items-center justify-center">
             <h1 className="text-2xl font-bold text-muted-foreground">
@@ -128,8 +135,8 @@ export default function HomePage() {
               layout={
                 layout.map((item) => ({
                   ...item,
-                  minW: getDachboardCardMinWidth(item.type),
-                  minH: getDachboardCardMinHeight(item.type),
+                  minW: getDashboardCardMinWidth(item.type),
+                  minH: getDashboardCardMinHeight(item.type),
                 })) as Layout[]
               }
               cols={12}

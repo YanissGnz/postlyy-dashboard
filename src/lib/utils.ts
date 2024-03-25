@@ -70,7 +70,7 @@ export const getTypeName = (type: EPostSpotType) => {
   }
 };
 
-export const getDachboardCardMinWidth = (type: EDashboardCardType) => {
+export const getDashboardCardMinWidth = (type: EDashboardCardType) => {
   switch (type) {
     case EDashboardCardType.Stat:
       return 2;
@@ -85,7 +85,7 @@ export const getDachboardCardMinWidth = (type: EDashboardCardType) => {
   }
 };
 
-export const getDachboardCardMinHeight = (type: EDashboardCardType) => {
+export const getDashboardCardMinHeight = (type: EDashboardCardType) => {
   switch (type) {
     case EDashboardCardType.Stat:
       return 4;

@@ -1364,77 +1364,143 @@ export default function PostPage() {
                           <PopoverTrigger asChild>
                             <Button size="icon" type="button" variant="ghost">
                               <Iconify
-                                icon="solar:tuning-2-bold-duotone"
+                                icon="solar:settings-bold-duotone"
                                 className="text-foreground/80"
                                 fontSize={26}
                               />
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent side="bottom" className="space-y-3">
-                            <FormField
-                              control={form.control}
-                              name={`onTwitter`}
-                              render={({ field }) => (
-                                <FormControl>
-                                  <div className="flex items-center space-x-2">
-                                    <Switch
-                                      id="onTwitter"
-                                      disabled={
-                                        !hasAccount(
-                                          EProviders.Linkedin,
-                                          session.data?.user.accounts,
-                                        ) ||
-                                        (!form.getValues("onLinkedIn") &&
-                                          field.value)
-                                      }
-                                      checked={field.value}
-                                      onCheckedChange={field.onChange}
-                                    />{" "}
-                                    <Label htmlFor="onTwitter">
-                                      X (Twitter)
-                                    </Label>
-                                  </div>
-                                </FormControl>
+                            <div className="space-y-3">
+                              <h6>Socials</h6>
+                              {hasAccount(
+                                EProviders.Twitter,
+                                session.data?.user.accounts,
+                              ) && (
+                                <FormField
+                                  control={form.control}
+                                  name={`onTwitter`}
+                                  render={({ field }) => (
+                                    <FormControl>
+                                      <div className="flex items-center space-x-2">
+                                        <Switch
+                                          id="onTwitter"
+                                          disabled={
+                                            !hasAccount(
+                                              EProviders.Linkedin,
+                                              session.data?.user.accounts,
+                                            ) ||
+                                            (!form.getValues("onLinkedIn") &&
+                                              field.value)
+                                          }
+                                          checked={field.value}
+                                          onCheckedChange={field.onChange}
+                                        />{" "}
+                                        <Label htmlFor="onTwitter">
+                                          X (Twitter)
+                                        </Label>
+                                      </div>
+                                    </FormControl>
+                                  )}
+                                />
                               )}
-                            />
-                            {hasAccount(
-                              EProviders.Linkedin,
-                              session.data?.user.accounts,
-                            ) && (
+                              {hasAccount(
+                                EProviders.Linkedin,
+                                session.data?.user.accounts,
+                              ) && (
+                                <FormField
+                                  control={form.control}
+                                  name={`onLinkedIn`}
+                                  render={({ field }) => (
+                                    <FormControl>
+                                      <div className="flex items-center space-x-2">
+                                        <Switch
+                                          id="onLinkedIn"
+                                          disabled={
+                                            !hasAccount(
+                                              EProviders.Twitter,
+                                              session.data?.user.accounts,
+                                            ) ||
+                                            (!form.getValues("onTwitter") &&
+                                              field.value)
+                                          }
+                                          checked={field.value}
+                                          onCheckedChange={field.onChange}
+                                        />{" "}
+                                        <Label htmlFor="onLinkedIn">
+                                          LinkedIn
+                                        </Label>
+                                      </div>
+                                    </FormControl>
+                                  )}
+                                />
+                              )}
+                            </div>
+                            <div className="space-y-3">
+                              <h6>Options</h6>
                               <FormField
                                 control={form.control}
-                                name={`onLinkedIn`}
+                                name="asEvergreen"
                                 render={({ field }) => (
                                   <FormControl>
                                     <div className="flex items-center space-x-2">
                                       <Switch
-                                        id="onLinkedIn"
-                                        disabled={
-                                          !hasAccount(
-                                            EProviders.Twitter,
-                                            session.data?.user.accounts,
-                                          ) ||
-                                          (!form.getValues("onTwitter") &&
-                                            field.value)
-                                        }
+                                        id="asEvergreen"
                                         checked={field.value}
                                         onCheckedChange={field.onChange}
                                       />{" "}
-                                      <Label htmlFor="onLinkedIn">
-                                        LinkedIn
+                                      <Label htmlFor="asEvergreen">
+                                        Evergreen
                                       </Label>
                                     </div>
                                   </FormControl>
                                 )}
                               />
-                            )}
+                              <FormField
+                                control={form.control}
+                                name="addFinisher"
+                                render={({ field }) => (
+                                  <FormControl>
+                                    <div className="flex items-center space-x-2">
+                                      <Switch
+                                        id="addFinisher"
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                      />{" "}
+                                      <Label htmlFor="addFinisher">
+                                        Add Finisher
+                                      </Label>
+                                    </div>
+                                  </FormControl>
+                                )}
+                              />
+                            </div>
                           </PopoverContent>
                         </Popover>
                       </TooltipTrigger>
                       <TooltipContent side="bottom">
-                        <p className="text-center">Socials</p>
+                        <p className="text-center">Settings</p>
                       </TooltipContent>
                     </Tooltip>{" "}
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Button
+                          size="icon"
+                          type="button"
+                          variant="ghost"
+                          onClick={() => setIsTemplateSheetOpen(true)}
+                        >
+                          <Iconify
+                            icon="solar:documents-bold-duotone"
+                            className="text-foreground/80"
+                            fontSize={26}
+                          />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom">
+                        <p className="text-center">Templates</p>
+                      </TooltipContent>
+                    </Tooltip>
                     <Tooltip>
                       <TooltipTrigger>
                         <Button
@@ -1482,7 +1548,7 @@ export default function PostPage() {
                           onClick={() => setIsNotesSheetOpen(true)}
                         >
                           <Iconify
-                            icon="solar:notebook-bold-duotone"
+                            icon="solar:document-add-bold-duotone"
                             className="text-foreground/80"
                             fontSize={26}
                           />
@@ -2211,50 +2277,6 @@ export default function PostPage() {
                                                     htmlFor={`posts.${post.index}.twitterDirectLink`}
                                                   >
                                                     Add a "DM me" Button
-                                                  </Label>
-                                                </div>
-                                              </FormControl>
-                                            )}
-                                          />
-                                        )}
-                                        {post.index === 0 && (
-                                          <FormField
-                                            control={form.control}
-                                            name={`asEvergreen`}
-                                            render={({ field }) => (
-                                              <FormControl>
-                                                <div className="flex items-center space-x-2">
-                                                  <Switch
-                                                    id="asEvergreen"
-                                                    checked={field.value}
-                                                    onCheckedChange={
-                                                      field.onChange
-                                                    }
-                                                  />{" "}
-                                                  <Label htmlFor="asEvergreen">
-                                                    Set as evergreen
-                                                  </Label>
-                                                </div>
-                                              </FormControl>
-                                            )}
-                                          />
-                                        )}
-                                        {post.index === 0 && (
-                                          <FormField
-                                            control={form.control}
-                                            name={`addFinisher`}
-                                            render={({ field }) => (
-                                              <FormControl>
-                                                <div className="flex items-center space-x-2">
-                                                  <Switch
-                                                    id="addFinisher"
-                                                    checked={field.value}
-                                                    onCheckedChange={
-                                                      field.onChange
-                                                    }
-                                                  />{" "}
-                                                  <Label htmlFor="addFinisher">
-                                                    Add finisher
                                                   </Label>
                                                 </div>
                                               </FormControl>
