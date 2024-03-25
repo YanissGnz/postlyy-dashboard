@@ -11,6 +11,7 @@ import Iconify from "../../../components/ui/icon";
 // utils
 import { cn } from "@/lib/utils";
 import { closeMobileSidebar, type TNavItem } from "@/redux/slices/layoutSlice";
+import { useMediaQuery } from "usehooks-ts";
 import {
   Tooltip,
   TooltipContent,
@@ -28,6 +29,7 @@ export default function NavItem({ icon, name, path }: TNavItem) {
   }, [paths]);
 
   const { isCollapsed } = useAppSelector((state) => state.layout);
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const [showName, setShowName] = useState(true);
 
   const dispatch = useAppDispatch();
@@ -37,7 +39,7 @@ export default function NavItem({ icon, name, path }: TNavItem) {
   }, []);
 
   useEffect(() => {
-    if (isCollapsed) {
+    if (isCollapsed && !isMobile) {
       setTimeout(() => {
         setShowName(false);
       }, 500);
@@ -63,14 +65,14 @@ export default function NavItem({ icon, name, path }: TNavItem) {
           >
             <Iconify
               icon={icon}
-              height={isCollapsed ? 26 : 20}
+              height={!isMobile && isCollapsed ? 26 : 20}
               className="transition-all"
             />
             <span
               className={cn(
                 "origin-left truncate",
                 isActive && "font-semibold",
-                isCollapsed ? "scale-0" : "scale-100",
+                !isMobile && isCollapsed ? "scale-0" : "scale-100",
                 showName ? "block" : "hidden",
               )}
             >
@@ -79,7 +81,10 @@ export default function NavItem({ icon, name, path }: TNavItem) {
           </Link>
         </TooltipTrigger>
 
-        <TooltipContent side="right" className={cn(!isCollapsed && "hidden")}>
+        <TooltipContent
+          side="right"
+          className={cn(!isMobile && !isCollapsed && "hidden")}
+        >
           <h1 className="p-1 text-[16px] font-semibold">{name}</h1>
         </TooltipContent>
       </Tooltip>
