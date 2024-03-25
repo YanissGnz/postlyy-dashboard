@@ -10,6 +10,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import {
   Form,
   FormControl,
   FormField,
@@ -32,6 +40,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { useMediaQuery } from "usehooks-ts";
 import { z } from "zod";
 
 const formSchema = z.object({
@@ -44,6 +53,8 @@ export default function SelfRetweetDialog() {
   const { list } = useAppSelector((state) => state.modals);
   const currentAccount = useAppSelector((state) => state.auth.currentAccount);
   const dispatch = useAppDispatch();
+
+  const isDesktop = useMediaQuery("(min-width: 640px)");
 
   const [updateSelfRetweet, { isLoading: isUpdatingSelfRetweet }] =
     useUpdateSelfRetweetMutation();
@@ -90,98 +101,139 @@ export default function SelfRetweetDialog() {
     [accountId],
   );
 
+  const content = useMemo(
+    () => (
+      <div className="space-y-2">
+        <div className="flex w-full items-start gap-4">
+          <FormField
+            control={form.control}
+            name="conditionValue"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>Condition Value</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter a value"
+                    {...field}
+                    onChange={(e) => {
+                      field.onChange(Number(e.target.value));
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="condition"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel> Condition</FormLabel>
+                <FormControl>
+                  <Select
+                    onValueChange={(value) => field.onChange(Number(value))}
+                    defaultValue={field.value.toString()}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a verified email to display" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="0">Likes</SelectItem>
+                      <SelectItem value="1">Retweets</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <FormField
+          control={form.control}
+          name="delayHours"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Delay in hours</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Enter a value"
+                  {...field}
+                  onChange={(e) => {
+                    field.onChange(Number(e.target.value));
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+    ),
+    [form],
+  );
+
+  if (isDesktop)
+    return (
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <Dialog
+            open={list.some((modal) => modal.id === "self-retweet")}
+            onOpenChange={(isOpen) => {
+              if (!isOpen) {
+                dispatch(closeModal("self-retweet"));
+                form.reset();
+              }
+            }}
+          >
+            <DialogContent className="max-h-screen overflow-y-auto sm:max-w-xl">
+              <DialogHeader>
+                <DialogTitle>Auto Repost</DialogTitle>
+                <DialogDescription>
+                  Automatically repost your own posts after a certain period of
+                  time.
+                </DialogDescription>
+              </DialogHeader>
+              {content}
+              <DialogFooter>
+                <Button
+                  onClick={() => form.handleSubmit(onSubmit)()}
+                  loading={isUpdatingSelfRetweet}
+                  disabled={isUpdatingSelfRetweet}
+                >
+                  Save changes
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </form>{" "}
+      </Form>
+    );
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        {" "}
-        <Dialog
+        <Drawer
           open={list.some((modal) => modal.id === "self-retweet")}
-          onOpenChange={(isOpen) => {
+          onOpenChange={(isOpen: boolean) => {
             if (!isOpen) {
               dispatch(closeModal("self-retweet"));
               form.reset();
             }
           }}
         >
-          <DialogContent className="max-h-screen overflow-y-auto sm:max-w-xl">
-            <DialogHeader>
-              <DialogTitle>Auto Repost</DialogTitle>
-              <DialogDescription>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>Auto Repost</DrawerTitle>
+              <DrawerDescription>
                 Automatically repost your own posts after a certain period of
                 time.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-2">
-              <div className="flex w-full items-start gap-4">
-                <FormField
-                  control={form.control}
-                  name="conditionValue"
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormLabel>Condition Value</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter a value"
-                          {...field}
-                          onChange={(e) => {
-                            field.onChange(Number(e.target.value));
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="condition"
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormLabel> Condition</FormLabel>
-                      <FormControl>
-                        <Select
-                          onValueChange={(value) =>
-                            field.onChange(Number(value))
-                          }
-                          defaultValue={field.value.toString()}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a verified email to display" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="0">Likes</SelectItem>
-                            <SelectItem value="1">Retweets</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <FormField
-                control={form.control}
-                name="delayHours"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Delay in hours</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter a value"
-                        {...field}
-                        onChange={(e) => {
-                          field.onChange(Number(e.target.value));
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <DialogFooter>
+              </DrawerDescription>
+            </DrawerHeader>
+            <div className="p-4">{content}</div>
+            <DrawerFooter>
               <Button
                 onClick={() => form.handleSubmit(onSubmit)()}
                 loading={isUpdatingSelfRetweet}
@@ -189,9 +241,9 @@ export default function SelfRetweetDialog() {
               >
                 Save changes
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
       </form>
     </Form>
   );

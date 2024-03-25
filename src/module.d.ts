@@ -111,3 +111,26 @@ declare module "react-type-animation" {
 
   export { TypeAnimation };
 }
+
+type DrawerProps = {
+  isOpen: boolean;
+  onOpenChange: (isOpen: boolean) => void;
+  children: React.ReactNode;
+};
+
+// declare module "" {
+//   type DrawerRootProps = {
+//     isOpen: boolean;
+//     onOpenChange: (isOpen: boolean) => void;
+//     children: React.ReactNode;
+//   };
+
+//   export const Drawer: {
+//     Root: (props: DrawerRootProps) => JSX.Element;
+//     Trigger: (props: React.ComponentProps<"button">) => JSX.Element;
+//     Content: (props: React.ComponentProps<"div">) => JSX.Element;
+//     Close: (props: React.ComponentProps<"button">) => JSX.Element;
+//     Overlay: (props: React.ComponentProps<"div">) => JSX.Element;
+//     Portal: (props: { children: React.ReactNode }) => JSX.Element;
+//   };
+// }
