@@ -13,7 +13,6 @@ const Drawer = ({
 }) => (
   <DrawerPrimitive.Root
     shouldScaleBackground={shouldScaleBackground}
-    onOpenChange={props.onOpenChange}
     {...props}
   />
 );
