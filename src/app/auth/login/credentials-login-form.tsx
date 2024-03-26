@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { useBoolean } from "usehooks-ts";
 import * as z from "zod";
 // components
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -20,6 +21,10 @@ import {
 import Iconify from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { ROUTES } from "@/routes";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { sentenceCase } from "change-case";
+import { isString } from "lodash";
+import { useState } from "react";
 
 export const loginSchema = z.object({
   email: z.string().email(),
@@ -28,6 +33,7 @@ export const loginSchema = z.object({
 
 export default function EnterpriseLoginForm() {
   const { setFalse, setTrue, value: isLoading } = useBoolean(false);
+  const [error, setError] = useState<string | null>(null);
 
   const searchParams = useSearchParams();
 
@@ -47,7 +53,7 @@ export default function EnterpriseLoginForm() {
   async function onSubmit(values: z.infer<typeof loginSchema>) {
     const { email, password } = values;
     setTrue();
-
+    setError(null);
     const response = await signIn("credentials", {
       email,
       password,
@@ -56,102 +62,103 @@ export default function EnterpriseLoginForm() {
 
     if (response?.ok) {
       replace(callbackUrl ?? ROUTES.home);
-    } else if (response?.error === "CredentialsSignin") {
+    } else if (response?.error === "The User Was Not Found") {
       form.setError("email", {
         type: "manual",
-        message: "Invalid email or password",
+        message: response?.error,
       });
+    } else if (response?.error === "Wrong User Password") {
       form.setError("password", {
         type: "manual",
-        message: "Invalid email or password",
+        message: response?.error,
       });
     } else if (response?.error === "The User Has Not Yet Confirmed His Email") {
-      console.log('🚀 ~ onSubmit ~ response?.error:', response?.error)
       replace(`${ROUTES.confirmEmail}?email=${email}`);
-    } else if (response?.error === "USER_NOT_FOUND") {
-      form.setError("email", {
-        type: "manual",
-        message: "User not found",
-      });
-    } else if (response?.error === "WRONG_PASS") {
-      form.setError("password", {
-        type: "manual",
-        message: "Wrong password",
-      });
+    } else if (isString(response?.error)) {
+      setError(sentenceCase(response?.error));
     }
 
     setFalse();
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter your email" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <>
+      {error && (
+        <Alert variant="destructive" className="mb-2">
+          <ExclamationTriangleIcon className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter your email" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <div className="flex items-center justify-between">
-                <FormLabel>Password</FormLabel>{" "}
-                <p className="text-xs text-gray-500">
-                  Forgot your password?{" "}
-                  <Link href={ROUTES.recoverPassword}>
-                    <Button
-                      variant="link"
-                      className="px-1 text-xs"
-                      type="button"
-                    >
-                      Recover password
-                    </Button>
-                  </Link>
-                </p>
-              </div>
-              <FormControl>
-                <Input
-                  type="password"
-                  placeholder="Enter your password"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex items-center justify-between">
+                  <FormLabel>Password</FormLabel>{" "}
+                  <p className="text-xs text-gray-500">
+                    Forgot your password?{" "}
+                    <Link href={ROUTES.recoverPassword}>
+                      <Button
+                        variant="link"
+                        className="px-1 text-xs"
+                        type="button"
+                      >
+                        Recover password
+                      </Button>
+                    </Link>
+                  </p>
+                </div>
+                <FormControl>
+                  <Input
+                    type="password"
+                    placeholder="Enter your password"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading && (
-            <Iconify
-              icon="ph:spinner-bold"
-              className="mr-2 h-4 w-4 animate-spin"
-            />
-          )}
-          Login
-        </Button>
-      </form>
-      <div className="mt-2 text-center">
-        <p className="text-sm text-gray-500">
-          Don't have an account?{" "}
-          <Link href={ROUTES.register} className="font-medium text-primary">
-            <Button variant="link" className="px-1" type="button">
-              Sign up
-            </Button>
-          </Link>
-        </p>
-      </div>
-    </Form>
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading && (
+              <Iconify
+                icon="ph:spinner-bold"
+                className="mr-2 h-4 w-4 animate-spin"
+              />
+            )}
+            Login
+          </Button>
+        </form>
+        <div className="mt-2 text-center">
+          <p className="text-sm text-gray-500">
+            Don't have an account?{" "}
+            <Link href={ROUTES.register} className="font-medium text-primary">
+              <Button variant="link" className="px-1" type="button">
+                Sign up
+              </Button>
+            </Link>
+          </p>
+        </div>
+      </Form>
+    </>
   );
 }
