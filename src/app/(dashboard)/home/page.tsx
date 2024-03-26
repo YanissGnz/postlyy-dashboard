@@ -18,9 +18,9 @@ import { EDashboardCardType } from "@/types/EDashboardCardType";
 import { type DashboardConfig } from "@/types/TDashboardConfig";
 import { max } from "lodash";
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { type Layout } from "react-grid-layout";
-import { useBoolean, useElementSize } from "usehooks-ts";
+import { useBoolean, useResizeObserver } from "usehooks-ts";
 import CalendarCard from "./CalendarCard";
 import GraphCard from "./GraphCard";
 import PostsStatsCard from "./PostsStatsCard";
@@ -42,10 +42,15 @@ export default function HomePage() {
     isSuccess,
   } = useGetDashboardConfigQuery();
 
-  const [containerRef, { width: containerWidth = 0 }] = useElementSize();
+  const ref = useRef<HTMLDivElement>(null);
+
+  const { width: containerWidth = 0 } = useResizeObserver({
+    ref,
+    box: "border-box",
+  });
 
   const width = useMemo(() => {
-    return max([containerWidth, 650]);
+    return max([containerWidth, 800]);
   }, [containerWidth]);
 
   useEffect(() => {
@@ -99,8 +104,8 @@ export default function HomePage() {
   );
 
   return (
-    <div className="flex h-screen flex-col space-y-2 px-4 py-4">
-      <div className="mb-5 flex flex-wrap items-center justify-between md:px-4">
+    <div className="flex h-screen flex-col space-y-2">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-2 px-4 py-4 md:px-8">
         <h2 className="text-2xl font-bold">Home</h2>
         <div className="flex flex-wrap items-center gap-2">
           <DashboardRangePicker />
@@ -113,7 +118,7 @@ export default function HomePage() {
           )}
         </div>
       </div>
-      <div ref={containerRef} className="w-full">
+      <div ref={ref} className="w-full">
         {isLoading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
             <Skeleton className="h-40" />
@@ -130,9 +135,9 @@ export default function HomePage() {
             </h1>
           </div>
         ) : (
-          <ScrollArea className="h-fit w-full">
+          <ScrollArea className="h-fit w-full ">
             <GridLayout
-              className={cn("w-full", isEdit && "grid-background")}
+              className={cn("w-full px-4", isEdit && "grid-background ")}
               layout={
                 layout.map((item) => ({
                   ...item,
