@@ -8,10 +8,10 @@ import { useMediaQuery } from "usehooks-ts";
 // components
 import Header from "@/app/(dashboard)/(layout)/header";
 import Sidebar from "@/app/(dashboard)/(layout)/sidebar";
-import { Spinner } from "@/components/ui/Spinner";
 import { useAppSelector } from "@/redux/hooks";
 import { ROUTES } from "@/routes";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import AlertsProvider from "../../providers/alerts-provider";
 
 export default function DashboardLayout({
@@ -23,32 +23,31 @@ export default function DashboardLayout({
   const { isCollapsed } = useAppSelector((state) => state.layout);
 
   const session = useSession();
+  const { replace } = useRouter();
 
-  if (session.status === "loading")
-    return (
-      <div className="flex h-screen w-screen items-center justify-center ">
-        <Spinner />
-      </div>
-    );
+  useEffect(() => {
+    if (session.status === "unauthenticated") {
+      replace(ROUTES.login);
+      localStorage.removeItem("token");
+      return;
+    }
 
-  if (session.status === "unauthenticated") {
-    localStorage.removeItem("token");
-    redirect(ROUTES.login);
-  }
+    if (
+      session.status === "authenticated" &&
+      !session.data?.user.hasChosenSubscription
+    ) {
+      replace(ROUTES.setupSubscription);
+      return;
+    }
 
-  if (
-    session.status === "authenticated" &&
-    !session.data?.user.hasChosenSubscription
-  ) {
-    redirect(ROUTES.setupSubscription);
-  }
-
-  if (
-    session.status === "authenticated" &&
-    !session.data?.user.hasPaidSubscription
-  ) {
-    redirect(ROUTES.payment);
-  }
+    if (
+      session.status === "authenticated" &&
+      !session.data?.user.hasPaidSubscription
+    ) {
+      replace(ROUTES.payment);
+      return;
+    }
+  }, [session]);
 
   return (
     <AlertsProvider>
