@@ -67,6 +67,13 @@ const initialState = {
           needAccount: true,
         },
         {
+          name: "Inspiration",
+          path: "/inspiration",
+          icon: "solar:stars-minimalistic-bold-duotone",
+          roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
+          needAccount: true,
+        },
+        {
           name: "Brainstorm",
           path: "/notes",
           icon: "solar:lightbulb-bold-duotone",
@@ -84,13 +91,6 @@ const initialState = {
           name: "Drafts",
           path: "/drafts",
           icon: "solar:file-text-bold-duotone",
-          roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
-          needAccount: true,
-        },
-        {
-          name: "Inspiration",
-          path: "/inspiration",
-          icon: "solar:stars-minimalistic-bold-duotone",
           roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
           needAccount: true,
         },

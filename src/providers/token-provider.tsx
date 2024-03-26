@@ -34,13 +34,7 @@ export default function TokenProvider({
           dispatch(setAccount(session.data.user.accounts[0]));
         }
 
-        if (!session.data?.user.hasChosenSubscription) {
-          push(ROUTES.setupSubscription);
-        }
-
-        if (!session.data?.user.hasPaidSubscription) {
-          push(ROUTES.payment);
-        }
+        
       } else {
         push(ROUTES.login);
       }
