@@ -23,6 +23,7 @@ import { type Layout } from "react-grid-layout";
 import { useBoolean, useElementSize } from "usehooks-ts";
 import CalendarCard from "./CalendarCard";
 import GraphCard from "./GraphCard";
+import PostsStatsCard from "./PostsStatsCard";
 import StatCard from "./StatCard";
 import AddCardDialog from "./add-card-dialog";
 import EditLayoutButton from "./edit-layout-button";
@@ -171,6 +172,15 @@ export default function HomePage() {
                   return (
                     <div key={item.i}>
                       <CalendarCard
+                        {...item}
+                        handleRemoveCard={handleRemoveCard}
+                      />
+                    </div>
+                  );
+                } else if (item.type === EDashboardCardType.PostsStats) {
+                  return (
+                    <div key={item.i}>
+                      <PostsStatsCard
                         {...item}
                         handleRemoveCard={handleRemoveCard}
                       />

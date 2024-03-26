@@ -44,38 +44,47 @@ const DASHBOARD_QUERIES = [
   {
     name: "Impressions",
     value: 0,
+    providers: [EProviders.Twitter],
   },
   {
     name: "Likes",
     value: 1,
+    providers: [EProviders.Twitter],
   },
   {
     name: "Replies",
     value: 2,
+    providers: [EProviders.Twitter],
   },
   {
     name: "Retweets",
     value: 3,
+    providers: [EProviders.Twitter],
   },
   {
     name: "Link Clicks",
     value: 4,
+    providers: [EProviders.Twitter],
   },
   {
     name: "Profile Clicks",
     value: 5,
+    providers: [EProviders.Twitter],
   },
   {
     name: "Follows",
     value: 6,
+    providers: [EProviders.Twitter],
   },
   {
     name: "Posts",
     value: 7,
+    providers: [EProviders.Twitter, EProviders.Linkedin],
   },
   {
     name: "Schedules",
     value: 8,
+    providers: [EProviders.Twitter, EProviders.Linkedin],
   },
 ];
 
@@ -87,8 +96,8 @@ function getCardTitle(type: EDashboardCardType, value?: number) {
     return (
       DASHBOARD_QUERIES.find((query) => query.value === value)?.name ?? "Card"
     );
-  } else if (type === EDashboardCardType.Table) {
-    return "Table";
+  } else if (type === EDashboardCardType.PostsStats) {
+    return "Latest Posts Stats";
   } else if (type === EDashboardCardType.EventsCalendar) {
     return "Events Calendar";
   }
@@ -101,7 +110,7 @@ const formSchema = z
     provider: z.enum(["0", "1"], {
       required_error: "Please select a provider",
     }),
-    type: z.enum(["stat", "graph", "table", "events-calendar"]),
+    type: z.enum(["stat", "graph", "posts-stats", "events-calendar"]),
     description: z.string().optional(),
     query: z.enum(["0", "1", "2", "3", "4", "5", "6", "7", "8"]).optional(),
   })
@@ -135,7 +144,6 @@ export default function AddCardDialog() {
       values.query ? parseInt(values.query) : undefined,
     );
 
-    console.log("🚀 ~ onSubmit ~ title:", title);
     dispatch(
       addCard({
         title,
@@ -222,7 +230,9 @@ export default function AddCardDialog() {
                       <SelectContent>
                         <SelectItem value="stat">Stat</SelectItem>
                         <SelectItem value="graph">Graph</SelectItem>
-                        <SelectItem value="table">Table</SelectItem>
+                        <SelectItem value="posts-stats">
+                          Latest Posts Stats
+                        </SelectItem>
                         <SelectItem value="events-calendar">
                           Today's Schedule
                         </SelectItem>
@@ -248,11 +258,17 @@ export default function AddCardDialog() {
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select card type" />
+                            <SelectValue placeholder="Select card data" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {DASHBOARD_QUERIES.map((query) => (
+                          {DASHBOARD_QUERIES.filter((query) =>
+                            query.providers.includes(
+                              form.watch("provider") === "0"
+                                ? EProviders.Twitter
+                                : EProviders.Linkedin,
+                            ),
+                          ).map((query) => (
                             <SelectItem
                               key={query.value}
                               value={query.value.toString()}
