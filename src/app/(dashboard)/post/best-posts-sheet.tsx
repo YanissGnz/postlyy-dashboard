@@ -1,5 +1,3 @@
-import { Spinner } from "@/components/ui/Spinner";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import Iconify from "@/components/ui/icon";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -9,6 +7,8 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { DataTablePagination } from "@/components/ui/table/DataTablePagination";
 import {
   Tooltip,
@@ -17,9 +17,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useGetBestPostsQuery } from "@/redux/api/post/apiSlice";
-import { useAppSelector } from "@/redux/hooks";
-import { useSession } from "next-auth/react";
-import { useCallback, type Dispatch, type SetStateAction } from "react";
+import Image from "next/image";
+import {
+  useCallback,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 import ErrorCard from "../../../components/error-card";
 import { usePagination } from "../../../hooks/usePagination";
 
@@ -34,9 +38,8 @@ export default function BestPostsSheet({
   setIsOpen,
   importPost,
 }: Props) {
-  const session = useSession();
-  const { currentAccount } = useAppSelector((state) => state.auth);
   const pagination = usePagination();
+  const [otherUsers, setOtherUsers] = useState(false);
 
   const {
     data: bestPosts,
@@ -46,6 +49,7 @@ export default function BestPostsSheet({
   } = useGetBestPostsQuery({
     PageNumber: pagination.pageNumber,
     PageSize: pagination.pageSize,
+    otherUsers,
   });
 
   const handleImportBestPosts = useCallback(
@@ -56,101 +60,175 @@ export default function BestPostsSheet({
   );
 
   return (
-    <Sheet open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
-      <SheetContent className="md:max-w-xl">
-        <SheetHeader>
-          <SheetTitle>Best Posts</SheetTitle>
-        </SheetHeader>
-        <ScrollArea className="mt-2 h-[85vh]">
-          {isLoading ? (
-            <div className="flex h-56 items-center justify-center">
-              <Spinner />
+    <TooltipProvider>
+      <Sheet open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
+        <SheetContent className="md:max-w-xl">
+          <SheetHeader className="flex flex-row items-center justify-between">
+            <SheetTitle>Best Posts</SheetTitle>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="OtherUsers"
+                checked={otherUsers}
+                onCheckedChange={setOtherUsers}
+              />
+              <label
+                htmlFor="terms"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Include other users posts
+              </label>
             </div>
-          ) : isSuccess ? (
-            bestPosts.data.length > 0 ? (
-              <div className="flex flex-col">
+          </SheetHeader>
+          <ScrollArea className="mt-2 h-[85vh]">
+            {isLoading ? (
+              <div className="h-full space-y-2">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <Skeleton key={index} className="h-36 w-full" />
+                ))}
+              </div>
+            ) : isSuccess ? (
+              bestPosts.data.length > 0 ? (
                 <div className="flex flex-col">
-                  {[...bestPosts.data, ...bestPosts.data].map((post) => (
-                    <div className="mb-4 flex flex-col rounded border">
-                      <div className="flex items-center justify-end border-b p-1">
-                        <div className="gap2 flex items-center">
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger>
-                                <Button
-                                  size="icon"
-                                  type="button"
-                                  variant="ghost"
-                                  onClick={handleImportBestPosts(post.id)}
-                                >
-                                  <Iconify
-                                    icon="solar:square-forward-bold-duotone"
-                                    className="text-foreground/80"
-                                    fontSize={18}
-                                  />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent side="bottom">
-                                <p className="text-center">Import</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </div>
-                      </div>
-                      <div className=" p-2">
-                        <div className="my-3 flex items-center gap-2">
-                          <Avatar>
-                            <AvatarImage
-                              src={
-                                currentAccount?.photoUrl
-                                  ? currentAccount?.photoUrl
-                                  : session.data?.user.profilePicture ?? ""
-                              }
-                              alt={`@${currentAccount?.username}`}
-                              className="object-cover"
-                            />
-                            <AvatarFallback>
-                              {currentAccount?.username
-                                ?.slice(0, 2)
-                                .toUpperCase() ??
-                                session.data?.user.fullName
-                                  ?.slice(0, 2)
-                                  .toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 space-y-1">
-                            <p className="text-sm font-semibold">
-                              {session.data?.user.fullName}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              @
-                              {currentAccount?.username
-                                .toLowerCase()
-                                .split(" ")
-                                .join("")}
-                            </p>
+                  <div className="flex flex-col">
+                    {bestPosts.data.map((post) => (
+                      <div className="mb-4 flex flex-col rounded border">
+                        <div className="p-2">
+                          <p>{post.text}</p>
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {post.images.map((image, index) => (
+                              <Image
+                                key={index}
+                                src={image}
+                                alt={`Image ${index}`}
+                                height={64}
+                                width={64}
+                                className="h-16 w-16 rounded object-cover"
+                              />
+                            ))}
                           </div>
                         </div>
-                        <p>{post.text}</p>
+                        <div className="flex items-center justify-between border-t px-1">
+                          <div className="flex items-center gap-2 divide-x">
+                            {" "}
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <div className="flex items-center gap-1 p-1">
+                                  <Iconify
+                                    icon="solar:eye-bold-duotone"
+                                    className="text-blue-500"
+                                    fontSize={18}
+                                  />
+                                  <span>{post.impressions}</span>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="bottom">
+                                <p className="text-center">
+                                  Impressions and views
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <div className="flex items-center gap-1 p-1">
+                                  <Iconify
+                                    icon="solar:heart-angle-bold-duotone"
+                                    className="text-red-500"
+                                    fontSize={18}
+                                  />
+                                  <span>{post.likes}</span>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="bottom">
+                                <p className="text-center">Likes</p>
+                              </TooltipContent>
+                            </Tooltip>{" "}
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <div className="flex items-center gap-1 p-1">
+                                  <Iconify
+                                    icon="solar:chat-square-arrow-bold-duotone"
+                                    className="text-blue-500"
+                                    fontSize={18}
+                                  />
+                                  <span>{post.replies}</span>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="bottom">
+                                <p className="text-center">
+                                  Comments and replies
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <div className="flex items-center gap-1 p-1">
+                                  <Iconify
+                                    icon="fa6-solid:retweet"
+                                    className="text-green-500"
+                                    fontSize={18}
+                                  />
+                                  <span>{post.retweets}</span>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="bottom">
+                                <p className="text-center">
+                                  Retweets and shares
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <div className="flex items-center gap-1 p-1">
+                                  <Iconify
+                                    icon="solar:user-bold-duotone"
+                                    className="text-blue-500"
+                                    fontSize={18}
+                                  />
+                                  <span>{post.profileClicks}</span>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="bottom">
+                                <p className="text-center">
+                                  Profile visits and clicks
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </div>
+                          <div className="gap2 flex items-center">
+                            <Button
+                              type="button"
+                              size="sm"
+                              onClick={handleImportBestPosts(post.id)}
+                              className="my-1"
+                            >
+                              <Iconify
+                                icon="solar:square-forward-bold-duotone"
+                                className="me-1 text-foreground/80"
+                                fontSize={18}
+                              />
+                              Import
+                            </Button>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="flex h-56 items-center justify-center">
+                  <div className="text-muted-foreground">No posts found</div>
+                </div>
+              )
             ) : (
-              <div className="flex h-56 items-center justify-center">
-                <div className="text-muted-foreground">No posts found</div>
-              </div>
-            )
-          ) : (
-            <ErrorCard refetchFunction={refetch} />
-          )}
-        </ScrollArea>
-        <DataTablePagination
-          {...pagination}
-          totalPages={bestPosts?.totalPages ?? 1}
-        />
-      </SheetContent>
-    </Sheet>
+              <ErrorCard refetchFunction={refetch} />
+            )}
+          </ScrollArea>
+          <DataTablePagination
+            {...pagination}
+            totalPages={bestPosts?.totalPages ?? 1}
+          />
+        </SheetContent>
+      </Sheet>
+    </TooltipProvider>
   );
 }

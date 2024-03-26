@@ -1226,15 +1226,8 @@ export default function PostPage() {
             form.reset(data);
             setIsDraftSheetOpen(false);
           })
-          .catch((err) => {
-            console.log("🚀 ~ success: ~ err:", err);
-            form.reset(defaultValues);
-            setPostsContent([
-              {
-                index: 0,
-                images: [],
-              },
-            ]);
+          .catch(() => {
+            toast.error("Failed to fetch draft");
 
             setIsDraftSheetOpen(false);
           });
@@ -1301,17 +1294,16 @@ export default function PostPage() {
           .parseAsync(newForm)
           .then((data) => {
             form.reset(data);
-            setIsTemplateSheetOpen(false);
-          })
-          .catch((err) => {
-            console.log("🚀 ", err);
-            form.reset(defaultValues);
             setPostsContent([
               {
                 index: 0,
                 images: [],
               },
             ]);
+            setIsTemplateSheetOpen(false);
+          })
+          .catch(() => {
+            toast.error("Failed to fetch template");
 
             setIsTemplateSheetOpen(false);
           });

@@ -212,7 +212,7 @@ export const postApi = createApi({
     }),
     getBestPosts: builder.query<
       TPaginatedResponse<TPostHistory>,
-      TPaginatedRequest
+      TPaginatedRequest & { otherUsers: boolean }
     >({
       query: (params) => ({
         url: "/api/PostHistory/BestPosts",

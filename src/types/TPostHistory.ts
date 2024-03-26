@@ -1,4 +1,9 @@
 export type TPostHistory = {
+  impressions: number;
+  likes: number;
+  replies: number;
+  retweets: number;
+  profileClicks: number;
   id: string;
   twitterId: string;
   linkedInId: string;
