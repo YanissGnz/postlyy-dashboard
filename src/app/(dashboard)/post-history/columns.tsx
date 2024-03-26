@@ -37,4 +37,24 @@ export const columns: ColumnDef<TPostHistory>[] = [
       );
     },
   },
+  {
+    accessorKey: "impressions",
+    header: "Impressions",
+  },
+  {
+    accessorKey: "likes",
+    header: "Likes",
+  },
+  {
+    accessorKey: "replies",
+    header: "Replies",
+  },
+  {
+    accessorKey: "retweets",
+    header: "Retweets / Shares",
+  },
+  {
+    accessorKey: "profileClicks",
+    header: "Profile Clicks",
+  },
 ];
