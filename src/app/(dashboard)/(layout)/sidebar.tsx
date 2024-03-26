@@ -29,7 +29,7 @@ export default function Sidebar() {
   const { navItems, isCollapsed } = useAppSelector((state) => state.layout);
 
   const [collapsed, setCollapsed] = useLocalStorage<string[]>("collapsed", [
-    "1",
+    "0",
   ]);
 
   const dispatch = useAppDispatch();
