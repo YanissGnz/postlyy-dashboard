@@ -73,7 +73,7 @@ export default function NavItem({ icon, name, path }: TNavItem) {
                 "origin-left truncate",
                 isActive && "font-semibold",
                 !isMobile && isCollapsed ? "scale-0" : "scale-100",
-                showName ? "block" : "hidden",
+                showName || isMobile ? "block" : "hidden",
               )}
             >
               {name}
