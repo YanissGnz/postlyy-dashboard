@@ -14,7 +14,7 @@ interface RoleBasedGuardProp {
   children: ReactNode;
 }
 
-export default async function RoleBasedGuard({
+export default function RoleBasedGuard({
   accessibleRoles = [EUserType.Manager, EUserType.Owner, EUserType.TeamMember],
   accessibleTiers = [ETiers.Basic, ETiers.Pro, ETiers.Expert],
   needAccount,
