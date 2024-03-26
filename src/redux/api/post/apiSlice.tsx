@@ -210,6 +210,21 @@ export const postApi = createApi({
             ]
           : [{ type: "History" as const }],
     }),
+    getBestPosts: builder.query<
+      TPaginatedResponse<TPostHistory>,
+      TPaginatedRequest
+    >({
+      query: (params) => ({
+        url: "/api/PostHistory/BestPosts",
+        params,
+      }),
+    }),
+    getBestPostById: builder.mutation<TResponse<TPostForm>, string>({
+      query: (id) => ({
+        url: `/api/PostHistory/ImportPost/${id}`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -232,5 +247,7 @@ export const {
   useUpdateTemplateMutation,
   useGetDraftByIdQuery,
   useGetPostHistoryQuery,
+  useGetBestPostsQuery,
+  useGetBestPostByIdMutation,
   util: postApiUtil,
 } = postApi;

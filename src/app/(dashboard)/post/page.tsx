@@ -58,6 +58,7 @@ import {
   useAddPostToSpotMutation,
   useAddRecurringPostMutation,
   useDeleteDraftImageMutation,
+  useGetBestPostByIdMutation,
   useGetDraftMutation,
   useGetTemplateMutation,
   useUpdateDraftMutation,
@@ -92,6 +93,7 @@ import ImageUploading, { type ImageListType } from "react-images-uploading";
 import { toast } from "sonner";
 import { useBoolean } from "usehooks-ts";
 import { DAYS_OF_WEEK } from "../calendar/add-edit-event-form";
+import BestPostsSheet from "./best-posts-sheet";
 import DraftSheet from "./draft-sheet";
 import Note from "./note";
 import NotesSheet from "./notes-sheet";
@@ -236,6 +238,7 @@ export default function PostPage() {
     useAddRecurringPostMutation();
 
   const [getDraft] = useGetDraftMutation();
+  const [getBestPost] = useGetBestPostByIdMutation();
   const [updatedDraft] = useUpdateDraftMutation();
   const [getTemplate] = useGetTemplateMutation();
   const [deleteDraftImage] = useDeleteDraftImageMutation();
@@ -270,6 +273,8 @@ export default function PostPage() {
   const { value: isDraftDialogOpen, setValue: setIsDraftDialogOpen } =
     useBoolean(false);
   const { value: isDraftSheetOpen, setValue: setIsDraftSheetOpen } =
+    useBoolean(false);
+  const { value: isBestPostsSheetOpen, setValue: setIsBestPostsSheetOpen } =
     useBoolean(false);
   const { value: isTemplateSheetOpen, setValue: setIsTemplateSheetOpen } =
     useBoolean(false);
@@ -1326,6 +1331,52 @@ export default function PostPage() {
     setNoteId(null);
   }, []);
 
+  // Best Posts
+
+  const handleUseBestPost = useCallback(
+    (id: string) => {
+      setIsBestPostsSheetOpen(false);
+      const getBestPostPromise = getBestPost(id).unwrap();
+
+      toast.promise(getBestPostPromise, {
+        loading: "Fetching best post...",
+        success: async (data) => {
+          const newPosts = data.data.posts.map((post) => ({
+            ...post,
+            pull: post.poll ?? null,
+            imageLinks: post.imageLinks ?? [],
+            gif: post.gifLink ?? null,
+            images: [],
+          }));
+
+          const newForm: TPostForm = {
+            addFinisher: data.data.addFinisher,
+            asEvergreen: data.data.asEvergreen,
+            isDraft: data.data.isDraft,
+            isTemplate: data.data.isTemplate,
+            onLinkedIn: data.data.onLinkedIn,
+            onTwitter: data.data.onTwitter,
+            scheduleDate: data.data.scheduleDate ?? "",
+            posts: newPosts,
+          };
+
+          postFormSchema
+            .parseAsync(newForm)
+            .then((data) => {
+              form.reset(data);
+            })
+            .catch(() => {
+              toast.error("Something went wrong");
+            });
+
+          return "Fetched best post!";
+        },
+        error: "Failed to fetch best post",
+      });
+    },
+    [form],
+  );
+
   return (
     <>
       <TooltipProvider>
@@ -1488,17 +1539,17 @@ export default function PostPage() {
                           size="icon"
                           type="button"
                           variant="ghost"
-                          onClick={() => setIsTemplateSheetOpen(true)}
+                          onClick={() => setIsBestPostsSheetOpen(true)}
                         >
                           <Iconify
-                            icon="solar:documents-bold-duotone"
+                            icon="solar:stars-bold-duotone"
                             className="text-foreground/80"
                             fontSize={26}
                           />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent side="bottom">
-                        <p className="text-center">Templates</p>
+                        <p className="text-center">Best Posts</p>
                       </TooltipContent>
                     </Tooltip>
                     <Tooltip>
@@ -2789,6 +2840,11 @@ export default function PostPage() {
         isOpen={isNotesSheetOpen}
         setIsOpen={setIsNotesSheetOpen}
         openNote={handleOpenNote}
+      />
+      <BestPostsSheet
+        isOpen={isBestPostsSheetOpen}
+        setIsOpen={setIsBestPostsSheetOpen}
+        importPost={handleUseBestPost}
       />
     </>
   );
