@@ -104,8 +104,8 @@ export default function HomePage() {
   );
 
   return (
-    <div className="flex h-screen flex-col space-y-2">
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-2 px-4 py-4 md:px-8">
+    <div className="flex h-screen flex-col space-y-2 px-4">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-2 px-4 py-4 md:px-4">
         <h2 className="text-2xl font-bold">Home</h2>
         <div className="flex flex-wrap items-center gap-2">
           <DashboardRangePicker />
@@ -137,7 +137,7 @@ export default function HomePage() {
         ) : (
           <ScrollArea className="h-fit w-full ">
             <GridLayout
-              className={cn("w-full px-4", isEdit && "grid-background ")}
+              className={cn("w-full", isEdit && "grid-background ")}
               layout={
                 layout.map((item) => ({
                   ...item,
