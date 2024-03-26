@@ -14,6 +14,7 @@ import { type TResponse } from "@/types/TResponse";
 import { isArray } from "lodash";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { useBoolean } from "usehooks-ts";
 
 export default function SetupForm() {
@@ -65,11 +66,13 @@ export default function SetupForm() {
         })
         .catch((error: string[]) => {
           if (isArray(error)) {
-            if (error.includes("Subscription Already Setup")) {
-              replace(ROUTES.payment);
-            }
+            toast.error(error[0]);
+            setTimeout(() => {
+              if (error.includes("Subscription Already Setup")) {
+                replace(ROUTES.payment);
+              }
+            }, 3000);
           }
-          refresh();
         });
       setFalse();
     },
