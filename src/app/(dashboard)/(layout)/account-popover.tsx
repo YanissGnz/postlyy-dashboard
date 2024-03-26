@@ -24,7 +24,12 @@ export default function AccountPopover() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild disabled={status !== "authenticated"}>
-        <div className="flex w-full cursor-pointer items-center gap-2 rounded border p-2 hover:bg-accent">
+        <div
+          className={cn(
+            "flex w-full cursor-pointer items-center gap-2 rounded border p-2 hover:bg-accent",
+            isCollapsed && "aspect-square",
+          )}
+        >
           {status === "loading" ? (
             <Skeleton className="h-10 w-10 rounded-full" />
           ) : (
@@ -47,7 +52,7 @@ export default function AccountPopover() {
           <div
             className={cn(
               "flex origin-left flex-col gap-1 transition-transform duration-500",
-              isCollapsed ? "scale-0" : "scale-100",
+              isCollapsed ? "h-0 scale-0" : "scale-100",
             )}
           >
             {status === "loading" ? (
