@@ -27,6 +27,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { fData } from "@/lib/formatNumber";
@@ -104,127 +105,129 @@ export default function FinisherForm() {
   }, [form]);
 
   return (
-    <Card className="w-full">
-      {isFinisherLoading ? (
-        <div className="flex h-56 w-full items-center justify-center">
-          <Spinner />
-        </div>
-      ) : (
-        <CardContent className="p-4">
-          <Form {...form}>
-            <div className="space-y-2">
-              <FormField
-                control={form.control}
-                name="finisherText"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Enter your finisher text"
-                        {...field}
-                      />
-                    </FormControl>
+    <TooltipProvider>
+      <Card className="w-full">
+        {isFinisherLoading ? (
+          <div className="flex h-56 w-full items-center justify-center">
+            <Spinner />
+          </div>
+        ) : (
+          <CardContent className="p-4">
+            <Form {...form}>
+              <div className="space-y-2">
+                <FormField
+                  control={form.control}
+                  name="finisherText"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter your finisher text"
+                          {...field}
+                        />
+                      </FormControl>
 
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {finisherImage[0]?.dataURL && (
-                <div className="group relative w-fit overflow-hidden rounded">
-                  <Image
-                    src={finisherImage[0].dataURL}
-                    alt={finisherImage[0].file?.name ?? "Finisher image"}
-                    width={110}
-                    height={110}
-                    className="rounded object-cover"
-                  />
-                  <div className="absolute right-0 top-0 hidden p-1 group-hover:block">
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          type="button"
-                          onClick={onImageRemoveImage}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {finisherImage[0]?.dataURL && (
+                  <div className="group relative w-fit overflow-hidden rounded">
+                    <Image
+                      src={finisherImage[0].dataURL}
+                      alt={finisherImage[0].file?.name ?? "Finisher image"}
+                      width={110}
+                      height={110}
+                      className="rounded object-cover"
+                    />
+                    <div className="absolute right-0 top-0 hidden p-1 group-hover:block">
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            type="button"
+                            onClick={onImageRemoveImage}
+                          >
+                            <Iconify
+                              icon="solar:trash-bin-2-bold-duotone"
+                              className="text-destructive-foreground"
+                              fontSize={16}
+                            />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="bottom"
+                          className="bg-destructive text-destructive-foreground"
                         >
-                          <Iconify
-                            icon="solar:trash-bin-2-bold-duotone"
-                            className="text-destructive-foreground"
-                            fontSize={16}
-                          />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent
-                        side="bottom"
-                        className="bg-destructive text-destructive-foreground"
-                      >
-                        <p>Delete image</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                </div>
-              )}
-              <div className="flex justify-end">
-                <Tooltip>
-                  <TooltipTrigger>
-                    <div>
-                      <ReactImageUploading
-                        onChange={onImagesUpload}
-                        value={finisherImage}
-                        acceptType={ACCEPTED_IMAGE_TYPES}
-                        maxFileSize={MAX_FILE_SIZE}
-                        onError={(errors) => {
-                          if (errors?.maxFileSize) {
-                            toast.error(
-                              `File size is too big. Max file size is ${fData(
-                                MAX_FILE_SIZE,
-                              )}MB`,
-                            );
-                          } else if (errors?.acceptType) {
-                            toast.error(
-                              `File type is not supported. Supported file types are ${ACCEPTED_IMAGE_TYPES.join(
-                                ", ",
-                              )}`,
-                            );
-                          }
-                        }}
-                      >
-                        {({ onImageUpload }) => (
-                          <div className="upload__image-wrapper">
-                            <Button
-                              size="icon"
-                              type="button"
-                              variant="ghost"
-                              onClick={onImageUpload}
-                            >
-                              <Iconify
-                                icon="solar:gallery-minimalistic-bold-duotone"
-                                className="text-foreground/80"
-                                fontSize={28}
-                              />
-                            </Button>
-                          </div>
-                        )}
-                      </ReactImageUploading>
+                          <p>Delete image</p>
+                        </TooltipContent>
+                      </Tooltip>
                     </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom">
-                    <p className="text-center">Add photo</p>
-                  </TooltipContent>
-                </Tooltip>
+                  </div>
+                )}
+                <div className="flex justify-end">
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <div>
+                        <ReactImageUploading
+                          onChange={onImagesUpload}
+                          value={finisherImage}
+                          acceptType={ACCEPTED_IMAGE_TYPES}
+                          maxFileSize={MAX_FILE_SIZE}
+                          onError={(errors) => {
+                            if (errors?.maxFileSize) {
+                              toast.error(
+                                `File size is too big. Max file size is ${fData(
+                                  MAX_FILE_SIZE,
+                                )}MB`,
+                              );
+                            } else if (errors?.acceptType) {
+                              toast.error(
+                                `File type is not supported. Supported file types are ${ACCEPTED_IMAGE_TYPES.join(
+                                  ", ",
+                                )}`,
+                              );
+                            }
+                          }}
+                        >
+                          {({ onImageUpload }) => (
+                            <div className="upload__image-wrapper">
+                              <Button
+                                size="icon"
+                                type="button"
+                                variant="ghost"
+                                onClick={onImageUpload}
+                              >
+                                <Iconify
+                                  icon="solar:gallery-minimalistic-bold-duotone"
+                                  className="text-foreground/80"
+                                  fontSize={28}
+                                />
+                              </Button>
+                            </div>
+                          )}
+                        </ReactImageUploading>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">
+                      <p className="text-center">Add photo</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <Button
+                  type="submit"
+                  disabled={isUpdateFinisherLoading}
+                  loading={isUpdateFinisherLoading}
+                  onClick={form.handleSubmit(onSubmit)}
+                >
+                  Update Finisher
+                </Button>
               </div>
-              <Button
-                type="submit"
-                disabled={isUpdateFinisherLoading}
-                loading={isUpdateFinisherLoading}
-                onClick={form.handleSubmit(onSubmit)}
-              >
-                Update Finisher
-              </Button>
-            </div>
-          </Form>
-        </CardContent>
-      )}
-    </Card>
+            </Form>
+          </CardContent>
+        )}
+      </Card>
+    </TooltipProvider>
   );
 }
