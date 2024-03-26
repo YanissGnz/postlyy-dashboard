@@ -52,7 +52,7 @@ export default function AccountPopover() {
           <div
             className={cn(
               "flex origin-left flex-col gap-1 transition-transform duration-500",
-              isCollapsed ? "h-0 scale-0" : "scale-100",
+              isCollapsed ? "scale-0" : "scale-100",
             )}
           >
             {status === "loading" ? (

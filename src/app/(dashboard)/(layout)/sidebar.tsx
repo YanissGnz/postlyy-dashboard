@@ -71,16 +71,24 @@ export default function Sidebar() {
           fontSize={20}
         />
       </Button>
-      <div className="mb-4 p-3 pb-0">
+      <div className="mb-2 flex items-center gap-2 p-3 pb-0">
         <Image
           src="/icons/logo-transparent.png"
           alt="logo"
-          width="64"
-          height="64"
+          width={isCollapsed ? "64" : 50}
+          height={isCollapsed ? "64" : 50}
         />
+        <h1
+          className={cn(
+            "origin-left text-2xl font-bold text-primary-foreground transition-all duration-500",
+            isCollapsed ? "scale-0" : "scale-100",
+          )}
+        >
+          Postlyy
+        </h1>
       </div>
       <ScrollArea
-        className="px-3"
+        className="mb-2 px-3"
         style={{
           height: "calc(100% - 100px)",
         }}
