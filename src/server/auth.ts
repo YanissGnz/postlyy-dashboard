@@ -54,51 +54,7 @@ declare module "next-auth" {
   }
 }
 
-async function refreshAccessToken(refreshToken: string) {
-  try {
-    const response = await fetch(
-      `${env.API_BASE_URL}/api/Authentication/RefreshToken`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${refreshToken}`,
-        },
-        method: "GET",
-      },
-    );
-
-    if (!response.ok) {
-      throw Error("Failed");
-    }
-
-    const user = (await response.json()) as TDBUser;
-
-    return {
-      accessToken: user.accessToken,
-      refreshToken: user.refreshToken,
-      fullName: user.fullName,
-      profilePicture: user.profilePicture,
-      hasChosenSubscription: user.hasChosenSubscription,
-      hasPaidSubscription: user.hasPaidSubscription,
-      hasToChangePassword: user.hasToChangePassword,
-      hasSetupEmail: user.hasSetupEmail,
-      hasSetupUsers: user.hasSetupUsers,
-      isTrial: user.isTrial,
-      tier: user.tier,
-      userType: user.userType,
-      accounts: user.accounts,
-      username: user?.accounts[0]?.username ?? "",
-      accessTokenExpires: Date.now() + 1000 * 60 * 60 * 3, //  3 hours
-      refreshTokenExpires: Date.now() + 1000 * 60 * 60 * 24 * 30, // 30 days
-    };
-  } catch (error) {
-    return {
-      error: "RefreshAccessTokenError",
-    };
-  }
-}
-
-async function getUser(refreshToken: string) {
+async function refreshUser(refreshToken: string) {
   try {
     const response = await fetch(
       `${env.API_BASE_URL}/api/Authentication/RefreshToken`,
@@ -118,26 +74,17 @@ async function getUser(refreshToken: string) {
     }
 
     const user = (await response.json()) as TDBUser;
+    console.log("🚀 ~ refreshUser ~ user:", user);
 
     return {
-      fullName: user.fullName,
-      profilePicture: user.profilePicture,
-      hasChosenSubscription: user.hasChosenSubscription,
-      hasPaidSubscription: user.hasPaidSubscription,
-      hasToChangePassword: user.hasToChangePassword,
-      hasSetupEmail: user.hasSetupEmail,
-      hasSetupUsers: user.hasSetupUsers,
-      isTrial: user.isTrial,
-      tier: user.tier,
-      userType: user.userType,
-      accounts: user.accounts,
+      ...user,
       username: user?.accounts ? user?.accounts[0]?.username : "",
-      accessToken: user.accessToken,
-      refreshToken: user.refreshToken,
+      accessTokenExpires: Date.now() + 1000 * 60 * 60 * 3, //  3 hours
+      refreshTokenExpires: Date.now() + 1000 * 60 * 60 * 24 * 30, // 30 days
     };
   } catch (error) {
     env.NODE_ENV === "development" &&
-      console.log("🚀 ~ file: auth.ts:128 ~ getUser ~ error:", error);
+      console.log("🚀 ~ file: auth.ts:128 ~ refreshUser ~ error:", error);
     return {
       error: "GetUserError",
     };
@@ -253,17 +200,15 @@ export const authOptions: NextAuthOptions = {
       if (!token.refreshToken) {
         throw new Error("No refresh token");
       }
+
       if (
         token.refreshTokenExpires &&
         Date.now() > (token.refreshTokenExpires as number)
       ) {
-        return {
-          ...token,
-          ...(await refreshAccessToken(token.refreshToken as string)),
-        };
+        throw new Error("Refresh token expired");
       }
 
-      const newUser = await getUser(token.refreshToken as string);
+      const newUser = await refreshUser(token.refreshToken as string);
 
       if (newUser.error) {
         throw new Error(newUser.error);

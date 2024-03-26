@@ -2,7 +2,9 @@
 
 import { useAppSelector } from "@/redux/hooks";
 import { setAccount, setToken } from "@/redux/slices/authSlice";
+import { ROUTES } from "@/routes";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
@@ -13,6 +15,7 @@ export default function TokenProvider({
 }) {
   const session = useSession();
   const dispatch = useDispatch();
+  const { push } = useRouter();
 
   const currentAccount = useAppSelector((state) => state.auth.currentAccount);
 
@@ -29,6 +32,14 @@ export default function TokenProvider({
           !currentAccount
         ) {
           dispatch(setAccount(session.data.user.accounts[0]));
+        }
+
+        if (!session.data.user.hasChosenSubscription) {
+          push(ROUTES.setupSubscription);
+        }
+
+        if (!session.data?.user.hasPaidSubscription) {
+          push(ROUTES.payment);
         }
       }
     }
