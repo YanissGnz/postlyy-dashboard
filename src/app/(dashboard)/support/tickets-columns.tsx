@@ -3,11 +3,32 @@
 import { type ColumnDef } from "@tanstack/react-table";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import Iconify from "@/components/ui/icon";
 import { convertToLocalDate } from "@/lib/utils";
+import { openModal } from "@/redux/slices/modalsSlice";
+import { store } from "@/redux/store";
 import { ETicketStatus } from "@/types/ETicketStatus";
 import { ETicketType } from "@/types/ETicketType";
 import { type TTicket } from "@/types/TTicket";
 import { format } from "date-fns";
+
+const handleOpenTicketResponseModal =
+  (id: string) => (event: React.MouseEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+    store.dispatch(
+      openModal({
+        id: "add-ticket-response-modal",
+        data: { id },
+      }),
+    );
+  };
 
 export const ticketsColumns: ColumnDef<TTicket>[] = [
   {
@@ -70,6 +91,34 @@ export const ticketsColumns: ColumnDef<TTicket>[] = [
         return <Badge variant="default">In Progress</Badge>;
 
       return null;
+    },
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row: { original } }) => {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <Iconify icon="ic:round-more-vert" className="h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={handleOpenTicketResponseModal(original.id)}
+            >
+              <Iconify
+                icon="solar:chat-square-arrow-bold-duotone"
+                fontSize={20}
+                className="mr-2"
+              />
+              Add Response
+            </DropdownMenuItem>{" "}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
     },
   },
 ];

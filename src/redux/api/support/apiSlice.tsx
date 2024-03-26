@@ -57,6 +57,20 @@ export const supportApi = createApi({
       }),
       invalidatesTags: ["Tickets"],
     }),
+    addTicketResponse: builder.mutation<
+      TResponse<TTicket>,
+      {
+        id: string;
+        response: string;
+      }
+    >({
+      query: ({ id, response }) => ({
+        url: `/api/Support/${id}/response`,
+        method: "POST",
+        body: { response },
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: "Tickets", id }],
+    }),
   }),
 });
 
@@ -64,4 +78,5 @@ export const {
   useGetAllTicketsQuery,
   useGetTicketQuery,
   useAddTicketMutation,
+  useAddTicketResponseMutation,
 } = supportApi;
