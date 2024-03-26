@@ -1,38 +1,43 @@
+"use client";
+
 import { env } from "@/env";
 import { ROUTES } from "@/routes";
-import { getServerAuthSession } from "@/server/auth";
 import { isArray } from "lodash";
-import { RedirectType, redirect } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-export default async function Payment() {
-  const session = await getServerAuthSession();
+export default function Payment() {
+  const session = useSession();
+  const { replace } = useRouter();
 
-  if (session?.user.hasPaidSubscription) redirect(ROUTES.home);
+  useEffect(() => {
+    if (!session?.data?.user.hasChosenSubscription) {
+      replace(ROUTES.setupSubscription);
+    } else if (session?.data?.user.hasPaidSubscription) {
+      replace(ROUTES.home);
+    }
 
-  if (!session?.user.accessToken) redirect(ROUTES.login, RedirectType.replace);
-
-  const link = await fetch(
-    `${env.NEXT_PUBLIC_API_BASE_URL}/api/Subscription/link`,
-    {
+    void fetch(`${env.NEXT_PUBLIC_API_BASE_URL}/api/Subscription/link`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${session.user.accessToken}`,
+        Authorization: `Bearer ${session.data?.user.accessToken}`,
       },
-    },
-  )
-    .then((res) => res.json())
-    .then((data: { data: { link: string } } | string[]) => {
-      if (data && isArray(data)) {
-        return ROUTES.login;
-      }
-      return data.data.link;
     })
-    .catch(() => {
-      return ROUTES.login;
-    });
-
-  if (link) redirect(link, RedirectType.replace);
+      .then((res) => res.json())
+      .then((data: { data: { link: string } } | string[]) => {
+        if (data && isArray(data)) {
+          replace(ROUTES.login);
+          return;
+        }
+        replace(data.data.link);
+        return;
+      })
+      .catch(() => {
+        replace(ROUTES.login);
+      });
+  }, [session]);
 
   return (
     <div className="flex h-screen w-screen items-center justify-center">
