@@ -2,16 +2,14 @@ import { env } from "@/env";
 import { ROUTES } from "@/routes";
 import { getServerAuthSession } from "@/server/auth";
 import { isArray } from "lodash";
-import { redirect } from "next/navigation";
+import { RedirectType, redirect } from "next/navigation";
 
 export default async function Payment() {
   const session = await getServerAuthSession();
 
-  // if (session?.user.isTrial) redirect(ROUTES.home);
-
   if (session?.user.hasPaidSubscription) redirect(ROUTES.home);
 
-  if (!session?.user.accessToken) redirect(ROUTES.login);
+  if (!session?.user.accessToken) redirect(ROUTES.login, RedirectType.replace);
 
   const link = await fetch(
     `${env.NEXT_PUBLIC_API_BASE_URL}/api/Subscription/link`,
@@ -30,9 +28,11 @@ export default async function Payment() {
       }
       return data.data.link;
     })
-    .catch(() => ROUTES.login);
+    .catch(() => {
+      return ROUTES.login;
+    });
 
-  if (link) redirect(link);
+  if (link) redirect(link, RedirectType.replace);
 
   return (
     <div className="flex h-screen w-screen items-center justify-center">

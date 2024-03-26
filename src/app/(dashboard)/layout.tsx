@@ -6,12 +6,12 @@ import { LAYOUT } from "@/lib/constants";
 // hooks
 import { useMediaQuery } from "usehooks-ts";
 // components
-import Sidebar from "@/app/(dashboard)/(layout)/sidebar";
-import { useAppSelector } from "@/redux/hooks";
 import Header from "@/app/(dashboard)/(layout)/header";
-import { redirect } from "next/navigation";
-import { ROUTES } from "@/routes";
+import Sidebar from "@/app/(dashboard)/(layout)/sidebar";
 import { Spinner } from "@/components/ui/Spinner";
+import { useAppSelector } from "@/redux/hooks";
+import { ROUTES } from "@/routes";
+import { redirect } from "next/navigation";
 import AlertsProvider from "../../providers/alerts-provider";
 
 export default function DashboardLayout({
@@ -38,37 +38,35 @@ export default function DashboardLayout({
 
   if (
     session.status === "authenticated" &&
-    !session.data?.user.hasChosenSubscription &&
-    !session.data?.user.isTrial &&
-    !session.data?.user.hasPaidSubscription
+    !session.data?.user.hasChosenSubscription
   ) {
     redirect(ROUTES.setupSubscription);
   }
 
   if (
     session.status === "authenticated" &&
-    !session.data?.user.isTrial &&
     !session.data?.user.hasPaidSubscription
   ) {
     redirect(ROUTES.payment);
   }
 
   return (
-    <div className="flex flex-col">
-      {isMobile ? <Header /> : <Sidebar />}
-      <main
-        className="transition-all duration-500"
-        style={{
-          paddingLeft: isMobile
-            ? 0
-            : isCollapsed
-              ? LAYOUT.COLLAPSED_SIDEBAR_WIDTH
-              : LAYOUT.SIDEBAR_WIDTH,
-        }}
-      >
-        {children}
-        <AlertsProvider />
-      </main>
-    </div>
+    <AlertsProvider>
+      <div className="flex flex-col">
+        {isMobile ? <Header /> : <Sidebar />}
+        <main
+          className="transition-all duration-500"
+          style={{
+            paddingLeft: isMobile
+              ? 0
+              : isCollapsed
+                ? LAYOUT.COLLAPSED_SIDEBAR_WIDTH
+                : LAYOUT.SIDEBAR_WIDTH,
+          }}
+        >
+          {children}
+        </main>
+      </div>
+    </AlertsProvider>
   );
 }

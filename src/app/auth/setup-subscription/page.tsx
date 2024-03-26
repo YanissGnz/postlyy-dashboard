@@ -1,9 +1,8 @@
-import React from "react";
-import SetupForm from "./form";
+import { Spinner } from "@/components/ui/Spinner";
+import { ROUTES } from "@/routes";
 import { getServerAuthSession } from "@/server/auth";
 import { redirect } from "next/navigation";
-import { ROUTES } from "@/routes";
-import { Spinner } from "@/components/ui/Spinner";
+import SetupForm from "./form";
 
 export default async function SetupSubscription() {
   const session = await getServerAuthSession();
