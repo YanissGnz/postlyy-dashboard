@@ -9,7 +9,9 @@ import { useCallback, useMemo, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { env } from "@/env";
+import { ROUTES } from "@/routes";
 import { type TResponse } from "@/types/TResponse";
+import { isArray } from "lodash";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useBoolean } from "usehooks-ts";
@@ -61,7 +63,12 @@ export default function SetupForm() {
             refresh();
           }
         })
-        .catch(() => {
+        .catch((error: string[]) => {
+          if (isArray(error)) {
+            if (error.includes("Subscription Already Setup")) {
+              replace(ROUTES.payment);
+            }
+          }
           refresh();
         });
       setFalse();
