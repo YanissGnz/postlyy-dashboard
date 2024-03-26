@@ -80,7 +80,7 @@ export default function Sidebar() {
         />
         <h1
           className={cn(
-            "origin-left text-2xl font-bold text-primary-foreground transition-all duration-500",
+            "origin-left text-2xl font-bold text-foreground transition-all duration-500",
             isCollapsed ? "scale-0" : "scale-100",
           )}
         >
