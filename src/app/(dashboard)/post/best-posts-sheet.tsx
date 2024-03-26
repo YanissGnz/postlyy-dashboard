@@ -176,23 +176,6 @@ export default function BestPostsSheet({
                                 </p>
                               </TooltipContent>
                             </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger>
-                                <div className="flex items-center gap-1 p-1">
-                                  <Iconify
-                                    icon="solar:user-bold-duotone"
-                                    className="text-blue-500"
-                                    fontSize={18}
-                                  />
-                                  <span>{post.profileClicks}</span>
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent side="bottom">
-                                <p className="text-center">
-                                  Profile visits and clicks
-                                </p>
-                              </TooltipContent>
-                            </Tooltip>
                           </div>
                           <div className="gap2 flex items-center">
                             <Button

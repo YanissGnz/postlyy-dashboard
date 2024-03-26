@@ -3,7 +3,6 @@ export type TPostHistory = {
   likes: number;
   replies: number;
   retweets: number;
-  profileClicks: number;
   id: string;
   twitterId: string;
   linkedInId: string;

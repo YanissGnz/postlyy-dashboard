@@ -53,8 +53,4 @@ export const columns: ColumnDef<TPostHistory>[] = [
     accessorKey: "retweets",
     header: "Retweets / Shares",
   },
-  {
-    accessorKey: "profileClicks",
-    header: "Profile Clicks",
-  },
 ];

@@ -74,7 +74,6 @@ async function refreshUser(refreshToken: string) {
     }
 
     const user = (await response.json()) as TDBUser;
-    console.log("🚀 ~ refreshUser ~ user:", user);
 
     return {
       ...user,
@@ -205,7 +204,7 @@ export const authOptions: NextAuthOptions = {
         token.refreshTokenExpires &&
         Date.now() > (token.refreshTokenExpires as number)
       ) {
-        throw new Error("Refresh token expired");
+        throw new Error("Session expired");
       }
 
       const newUser = await refreshUser(token.refreshToken as string);

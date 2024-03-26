@@ -95,9 +95,8 @@ export default function Sidebar() {
       >
         <div className="flex flex-1 flex-col gap-2">
           {navItems.map((item, groupIndex) => (
-            <div className="w-full space-y-2">
+            <div key={item.name} className="w-full space-y-2">
               <Collapsible
-                key={item.name}
                 open={isCollapsed ? true : !collapsed[groupIndex]}
                 onOpenChange={(isOpen) => {
                   const newCollapsed = [...collapsed] as boolean[];
