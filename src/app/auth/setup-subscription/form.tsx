@@ -122,33 +122,35 @@ export default function SetupForm() {
       {currentStep === 1 && (
         <>
           <div className="mb-4 flex items-center justify-center">
-            <div className="flex items-center space-x-2">
-              <Label
-                htmlFor="payment-mode"
-                className={cn(isYearly && "text-muted-foreground")}
-              >
-                Monthly
-              </Label>
-              <Switch
-                id="payment-mode"
-                onCheckedChange={handlePaymentModeChange}
-              />
-              <Label
-                htmlFor="payment-mode"
-                className={cn(!isYearly && "text-muted-foreground")}
-              >
-                Yearly
-              </Label>
+            <div className="mb-4 flex items-center">
+              <div className="flex items-center space-x-2">
+                <Label
+                  htmlFor="payment-mode"
+                  className={cn(isYearly && "text-muted-foreground")}
+                >
+                  Monthly
+                </Label>
+                <Switch
+                  id="payment-mode"
+                  onCheckedChange={handlePaymentModeChange}
+                />
+                <Label
+                  htmlFor="payment-mode"
+                  className={cn(!isYearly && "text-muted-foreground")}
+                >
+                  Yearly
+                </Label>
+              </div>
             </div>
-          </div>
-          <div className="mb-4 flex items-center justify-center gap-2">
-            <Button size="icon" variant="ghost" onClick={handleRemoveSeat}>
-              <Iconify icon="solar:minus-circle-bold-duotone" fontSize={22} />
-            </Button>
-            <p className="rounded border p-2">{seatsBought} seats</p>
-            <Button size="icon" variant="ghost" onClick={handleAddSeat}>
-              <Iconify icon="solar:add-circle-bold-duotone" fontSize={22} />
-            </Button>
+            <div className=" flex items-center justify-center gap-2">
+              <Button size="icon" variant="ghost" onClick={handleRemoveSeat}>
+                <Iconify icon="solar:minus-circle-bold-duotone" fontSize={22} />
+              </Button>
+              <p className="rounded border p-2">{seatsBought} seats</p>
+              <Button size="icon" variant="ghost" onClick={handleAddSeat}>
+                <Iconify icon="solar:add-circle-bold-duotone" fontSize={22} />
+              </Button>
+            </div>
           </div>
           <div className="grid w-full grid-cols-1 gap-10 md:grid-cols-3">
             {" "}
