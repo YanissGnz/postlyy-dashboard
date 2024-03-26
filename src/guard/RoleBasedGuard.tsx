@@ -1,6 +1,8 @@
-import { getServerAuthSession } from "@/server/auth";
+"use client";
+
 import { ETiers } from "@/types/ETiers";
 import { EUserType } from "@/types/EUserType";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import forbidden from "public/images/403.png";
 import { type ReactNode } from "react";
@@ -18,9 +20,9 @@ export default async function RoleBasedGuard({
   needAccount,
   children,
 }: RoleBasedGuardProp) {
-  const session = await getServerAuthSession();
+  const session = useSession();
 
-  if (!session?.user) {
+  if (!session?.data?.user) {
     return (
       <div className="flex h-full w-full flex-col items-center justify-center gap-4">
         <h1 className="text-4xl font-bold">Permission Denied</h1>
@@ -33,7 +35,7 @@ export default async function RoleBasedGuard({
     );
   }
 
-  if (needAccount && !Boolean(session?.user?.accounts)) {
+  if (needAccount && !Boolean(session?.data?.user?.accounts)) {
     return (
       <div className="flex h-full w-full flex-col items-center justify-center gap-4 p-10">
         <h1 className="text-4xl font-bold">Permission Denied</h1>
@@ -47,9 +49,9 @@ export default async function RoleBasedGuard({
   }
 
   if (
-    Boolean(session?.user) &&
-    (!accessibleRoles?.includes(session?.user.userType) ||
-      !accessibleTiers?.includes(session?.user.tier))
+    Boolean(session?.data?.user) &&
+    (!accessibleRoles?.includes(session?.data?.user.userType) ||
+      !accessibleTiers?.includes(session?.data?.user.tier))
   ) {
     return (
       <div className="flex h-full w-full flex-col items-center justify-center gap-4 p-10">
