@@ -34,7 +34,7 @@ export default function TokenProvider({
           dispatch(setAccount(session.data.user.accounts[0]));
         }
 
-        if (!session.data.user.hasChosenSubscription) {
+        if (!session.data?.user.hasChosenSubscription) {
           push(ROUTES.setupSubscription);
         }
 

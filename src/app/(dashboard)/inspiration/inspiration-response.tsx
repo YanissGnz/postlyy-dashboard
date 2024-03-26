@@ -9,6 +9,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { convertToUTC } from "@/lib/utils";
@@ -24,12 +33,13 @@ import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { TypeAnimation } from "react-type-animation";
 import { toast } from "sonner";
-import { useBoolean, useCopyToClipboard } from "usehooks-ts";
+import { useBoolean, useCopyToClipboard, useMediaQuery } from "usehooks-ts";
 
 const TWITTER_TEXT_MAX_LENGTH = 280;
 
 export default function InspirationResponse({ text }: { text: string }) {
   const currentAccount = useAppSelector((state) => state.auth.currentAccount);
+  const isDesktop = useMediaQuery("(min-width: 768px)");
   const session = useSession();
   const { push } = useRouter();
   const [name, setName] = useState("");
@@ -197,66 +207,127 @@ export default function InspirationResponse({ text }: { text: string }) {
           />
         </div>
       </div>
-      <div className="flex w-full justify-end gap-2">
+      <div className="flex w-full flex-wrap justify-end gap-2">
         <Button variant="outline" onClick={handleCopyText}>
           Copy text
         </Button>
-        <Dialog open={isDraftDialogOpen} onOpenChange={setIsDraftDialogOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline">Save as draft</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Save as draft</DialogTitle>
-            </DialogHeader>
-            <div>
-              <Label htmlFor="date" className="text-right">
-                Reminder date
-              </Label>
-              <Input
-                id="date"
-                value={scheduleDate ?? ""}
-                type="datetime-local"
-                onChange={(e) => setScheduleDate(e.target.value)}
-                className="w-full"
-              />
-            </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="ghost">Close</Button>
-              </DialogClose>
-              <Button onClick={handleSaveDraft}>Save</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        {isDesktop ? (
+          <Dialog open={isDraftDialogOpen} onOpenChange={setIsDraftDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">Save as draft</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Save as draft</DialogTitle>
+              </DialogHeader>
+              <div>
+                <Label htmlFor="date" className="text-right">
+                  Reminder date
+                </Label>
+                <Input
+                  id="date"
+                  value={scheduleDate ?? ""}
+                  type="datetime-local"
+                  onChange={(e) => setScheduleDate(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="ghost">Close</Button>
+                </DialogClose>
+                <Button onClick={handleSaveDraft}>Save</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        ) : (
+          <Drawer open={isDraftDialogOpen} onOpenChange={setIsDraftDialogOpen}>
+            <DrawerTrigger asChild>
+              <Button variant="outline">Save as draft</Button>
+            </DrawerTrigger>
+            <DrawerContent>
+              <DrawerHeader>
+                <DrawerTitle>Save as draft</DrawerTitle>
+              </DrawerHeader>
+              <div className="p-4">
+                <Label htmlFor="date" className="text-right">
+                  Reminder date
+                </Label>
+                <Input
+                  id="date"
+                  value={scheduleDate ?? ""}
+                  type="datetime-local"
+                  onChange={(e) => setScheduleDate(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <DrawerFooter>
+                <Button onClick={handleSaveDraft}>Save</Button>
+                <DrawerClose asChild>
+                  <Button variant="ghost">Close</Button>
+                </DrawerClose>
+              </DrawerFooter>
+            </DrawerContent>
+          </Drawer>
+        )}
 
-        <Dialog open={isNoteDialogOpen} onOpenChange={setIsNoteDialogOpen}>
-          <DialogTrigger>
-            <Button variant="outline">Save as note</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Save as note</DialogTitle>
-            </DialogHeader>
-            <div>
-              <Label htmlFor="name" className="text-right">
-                Note name
-              </Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full"
-              />
-            </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="ghost">Close</Button>
-              </DialogClose>
-              <Button onClick={handleSaveNote}>Save</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        {isDesktop ? (
+          <Dialog open={isNoteDialogOpen} onOpenChange={setIsNoteDialogOpen}>
+            <DialogTrigger>
+              <Button variant="outline">Save as note</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Save as note</DialogTitle>
+              </DialogHeader>
+              <div>
+                <Label htmlFor="name" className="text-right">
+                  Note name
+                </Label>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="ghost">Close</Button>
+                </DialogClose>
+                <Button onClick={handleSaveNote}>Save</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        ) : (
+          <Drawer open={isNoteDialogOpen} onOpenChange={setIsNoteDialogOpen}>
+            <DrawerTrigger>
+              <Button variant="outline">Save as note</Button>
+            </DrawerTrigger>
+            <DrawerContent>
+              <DrawerHeader>
+                <DrawerTitle>Save as note</DrawerTitle>
+              </DrawerHeader>
+              <div className="p-4">
+                <Label htmlFor="name" className="text-right">
+                  Note name
+                </Label>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <DrawerFooter>
+                <Button onClick={handleSaveNote}>Save</Button>
+                <DrawerClose asChild>
+                  <Button variant="ghost">Close</Button>
+                </DrawerClose>
+              </DrawerFooter>
+            </DrawerContent>
+          </Drawer>
+        )}
         <Button variant="default" onClick={handleUseInspiration}>
           Post this inspiration
         </Button>

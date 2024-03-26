@@ -6,16 +6,10 @@ import { Drawer as DrawerPrimitive } from "vaul";
 import { cn } from "@/lib/utils";
 
 const Drawer = ({
-  shouldScaleBackground = true,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Root> & {
-  onOpenChange: (isOpen: boolean) => void;
-}) => (
-  <DrawerPrimitive.Root
-    shouldScaleBackground={shouldScaleBackground}
-    {...props}
-  />
-);
+  onOpenChange?: (isOpen: boolean) => void;
+}) => <DrawerPrimitive.Root shouldScaleBackground {...props} />;
 Drawer.displayName = "Drawer";
 
 const DrawerTrigger = DrawerPrimitive.Trigger;

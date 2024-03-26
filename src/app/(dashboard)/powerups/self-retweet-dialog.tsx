@@ -54,7 +54,7 @@ export default function SelfRetweetDialog() {
   const currentAccount = useAppSelector((state) => state.auth.currentAccount);
   const dispatch = useAppDispatch();
 
-  const isDesktop = useMediaQuery("(min-width: 640px)");
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const [updateSelfRetweet, { isLoading: isUpdatingSelfRetweet }] =
     useUpdateSelfRetweetMutation();

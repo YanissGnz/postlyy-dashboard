@@ -77,7 +77,7 @@ export default function TwitterAutoplugDialog() {
   const currentAccount = useAppSelector((state) => state.auth.currentAccount);
   const dispatch = useAppDispatch();
 
-  const isDesktop = useMediaQuery("(min-width: 640px)");
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const [updateAutoPlug, { isLoading: isUpdatingAutoPlug }] =
     useUpdateAutoPlugMutation();
