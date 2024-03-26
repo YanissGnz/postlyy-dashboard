@@ -1108,7 +1108,6 @@ export default function PostPage() {
   }, [selectedSpots, form]);
 
   // Draft
-
   const handleSaveDraft = useCallback(async () => {
     if (form.getValues("posts").length === 0 && !form.formState.isValid) {
       await form.trigger();
@@ -1238,7 +1237,6 @@ export default function PostPage() {
   }, []);
 
   // Template
-
   const handleSaveTemplate = useCallback(async () => {
     if (form.getValues("posts").length === 0 && !form.formState.isValid) {
       await form.trigger();

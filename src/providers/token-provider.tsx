@@ -41,6 +41,8 @@ export default function TokenProvider({
         if (!session.data?.user.hasPaidSubscription) {
           push(ROUTES.payment);
         }
+      } else {
+        push(ROUTES.login);
       }
     }
   }, [session, currentAccount]);
