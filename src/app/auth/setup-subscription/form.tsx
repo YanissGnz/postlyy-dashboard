@@ -189,7 +189,7 @@ export default function SetupForm() {
                   </p>
                 </div>
                 <ul className="mt-5 flex flex-col gap-4 border-t p-3">
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -200,7 +200,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Schedule X (Twitter) / Linkedin Posts
                   </li>
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -211,7 +211,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Create Recurring & Evergreen LinkedIn & Twitter Posts
                   </li>
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -222,7 +222,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Calendar Management
                   </li>{" "}
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -233,7 +233,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Custom Dashboard and Content Analytics
                   </li>{" "}
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -290,7 +290,7 @@ export default function SetupForm() {
                   </p>
                 </div>
                 <ul className="mt-5 flex flex-col gap-4 border-t p-3">
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -301,7 +301,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Schedule X (Twitter) / Linkedin Posts
                   </li>{" "}
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -312,7 +312,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Create Recurring & Evergreen LinkedIn & Twitter Posts
                   </li>{" "}
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -323,7 +323,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Calendar Management
                   </li>
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -334,7 +334,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Custom Dashboard and Content Analytics
                   </li>
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -345,7 +345,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Complimentary Manager Overview with 5+ seats
                   </li>{" "}
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -401,7 +401,7 @@ export default function SetupForm() {
                   </p>
                 </div>
                 <ul className="mt-5 flex flex-col gap-4 border-t p-3">
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -412,7 +412,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Schedule X (Twitter) / Linkedin Posts
                   </li>{" "}
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -423,7 +423,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Create Recurring & Evergreen LinkedIn & Twitter Posts
                   </li>{" "}
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -434,7 +434,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Calendar Management
                   </li>
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -445,7 +445,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Custom Dashboard and Content Analytics
                   </li>
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -456,7 +456,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Complimentary Manager Overview with 5+ seats
                   </li>{" "}
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -467,7 +467,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Text to Image Converter
                   </li>
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
