@@ -26,7 +26,7 @@ import {
 import { env } from "@/env";
 import { ROUTES } from "@/routes";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 
 export const confirmEmailSchema = z.object({
   email: z.string().email(),
@@ -101,10 +101,6 @@ export default function ConfirmEmailForm() {
       alert("Something went wrong");
     }
   }, [form, urlEmail]);
-
-  useEffect(() => {
-    form.handleSubmit(onSubmit);
-  }, [urlEmail, urlCode]);
 
   return (
     <Form {...form}>
