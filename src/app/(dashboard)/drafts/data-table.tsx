@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
 import {
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { useState } from "react";
 
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -15,13 +17,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { columns } from "./columns";
-import { usePagination } from "@/hooks/usePagination";
-import { Input } from "@/components/ui/input";
-import { DataTableViewOptions } from "@/components/ui/table/DataTableViewOptions ";
-import { Spinner } from "@/components/ui/Spinner";
 import { DataTablePagination } from "@/components/ui/table/DataTablePagination";
+import { DataTableViewOptions } from "@/components/ui/table/DataTableViewOptions ";
+import { usePagination } from "@/hooks/usePagination";
 import { useGetDraftsQuery } from "@/redux/api/post/apiSlice";
+import { columns } from "./columns";
 
 export function DataTable() {
   const pagination = usePagination();
@@ -79,13 +79,13 @@ export function DataTable() {
           </TableHeader>
           <TableBody>
             {isFetching || isLoading ? (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-56">
-                  <div className="flex items-center justify-center ">
-                    <Spinner />
-                  </div>
-                </TableCell>
-              </TableRow>
+              Array.from({ length: 5 }).map((_, index) => (
+                <TableRow key={index}>
+                  <TableCell colSpan={columns.length}>
+                    <Skeleton className="h-8 w-full" />
+                  </TableCell>
+                </TableRow>
+              ))
             ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow

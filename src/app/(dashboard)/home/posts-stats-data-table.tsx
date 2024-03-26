@@ -6,8 +6,8 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-import { Spinner } from "@/components/ui/Spinner";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -20,12 +20,9 @@ import { useGetBestPostsQuery } from "@/redux/api/post/apiSlice";
 import { columns } from "./posts-stats-columns";
 
 export function DataTable() {
-  const { data, isLoading, isFetching } = useGetBestPostsQuery(
-    {
-      otherUsers: false,
-    },
-    {},
-  );
+  const { data, isLoading } = useGetBestPostsQuery({
+    otherUsers: false,
+  });
 
   const table = useReactTable({
     data: data?.data ?? [],
@@ -62,14 +59,14 @@ export function DataTable() {
               ))}
             </TableHeader>
             <TableBody>
-              {isFetching || isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="h-56">
-                    <div className="flex items-center justify-center ">
-                      <Spinner />
-                    </div>
-                  </TableCell>
-                </TableRow>
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell colSpan={columns.length}>
+                      <Skeleton className="h-8 w-full" />
+                    </TableCell>
+                  </TableRow>
+                ))
               ) : table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow

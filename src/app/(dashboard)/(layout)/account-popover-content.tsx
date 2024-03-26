@@ -61,7 +61,7 @@ export default function AccountPopoverContent() {
     <DropdownMenuContent className="w-56">
       <DropdownMenuGroup>
         <DropdownMenuItem asChild>
-          <Link href={ROUTES.settings}>
+          <Link href={ROUTES.settings} className="text-foreground">
             <Iconify
               icon="solar:settings-bold-duotone"
               fontSize={22}
@@ -72,7 +72,7 @@ export default function AccountPopoverContent() {
         </DropdownMenuItem>
         {session?.user && [EUserType.Owner].includes(session.user.userType) && (
           <DropdownMenuItem asChild>
-            <Link href={ROUTES.billing}>
+            <Link href={ROUTES.billing} className="text-foreground">
               <Iconify
                 icon="solar:bill-list-bold-duotone"
                 fontSize={22}
@@ -84,7 +84,7 @@ export default function AccountPopoverContent() {
         )}
       </DropdownMenuGroup>
       <DropdownMenuItem asChild>
-        <Link href={ROUTES.support}>
+        <Link href={ROUTES.support} className="text-foreground">
           <Iconify
             icon="solar:chat-dots-bold-duotone"
             fontSize={22}
@@ -136,7 +136,7 @@ export default function AccountPopoverContent() {
                 ))
               )}
               <DropdownMenuItem asChild>
-                <Link href={ROUTES.accounts.root}>
+                <Link href={ROUTES.accounts.root} className="text-foreground">
                   <Iconify
                     icon="solar:refresh-circle-bold-duotone"
                     fontSize={22}
