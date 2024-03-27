@@ -1,5 +1,6 @@
 "use client";
 
+import { Spinner } from "@/components/ui/Spinner";
 import { ETiers } from "@/types/ETiers";
 import { EUserType } from "@/types/EUserType";
 import { useSession } from "next-auth/react";
@@ -21,6 +22,13 @@ export default function RoleBasedGuard({
   children,
 }: RoleBasedGuardProp) {
   const session = useSession();
+
+  if (!session || session.status === "loading")
+    return (
+      <div className="flex h-screen w-screen items-center justify-center">
+        <Spinner />
+      </div>
+    );
 
   if (!session?.data?.user) {
     return (
