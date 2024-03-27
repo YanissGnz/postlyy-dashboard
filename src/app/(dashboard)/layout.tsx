@@ -8,6 +8,7 @@ import { useMediaQuery } from "usehooks-ts";
 // components
 import Header from "@/app/(dashboard)/(layout)/header";
 import Sidebar from "@/app/(dashboard)/(layout)/sidebar";
+import { Spinner } from "@/components/ui/Spinner";
 import { useAppSelector } from "@/redux/hooks";
 import { ROUTES } from "@/routes";
 import { useRouter } from "next/navigation";
@@ -48,6 +49,13 @@ export default function DashboardLayout({
       return;
     }
   }, [session]);
+
+  if (!session || session.status === "loading")
+    return (
+      <div className="flex h-screen w-screen items-center justify-center">
+        <Spinner />
+      </div>
+    );
 
   return (
     <AlertsProvider>
