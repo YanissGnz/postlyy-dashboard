@@ -1225,8 +1225,8 @@ export default function PostPage() {
           asEvergreen: data.data.asEvergreen,
           isDraft: data.data.isDraft,
           isTemplate: data.data.isTemplate,
-          onLinkedIn: data.data.onLinkedIn,
-          onTwitter: data.data.onTwitter,
+          onLinkedIn: form.getValues("onLinkedIn"),
+          onTwitter: form.getValues("onTwitter"),
           scheduleDate: data.data.scheduleDate,
           posts: newPosts,
         };
@@ -1294,8 +1294,8 @@ export default function PostPage() {
           asEvergreen: data.data.asEvergreen,
           isDraft: data.data.isDraft,
           isTemplate: data.data.isTemplate,
-          onLinkedIn: data.data.onLinkedIn,
-          onTwitter: data.data.onTwitter,
+          onLinkedIn: form.getValues("onLinkedIn"),
+          onTwitter: form.getValues("onTwitter"),
           scheduleDate: data.data.scheduleDate ?? "",
           posts: newPosts,
         };
@@ -1355,8 +1355,8 @@ export default function PostPage() {
             asEvergreen: data.data.asEvergreen,
             isDraft: data.data.isDraft,
             isTemplate: data.data.isTemplate,
-            onLinkedIn: data.data.onLinkedIn,
-            onTwitter: data.data.onTwitter,
+            onLinkedIn: form.getValues("onLinkedIn"),
+            onTwitter: form.getValues("onTwitter"),
             scheduleDate: data.data.scheduleDate ?? "",
             posts: newPosts,
           };
