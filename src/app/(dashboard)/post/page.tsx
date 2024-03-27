@@ -478,23 +478,11 @@ export default function PostPage() {
             ...prev.slice(index + 1),
           ].map((post, i) => ({ ...post, index: i })),
         );
+        setTimeout(() => {
+          form.setFocus(`posts.${index + 1}.text`);
+        }, 100);
       } else {
-        const newThreads = form.getValues("posts").map((thread, i) => {
-          if (i === index) {
-            return {
-              ...thread,
-              text,
-            };
-          }
-
-          return thread;
-        });
-
-        form.setValue("posts", newThreads);
-
-        void (async () => {
-          await form.trigger("posts");
-        })();
+        form.setValue(`posts.${index}.text`, text);
       }
     },
     [form],
