@@ -327,7 +327,7 @@ export default function AddCardDialog() {
                               <SelectContent>
                                 {DASHBOARD_QUERIES.filter(
                                   (query) =>
-                                    form.watch("provider") &&
+                                    form.watch("provider") !== undefined &&
                                     query.providers.includes(
                                       form.watch("provider")!,
                                     ),
