@@ -61,7 +61,7 @@ export const InspirationPostTypeOptions = [
 export const InspirationTypeOptions = [
   { value: EInspirationType.FromKeywords, label: "From Keywords" },
   { value: EInspirationType.FromPost, label: "From Post" },
-  { value: EInspirationType.Reformulation, label: "Reformulation" },
+  { value: EInspirationType.Reformulation, label: "Profect" },
 ];
 
 export const InspirationAudienceOptions = [
