@@ -84,7 +84,7 @@ const DASHBOARD_QUERIES = [
     providers: [EProviders.Twitter],
   },
   {
-    name: "Follows",
+    name: "Followers",
     value: 6,
     providers: [EProviders.Twitter],
   },
@@ -94,7 +94,7 @@ const DASHBOARD_QUERIES = [
     providers: [EProviders.Twitter, EProviders.Linkedin],
   },
   {
-    name: "Schedules",
+    name: "Scheduled Posts",
     value: 8,
     providers: [EProviders.Twitter, EProviders.Linkedin],
   },
@@ -176,7 +176,7 @@ export default function AddCardDialog() {
         type: values.type as EDashboardCardType,
         query: values.query
           ? (parseInt(values.query) as EStatType)
-          : EStatType.Follows,
+          : EStatType.Followers,
         aggregation: EAggregation.Total,
         description: values.description,
         provider: values.provider ?? EProviders.Twitter,

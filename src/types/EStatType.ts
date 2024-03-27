@@ -5,7 +5,7 @@ export enum EStatType {
   Retweets = 3, // Retweets Or ReShares
   LinkClicks = 4,
   ProfileClicks = 5,
-  Follows = 6,
+  Followers = 6,
   Posts = 7, // Tweets Or LinkedIN Tweets
-  Schedules = 8,
+  Scheduled = 8,
 }
