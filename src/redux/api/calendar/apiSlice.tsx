@@ -10,6 +10,7 @@ import {
 import { type TRecurringPost } from "@/types/TRecurringPost";
 import { type TResponse } from "@/types/TResponse";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { addDays } from "date-fns";
 
 export const calendarApi = createApi({
   reducerPath: "calendarApi",
@@ -29,13 +30,12 @@ export const calendarApi = createApi({
   }),
   tagTypes: ["Events", "Recurring", "Spot"],
   endpoints: (builder) => ({
-    getEvents: builder.query<
-      TResponse<TCalendarEvent[]>,
-      { startDate?: string }
-    >({
-      query: (params) => ({
+    getEvents: builder.query<TResponse<TCalendarEvent[]>, void>({
+      query: () => ({
         url: "/api/Calendar",
-        params,
+        params: {
+          startDate: addDays(new Date(), -30).toISOString(),
+        },
       }),
       transformResponse: (response: TResponse<TCalendarEvent[]>) => {
         return {
