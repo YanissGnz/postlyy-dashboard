@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -38,13 +39,15 @@ import {
 import { hasAccount } from "@/lib/utils";
 import { useAppDispatch } from "@/redux/hooks";
 import { addCard } from "@/redux/slices/dashboardSlice";
+import { ROUTES } from "@/routes";
 import { EAggregation } from "@/types/EAggregation";
 import { EDashboardCardType } from "@/types/EDashboardCardType";
 import { EProviders } from "@/types/EProviders";
 import { EStatType } from "@/types/EStatType";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "next-auth/react";
-import { useCallback, useMemo } from "react";
+import Link from "next/link";
+import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { useBoolean, useMediaQuery } from "usehooks-ts";
 import { z } from "zod";
@@ -116,9 +119,11 @@ function getCardTitle(type: EDashboardCardType, value?: number) {
 
 const formSchema = z
   .object({
-    provider: z.enum(["0", "1"], {
-      required_error: "Please select a provider",
-    }),
+    provider: z
+      .nativeEnum(EProviders, {
+        required_error: "Please select a provider",
+      })
+      .optional(),
     type: z.enum(["stat", "graph", "posts-stats", "events-calendar"]),
     description: z.string().optional(),
     query: z.enum(["0", "1", "2", "3", "4", "5", "6", "7", "8"]).optional(),
@@ -129,15 +134,25 @@ const formSchema = z
         ? Boolean(data.query)
         : true,
     {
-      message: "Please select a data type",
+      message: "Please select data for the card",
       path: ["query"],
+    },
+  )
+  .refine(
+    (data) =>
+      data.type === "stat" || data.type === "graph"
+        ? data.provider !== undefined
+        : true,
+    {
+      message: "Please select a provider for the card",
+      path: ["provider"],
     },
   );
 
 export default function AddCardDialog() {
   const { data } = useSession();
   const dispatch = useAppDispatch();
-
+  const session = useSession();
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const { setValue, value: isOpen } = useBoolean(false);
@@ -164,8 +179,7 @@ export default function AddCardDialog() {
           : EStatType.Follows,
         aggregation: EAggregation.Total,
         description: values.description,
-        provider:
-          values.provider === "0" ? EProviders.Twitter : EProviders.Linkedin,
+        provider: values.provider ?? EProviders.Twitter,
       }),
     );
     setValue(false);
@@ -176,121 +190,6 @@ export default function AddCardDialog() {
     setValue(open);
     form.reset();
   }, []);
-
-  const content = useMemo(
-    () => (
-      <div className="mb-2 space-y-2">
-        <FormField
-          control={form.control}
-          name="provider"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Social</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a social provider" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {hasAccount(EProviders.Twitter, data?.user.accounts) && (
-                    <SelectItem value="0">Twitter</SelectItem>
-                  )}
-                  {hasAccount(EProviders.Linkedin, data?.user.accounts) && (
-                    <SelectItem value="1">LinkedIn</SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
-
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="type"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Type</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select card type" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="stat">Stat</SelectItem>
-                  <SelectItem value="graph">Graph</SelectItem>
-                  <SelectItem value="posts-stats">
-                    Latest Posts Stats
-                  </SelectItem>
-                  <SelectItem value="events-calendar">
-                    Today's Schedule
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {(form.watch("type") === "stat" || form.watch("type") === "graph") && (
-          <FormField
-            control={form.control}
-            name="query"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Data</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select card data" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {DASHBOARD_QUERIES.filter((query) =>
-                      query.providers.includes(
-                        form.watch("provider") === "0"
-                          ? EProviders.Twitter
-                          : EProviders.Linkedin,
-                      ),
-                    ).map((query) => (
-                      <SelectItem
-                        key={query.value}
-                        value={query.value.toString()}
-                      >
-                        {query.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter description" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-    ),
-    [form],
-  );
 
   if (isDesktop)
     return (
@@ -304,11 +203,171 @@ export default function AddCardDialog() {
               <DialogHeader>
                 <DialogTitle>Add a card</DialogTitle>
                 <DialogDescription>
-                  Add a new card to your dashboard.
+                  Note: stats and graphs need a connected account (X or
+                  LinkedIn) to be displayed.
+                  <br />
+                  If you don't have an account connected please connect
+                  <Link href={ROUTES.accounts.root}>
+                    <Button variant="link" size="sm">
+                      Connect account
+                    </Button>
+                  </Link>
+                  first
                 </DialogDescription>
               </DialogHeader>
-              {content}
+
+              <div className="p-4">
+                <div className="mb-2 space-y-2">
+                  <FormField
+                    control={form.control}
+                    name="type"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Type</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select card type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {(hasAccount(
+                              EProviders.Linkedin,
+                              session.data?.user.accounts,
+                            ) ||
+                              hasAccount(
+                                EProviders.Twitter,
+                                session.data?.user.accounts,
+                              )) && (
+                              <>
+                                <SelectItem value="stat">Stat</SelectItem>
+                                <SelectItem value="graph">Graph</SelectItem>
+                              </>
+                            )}
+                            <SelectItem value="posts-stats">
+                              Latest Posts Stats
+                            </SelectItem>
+                            <SelectItem value="events-calendar">
+                              Today's Schedule
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {(form.watch("type") === "stat" ||
+                    form.watch("type") === "graph") && (
+                    <>
+                      <FormField
+                        control={form.control}
+                        name="provider"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Social</FormLabel>
+                            <Select
+                              onValueChange={(value) => {
+                                field.onChange(Number(value) as EProviders);
+                              }}
+                              value={field.value?.toString() ?? ""}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a social provider" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {hasAccount(
+                                  EProviders.Twitter,
+                                  data?.user.accounts,
+                                ) && (
+                                  <SelectItem
+                                    value={EProviders.Twitter.toString()}
+                                  >
+                                    Twitter
+                                  </SelectItem>
+                                )}
+                                {hasAccount(
+                                  EProviders.Linkedin,
+                                  data?.user.accounts,
+                                ) && (
+                                  <SelectItem
+                                    value={EProviders.Linkedin.toString()}
+                                  >
+                                    LinkedIn
+                                  </SelectItem>
+                                )}
+                              </SelectContent>
+                            </Select>
+
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="query"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Data</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select card data" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {DASHBOARD_QUERIES.filter(
+                                  (query) =>
+                                    form.watch("provider") &&
+                                    query.providers.includes(
+                                      form.watch("provider")!,
+                                    ),
+                                ).map((query) => (
+                                  <SelectItem
+                                    key={query.value}
+                                    value={query.value.toString()}
+                                  >
+                                    {query.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </>
+                  )}
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter description" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
               <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="ghost">Close</Button>
+                </DialogClose>
                 <Button type="submit">Add card</Button>
               </DialogFooter>
             </form>
@@ -328,11 +387,166 @@ export default function AddCardDialog() {
             <DrawerHeader>
               <DrawerTitle>Add a card</DrawerTitle>
               <DrawerDescription>
-                Add a new card to your dashboard.
+                Note: stats and graphs need a connected account (X or LinkedIn)
+                to be displayed.
+                <br />
+                If you don't have an account connected please connect
+                <Link href={ROUTES.accounts.root}>
+                  <Button variant="link" size="sm">
+                    Connect account
+                  </Button>
+                </Link>
+                first
               </DrawerDescription>
             </DrawerHeader>
 
-            <div className="p-4">{content}</div>
+            <div className="p-4">
+              <div className="mb-2 space-y-2">
+                <FormField
+                  control={form.control}
+                  name="type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Type</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select card type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {(hasAccount(
+                            EProviders.Linkedin,
+                            session.data?.user.accounts,
+                          ) ||
+                            hasAccount(
+                              EProviders.Twitter,
+                              session.data?.user.accounts,
+                            )) && (
+                            <>
+                              <SelectItem value="stat">Stat</SelectItem>
+                              <SelectItem value="graph">Graph</SelectItem>
+                            </>
+                          )}
+                          <SelectItem value="posts-stats">
+                            Latest Posts Stats
+                          </SelectItem>
+                          <SelectItem value="events-calendar">
+                            Today's Schedule
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {(form.watch("type") === "stat" ||
+                  form.watch("type") === "graph") && (
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="provider"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Social</FormLabel>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(Number(value) as EProviders);
+                            }}
+                            value={field.value?.toString() ?? ""}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a social provider" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {hasAccount(
+                                EProviders.Twitter,
+                                data?.user.accounts,
+                              ) && (
+                                <SelectItem
+                                  value={EProviders.Twitter.toString()}
+                                >
+                                  Twitter
+                                </SelectItem>
+                              )}
+                              {hasAccount(
+                                EProviders.Linkedin,
+                                data?.user.accounts,
+                              ) && (
+                                <SelectItem
+                                  value={EProviders.Linkedin.toString()}
+                                >
+                                  LinkedIn
+                                </SelectItem>
+                              )}
+                            </SelectContent>
+                          </Select>
+
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="query"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Data</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select card data" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {DASHBOARD_QUERIES.filter(
+                                (query) =>
+                                  form.watch("provider") &&
+                                  query.providers.includes(
+                                    form.watch("provider")!,
+                                  ),
+                              ).map((query) => (
+                                <SelectItem
+                                  key={query.value}
+                                  value={query.value.toString()}
+                                >
+                                  {query.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </>
+                )}
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter description" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
             <DrawerFooter>
               <Button type="submit">Add card</Button>
             </DrawerFooter>
