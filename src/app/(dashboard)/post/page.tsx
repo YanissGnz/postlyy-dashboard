@@ -458,29 +458,32 @@ export default function PostPage() {
           gifLink: "",
           imageLinks: [],
         }));
+        void new Promise((resolve) => {
+          form.setValue(
+            "posts",
+            [
+              ...form.getValues("posts").slice(0, index),
+              ...newThreads,
+              ...form.getValues("posts").slice(index + 1),
+            ].map((thread, i) => ({ ...thread, index: i })),
+          );
 
-        form.setValue(
-          "posts",
-          [
-            ...form.getValues("posts").slice(0, index),
-            ...newThreads,
-            ...form.getValues("posts").slice(index + 1),
-          ].map((thread, i) => ({ ...thread, index: i })),
-        );
-
-        setPostsContent((prev) =>
-          [
-            ...prev.slice(0, index),
-            ...newThreads.map((thread, i) => ({
-              index: index + i,
-              images: [],
-            })),
-            ...prev.slice(index + 1),
-          ].map((post, i) => ({ ...post, index: i })),
-        );
-        setTimeout(() => {
-          form.setFocus(`posts.${index + 1}.text`);
-        }, 100);
+          setPostsContent((prev) =>
+            [
+              ...prev.slice(0, index),
+              ...newThreads.map((thread, i) => ({
+                index: index + i,
+                images: [],
+              })),
+              ...prev.slice(index + 1),
+            ].map((post, i) => ({ ...post, index: i })),
+          );
+          resolve(null);
+        }).then(() => {
+          form.setFocus(`posts.${index + 1}.text`, {
+            shouldSelect: true,
+          });
+        });
       } else {
         form.setValue(`posts.${index}.text`, text);
       }
