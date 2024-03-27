@@ -33,7 +33,7 @@ export default function CalendarCard({
   i: string;
   handleRemoveCard: (i: string) => () => void;
 }) {
-  const { data, isLoading, isError, refetch } = useGetEventsQuery({});
+  const { data, isLoading, isError, refetch } = useGetEventsQuery();
   const { theme } = useTheme();
   const session = useSession();
 
