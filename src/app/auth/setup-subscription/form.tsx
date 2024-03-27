@@ -35,7 +35,7 @@ export default function SetupForm() {
 
   const session = useSession();
 
-  const { replace, refresh } = useRouter();
+  const { replace } = useRouter();
 
   const handlePayment = useCallback(
     (tier: number) => async () => {
@@ -54,24 +54,24 @@ export default function SetupForm() {
         }),
       })
         .then((res) => res.json())
-        .then((res: TResponse<{ url: string; hasToPay: boolean }>) => {
+        .then(async (res: TResponse<{ url: string; hasToPay: boolean }>) => {
           if (res.data.hasToPay) {
             setCurrentStep(2);
             setTimeout(() => {
               replace(res.data.url);
             }, 3000);
           } else {
-            refresh();
+            await session.update();
+            replace(ROUTES.home);
           }
         })
-        .catch((error: string[]) => {
+        .catch(async (error: string[]) => {
           if (isArray(error)) {
             toast.error(error[0]);
-            setTimeout(() => {
-              if (error.includes("Subscription Already Setup")) {
-                replace(ROUTES.payment);
-              }
-            }, 3000);
+            if (error.includes("Subscription Already Setup")) {
+              replace(ROUTES.payment);
+            }
+            await session.update();
           }
         });
       setFalse();
@@ -132,8 +132,8 @@ export default function SetupForm() {
       {currentStep === 1 && (
         <>
           <div className="mb-4 flex items-center justify-center">
-            <div className="mb-4 flex items-center">
-              <div className="flex items-center space-x-2">
+            <div className="mb-4 flex items-center gap-2">
+              <div className="flex items-center gap-2">
                 <Label
                   htmlFor="payment-mode"
                   className={cn(isYearly && "text-muted-foreground")}
@@ -151,15 +151,18 @@ export default function SetupForm() {
                   Yearly
                 </Label>
               </div>
-            </div>
-            <div className=" flex items-center justify-center gap-2">
-              <Button size="icon" variant="ghost" onClick={handleRemoveSeat}>
-                <Iconify icon="solar:minus-circle-bold-duotone" fontSize={22} />
-              </Button>
-              <p className="rounded border p-2">{seatsBought} seats</p>
-              <Button size="icon" variant="ghost" onClick={handleAddSeat}>
-                <Iconify icon="solar:add-circle-bold-duotone" fontSize={22} />
-              </Button>
+              <div className=" flex items-center justify-center gap-2">
+                <Button size="icon" variant="ghost" onClick={handleRemoveSeat}>
+                  <Iconify
+                    icon="solar:minus-circle-bold-duotone"
+                    fontSize={22}
+                  />
+                </Button>
+                <p className="rounded border p-2">{seatsBought} seats</p>
+                <Button size="icon" variant="ghost" onClick={handleAddSeat}>
+                  <Iconify icon="solar:add-circle-bold-duotone" fontSize={22} />
+                </Button>
+              </div>
             </div>
           </div>
           <div className="grid w-full grid-cols-1 gap-10 md:grid-cols-3">

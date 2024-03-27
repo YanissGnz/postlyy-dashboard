@@ -26,16 +26,21 @@ export default function Payment() {
       },
     })
       .then((res) => res.json())
-      .then((data: { data: { link: string } } | string[]) => {
+      .then(async (data: { data: { link: string } } | string[]) => {
         if (data && isArray(data)) {
-          replace(ROUTES.login);
+          await session.update().then(() => {
+            replace(ROUTES.login);
+          });
           return;
         }
+
         replace(data.data.link);
         return;
       })
-      .catch(() => {
-        replace(ROUTES.login);
+      .catch(async () => {
+        await session.update().then(() => {
+          replace(ROUTES.login);
+        });
       });
   }, [session]);
 
