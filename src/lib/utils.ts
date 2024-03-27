@@ -70,14 +70,14 @@ export const getTypeName = (type: EPostSpotType) => {
   }
 };
 
-export const getDachboardCardMinWidth = (type: EDashboardCardType) => {
+export const getDashboardCardMinWidth = (type: EDashboardCardType) => {
   switch (type) {
     case EDashboardCardType.Stat:
       return 2;
     case EDashboardCardType.Graph:
       return 6;
-    case EDashboardCardType.Table:
-      return 4;
+    case EDashboardCardType.PostsStats:
+      return 8;
     case EDashboardCardType.EventsCalendar:
       return 4;
     default:
@@ -85,14 +85,14 @@ export const getDachboardCardMinWidth = (type: EDashboardCardType) => {
   }
 };
 
-export const getDachboardCardMinHeight = (type: EDashboardCardType) => {
+export const getDashboardCardMinHeight = (type: EDashboardCardType) => {
   switch (type) {
     case EDashboardCardType.Stat:
       return 4;
     case EDashboardCardType.Graph:
       return 8;
-    case EDashboardCardType.Table:
-      return 8;
+    case EDashboardCardType.PostsStats:
+      return 6;
     case EDashboardCardType.EventsCalendar:
       return 8;
     default:

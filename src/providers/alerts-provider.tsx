@@ -1,12 +1,18 @@
+"use client";
+
 import { useSession } from "next-auth/react";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 
 import { useBoolean } from "usehooks-ts";
 import EmailAlert from "./alerts/email-alert";
 import PasswordAlert from "./alerts/password-alert";
 import SeatsAlert from "./alerts/seats-alert";
 
-export default function AlertsProvider() {
+export default function AlertsProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { value: emailAlertOpen, setValue: setEmailAlertOpen } =
     useBoolean(false);
 
@@ -45,6 +51,7 @@ export default function AlertsProvider() {
         setIsOpened={setPasswordAlertOpen}
       />
       <SeatsAlert isOpened={seatsAlertOpen} setIsOpened={setSeatsAlertOpen} />
+      {children}
     </>
   );
 }

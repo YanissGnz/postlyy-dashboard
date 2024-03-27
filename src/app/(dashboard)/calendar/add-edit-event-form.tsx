@@ -179,8 +179,8 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
             console.log(err);
           });
     }
-    if (isEdit) dispatch(closeModal("edit-calendar-slot-modal"));
-    else dispatch(closeModal("add-calendar-slot-modal"));
+    if (isEdit) dispatch(closeModal("edit-calendar-spot-modal"));
+    else dispatch(closeModal("add-calendar-spot-modal"));
   }
 
   useEffect(() => {

@@ -4,6 +4,7 @@ import { type TDraft } from "@/types/TDraft";
 import { type TPaginatedRequest } from "@/types/TPaginatedRequest";
 import { type TPaginatedResponse } from "@/types/TPaginatedResponse";
 import { type TPostForm } from "@/types/TPostForm";
+import { type TPostHistory } from "@/types/TPostHistory";
 import { type TResponse } from "@/types/TResponse";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
@@ -23,7 +24,7 @@ export const postApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Posts", "Drafts", "Template"],
+  tagTypes: ["Posts", "Drafts", "Template", "History"],
   endpoints: (builder) => ({
     addPostNow: builder.mutation<TResponse<boolean>, FormData>({
       query: (body) => ({
@@ -44,12 +45,12 @@ export const postApi = createApi({
     addPostToSpot: builder.mutation<
       TResponse<boolean>,
       {
-        slotId: string;
+        spotId: string;
         body: FormData;
       }
     >({
-      query: ({ body, slotId }) => ({
-        url: `/api/Posting/Post/NewInSpot/${slotId}`,
+      query: ({ body, spotId }) => ({
+        url: `/api/Posting/Post/NewInSpot/${spotId}`,
         method: "POST",
         body,
       }),
@@ -190,6 +191,40 @@ export const postApi = createApi({
       }),
       invalidatesTags: ["Posts", "Drafts", "Template"],
     }),
+    getPostHistory: builder.query<
+      TPaginatedResponse<TPostHistory>,
+      TPaginatedRequest & { accountId: string }
+    >({
+      query: ({ accountId, ...params }) => ({
+        url: `/api/PostHistory/${accountId}`,
+        params,
+      }),
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.data.map(({ id }) => ({
+                type: "History" as const,
+                id,
+              })),
+              { type: "History" as const },
+            ]
+          : [{ type: "History" as const }],
+    }),
+    getBestPosts: builder.query<
+      TPaginatedResponse<TPostHistory>,
+      TPaginatedRequest & { otherUsers: boolean }
+    >({
+      query: (params) => ({
+        url: "/api/PostHistory/BestPosts",
+        params,
+      }),
+    }),
+    getBestPostById: builder.mutation<TResponse<TPostForm>, string>({
+      query: (id) => ({
+        url: `/api/PostHistory/ImportPost/${id}`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -211,5 +246,8 @@ export const {
   useGetTemplateByIdQuery,
   useUpdateTemplateMutation,
   useGetDraftByIdQuery,
+  useGetPostHistoryQuery,
+  useGetBestPostsQuery,
+  useGetBestPostByIdMutation,
   util: postApiUtil,
 } = postApi;

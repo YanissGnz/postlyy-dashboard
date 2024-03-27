@@ -1,9 +1,9 @@
-import { type PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { type DashboardConfig } from "@/types/TDashboardConfig";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 import {
-  getDachboardCardMinHeight,
-  getDachboardCardMinWidth,
+  getDashboardCardMinHeight,
+  getDashboardCardMinWidth,
 } from "@/lib/utils";
 import { type TDashboardCard } from "@/types/TDashboardCard";
 import { subDays } from "date-fns";
@@ -32,8 +32,8 @@ export const dashboard = createSlice({
         ...state.layout,
         {
           i: String(state.layout.length + 1),
-          h: getDachboardCardMinHeight(action.payload.type),
-          w: getDachboardCardMinWidth(action.payload.type),
+          h: getDashboardCardMinHeight(action.payload.type),
+          w: getDashboardCardMinWidth(action.payload.type),
           x: 0,
           y: 0,
           ...action.payload,

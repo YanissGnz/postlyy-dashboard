@@ -1,4 +1,5 @@
 import { type Metadata } from "next";
+import Modals from "./modals";
 
 export const metadata: Metadata = {
   title: "Accounts | Postlyy",
@@ -17,6 +18,7 @@ export default function AccountsLayout({ children }: AccountsLayoutProps) {
         </div>
         <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
           <div className="flex-1">{children}</div>
+          <Modals />
         </div>
       </div>
     </>

@@ -14,6 +14,12 @@ import { env } from "@/env";
 import { type TDBUser } from "@/types/TDBUser";
 import { formatISO } from "date-fns";
 
+/**
+ * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
+ * object and keep type safety.
+ *
+ * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
+ */
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
@@ -25,6 +31,7 @@ declare module "next-auth" {
   interface User extends TDBUser {
     id: string;
     username: string;
+    error?: string;
   }
 
   interface Account {
@@ -47,51 +54,7 @@ declare module "next-auth" {
   }
 }
 
-async function refreshAccessToken(refreshToken: string) {
-  try {
-    const response = await fetch(
-      `${env.API_BASE_URL}/api/Authentication/RefreshToken`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${refreshToken}`,
-        },
-        method: "GET",
-      },
-    );
-
-    if (!response.ok) {
-      throw Error("Failed");
-    }
-
-    const user = (await response.json()) as TDBUser;
-
-    return {
-      accessToken: user.accessToken,
-      refreshToken: user.refreshToken,
-      fullName: user.fullName,
-      profilePicture: user.profilePicture,
-      hasChosenSubscription: user.hasChosenSubscription,
-      hasPaidSubscription: user.hasPaidSubscription,
-      hasToChangePassword: user.hasToChangePassword,
-      hasSetupEmail: user.hasSetupEmail,
-      hasSetupUsers: user.hasSetupUsers,
-      isTrial: user.isTrial,
-      tier: user.tier,
-      userType: user.userType,
-      accounts: user.accounts,
-      username: user?.accounts[0]?.username ?? "",
-      accessTokenExpires: Date.now() + 1000 * 60 * 60 * 3, //  3 hours
-      refreshTokenExpires: Date.now() + 1000 * 60 * 60 * 24 * 30, // 30 days
-    };
-  } catch (error) {
-    return {
-      error: "RefreshAccessTokenError",
-    };
-  }
-}
-
-async function getUser(refreshToken: string) {
+async function refreshUser(refreshToken: string) {
   try {
     const response = await fetch(
       `${env.API_BASE_URL}/api/Authentication/RefreshToken`,
@@ -113,24 +76,14 @@ async function getUser(refreshToken: string) {
     const user = (await response.json()) as TDBUser;
 
     return {
-      fullName: user.fullName,
-      profilePicture: user.profilePicture,
-      hasChosenSubscription: user.hasChosenSubscription,
-      hasPaidSubscription: user.hasPaidSubscription,
-      hasToChangePassword: user.hasToChangePassword,
-      hasSetupEmail: user.hasSetupEmail,
-      hasSetupUsers: user.hasSetupUsers,
-      isTrial: user.isTrial,
-      tier: user.tier,
-      userType: user.userType,
-      accounts: user.accounts,
+      ...user,
       username: user?.accounts ? user?.accounts[0]?.username : "",
-      accessToken: user.accessToken,
-      refreshToken: user.refreshToken,
+      accessTokenExpires: Date.now() + 1000 * 60 * 60 * 3, //  3 hours
+      refreshTokenExpires: Date.now() + 1000 * 60 * 60 * 24 * 30, // 30 days
     };
   } catch (error) {
     env.NODE_ENV === "development" &&
-      console.log("🚀 ~ file: auth.ts:128 ~ getUser ~ error:", error);
+      console.log("🚀 ~ file: auth.ts:128 ~ refreshUser ~ error:", error);
     return {
       error: "GetUserError",
     };
@@ -246,17 +199,15 @@ export const authOptions: NextAuthOptions = {
       if (!token.refreshToken) {
         throw new Error("No refresh token");
       }
+
       if (
         token.refreshTokenExpires &&
         Date.now() > (token.refreshTokenExpires as number)
       ) {
-        return {
-          ...token,
-          ...(await refreshAccessToken(token.refreshToken as string)),
-        };
+        throw new Error("Session expired");
       }
 
-      const newUser = await getUser(token.refreshToken as string);
+      const newUser = await refreshUser(token.refreshToken as string);
 
       if (newUser.error) {
         throw new Error(newUser.error);
@@ -295,7 +246,7 @@ export const authOptions: NextAuthOptions = {
       // @ts-expect-error - twitter does not support wellKnown
       async profile(profile, tokens) {
         return {
-          id: profile.id,
+          id: profile.id_str,
           refreshToken: tokens.oauth_token_secret,
           accessToken: tokens.oauth_token,
           email: profile?.email,
@@ -380,6 +331,7 @@ export const authOptions: NextAuthOptions = {
 
         if (!response.ok) {
           const error = (await response.json()) as string[];
+
           throw new Error(error[0]);
         }
 
@@ -393,8 +345,8 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
-  pages: {
-    signIn: "/auth/login",
-  },
+  // pages: {
+  //   signIn: "/login",
+  // },
 };
 export const getServerAuthSession = () => getServerSession(authOptions);

@@ -1,10 +1,10 @@
 "use client";
 
 import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
 } from "@/components/ui/sheet";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { closeModal } from "@/redux/slices/modalsSlice";
@@ -16,21 +16,21 @@ import { buttonVariants } from "@/components/ui/button";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
-    useDeleteRecurringPostMutation,
-    useDeleteSpotMutation,
+  useDeleteRecurringPostMutation,
+  useDeleteSpotMutation,
 } from "@/redux/api/calendar/apiSlice";
 import { type TRecurringPost } from "@/types/TRecurringPost";
 import { toast } from "sonner";
 
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { EPostSpotType } from "@/types/EPostSpotType";
 import { type TCalendarEvent } from "@/types/TCalendarEvent";
@@ -49,7 +49,7 @@ export default function Modals() {
 
   const defaultValues = useMemo(() => {
     const isEdit = list.find(
-      (modal) => modal.id === "edit-calendar-slot-modal",
+      (modal) => modal.id === "edit-calendar-spot-modal",
     );
 
     if (isEdit) {
@@ -66,7 +66,7 @@ export default function Modals() {
       };
     }
 
-    const data = list.find((modal) => modal.id === "add-calendar-slot-modal")
+    const data = list.find((modal) => modal.id === "add-calendar-spot-modal")
       ?.data as { date: string } | undefined;
 
     return {
@@ -88,7 +88,7 @@ export default function Modals() {
 
   useEffect(() => {
     const isEdit = list.find(
-      (modal) => modal.id === "edit-calendar-slot-modal",
+      (modal) => modal.id === "edit-calendar-spot-modal",
     );
 
     if (isEdit) {
@@ -102,8 +102,8 @@ export default function Modals() {
       form.setValue("startTime", format(new Date(data.startTime), "HH:mm"));
       form.setValue("daysOfWeek", data.days);
       setSelectedEventId(data.id);
-    } else if (list.find((modal) => modal.id === "add-calendar-slot-modal")) {
-      const data = list.find((modal) => modal.id === "add-calendar-slot-modal")
+    } else if (list.find((modal) => modal.id === "add-calendar-spot-modal")) {
+      const data = list.find((modal) => modal.id === "add-calendar-spot-modal")
         ?.data as { date: string } | undefined;
       form.setValue(
         "start",
@@ -116,7 +116,7 @@ export default function Modals() {
 
   const handleDeleteEvent = useCallback(() => {
     const { id, type } = list.find(
-      (modal) => modal.id === "delete-calendar-slot-modal",
+      (modal) => modal.id === "delete-calendar-spot-modal",
     )?.data as {
       id: string;
       type: EPostSpotType;
@@ -126,9 +126,9 @@ export default function Modals() {
       const deletePostPromise = deleteRecurringPost(id).unwrap();
 
       toast.promise(deletePostPromise, {
-        loading: "Deleting recurring slot",
+        loading: "Deleting recurring spot",
         success: () => {
-          return "Recurring slot deleted successfully";
+          return "Recurring spot deleted successfully";
         },
         error: "Something went wrong",
       });
@@ -136,23 +136,23 @@ export default function Modals() {
       const deleteSpotPromise = deleteSpot(id).unwrap();
 
       toast.promise(deleteSpotPromise, {
-        loading: "Deleting slot..",
+        loading: "Deleting spot..",
         success: () => {
           return `Spot deleted successfully`;
         },
         error: "Something went wrong",
       });
     }
-    dispatch(closeModal("delete-calendar-slot-modal"));
+    dispatch(closeModal("delete-calendar-spot-modal"));
   }, [list]);
 
   return (
     <>
       <Sheet
-        open={list.some((modal) => modal.id === "add-calendar-slot-modal")}
+        open={list.some((modal) => modal.id === "add-calendar-spot-modal")}
         onOpenChange={(isOpen) => {
           if (!isOpen) {
-            dispatch(closeModal("add-calendar-slot-modal"));
+            dispatch(closeModal("add-calendar-spot-modal"));
             form.reset();
           }
         }}
@@ -166,10 +166,10 @@ export default function Modals() {
       </Sheet>
 
       <Sheet
-        open={list.some((modal) => modal.id === "edit-calendar-slot-modal")}
+        open={list.some((modal) => modal.id === "edit-calendar-spot-modal")}
         onOpenChange={(isOpen) => {
           if (!isOpen) {
-            dispatch(closeModal("edit-calendar-slot-modal"));
+            dispatch(closeModal("edit-calendar-spot-modal"));
             form.reset();
           }
         }}
@@ -194,21 +194,21 @@ export default function Modals() {
       </Sheet>
 
       <AlertDialog
-        open={list.some((modal) => modal.id === "delete-calendar-slot-modal")}
+        open={list.some((modal) => modal.id === "delete-calendar-spot-modal")}
         onOpenChange={(isOpen) => {
           if (!isOpen) {
-            dispatch(closeModal("delete-calendar-slot-modal"));
+            dispatch(closeModal("delete-calendar-spot-modal"));
           }
         }}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Are you absolutely sure you want to delete this slot?
+              Are you absolutely sure you want to delete this spot?
             </AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the
-              slot.
+              spot.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

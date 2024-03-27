@@ -13,6 +13,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   cn,
   getEventBackgroundColor,
   getEventIcon,
@@ -41,7 +47,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import FullCalendar from "@fullcalendar/react";
-import timeGridPlugin from "@fullcalendar/timegrid";
+import timeGridWeekPlugin from "@fullcalendar/timegrid";
 import { addDays, format, isAfter, isBefore } from "date-fns";
 import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
@@ -71,7 +77,7 @@ export default function Calender() {
     }
   }, [calenderRef.current?.getApi().view.title]);
 
-  const { data, isLoading } = useGetEventsQuery({});
+  const { data, isLoading } = useGetEventsQuery();
 
   const [updateSpot, { isLoading: isUpdating }] = useUpdateSpotMutation();
 
@@ -148,7 +154,7 @@ export default function Calender() {
             start: new Date(day.setHours(0, 0, 0)),
             end: new Date(day.setHours(23, 59, 59)),
             display: "background",
-            backgroundColor: "#f00",
+            backgroundColor: "#ff0000ab",
           };
         else return null;
       })
@@ -160,7 +166,7 @@ export default function Calender() {
       (e: React.MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) => {
         e.stopPropagation();
         dispatch(
-          openModal({ id: "delete-calendar-slot-modal", data: { id, type } }),
+          openModal({ id: "delete-calendar-spot-modal", data: { id, type } }),
         );
       },
     [],
@@ -172,7 +178,7 @@ export default function Calender() {
         e.stopPropagation();
         dispatch(
           openModal({
-            id: "edit-calendar-slot-modal",
+            id: "edit-calendar-spot-modal",
             data: event.extendedProps as TCalendarSpot | TRecurringPost,
           }),
         );
@@ -187,7 +193,7 @@ export default function Calender() {
       if (!event) return;
 
       if (info.event.start && info.event.start < new Date()) {
-        toast.error("You can't move a slot to the past");
+        toast.error("You can't move a spot to the past");
         info.revert();
         return;
       }
@@ -253,7 +259,7 @@ export default function Calender() {
             <SelectContent>
               <SelectGroup>
                 <SelectItem value="dayGridMonth">Month</SelectItem>
-                <SelectItem value="timeGrid">Week</SelectItem>
+                <SelectItem value="timeGridWeek">Week</SelectItem>
                 <SelectItem value="list">List</SelectItem>
               </SelectGroup>
             </SelectContent>
@@ -262,11 +268,87 @@ export default function Calender() {
         <h2 className="flex-1 font-medium" key={title}>
           {title}
         </h2>
+        <TooltipProvider>
+          <div className="flex items-center gap-2">
+            <Tooltip>
+              <TooltipTrigger>
+                <Button
+                  size={"icon"}
+                  variant={"outline"}
+                  onClick={() => {
+                    if (
+                      calenderRef.current?.getApi().getDate() &&
+                      calenderRef.current?.getApi().getDate() >=
+                        addDays(new Date(), -30)
+                    )
+                      calenderRef.current?.getApi().prev();
+                  }}
+                >
+                  <Iconify icon="solar:arrow-left-bold-duotone" fontSize={18} />
+                  <span className="sr-only">
+                    {calenderRef.current?.getApi().view.type === "list"
+                      ? "Previous week"
+                      : calenderRef.current?.getApi().view.type ===
+                          "dayGridMonth"
+                        ? "Previous month"
+                        : "Previous week"}
+                  </span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {calenderRef.current?.getApi().view.type === "list"
+                  ? "Previous week"
+                  : calenderRef.current?.getApi().view.type === "dayGridMonth"
+                    ? "Previous month"
+                    : "Previous week"}
+              </TooltipContent>
+            </Tooltip>
+            <Button
+              variant={"outline"}
+              onClick={() => {
+                calenderRef.current?.getApi().today();
+              }}
+            >
+              Today
+            </Button>
+            <Tooltip>
+              <TooltipTrigger>
+                <Button
+                  size={"icon"}
+                  variant={"outline"}
+                  onClick={() => {
+                    calenderRef.current?.getApi().next();
+                  }}
+                >
+                  <Iconify
+                    icon="solar:arrow-right-bold-duotone"
+                    fontSize={18}
+                  />
+                  <span className="sr-only">
+                    {calenderRef.current?.getApi().view.type === "list"
+                      ? "Previous week"
+                      : calenderRef.current?.getApi().view.type ===
+                          "dayGridMonth"
+                        ? "Previous month"
+                        : "Previous week"}
+                  </span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {calenderRef.current?.getApi().view.type === "list"
+                  ? "Previous week"
+                  : calenderRef.current?.getApi().view.type === "dayGridMonth"
+                    ? "Previous month"
+                    : "Previous week"}
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        </TooltipProvider>
         <Button
           onClick={() =>
             dispatch(
               openModal({
-                id: "add-calendar-slot-modal",
+                id: "add-calendar-spot-modal",
                 data: null,
               }),
             )
@@ -279,9 +361,14 @@ export default function Calender() {
       <FullCalendar
         ref={calenderRef}
         headerToolbar={false}
-        plugins={[timeGridPlugin, dayGridPlugin, listPlugin, interactionPlugin]}
+        plugins={[
+          timeGridWeekPlugin,
+          dayGridPlugin,
+          listPlugin,
+          interactionPlugin,
+        ]}
         events={[...events, ...emptyDays]}
-        initialView="timeGrid"
+        initialView="timeGridWeek"
         height="auto"
         slotMinTime="07:00:00"
         slotMaxTime="24:00:00"
@@ -306,7 +393,7 @@ export default function Calender() {
         dateClick={(info) => {
           dispatch(
             openModal({
-              id: "add-calendar-slot-modal",
+              id: "add-calendar-spot-modal",
               data: {
                 date: info.dateStr,
               },
@@ -315,15 +402,6 @@ export default function Calender() {
         }}
         allDaySlot={false}
         dayHeaderClassNames="font-bold bg-background text-foreground"
-        visibleRange={(currentDate) => {
-          const startDate = new Date(currentDate.valueOf());
-          const endDate = new Date(currentDate.valueOf());
-
-          startDate.setDate(startDate.getDate());
-          endDate.setDate(endDate.getDate() + 7);
-
-          return { start: startDate, end: endDate };
-        }}
         slotDuration={"01:00:00"}
         slotLaneClassNames="!h-14"
         eventContent={(eventInfo) => {

@@ -27,41 +27,61 @@ export type TPostForm = {
   posts: TPost[];
 };
 
-export const postFormSchema = z.object({
-  onTwitter: z.boolean(),
-  onLinkedIn: z.boolean(),
-  asEvergreen: z.boolean(),
-  scheduleDate: z.string(),
-  isDraft: z.boolean(),
-  isTemplate: z.boolean(),
-  addFinisher: z.boolean(),
-  posts: z.array(
-    z.object({
-      id: z.string().optional().nullable(),
-      index: z.number(),
-      text: z
-        .string()
-        .min(1, "Post text must be at least 1 character long.")
-        .max(280),
-      poll: z
-        .object({
-          durationMins: z.number(),
-          options: z
-            .array(
-              z
-                .string()
-                .min(1, "Poll option must be at least 1 character long."),
-            )
-            .min(2, "Poll must have at least 2 options."),
-        })
-        .optional()
-        .nullable(),
-      twitterDirectLink: z.boolean(),
-      gif: z.any().optional().nullable(),
-      images: z.array(z.any()),
-      gifLink: z.string().optional().nullable(),
-      imageLinks: z.array(z.string()),
-      createdAt: z.string().optional().nullable(),
-    }),
-  ),
-});
+export const postFormSchema = z
+  .object({
+    onTwitter: z.boolean(),
+    onLinkedIn: z.boolean(),
+    asEvergreen: z.boolean(),
+    scheduleDate: z.string(),
+    isDraft: z.boolean(),
+    isTemplate: z.boolean(),
+    addFinisher: z.boolean(),
+    posts: z.array(
+      z.object({
+        id: z.string().optional().nullable(),
+        index: z.number(),
+        text: z.string().min(1, "Post text must be at least 1 character long."),
+        poll: z
+          .object({
+            durationMins: z.number(),
+            options: z
+              .array(
+                z
+                  .string()
+                  .min(1, "Poll option must be at least 1 character long."),
+              )
+              .min(2, "Poll must have at least 2 options."),
+          })
+          .optional()
+          .nullable(),
+        twitterDirectLink: z.boolean(),
+        gif: z.any().optional().nullable(),
+        images: z.array(z.any()),
+        gifLink: z.string().optional().nullable(),
+        imageLinks: z.array(z.string()),
+        createdAt: z.string().optional().nullable(),
+      }),
+    ),
+  })
+  .refine(
+    (data) => {
+      if (data.onTwitter) {
+        for (const post of data.posts) {
+          if (post.text.length > 280) {
+            return false;
+          }
+        }
+      }
+      return true;
+    },
+    (data) => {
+      const invalidPosts = data.posts
+        .filter((post) => post.text.length > 280)
+        .map((post) => post.index)[0];
+
+      return {
+        message: "Twitter posts can't be longer than 280 characters.",
+        path: [`posts.${invalidPosts}.text`],
+      };
+    },
+  );

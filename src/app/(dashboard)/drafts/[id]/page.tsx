@@ -1,16 +1,15 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useGetDraftByIdQuery } from "@/redux/api/post/apiSlice";
-import LoadingCard from "@/components/loading-card";
 import ErrorCard from "@/components/error-card";
-import { Button } from "@/components/ui/button";
-import Iconify from "@/components/ui/icon";
+import LoadingCard from "@/components/loading-card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { env } from "@/env";
+import { useGetDraftByIdQuery } from "@/redux/api/post/apiSlice";
+import { EProviders } from "@/types/EProviders";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { env } from "@/env";
-import { EProviders } from "@/types/EProviders";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 export default function page({ params: { id } }: { params: { id: string } }) {
   const {
@@ -58,44 +57,24 @@ export default function page({ params: { id } }: { params: { id: string } }) {
           <div className="mb-10 flex items-center justify-between">
             <h2 className="text-2xl font-bold">Draft preview</h2>
           </div>
-          <div className="">
-            <div className="mb-5 mt-5 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {draftData.data.onTwitter && (
-                  <Button
-                    className="p-2"
-                    variant={
-                      previewSocial === "twitter" ? "default" : "outline"
-                    }
-                    onClick={() => setPreviewSocial("twitter")}
-                  >
-                    <Iconify
-                      icon="simple-icons:x"
-                      className="mr-1"
-                      fontSize={20}
-                    />
-                    X (Twitter)
-                  </Button>
-                )}
-                {draftData.data.onLinkedIn && (
-                  <Button
-                    className="p-2"
-                    variant={
-                      previewSocial === "linkedin" ? "default" : "outline"
-                    }
-                    onClick={() => setPreviewSocial("linkedin")}
-                  >
-                    <Iconify
-                      icon="simple-icons:linkedin"
-                      className="mr-1"
-                      fontSize={20}
-                    />
-                    LinkedIn
-                  </Button>
-                )}
-              </div>
-            </div>
-            {previewSocial === "twitter" && (
+          <Tabs
+            defaultValue={previewSocial}
+            className="my-3 w-full"
+            onValueChange={(value) => setPreviewSocial(value)}
+          >
+            <TabsList className="flex w-full gap-2">
+              {draftData.data.onTwitter && (
+                <TabsTrigger value="twitter" className="flex-1">
+                  Twitter
+                </TabsTrigger>
+              )}{" "}
+              {draftData.data.onLinkedIn && (
+                <TabsTrigger value="linkedin" className="flex-1">
+                  Linkedin
+                </TabsTrigger>
+              )}
+            </TabsList>
+            <TabsContent value="twitter">
               <div className="space-y-2 divide-y">
                 {draftData.data.posts.map((post) => (
                   <div key={post.index}>
@@ -177,8 +156,8 @@ export default function page({ params: { id } }: { params: { id: string } }) {
                   </div>
                 ))}
               </div>
-            )}
-            {previewSocial === "linkedin" && (
+            </TabsContent>
+            <TabsContent value="linkedin">
               <div className="space-y-2 divide-y">
                 <div>
                   <div className="my-3 flex items-center gap-2 ">
@@ -262,8 +241,8 @@ export default function page({ params: { id } }: { params: { id: string } }) {
                   </div>
                 </div>
               </div>
-            )}
-          </div>
+            </TabsContent>
+          </Tabs>
         </div>
       ) : (
         <ErrorCard title="Draft not found" refetchFunction={refetch} />

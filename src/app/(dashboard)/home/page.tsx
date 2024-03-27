@@ -1,11 +1,11 @@
 "use client";
 
-import LoadingCard from "@/components/loading-card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   cn,
-  getDachboardCardMinHeight,
-  getDachboardCardMinWidth,
+  getDashboardCardMinHeight,
+  getDashboardCardMinWidth,
 } from "@/lib/utils";
 import {
   useChangeDashboardConfigMutation,
@@ -18,11 +18,12 @@ import { EDashboardCardType } from "@/types/EDashboardCardType";
 import { type DashboardConfig } from "@/types/TDashboardConfig";
 import { max } from "lodash";
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { type Layout } from "react-grid-layout";
-import { useBoolean, useElementSize } from "usehooks-ts";
+import { useBoolean, useResizeObserver } from "usehooks-ts";
 import CalendarCard from "./CalendarCard";
 import GraphCard from "./GraphCard";
+import PostsStatsCard from "./PostsStatsCard";
 import StatCard from "./StatCard";
 import AddCardDialog from "./add-card-dialog";
 import EditLayoutButton from "./edit-layout-button";
@@ -41,10 +42,15 @@ export default function HomePage() {
     isSuccess,
   } = useGetDashboardConfigQuery();
 
-  const [containerRef, { width: containerWidth = 0 }] = useElementSize();
+  const ref = useRef<HTMLDivElement>(null);
+
+  const { width: containerWidth = 0 } = useResizeObserver({
+    ref,
+    box: "border-box",
+  });
 
   const width = useMemo(() => {
-    return max([containerWidth, 650]);
+    return max([containerWidth, 800]);
   }, [containerWidth]);
 
   useEffect(() => {
@@ -98,8 +104,8 @@ export default function HomePage() {
   );
 
   return (
-    <div className="flex h-screen flex-col space-y-2 px-4 py-4">
-      <div className="mb-5 flex flex-wrap items-center justify-between md:px-4">
+    <div className="flex h-screen flex-col space-y-2 px-4">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-2 px-4 py-4 md:px-4">
         <h2 className="text-2xl font-bold">Home</h2>
         <div className="flex flex-wrap items-center gap-2">
           <DashboardRangePicker />
@@ -112,9 +118,16 @@ export default function HomePage() {
           )}
         </div>
       </div>
-      <div ref={containerRef} className="w-full">
+      <div ref={ref} className="w-full">
         {isLoading ? (
-          <LoadingCard />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+            <Skeleton className="h-40" />
+            <Skeleton className="h-40" />
+            <Skeleton className="h-40" />
+            <Skeleton className="h-40" />
+            <Skeleton className="h-40" />
+            <Skeleton className="h-40" />
+          </div>
         ) : layout.length === 0 ? (
           <div className="flex h-64 w-full items-center justify-center">
             <h1 className="text-2xl font-bold text-muted-foreground">
@@ -122,14 +135,14 @@ export default function HomePage() {
             </h1>
           </div>
         ) : (
-          <ScrollArea className="h-fit w-full">
+          <ScrollArea className="h-fit w-full ">
             <GridLayout
-              className={cn("w-full", isEdit && "grid-background")}
+              className={cn("w-full", isEdit && "grid-background ")}
               layout={
                 layout.map((item) => ({
                   ...item,
-                  minW: getDachboardCardMinWidth(item.type),
-                  minH: getDachboardCardMinHeight(item.type),
+                  minW: getDashboardCardMinWidth(item.type),
+                  minH: getDashboardCardMinHeight(item.type),
                 })) as Layout[]
               }
               cols={12}
@@ -164,6 +177,15 @@ export default function HomePage() {
                   return (
                     <div key={item.i}>
                       <CalendarCard
+                        {...item}
+                        handleRemoveCard={handleRemoveCard}
+                      />
+                    </div>
+                  );
+                } else if (item.type === EDashboardCardType.PostsStats) {
+                  return (
+                    <div key={item.i}>
+                      <PostsStatsCard
                         {...item}
                         handleRemoveCard={handleRemoveCard}
                       />

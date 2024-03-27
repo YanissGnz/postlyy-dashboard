@@ -1,6 +1,6 @@
 "use client";
 
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,23 +9,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { closeModal } from "@/redux/slices/modalsSlice";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import {
-  useSearchUserQuery,
-  useUpdateAutoRetweetMutation,
-} from "@/redux/api/user/powerups/apiSlice";
-import { EProviders } from "@/types/EProviders";
-import { cn } from "@/lib/utils";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import {
   Command,
   CommandEmpty,
@@ -33,12 +21,34 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import {
+  useSearchUserQuery,
+  useUpdateAutoRetweetMutation,
+} from "@/redux/api/user/powerups/apiSlice";
+import { EProviders } from "@/types/EProviders";
+import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { toast } from "sonner";
-
+import { useMediaQuery } from "usehooks-ts";
 export default function TwitterAutoRetweetDialog() {
   const { list } = useAppSelector((state) => state.modals);
   const currentAccount = useAppSelector((state) => state.auth.currentAccount);
   const dispatch = useAppDispatch();
+
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const [updateAutoRetweet, { isLoading: isUpdatingAutoRetweet }] =
     useUpdateAutoRetweetMutation();
@@ -76,7 +86,6 @@ export default function TwitterAutoRetweetDialog() {
           accId: user.accId,
         })),
         ...links
-          // remove links that are  in the users list
           .filter(
             (link) => !users.some((user) => user.accId === link.accountId),
           )
@@ -90,7 +99,7 @@ export default function TwitterAutoRetweetDialog() {
       username: link.userName,
       accId: link.accountId,
     }));
-  }, [users]);
+  }, [users, links]);
 
   const accountId = useMemo(() => {
     if (currentAccount) {
@@ -145,10 +154,124 @@ export default function TwitterAutoRetweetDialog() {
     }
   }, [accountId, links]);
 
+  const content = useMemo(
+    () => (
+      <div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              className={cn(
+                "h-fit w-full flex-wrap justify-between",
+                links.length === 0 && "text-muted-foreground",
+              )}
+            >
+              {links?.length ? (
+                <div className="flex flex-1 flex-wrap items-center gap-2">
+                  {links.map((user) => (
+                    <Badge variant="outline">@{user.userName}</Badge>
+                  ))}
+                </div>
+              ) : (
+                "Select user to retweet"
+              )}
+              <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[200px] p-0">
+            <Command shouldFilter={false}>
+              <CommandInput
+                placeholder="Search user..."
+                className="h-9"
+                value={search}
+                onValueChange={setSearch}
+              />
+              <CommandEmpty>No user found.</CommandEmpty>{" "}
+              <CommandGroup>
+                {" "}
+                {!search && usersList.length === 0 && (
+                  <CommandItem>Start typing to search users.</CommandItem>
+                )}
+                {usersList.map((user) => (
+                  <CommandItem
+                    key={user.accId}
+                    onSelect={() => {
+                      if (
+                        !links.some((link) => link.accountId === user.accId)
+                      ) {
+                        setLinks([
+                          ...links,
+                          {
+                            userName: user.username,
+                            accountId: user.accId,
+                          },
+                        ]);
+                      } else {
+                        setLinks(
+                          links.filter((link) => link.accountId !== user.accId),
+                        );
+                      }
+                    }}
+                  >
+                    {user.username}
+                    <CheckIcon
+                      className={cn(
+                        "ml-auto h-4 w-4",
+                        links.some((link) => link.accountId === user.accId)
+                          ? "opacity-100"
+                          : "opacity-0",
+                      )}
+                    />
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </div>
+    ),
+    [links, search, usersList],
+  );
+
+  if (isDesktop)
+    return (
+      <Dialog
+        open={list.some((modal) => modal.id === "twitter-auto-retweet")}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) {
+            dispatch(closeModal("twitter-auto-retweet"));
+            setSearch("");
+            setLinks([]);
+          }
+        }}
+      >
+        <DialogContent className="max-h-screen overflow-y-auto sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Twitter Auto Retweet</DialogTitle>
+            <DialogDescription>
+              Use this tool to automatically retweet another Twitter account
+              (e.g. company account) when it tweets through Postlyy.
+            </DialogDescription>
+          </DialogHeader>
+          {content}
+          <DialogFooter>
+            <Button
+              onClick={handleSave}
+              loading={isUpdatingAutoRetweet}
+              disabled={isUpdatingAutoRetweet}
+            >
+              Save changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+
   return (
-    <Dialog
+    <Drawer
       open={list.some((modal) => modal.id === "twitter-auto-retweet")}
-      onOpenChange={(isOpen) => {
+      onOpenChange={(isOpen: boolean) => {
         if (!isOpen) {
           dispatch(closeModal("twitter-auto-retweet"));
           setSearch("");
@@ -156,87 +279,16 @@ export default function TwitterAutoRetweetDialog() {
         }
       }}
     >
-      <DialogContent className="max-h-screen overflow-y-auto sm:max-w-xl">
-        <DialogHeader>
-          <DialogTitle>Twitter Auto Retweet</DialogTitle>
-          <DialogDescription>
+      <DrawerContent>
+        <DrawerHeader>
+          <DrawerTitle>Twitter Auto Retweet</DrawerTitle>
+          <DrawerDescription>
             Use this tool to automatically retweet another Twitter account (e.g.
             company account) when it tweets through Postlyy.
-          </DialogDescription>
-        </DialogHeader>
-        <div>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                className={cn(
-                  "h-fit w-full flex-wrap justify-between",
-                  links.length === 0 && "text-muted-foreground",
-                )}
-              >
-                {links?.length ? (
-                  <div className="flex flex-1 flex-wrap items-center gap-2">
-                    {links.map((user) => (
-                      <Badge variant="outline">@{user.userName}</Badge>
-                    ))}
-                  </div>
-                ) : (
-                  "Select user to retweet"
-                )}
-                <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
-              <Command shouldFilter={false}>
-                <CommandInput
-                  placeholder="Search user..."
-                  className="h-9"
-                  value={search}
-                  onValueChange={setSearch}
-                />
-                <CommandEmpty>No user found.</CommandEmpty>
-                <CommandGroup>
-                  {usersList.map((user) => (
-                    <CommandItem
-                      key={user.accId}
-                      onSelect={() => {
-                        if (
-                          !links.some((link) => link.accountId === user.accId)
-                        ) {
-                          setLinks([
-                            ...links,
-                            {
-                              userName: user.username,
-                              accountId: user.accId,
-                            },
-                          ]);
-                        } else {
-                          setLinks(
-                            links.filter(
-                              (link) => link.accountId !== user.accId,
-                            ),
-                          );
-                        }
-                      }}
-                    >
-                      {user.username}
-                      <CheckIcon
-                        className={cn(
-                          "ml-auto h-4 w-4",
-                          links.some((link) => link.accountId === user.accId)
-                            ? "opacity-100"
-                            : "opacity-0",
-                        )}
-                      />
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </Command>
-            </PopoverContent>
-          </Popover>
-        </div>
-        <DialogFooter>
+          </DrawerDescription>
+        </DrawerHeader>
+        <div className="p-4">{content}</div>
+        <DrawerFooter>
           <Button
             onClick={handleSave}
             loading={isUpdatingAutoRetweet}
@@ -244,8 +296,8 @@ export default function TwitterAutoRetweetDialog() {
           >
             Save changes
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   );
 }

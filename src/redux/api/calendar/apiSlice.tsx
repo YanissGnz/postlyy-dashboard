@@ -4,12 +4,13 @@ import { type RootState } from "@/redux/store";
 import { type EProviders } from "@/types/EProviders";
 import { type TCalendarEvent } from "@/types/TCalendarEvent";
 import {
-    type TCalendarSpot,
-    type TResponseCalendarSpot,
+  type TCalendarSpot,
+  type TResponseCalendarSpot,
 } from "@/types/TCalendarSpot";
 import { type TRecurringPost } from "@/types/TRecurringPost";
 import { type TResponse } from "@/types/TResponse";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { addDays } from "date-fns";
 
 export const calendarApi = createApi({
   reducerPath: "calendarApi",
@@ -29,13 +30,12 @@ export const calendarApi = createApi({
   }),
   tagTypes: ["Events", "Recurring", "Spot"],
   endpoints: (builder) => ({
-    getEvents: builder.query<
-      TResponse<TCalendarEvent[]>,
-      { startDate?: string }
-    >({
-      query: (params) => ({
+    getEvents: builder.query<TResponse<TCalendarEvent[]>, void>({
+      query: () => ({
         url: "/api/Calendar",
-        params,
+        params: {
+          startDate: addDays(new Date(), -30).toISOString(),
+        },
       }),
       transformResponse: (response: TResponse<TCalendarEvent[]>) => {
         return {
@@ -80,7 +80,7 @@ export const calendarApi = createApi({
     }),
     addSpot: builder.mutation<TResponse<TCalendarSpot>, TCalendarSpot>({
       query: (body) => ({
-        url: "/api/Calendar/slot",
+        url: "/api/Calendar/spot",
         method: "POST",
         body: {
           ...body,
@@ -94,7 +94,7 @@ export const calendarApi = createApi({
       TCalendarSpot & { id: string }
     >({
       query: (body) => ({
-        url: `/api/Calendar/slot/${body.id}`,
+        url: `/api/Calendar/spot/${body.id}`,
         method: "PUT",
         body: {
           ...body,
@@ -105,7 +105,7 @@ export const calendarApi = createApi({
     }),
     deleteSpot: builder.mutation<TResponse<boolean>, string>({
       query: (id) => ({
-        url: `/api/Calendar/slot/${id}`,
+        url: `/api/Calendar/spot/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["Events", "Spot"],

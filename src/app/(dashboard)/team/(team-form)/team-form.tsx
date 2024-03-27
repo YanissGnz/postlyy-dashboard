@@ -1,19 +1,17 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
-import { useBoolean } from "usehooks-ts";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
+import { useBoolean, useMediaQuery } from "usehooks-ts";
 // api
 import {
   useAddManagerMutation,
   useAddTeamMemberMutation,
-  useGetManagersQuery,
-  useGetAllMembersQuery,
   useAddTeamMemberToManagerMutation,
+  useGetAllMembersQuery,
+  useGetManagersQuery,
 } from "@/redux/api/user/team/apiSlice";
 // components
-import { TeamMembersDataTable } from "./team-member-data-table";
-import { teamMembersColumns } from "./team-members-columns";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -23,6 +21,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -33,6 +39,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { type TErrorResponse } from "@/types/TErrorResponse";
+import { TeamMembersDataTable } from "./team-member-data-table";
+import { teamMembersColumns } from "./team-members-columns";
 
 export default function TeamForm() {
   const { data: managers } = useGetManagersQuery();
@@ -44,6 +52,8 @@ export default function TeamForm() {
     useAddTeamMemberMutation();
   const [addTeamMemberToManager, { isLoading: isAddSubToManagerLoading }] =
     useAddTeamMemberToManagerMutation();
+
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const [selectedManagerId, setSelectedManagerId] = useState("default");
 
@@ -107,69 +117,144 @@ export default function TeamForm() {
   return (
     <>
       <div className="mb-2 flex items-center justify-end gap-4">
-        <Dialog
-          open={isManagerDialogOpen}
-          onOpenChange={(open) => setManagerDialogValue(open)}
-        >
-          <DialogTrigger asChild>
-            <Button onClick={() => setManagerDialogTrue()}>Add Manager</Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Add Manager</DialogTitle>
-            </DialogHeader>
-            <div className="mb-4">
-              <Label htmlFor="email" className="text-right">
-                Email
-              </Label>
-              <Input
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <DialogFooter>
-              <Button
-                type="submit"
-                onClick={handleAddManager}
-                loading={isAddManagerLoading}
-                disabled={!email || isAddManagerLoading}
-              >
-                Invite
+        {isDesktop ? (
+          <Dialog
+            open={isManagerDialogOpen}
+            onOpenChange={(open) => setManagerDialogValue(open)}
+          >
+            <DialogTrigger asChild>
+              <Button onClick={() => setManagerDialogTrue()}>
+                Add Manager
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-        <Dialog open={isOpen} onOpenChange={(open) => setValue(open)}>
-          <DialogTrigger asChild>
-            <Button onClick={() => setTrue()}>Add Team Member</Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Add Team Member</DialogTitle>
-            </DialogHeader>
-            <div className="mb-4">
-              <Label htmlFor="email" className="text-right">
-                Email
-              </Label>
-              <Input
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <DialogFooter>
-              <Button
-                type="submit"
-                onClick={handleAddTeamMember}
-                loading={isAddSubLoading}
-                disabled={!email || isAddSubLoading || isAddSubToManagerLoading}
-              >
-                Invite
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Add Manager</DialogTitle>
+              </DialogHeader>
+              <div className="mb-4">
+                <Label htmlFor="email" className="text-right">
+                  Email
+                </Label>
+                <Input
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <DialogFooter>
+                <Button
+                  type="submit"
+                  onClick={handleAddManager}
+                  loading={isAddManagerLoading}
+                  disabled={!email || isAddManagerLoading}
+                >
+                  Invite
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        ) : (
+          <Drawer
+            open={isManagerDialogOpen}
+            onOpenChange={(open) => setManagerDialogValue(open)}
+          >
+            <DrawerTrigger asChild>
+              <Button>Add Manager</Button>
+            </DrawerTrigger>
+            <DrawerContent>
+              <DrawerHeader>
+                <DrawerTitle>Add Manager</DrawerTitle>
+              </DrawerHeader>
+              <div className="mb-4 p-4">
+                <Label htmlFor="email" className="text-right">
+                  Email
+                </Label>
+                <Input
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <DrawerFooter>
+                <Button
+                  type="submit"
+                  onClick={handleAddManager}
+                  loading={isAddManagerLoading}
+                  disabled={!email || isAddManagerLoading}
+                >
+                  Invite
+                </Button>
+              </DrawerFooter>
+            </DrawerContent>
+          </Drawer>
+        )}
+        {isDesktop ? (
+          <Dialog open={isOpen} onOpenChange={(open) => setValue(open)}>
+            <DialogTrigger asChild>
+              <Button onClick={() => setTrue()}>Add Team Member</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Add Team Member</DialogTitle>
+              </DialogHeader>
+              <div className="mb-4">
+                <Label htmlFor="email" className="text-right">
+                  Email
+                </Label>
+                <Input
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <DialogFooter>
+                <Button
+                  type="submit"
+                  onClick={handleAddTeamMember}
+                  loading={isAddSubLoading}
+                  disabled={
+                    !email || isAddSubLoading || isAddSubToManagerLoading
+                  }
+                >
+                  Invite
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        ) : (
+          <Drawer open={isOpen} onOpenChange={(open) => setValue(open)}>
+            <DrawerTrigger asChild>
+              <Button onClick={() => setTrue()}>Add Team Member</Button>
+            </DrawerTrigger>
+            <DrawerContent>
+              <DrawerHeader>
+                <DrawerTitle>Add Team Member</DrawerTitle>
+              </DrawerHeader>
+              <div className="mb-4 p-4">
+                <Label htmlFor="email" className="text-right">
+                  Email
+                </Label>
+                <Input
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <DrawerFooter>
+                <Button
+                  type="submit"
+                  onClick={handleAddTeamMember}
+                  loading={isAddSubLoading}
+                  disabled={
+                    !email || isAddSubLoading || isAddSubToManagerLoading
+                  }
+                >
+                  Invite
+                </Button>
+              </DrawerFooter>
+            </DrawerContent>
+          </Drawer>
+        )}
 
         <p>To</p>
         <Select defaultValue="default" onValueChange={handleManagerChange}>

@@ -1,39 +1,48 @@
-import React from "react";
+"use client";
+
 import { env } from "@/env";
 import { ROUTES } from "@/routes";
-import { getServerAuthSession } from "@/server/auth";
-import { redirect } from "next/navigation";
+import { isArray } from "lodash";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-export default async function Payment() {
-  const session = await getServerAuthSession();
+export default function Payment() {
+  const session = useSession();
+  const { replace } = useRouter();
 
-  if (session?.user.isTrial) redirect(ROUTES.home);
+  useEffect(() => {
+    if (!session?.data?.user.hasChosenSubscription) {
+      replace(ROUTES.setupSubscription);
+    } else if (session?.data?.user.hasPaidSubscription) {
+      replace(ROUTES.home);
+    }
 
-  if (
-    session?.user.accessToken &&
-    !session?.user.isTrial &&
-    !session?.user.hasPaidSubscription
-  )
-    await fetch(`${env.NEXT_PUBLIC_API_BASE_URL}/api/Subscription/link`, {
+    void fetch(`${env.NEXT_PUBLIC_API_BASE_URL}/api/Subscription/link`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.user.accessToken}`,
+        Authorization: `Bearer ${session.data?.user.accessToken}`,
       },
     })
       .then((res) => res.json())
-      .then((data: { data: { link: string } } | string[]) => {
-        if ((data as { data: { link: string } })?.data?.link)
-          redirect((data as { data: { link: string } })?.data?.link);
-        else if ((data as string[]).includes("SUBSCRIPTION_PAID")) {
-          redirect(ROUTES.home);
+      .then(async (data: { data: { link: string } } | string[]) => {
+        if (data && isArray(data)) {
+          await session.update().then(() => {
+            replace(ROUTES.login);
+          });
+          return;
         }
+
+        replace(data.data.link);
+        return;
       })
-      .catch((err: string[]) => {
-        if (err.includes("SUBSCRIPTION_PAID")) {
-          redirect(ROUTES.home);
-        }
+      .catch(async () => {
+        await session.update().then(() => {
+          replace(ROUTES.login);
+        });
       });
+  }, [session]);
 
   return (
     <div className="flex h-screen w-screen items-center justify-center">

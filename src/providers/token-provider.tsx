@@ -1,7 +1,10 @@
 "use client";
 
+import { useAppSelector } from "@/redux/hooks";
 import { setAccount, setToken } from "@/redux/slices/authSlice";
+import { ROUTES } from "@/routes";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
@@ -12,21 +15,31 @@ export default function TokenProvider({
 }) {
   const session = useSession();
   const dispatch = useDispatch();
+  const { push } = useRouter();
+
+  const currentAccount = useAppSelector((state) => state.auth.currentAccount);
 
   useEffect(() => {
-    if (session.status === "authenticated") {
-      dispatch(setToken(session.data.user.accessToken));
-      localStorage.setItem("token", session.data.user.accessToken);
-      if (
-        session.data.user?.accounts?.length > 0 &&
-        session.data.user.accounts[0]
-      ) {
-        dispatch(setAccount(session.data.user.accounts[0]));
+    if (session) {
+      if (session.status === "loading") return;
+
+      if (session.data?.user) {
+        dispatch(setToken(session.data.user.accessToken));
+        localStorage.setItem("token", session.data.user.accessToken);
+        if (
+          session.data.user.accounts.length > 0 &&
+          session.data.user.accounts[0] &&
+          !currentAccount
+        ) {
+          dispatch(setAccount(session.data.user.accounts[0]));
+        }
+
+        
+      } else {
+        push(ROUTES.login);
       }
-    } else if (session.status === "unauthenticated") {
-      localStorage.removeItem("token");
     }
-  }, [session]);
+  }, [session, currentAccount]);
 
   return <>{children}</>;
 }

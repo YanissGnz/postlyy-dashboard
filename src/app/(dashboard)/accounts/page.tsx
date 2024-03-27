@@ -1,65 +1,70 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 "use client";
 
-import React, { useCallback, useEffect } from "react";
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback } from "react";
 import { toast } from "sonner";
-import { sentenceCase } from "change-case";
-import { type JwtPayload, decode } from "jsonwebtoken";
-import crypto from "crypto";
 // components
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { env } from "@/env";
-import { ROUTES } from "@/routes";
 import {
-  useAddAccountMutation,
-  useDeleteAccountMutation,
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  accountApiUtil,
   useGetAccountsQuery,
 } from "@/redux/api/user/account/apiSlice";
-import { Spinner } from "@/components/ui/Spinner";
-import { type TNewAccount } from "@/types/TNewAccount";
-import { isString } from "lodash";
+import { useAppDispatch } from "@/redux/hooks";
+import { openModal } from "@/redux/slices/modalsSlice";
+import { ROUTES } from "@/routes";
 import { EProviders } from "@/types/EProviders";
+import { type TNewAccount } from "@/types/TNewAccount";
+import useMessage from "@rottitime/react-hook-message-event";
+import { sentenceCase } from "change-case";
+import { decode, type JwtPayload } from "jsonwebtoken";
+import { useBoolean } from "usehooks-ts";
 
 export default function AccountsPage() {
   const {
     data: accounts,
     isLoading: isAccountsLoading,
     isFetching: isAccountsFetching,
+    refetch,
   } = useGetAccountsQuery();
-  const [addAccount, { isLoading }] = useAddAccountMutation();
-  const [deleteAccount, { isLoading: isDeleteLoading }] =
-    useDeleteAccountMutation();
 
-  const { push } = useRouter();
+  const dispatch = useAppDispatch();
 
-  const searchParams = useSearchParams();
+  const {
+    value: isLoading,
+    setTrue: startLoading,
+    setFalse: stopLoading,
+  } = useBoolean(false);
 
-  const error = searchParams.get("error");
-  const token = searchParams.get("token");
+  useMessage("authenticate", async (send, payload) => {
+    const { token, error } = payload as {
+      token?: string;
+      error?: string;
+    };
 
-  useEffect(() => {
-    if (error) toast.error(sentenceCase(error));
-  }, [error]);
-
-  useEffect(() => {
-    if (token) {
+    if (error) {
+      toast.error(sentenceCase(error));
+      return;
+    } else if (token) {
+      startLoading();
       const decoded = decode(token) as (JwtPayload & { data: string }) | null;
 
       if (!decoded) {
         toast.error("Invalid token");
-        setTimeout(() => {
-          push(ROUTES.accounts);
-        }, 1000);
         return;
       }
 
       if (decoded.exp && decoded.exp < Date.now() / 1000) {
         toast.error("Token expired");
-        setTimeout(() => {
-          push(ROUTES.accounts);
-        }, 1000);
         return;
       }
 
@@ -69,24 +74,36 @@ export default function AccountsPage() {
         Buffer.from(data, "base64").toString("utf-8"),
       ) as TNewAccount;
 
-      addAccount(decodedData)
-        .unwrap()
-        .then(() => {
-          toast.success("Account added successfully");
-          setTimeout(() => {
-            push(ROUTES.accounts);
-          }, 1000);
+      await fetch(`/api/connect`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(decodedData),
+      })
+        .then(async (res) => {
+          if (res.ok) {
+            toast.success("Account connected successfully");
+            accountApiUtil.invalidateTags(["Accounts"]);
+            void refetch();
+          } else {
+            const error = (await res.json()) as { message: string } | string[];
+
+            if (Array.isArray(error)) {
+              toast.error(error.join(", "));
+            } else {
+              toast.error(error.message);
+            }
+          }
         })
-        .catch((e: string[]) => {
-          if (e) {
-            if (isString(e[0])) {
-              toast.error(e[0]);
-              push(ROUTES.accounts);
-            } else push(ROUTES.accounts);
-          } else window.location.reload();
+        .catch((e) => {
+          const message =
+            e instanceof Error ? e.message : "Something went wrong";
+          toast.error(message);
         });
     }
-  }, [token]);
+    stopLoading();
+  });
 
   const isConnected = useCallback(
     (accountType: EProviders) => {
@@ -97,6 +114,7 @@ export default function AccountsPage() {
     },
     [accounts],
   );
+
   const getAccountByType = useCallback(
     (accountType: EProviders) => {
       if (!accounts) return null;
@@ -107,119 +125,153 @@ export default function AccountsPage() {
     [accounts, isAccountsLoading, isAccountsFetching],
   );
 
-  const connect = useCallback(
-    (method: string) => () => {
-      const hash = crypto
-        .createHmac("sha256", env.NEXT_PUBLIC_AUTH_SECRET_KEY)
-        .digest("hex");
-      push(`${env.NEXT_PUBLIC_AUTH_BASEURL}/auth/${method}?hash=${hash}`);
+  const handleConnect = useCallback(
+    (accountType: EProviders) => () => {
+      const width = 600;
+      const height = 600;
+      const left = (screen.width - width) / 2;
+      const top = (screen.height - height) / 2;
+
+      const features = `width=${width},height=${height},top=${top},left=${left},popup=yes`;
+      const popup = window.open(
+        ROUTES.accounts.connect(accountType),
+        "_blank",
+        features,
+      );
+
+      if (!popup) {
+        toast.error("Popup blocked");
+        return;
+      }
+
+      popup.focus();
     },
-    [],
+    [screen],
   );
 
   const handleDeleteAccount = useCallback(
     (accountType: number) => () => {
-      deleteAccount(getAccountByType(accountType)?.id ?? "")
-        .unwrap()
-        .then(() => {
-          toast.success("Account deleted successfully");
-        })
-        .catch(() => {
-          toast.error("Something went wrong");
-        });
+      const id = getAccountByType(accountType)?.id;
+
+      if (!id) {
+        return;
+      }
+
+      dispatch(
+        openModal({
+          id: "delete-account-modal",
+          data: {
+            id,
+          },
+        }),
+      );
     },
     [accounts, isAccountsLoading, isAccountsFetching],
   );
 
   if (isAccountsLoading || isAccountsFetching)
     return (
-      <Card className="flex h-56 w-full items-center justify-center ">
-        <Spinner />
-      </Card>
+      <div className="grid grid-cols-1 gap-5 p-4 sm:grid-cols-2">
+        <Skeleton className="h-60 w-full" />
+        <Skeleton className="h-60 w-full" />
+      </div>
     );
   return (
-    <Card className="grid grid-cols-1 gap-5 p-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Image
-            src="/icons/providers/x-logo.png"
-            alt="logo"
-            width="50"
-            height="50"
-            className="rounded-full"
-          />
-          <p className="font-medium">X (Twitter)</p>
-        </div>
-        <p>
-          {isConnected(EProviders.Twitter)
-            ? `@${getAccountByType(EProviders.Twitter)?.username}`
-            : "Not connected"}
-        </p>
-        {isConnected(EProviders.Twitter) ? (
-          <Button
-            variant="destructive"
-            onClick={handleDeleteAccount(EProviders.Twitter)}
-            disabled={isDeleteLoading}
-            loading={isDeleteLoading}
-          >
-            Delete
-          </Button>
-        ) : (
-          <Button
-            variant="outline"
-            onClick={connect("twitter")}
-            disabled={isLoading}
-            loading={isLoading}
-          >
-            Connect
-          </Button>
-        )}
-      </div>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Image
-            src="/icons/providers/linkedin-logo.png"
-            alt="logo"
-            width="50"
-            height="50"
-            className="rounded-full"
-          />
-          <p className="font-medium">LinkedIn</p>
-        </div>
-        <p>
-          {isConnected(1)
-            ? `@${getAccountByType(1)?.username}`
-            : "Not connected"}
-        </p>
-        {isConnected(EProviders.Linkedin) ? (
-          <Button
-            variant="destructive"
-            onClick={handleDeleteAccount(EProviders.Linkedin)}
-            disabled={isDeleteLoading}
-            loading={isDeleteLoading}
-          >
-            Delete
-          </Button>
-        ) : getAccountByType(EProviders.Linkedin)?.isExpired ? (
-          <Button
-            variant="outline"
-            onClick={connect("linkedin")}
-            disabled={isLoading}
-            loading={isLoading}
-          >
-            Renew
-          </Button>
-        ) : (
-          <Button
-            variant="outline"
-            onClick={connect("linkedin")}
-            disabled={isLoading}
-            loading={isLoading}
-          >
-            Connect
-          </Button>
-        )}
-      </div>
-    </Card>
+    <div className="grid grid-cols-1 gap-5 p-4 sm:grid-cols-2">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Image
+              src="/icons/providers/x-logo.png"
+              alt="logo"
+              width="50"
+              height="50"
+              className="rounded-full"
+            />
+            <p className="font-medium">X (Twitter)</p>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>
+            {isConnected(EProviders.Twitter) ? (
+              <p>
+                Connected as{" "}
+                <span className="font-semibold text-primary">
+                  @{getAccountByType(EProviders.Twitter)?.username}
+                </span>
+              </p>
+            ) : (
+              "Not connected"
+            )}
+          </p>
+        </CardContent>
+        <CardFooter className="flex justify-end">
+          {isConnected(EProviders.Twitter) ? (
+            <Button
+              variant="destructive"
+              onClick={handleDeleteAccount(EProviders.Twitter)}
+            >
+              Delete
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              onClick={handleConnect(EProviders.Twitter)}
+              disabled={isLoading}
+              loading={isLoading}
+            >
+              Connect
+            </Button>
+          )}
+        </CardFooter>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Image
+              src="/icons/providers/linkedin-logo.png"
+              alt="logo"
+              width="50"
+              height="50"
+              className="rounded-full"
+            />
+            <p className="font-medium">Linkedin</p>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>
+            {isConnected(EProviders.Linkedin) ? (
+              <p>
+                Connected as{" "}
+                <span className="font-semibold text-primary">
+                  @{getAccountByType(EProviders.Linkedin)?.username}
+                </span>
+              </p>
+            ) : (
+              "Not connected"
+            )}
+          </p>
+        </CardContent>
+        <CardFooter className="flex justify-end">
+          {isConnected(EProviders.Linkedin) ? (
+            <Button
+              variant="destructive"
+              onClick={handleDeleteAccount(EProviders.Linkedin)}
+            >
+              Delete
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              onClick={handleConnect(EProviders.Linkedin)}
+              disabled={isLoading}
+              loading={isLoading}
+            >
+              Connect
+            </Button>
+          )}
+        </CardFooter>
+      </Card>
+    </div>
   );
 }

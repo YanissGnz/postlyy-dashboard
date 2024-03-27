@@ -4,21 +4,30 @@ import BottomButtons from "@/components/bottom-buttons";
 import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormMessage,
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormMessage,
 } from "@/components/ui/form";
 import Iconify from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
@@ -27,13 +36,13 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { hasAccount } from "@/lib/utils";
 import {
-    useGetNextFiveSpotsQuery,
-    useGetRecurringSpotsQuery,
+  useGetNextFiveSpotsQuery,
+  useGetRecurringSpotsQuery,
 } from "@/redux/api/calendar/apiSlice";
 import {
-    useAddPostNowMutation,
-    useAddPostToSpotMutation,
-    useAddRecurringPostMutation,
+  useAddPostNowMutation,
+  useAddPostToSpotMutation,
+  useAddRecurringPostMutation,
 } from "@/redux/api/post/apiSlice";
 import { useAppSelector } from "@/redux/hooks";
 import { EProviders } from "@/types/EProviders";
@@ -45,16 +54,16 @@ import { format } from "date-fns";
 import { toBlob } from "html-to-image";
 import { useSession } from "next-auth/react";
 import {
-    useCallback,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
-    type ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ChangeEvent,
 } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useBoolean } from "usehooks-ts";
+import { useBoolean, useMediaQuery } from "usehooks-ts";
 import { useGetNoteQuery } from "../../../../redux/api/notes/apiSlice";
 import { DAYS_OF_WEEK } from "../../calendar/add-edit-event-form";
 
@@ -97,6 +106,8 @@ const generateFormData = (data: TPostForm) => {
   return formData;
 };
 export default function page({ params }: { params: { id: string } }) {
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+
   const {
     data: note,
     isLoading: isLoadingNote,
@@ -336,8 +347,8 @@ export default function page({ params }: { params: { id: string } }) {
           });
           data.append("posts[0].images", file);
 
-          selectedSpots.forEach((slot) => {
-            if (slot.provider === EProviders.Twitter) {
+          selectedSpots.forEach((spot) => {
+            if (spot.provider === EProviders.Twitter) {
               data.append("onTwitter", "true");
               data.delete("onLinkedIn");
             } else {
@@ -347,7 +358,7 @@ export default function page({ params }: { params: { id: string } }) {
 
             const postNowPromise = addPostToSpot({
               body: data,
-              slotId: slot.id,
+              spotId: spot.id,
             }).unwrap();
             toast.promise(postNowPromise, {
               loading: "Scheduling...",
@@ -393,589 +404,181 @@ export default function page({ params }: { params: { id: string } }) {
           </div>
           <BottomButtons>
             <div className="flex items-center gap-2">
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button
-                    type="button"
-                    disabled={
-                      isPostingNowOrScheduling ||
-                      isAddingPostToSpot ||
-                      isAddingRecurringPost
-                    }
-                  >
-                    Pick recurring slot
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Pick a slot</DialogTitle>
-                    <DialogDescription>
-                      Choose a recurring slot to post your content
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-2">
-                    {" "}
-                    <Form {...form}>
-                      <FormField
-                        control={form.control}
-                        name={`posts.0.text`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Add a caption"
-                                rows={4}
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              {field.value.length} / 280
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <FormField
-                          control={form.control}
-                          name={`onTwitter`}
-                          render={({ field }) => (
-                            <FormControl>
-                              <div className="flex items-center space-x-2">
-                                <Switch
-                                  id="onTwitter"
-                                  disabled={
-                                    !hasAccount(
-                                      EProviders.Linkedin,
-                                      session.data?.user.accounts,
-                                    ) ||
-                                    (!form.getValues("onLinkedIn") &&
-                                      field.value)
-                                  }
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />{" "}
-                                <Label htmlFor="onTwitter">X (Twitter)</Label>
-                              </div>
-                            </FormControl>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`onLinkedIn`}
-                          render={({ field }) => (
-                            <FormControl>
-                              <div className="flex items-center space-x-2">
-                                <Switch
-                                  id="onLinkedIn"
-                                  disabled={
-                                    !hasAccount(
-                                      EProviders.Linkedin,
-                                      session.data?.user.accounts,
-                                    ) ||
-                                    (!form.getValues("onTwitter") &&
-                                      field.value)
-                                  }
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />{" "}
-                                <Label htmlFor="onLinkedIn">LinkedIn</Label>
-                              </div>
-                            </FormControl>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`asEvergreen`}
-                          render={({ field }) => (
-                            <FormControl>
-                              <div className="flex items-center space-x-2">
-                                <Switch
-                                  id="asEvergreen"
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />{" "}
-                                <Label htmlFor="asEvergreen">
-                                  Set as evergreen
-                                </Label>
-                              </div>
-                            </FormControl>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`addFinisher`}
-                          render={({ field }) => (
-                            <FormControl>
-                              <div className="flex items-center space-x-2">
-                                <Switch
-                                  id="addFinisher"
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />{" "}
-                                <Label htmlFor="addFinisher">
-                                  Add finisher
-                                </Label>
-                              </div>
-                            </FormControl>
-                          )}
-                        />{" "}
-                        {form.getValues("onTwitter") && (
-                          <FormField
-                            control={form.control}
-                            name={`posts.0.twitterDirectLink`}
-                            render={({ field }) => (
-                              <FormControl>
-                                <div className="flex items-center space-x-2">
-                                  <Switch
-                                    id={`posts.0.twitterDirectLink`}
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                  />{" "}
-                                  <Label htmlFor={`posts.0.twitterDirectLink`}>
-                                    Add a "DM me" Button
-                                  </Label>
-                                </div>
-                              </FormControl>
-                            )}
-                          />
-                        )}
-                      </div>
-                    </Form>
-                    {isRecurringSpotsLoading ? (
-                      <div className="flex h-24 items-center justify-center">
-                        <Spinner />
-                      </div>
-                    ) : isRecurringSpotSuccess &&
-                      recurringSpots?.data.length > 0 ? (
-                      <>
-                        <Label className="mb-2">Recurring Spots</Label>
-                        <div className="flex flex-wrap gap-2">
-                          {recurringSpots.data.map((slot) => (
-                            <Button
-                              variant={
-                                selectedSpots.some((s) => s.id === slot.id)
-                                  ? "default"
-                                  : "outline"
-                              }
-                              onClick={() => {
-                                setScheduleDate("");
-                                setSelectedSpots((prev) => {
-                                  if (prev.some((s) => s.id === slot.id)) {
-                                    return prev.filter((s) => s.id !== slot.id);
-                                  }
-
-                                  if (
-                                    prev.some(
-                                      (s) => s.provider === EProviders.Twitter,
-                                    )
-                                  ) {
-                                    return [
-                                      ...prev.filter(
-                                        (s) =>
-                                          s.provider !== EProviders.Twitter,
-                                      ),
-                                      {
-                                        id: slot.id,
-                                        provider: EProviders.Twitter,
-                                      },
-                                    ];
-                                  } else {
-                                    return [
-                                      ...prev,
-                                      {
-                                        id: slot.id,
-                                        provider: EProviders.Twitter,
-                                      },
-                                    ];
-                                  }
-                                });
-                              }}
-                            >
-                              {slot.days
-                                ?.map(
-                                  (day) =>
-                                    DAYS_OF_WEEK.find((d) => d.value === day)
-                                      ?.label,
-                                )
-                                .join(", ")}{" "}
-                              at{" "}
-                              {format(new Date(slot.startTime ?? ""), "HH:mm")}
-                            </Button>
-                          ))}
-                        </div>
-                      </>
-                    ) : (
-                      <div className="flex h-24 items-center justify-center text-destructive">
-                        <p>No slots available</p>
-                      </div>
-                    )}
-                  </div>
-                  <DialogFooter>
+              {isDesktop ? (
+                <Dialog>
+                  <DialogTrigger asChild>
                     <Button
                       type="button"
-                      onClick={handleAddRecurringPost}
                       disabled={
-                        selectedSpots.length === 0 || !form.formState.isValid
+                        isPostingNowOrScheduling ||
+                        isAddingPostToSpot ||
+                        isAddingRecurringPost
                       }
                     >
-                      Schedule
+                      Pick recurring spot
                     </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-              <Dialog
-                open={isScheduleDialogOpen}
-                onOpenChange={(open) => setIsScheduleDialogOpen(open)}
-              >
-                <DialogTrigger asChild>
-                  <Button
-                    type="button"
-                    disabled={
-                      isPostingNowOrScheduling ||
-                      isAddingPostToSpot ||
-                      isAddingRecurringPost
-                    }
-                  >
-                    Pick a time
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Pick a time</DialogTitle>
-                    <DialogDescription>
-                      Choose a time to post your content
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-2">
-                    {" "}
-                    <Form {...form}>
-                      <FormField
-                        control={form.control}
-                        name={`posts.0.text`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Add a caption"
-                                rows={4}
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              {field.value.length} / 280
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Pick a spot</DialogTitle>
+                      <DialogDescription>
+                        Choose a recurring spot to post your content
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-2">
+                      {" "}
+                      <Form {...form}>
+                        <FormField
+                          control={form.control}
+                          name={`posts.0.text`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="Add a caption"
+                                  rows={4}
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                {field.value.length} / 280
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                      <div className="grid grid-cols-2 gap-2">
-                        <FormField
-                          control={form.control}
-                          name={`onTwitter`}
-                          render={({ field }) => (
-                            <FormControl>
-                              <div className="flex items-center space-x-2">
-                                <Switch
-                                  id="onTwitter"
-                                  disabled={
-                                    !hasAccount(
-                                      EProviders.Twitter,
-                                      session.data?.user.accounts,
-                                    ) ||
-                                    (!form.getValues("onLinkedIn") &&
-                                      field.value)
-                                  }
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />{" "}
-                                <Label htmlFor="onTwitter">X (Twitter)</Label>
-                              </div>
-                            </FormControl>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`onLinkedIn`}
-                          render={({ field }) => (
-                            <FormControl>
-                              <div className="flex items-center space-x-2">
-                                <Switch
-                                  id="onLinkedIn"
-                                  disabled={
-                                    !hasAccount(
-                                      EProviders.Linkedin,
-                                      session.data?.user.accounts,
-                                    ) ||
-                                    (!form.getValues("onTwitter") &&
-                                      field.value)
-                                  }
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />{" "}
-                                <Label htmlFor="onLinkedIn">LinkedIn</Label>
-                              </div>
-                            </FormControl>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`asEvergreen`}
-                          render={({ field }) => (
-                            <FormControl>
-                              <div className="flex items-center space-x-2">
-                                <Switch
-                                  id="asEvergreen"
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />{" "}
-                                <Label htmlFor="asEvergreen">
-                                  Set as evergreen
-                                </Label>
-                              </div>
-                            </FormControl>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`addFinisher`}
-                          render={({ field }) => (
-                            <FormControl>
-                              <div className="flex items-center space-x-2">
-                                <Switch
-                                  id="addFinisher"
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />{" "}
-                                <Label htmlFor="addFinisher">
-                                  Add finisher
-                                </Label>
-                              </div>
-                            </FormControl>
-                          )}
-                        />{" "}
-                        {form.getValues("onTwitter") && (
+                        <div className="grid grid-cols-2 gap-2">
                           <FormField
                             control={form.control}
-                            name={`posts.0.twitterDirectLink`}
+                            name={`onTwitter`}
                             render={({ field }) => (
                               <FormControl>
                                 <div className="flex items-center space-x-2">
                                   <Switch
-                                    id={`posts.0.twitterDirectLink`}
+                                    id="onTwitter"
+                                    disabled={
+                                      !hasAccount(
+                                        EProviders.Linkedin,
+                                        session.data?.user.accounts,
+                                      ) ||
+                                      (!form.getValues("onLinkedIn") &&
+                                        field.value)
+                                    }
                                     checked={field.value}
                                     onCheckedChange={field.onChange}
                                   />{" "}
-                                  <Label htmlFor={`posts.0.twitterDirectLink`}>
-                                    Add a "DM me" Button
+                                  <Label htmlFor="onTwitter">X (Twitter)</Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`onLinkedIn`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="onLinkedIn"
+                                    disabled={
+                                      !hasAccount(
+                                        EProviders.Linkedin,
+                                        session.data?.user.accounts,
+                                      ) ||
+                                      (!form.getValues("onTwitter") &&
+                                        field.value)
+                                    }
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="onLinkedIn">LinkedIn</Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`asEvergreen`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="asEvergreen"
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="asEvergreen">
+                                    Set as evergreen
                                   </Label>
                                 </div>
                               </FormControl>
                             )}
                           />
-                        )}
-                      </div>
-                    </Form>
-                    <div className="mt-3 w-full">
-                      <Label htmlFor="custom-date">Custom date</Label>
-                      <Input
-                        id="custom-date"
-                        type="datetime-local"
-                        value={scheduleDate}
-                        onChange={handleCustomDateChange}
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button
-                      type="button"
-                      onClick={handleCustomSchedulePost}
-                      disabled={scheduleDate === "" || !form.formState.isValid}
-                    >
-                      Schedule
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-              <Dialog
-                open={isQueueDialogOpen}
-                onOpenChange={(open) => setIsQueueDialogOpen(open)}
-              >
-                <DialogTrigger asChild>
-                  <Button
-                    type="button"
-                    disabled={
-                      isPostingNowOrScheduling ||
-                      isAddingPostToSpot ||
-                      isAddingRecurringPost
-                    }
-                  >
-                    Add to queue
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Pick a time</DialogTitle>
-                    <DialogDescription>
-                      Choose a time to post your content
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-2">
-                    <Form {...form}>
-                      <FormField
-                        control={form.control}
-                        name={`posts.0.text`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Add a caption"
-                                rows={4}
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              {field.value.length} / 280
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <FormField
-                          control={form.control}
-                          name={`onTwitter`}
-                          render={({ field }) => (
-                            <FormControl>
-                              <div className="flex items-center space-x-2">
-                                <Switch
-                                  id="onTwitter"
-                                  disabled={
-                                    !hasAccount(
-                                      EProviders.Twitter,
-                                      session.data?.user.accounts,
-                                    ) ||
-                                    (!form.getValues("onLinkedIn") &&
-                                      field.value)
-                                  }
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />{" "}
-                                <Label htmlFor="onTwitter">X (Twitter)</Label>
-                              </div>
-                            </FormControl>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`onLinkedIn`}
-                          render={({ field }) => (
-                            <FormControl>
-                              <div className="flex items-center space-x-2">
-                                <Switch
-                                  id="onLinkedIn"
-                                  disabled={
-                                    !hasAccount(
-                                      EProviders.Linkedin,
-                                      session.data?.user.accounts,
-                                    ) ||
-                                    (!form.getValues("onTwitter") &&
-                                      field.value)
-                                  }
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />{" "}
-                                <Label htmlFor="onLinkedIn">LinkedIn</Label>
-                              </div>
-                            </FormControl>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`asEvergreen`}
-                          render={({ field }) => (
-                            <FormControl>
-                              <div className="flex items-center space-x-2">
-                                <Switch
-                                  id="asEvergreen"
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />{" "}
-                                <Label htmlFor="asEvergreen">
-                                  Set as evergreen
-                                </Label>
-                              </div>
-                            </FormControl>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`addFinisher`}
-                          render={({ field }) => (
-                            <FormControl>
-                              <div className="flex items-center space-x-2">
-                                <Switch
-                                  id="addFinisher"
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />{" "}
-                                <Label htmlFor="addFinisher">
-                                  Add finisher
-                                </Label>
-                              </div>
-                            </FormControl>
-                          )}
-                        />{" "}
-                        {form.getValues("onTwitter") && (
                           <FormField
                             control={form.control}
-                            name={`posts.0.twitterDirectLink`}
+                            name={`addFinisher`}
                             render={({ field }) => (
                               <FormControl>
                                 <div className="flex items-center space-x-2">
                                   <Switch
-                                    id={`posts.0.twitterDirectLink`}
+                                    id="addFinisher"
                                     checked={field.value}
                                     onCheckedChange={field.onChange}
                                   />{" "}
-                                  <Label htmlFor={`posts.0.twitterDirectLink`}>
-                                    Add a "DM me" Button
+                                  <Label htmlFor="addFinisher">
+                                    Add finisher
                                   </Label>
                                 </div>
                               </FormControl>
                             )}
-                          />
-                        )}
-                      </div>
-                    </Form>
-                    {isSpotsLoading ? (
-                      <div className="flex h-24 items-center justify-center">
-                        <Spinner />
-                      </div>
-                    ) : isSpotsSuccess && nextSpots?.data.length > 0 ? (
-                      <>
-                        {form.getValues("onTwitter") && (
-                          <Label className="mb-2">Twitter Spots</Label>
-                        )}{" "}
-                        <div className="mb-2 flex flex-wrap gap-2">
-                          {nextSpots.data
-                            .filter((slot) => slot.forTwitter)
-                            .map((slot) => (
+                          />{" "}
+                          {form.getValues("onTwitter") && (
+                            <FormField
+                              control={form.control}
+                              name={`posts.0.twitterDirectLink`}
+                              render={({ field }) => (
+                                <FormControl>
+                                  <div className="flex items-center space-x-2">
+                                    <Switch
+                                      id={`posts.0.twitterDirectLink`}
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                    />{" "}
+                                    <Label
+                                      htmlFor={`posts.0.twitterDirectLink`}
+                                    >
+                                      Add a "DM me" Button
+                                    </Label>
+                                  </div>
+                                </FormControl>
+                              )}
+                            />
+                          )}
+                        </div>
+                      </Form>
+                      {isRecurringSpotsLoading ? (
+                        <div className="flex h-24 items-center justify-center">
+                          <Spinner />
+                        </div>
+                      ) : isRecurringSpotSuccess &&
+                        recurringSpots?.data.length > 0 ? (
+                        <>
+                          <Label className="mb-2">Recurring Spots</Label>
+                          <div className="flex flex-wrap gap-2">
+                            {recurringSpots.data.map((spot) => (
                               <Button
                                 variant={
-                                  selectedSpots.some((s) => s.id === slot.id)
+                                  selectedSpots.some((s) => s.id === spot.id)
                                     ? "default"
                                     : "outline"
                                 }
                                 onClick={() => {
                                   setScheduleDate("");
                                   setSelectedSpots((prev) => {
-                                    if (prev.some((s) => s.id === slot.id)) {
+                                    if (prev.some((s) => s.id === spot.id)) {
                                       return prev.filter(
-                                        (s) => s.id !== slot.id,
+                                        (s) => s.id !== spot.id,
                                       );
                                     }
 
@@ -991,7 +594,7 @@ export default function page({ params }: { params: { id: string } }) {
                                             s.provider !== EProviders.Twitter,
                                         ),
                                         {
-                                          id: slot.id,
+                                          id: spot.id,
                                           provider: EProviders.Twitter,
                                         },
                                       ];
@@ -999,7 +602,7 @@ export default function page({ params }: { params: { id: string } }) {
                                       return [
                                         ...prev,
                                         {
-                                          id: slot.id,
+                                          id: spot.id,
                                           provider: EProviders.Twitter,
                                         },
                                       ];
@@ -1007,263 +610,1588 @@ export default function page({ params }: { params: { id: string } }) {
                                   });
                                 }}
                               >
-                                <Iconify
-                                  icon="simple-icons:x"
-                                  className="mr-2"
-                                  fontSize={16}
-                                />
-
+                                {spot.days
+                                  ?.map(
+                                    (day) =>
+                                      DAYS_OF_WEEK.find((d) => d.value === day)
+                                        ?.label,
+                                  )
+                                  .join(", ")}{" "}
+                                at{" "}
                                 {format(
-                                  new Date(slot.start ?? ""),
-                                  "dd MMM yyyy, HH:mm",
+                                  new Date(spot.startTime ?? ""),
+                                  "HH:mm",
                                 )}
                               </Button>
                             ))}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flex h-24 items-center justify-center text-destructive">
+                          <p>No spots available</p>
                         </div>
-                        {form.getValues("onLinkedIn") && (
-                          <Label className="mb-2">LinkedIn Spots</Label>
-                        )}
-                        <div className="flex flex-wrap gap-2">
-                          {nextSpots.data
-                            .filter((slot) => slot.forLinkedIn)
-                            .map((slot) => (
+                      )}
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        type="button"
+                        onClick={handleAddRecurringPost}
+                        disabled={
+                          selectedSpots.length === 0 || !form.formState.isValid
+                        }
+                      >
+                        Schedule
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              ) : (
+                <Drawer>
+                  <DrawerTrigger asChild>
+                    <Button
+                      type="button"
+                      disabled={
+                        isPostingNowOrScheduling ||
+                        isAddingPostToSpot ||
+                        isAddingRecurringPost
+                      }
+                    >
+                      Pick recurring spot
+                    </Button>
+                  </DrawerTrigger>
+                  <DrawerContent className="sm:max-w-[425px]">
+                    <DrawerHeader>
+                      <DrawerTitle>Pick a spot</DrawerTitle>
+                      <DrawerDescription>
+                        Choose a recurring spot to post your content
+                      </DrawerDescription>
+                    </DrawerHeader>
+                    <div className="space-y-2 p-4">
+                      {" "}
+                      <Form {...form}>
+                        <FormField
+                          control={form.control}
+                          name={`posts.0.text`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="Add a caption"
+                                  rows={4}
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                {field.value.length} / 280
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <FormField
+                            control={form.control}
+                            name={`onTwitter`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="onTwitter"
+                                    disabled={
+                                      !hasAccount(
+                                        EProviders.Linkedin,
+                                        session.data?.user.accounts,
+                                      ) ||
+                                      (!form.getValues("onLinkedIn") &&
+                                        field.value)
+                                    }
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="onTwitter">X (Twitter)</Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`onLinkedIn`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="onLinkedIn"
+                                    disabled={
+                                      !hasAccount(
+                                        EProviders.Linkedin,
+                                        session.data?.user.accounts,
+                                      ) ||
+                                      (!form.getValues("onTwitter") &&
+                                        field.value)
+                                    }
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="onLinkedIn">LinkedIn</Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`asEvergreen`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="asEvergreen"
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="asEvergreen">
+                                    Set as evergreen
+                                  </Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`addFinisher`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="addFinisher"
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="addFinisher">
+                                    Add finisher
+                                  </Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />{" "}
+                          {form.getValues("onTwitter") && (
+                            <FormField
+                              control={form.control}
+                              name={`posts.0.twitterDirectLink`}
+                              render={({ field }) => (
+                                <FormControl>
+                                  <div className="flex items-center space-x-2">
+                                    <Switch
+                                      id={`posts.0.twitterDirectLink`}
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                    />{" "}
+                                    <Label
+                                      htmlFor={`posts.0.twitterDirectLink`}
+                                    >
+                                      Add a "DM me" Button
+                                    </Label>
+                                  </div>
+                                </FormControl>
+                              )}
+                            />
+                          )}
+                        </div>
+                      </Form>
+                      {isRecurringSpotsLoading ? (
+                        <div className="flex h-24 items-center justify-center">
+                          <Spinner />
+                        </div>
+                      ) : isRecurringSpotSuccess &&
+                        recurringSpots?.data.length > 0 ? (
+                        <>
+                          <Label className="mb-2">Recurring Spots</Label>
+                          <div className="flex flex-wrap gap-2">
+                            {recurringSpots.data.map((spot) => (
                               <Button
                                 variant={
-                                  selectedSpots.some((s) => s.id === slot.id)
+                                  selectedSpots.some((s) => s.id === spot.id)
                                     ? "default"
                                     : "outline"
                                 }
                                 onClick={() => {
                                   setScheduleDate("");
                                   setSelectedSpots((prev) => {
-                                    if (prev.some((s) => s.id === slot.id)) {
+                                    if (prev.some((s) => s.id === spot.id)) {
                                       return prev.filter(
-                                        (s) => s.id !== slot.id,
+                                        (s) => s.id !== spot.id,
                                       );
                                     }
 
                                     if (
                                       prev.some(
                                         (s) =>
-                                          s.provider === EProviders.Linkedin,
+                                          s.provider === EProviders.Twitter,
                                       )
                                     ) {
                                       return [
                                         ...prev.filter(
                                           (s) =>
-                                            s.provider !== EProviders.Linkedin,
+                                            s.provider !== EProviders.Twitter,
                                         ),
                                         {
-                                          id: slot.id,
-                                          provider: EProviders.Linkedin,
+                                          id: spot.id,
+                                          provider: EProviders.Twitter,
                                         },
                                       ];
                                     } else {
                                       return [
                                         ...prev,
                                         {
-                                          id: slot.id,
-                                          provider: EProviders.Linkedin,
+                                          id: spot.id,
+                                          provider: EProviders.Twitter,
                                         },
                                       ];
                                     }
                                   });
                                 }}
                               >
-                                <Iconify
-                                  icon="simple-icons:linkedin"
-                                  className="mr-2"
-                                  fontSize={16}
-                                />
-
+                                {spot.days
+                                  ?.map(
+                                    (day) =>
+                                      DAYS_OF_WEEK.find((d) => d.value === day)
+                                        ?.label,
+                                  )
+                                  .join(", ")}{" "}
+                                at{" "}
                                 {format(
-                                  new Date(slot.start ?? ""),
-                                  "dd MMM yyyy, HH:mm",
+                                  new Date(spot.startTime ?? ""),
+                                  "HH:mm",
                                 )}
                               </Button>
                             ))}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flex h-24 items-center justify-center text-destructive">
+                          <p>No spots available</p>
                         </div>
-                      </>
-                    ) : (
-                      <div className="flex h-24 items-center justify-center text-destructive">
-                        <p>No slots available</p>
-                      </div>
-                    )}
-                  </div>
-                  <DialogFooter>
+                      )}
+                    </div>
+                    <DrawerFooter>
+                      <Button
+                        type="button"
+                        onClick={handleAddRecurringPost}
+                        disabled={
+                          selectedSpots.length === 0 || !form.formState.isValid
+                        }
+                      >
+                        Schedule
+                      </Button>
+                    </DrawerFooter>
+                  </DrawerContent>
+                </Drawer>
+              )}
+              {isDesktop ? (
+                <Dialog
+                  open={isScheduleDialogOpen}
+                  onOpenChange={(open) => setIsScheduleDialogOpen(open)}
+                >
+                  <DialogTrigger asChild>
                     <Button
                       type="button"
-                      onClick={handleSchedulePostToSpot}
                       disabled={
-                        selectedSpots.length === 0 || !form.formState.isValid
+                        isPostingNowOrScheduling ||
+                        isAddingPostToSpot ||
+                        isAddingRecurringPost
                       }
                     >
-                      Schedule
+                      Pick a time
                     </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-              <Dialog
-                open={isPostNowDialogOpen}
-                onOpenChange={(open) => setIsPostNowDialogOpen(open)}
-              >
-                <DialogTrigger asChild>
-                  <Button
-                    type="button"
-                    disabled={
-                      isPostingNowOrScheduling ||
-                      isAddingPostToSpot ||
-                      isAddingRecurringPost
-                    }
-                  >
-                    Post now
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Post this note</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-2">
-                    <Form {...form}>
-                      <FormField
-                        control={form.control}
-                        name={`posts.0.text`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Add a caption"
-                                rows={4}
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              {field.value.length} / 280
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Pick a time</DialogTitle>
+                      <DialogDescription>
+                        Choose a time to post your content
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-2">
+                      {" "}
+                      <Form {...form}>
+                        <FormField
+                          control={form.control}
+                          name={`posts.0.text`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="Add a caption"
+                                  rows={4}
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                {field.value.length} / 280
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                      <div className="grid grid-cols-2 gap-2">
-                        <FormField
-                          control={form.control}
-                          name={`onTwitter`}
-                          render={({ field }) => (
-                            <FormControl>
-                              <div className="flex items-center space-x-2">
-                                <Switch
-                                  id="onTwitter"
-                                  disabled={
-                                    !hasAccount(
-                                      EProviders.Twitter,
-                                      session.data?.user.accounts,
-                                    ) ||
-                                    (!form.getValues("onLinkedIn") &&
-                                      field.value)
-                                  }
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />{" "}
-                                <Label htmlFor="onTwitter">X (Twitter)</Label>
-                              </div>
-                            </FormControl>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`onLinkedIn`}
-                          render={({ field }) => (
-                            <FormControl>
-                              <div className="flex items-center space-x-2">
-                                <Switch
-                                  id="onLinkedIn"
-                                  disabled={
-                                    !hasAccount(
-                                      EProviders.Linkedin,
-                                      session.data?.user.accounts,
-                                    ) ||
-                                    (!form.getValues("onTwitter") &&
-                                      field.value)
-                                  }
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />{" "}
-                                <Label htmlFor="onLinkedIn">LinkedIn</Label>
-                              </div>
-                            </FormControl>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`asEvergreen`}
-                          render={({ field }) => (
-                            <FormControl>
-                              <div className="flex items-center space-x-2">
-                                <Switch
-                                  id="asEvergreen"
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />{" "}
-                                <Label htmlFor="asEvergreen">
-                                  Set as evergreen
-                                </Label>
-                              </div>
-                            </FormControl>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`addFinisher`}
-                          render={({ field }) => (
-                            <FormControl>
-                              <div className="flex items-center space-x-2">
-                                <Switch
-                                  id="addFinisher"
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />{" "}
-                                <Label htmlFor="addFinisher">
-                                  Add finisher
-                                </Label>
-                              </div>
-                            </FormControl>
-                          )}
-                        />{" "}
-                        {form.getValues("onTwitter") && (
+                        <div className="grid grid-cols-2 gap-2">
                           <FormField
                             control={form.control}
-                            name={`posts.0.twitterDirectLink`}
+                            name={`onTwitter`}
                             render={({ field }) => (
                               <FormControl>
                                 <div className="flex items-center space-x-2">
                                   <Switch
-                                    id={`posts.0.twitterDirectLink`}
+                                    id="onTwitter"
+                                    disabled={
+                                      !hasAccount(
+                                        EProviders.Twitter,
+                                        session.data?.user.accounts,
+                                      ) ||
+                                      (!form.getValues("onLinkedIn") &&
+                                        field.value)
+                                    }
                                     checked={field.value}
                                     onCheckedChange={field.onChange}
                                   />{" "}
-                                  <Label htmlFor={`posts.0.twitterDirectLink`}>
-                                    Add a "DM me" Button
+                                  <Label htmlFor="onTwitter">X (Twitter)</Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`onLinkedIn`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="onLinkedIn"
+                                    disabled={
+                                      !hasAccount(
+                                        EProviders.Linkedin,
+                                        session.data?.user.accounts,
+                                      ) ||
+                                      (!form.getValues("onTwitter") &&
+                                        field.value)
+                                    }
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="onLinkedIn">LinkedIn</Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`asEvergreen`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="asEvergreen"
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="asEvergreen">
+                                    Set as evergreen
                                   </Label>
                                 </div>
                               </FormControl>
                             )}
                           />
-                        )}
+                          <FormField
+                            control={form.control}
+                            name={`addFinisher`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="addFinisher"
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="addFinisher">
+                                    Add finisher
+                                  </Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />{" "}
+                          {form.getValues("onTwitter") && (
+                            <FormField
+                              control={form.control}
+                              name={`posts.0.twitterDirectLink`}
+                              render={({ field }) => (
+                                <FormControl>
+                                  <div className="flex items-center space-x-2">
+                                    <Switch
+                                      id={`posts.0.twitterDirectLink`}
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                    />{" "}
+                                    <Label
+                                      htmlFor={`posts.0.twitterDirectLink`}
+                                    >
+                                      Add a "DM me" Button
+                                    </Label>
+                                  </div>
+                                </FormControl>
+                              )}
+                            />
+                          )}
+                        </div>
+                      </Form>
+                      <div className="mt-3 w-full">
+                        <Label htmlFor="custom-date">Custom date</Label>
+                        <Input
+                          id="custom-date"
+                          type="datetime-local"
+                          value={scheduleDate}
+                          onChange={handleCustomDateChange}
+                        />
                       </div>
-                    </Form>
-                  </div>
-                  <DialogFooter>
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        type="button"
+                        onClick={handleCustomSchedulePost}
+                        disabled={
+                          scheduleDate === "" || !form.formState.isValid
+                        }
+                      >
+                        Schedule
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              ) : (
+                <Drawer
+                  open={isScheduleDialogOpen}
+                  onOpenChange={(open) => setIsScheduleDialogOpen(open)}
+                >
+                  <DrawerTrigger asChild>
                     <Button
                       type="button"
-                      onClick={handlePostNow}
-                      disabled={!form.formState.isValid}
+                      disabled={
+                        isPostingNowOrScheduling ||
+                        isAddingPostToSpot ||
+                        isAddingRecurringPost
+                      }
                     >
-                      Post
+                      Pick a time
                     </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+                  </DrawerTrigger>
+                  <DrawerContent className="sm:max-w-[425px]">
+                    <DrawerHeader>
+                      <DrawerTitle>Pick a time</DrawerTitle>
+                      <DrawerDescription>
+                        Choose a time to post your content
+                      </DrawerDescription>
+                    </DrawerHeader>
+                    <div className="space-y-2 p-4">
+                      {" "}
+                      <Form {...form}>
+                        <FormField
+                          control={form.control}
+                          name={`posts.0.text`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="Add a caption"
+                                  rows={4}
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                {field.value.length} / 280
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <FormField
+                            control={form.control}
+                            name={`onTwitter`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="onTwitter"
+                                    disabled={
+                                      !hasAccount(
+                                        EProviders.Twitter,
+                                        session.data?.user.accounts,
+                                      ) ||
+                                      (!form.getValues("onLinkedIn") &&
+                                        field.value)
+                                    }
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="onTwitter">X (Twitter)</Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`onLinkedIn`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="onLinkedIn"
+                                    disabled={
+                                      !hasAccount(
+                                        EProviders.Linkedin,
+                                        session.data?.user.accounts,
+                                      ) ||
+                                      (!form.getValues("onTwitter") &&
+                                        field.value)
+                                    }
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="onLinkedIn">LinkedIn</Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`asEvergreen`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="asEvergreen"
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="asEvergreen">
+                                    Set as evergreen
+                                  </Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`addFinisher`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="addFinisher"
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="addFinisher">
+                                    Add finisher
+                                  </Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />{" "}
+                          {form.getValues("onTwitter") && (
+                            <FormField
+                              control={form.control}
+                              name={`posts.0.twitterDirectLink`}
+                              render={({ field }) => (
+                                <FormControl>
+                                  <div className="flex items-center space-x-2">
+                                    <Switch
+                                      id={`posts.0.twitterDirectLink`}
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                    />{" "}
+                                    <Label
+                                      htmlFor={`posts.0.twitterDirectLink`}
+                                    >
+                                      Add a "DM me" Button
+                                    </Label>
+                                  </div>
+                                </FormControl>
+                              )}
+                            />
+                          )}
+                        </div>
+                      </Form>
+                      <div className="mt-3 w-full">
+                        <Label htmlFor="custom-date">Custom date</Label>
+                        <Input
+                          id="custom-date"
+                          type="datetime-local"
+                          value={scheduleDate}
+                          onChange={handleCustomDateChange}
+                        />
+                      </div>
+                    </div>
+                    <DrawerFooter>
+                      <Button
+                        type="button"
+                        onClick={handleCustomSchedulePost}
+                        disabled={
+                          scheduleDate === "" || !form.formState.isValid
+                        }
+                      >
+                        Schedule
+                      </Button>
+                    </DrawerFooter>
+                  </DrawerContent>
+                </Drawer>
+              )}
+              {isDesktop ? (
+                <Dialog
+                  open={isQueueDialogOpen}
+                  onOpenChange={(open) => setIsQueueDialogOpen(open)}
+                >
+                  <DialogTrigger asChild>
+                    <Button
+                      type="button"
+                      disabled={
+                        isPostingNowOrScheduling ||
+                        isAddingPostToSpot ||
+                        isAddingRecurringPost
+                      }
+                    >
+                      Add to queue
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Pick a time</DialogTitle>
+                      <DialogDescription>
+                        Choose a time to post your content
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-2">
+                      <Form {...form}>
+                        <FormField
+                          control={form.control}
+                          name={`posts.0.text`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="Add a caption"
+                                  rows={4}
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                {field.value.length} / 280
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <FormField
+                            control={form.control}
+                            name={`onTwitter`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="onTwitter"
+                                    disabled={
+                                      !hasAccount(
+                                        EProviders.Twitter,
+                                        session.data?.user.accounts,
+                                      ) ||
+                                      (!form.getValues("onLinkedIn") &&
+                                        field.value)
+                                    }
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="onTwitter">X (Twitter)</Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`onLinkedIn`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="onLinkedIn"
+                                    disabled={
+                                      !hasAccount(
+                                        EProviders.Linkedin,
+                                        session.data?.user.accounts,
+                                      ) ||
+                                      (!form.getValues("onTwitter") &&
+                                        field.value)
+                                    }
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="onLinkedIn">LinkedIn</Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`asEvergreen`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="asEvergreen"
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="asEvergreen">
+                                    Set as evergreen
+                                  </Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`addFinisher`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="addFinisher"
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="addFinisher">
+                                    Add finisher
+                                  </Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />{" "}
+                          {form.getValues("onTwitter") && (
+                            <FormField
+                              control={form.control}
+                              name={`posts.0.twitterDirectLink`}
+                              render={({ field }) => (
+                                <FormControl>
+                                  <div className="flex items-center space-x-2">
+                                    <Switch
+                                      id={`posts.0.twitterDirectLink`}
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                    />{" "}
+                                    <Label
+                                      htmlFor={`posts.0.twitterDirectLink`}
+                                    >
+                                      Add a "DM me" Button
+                                    </Label>
+                                  </div>
+                                </FormControl>
+                              )}
+                            />
+                          )}
+                        </div>
+                      </Form>
+                      {isSpotsLoading ? (
+                        <div className="flex h-24 items-center justify-center">
+                          <Spinner />
+                        </div>
+                      ) : isSpotsSuccess && nextSpots?.data.length > 0 ? (
+                        <>
+                          {form.getValues("onTwitter") && (
+                            <Label className="mb-2">Twitter Spots</Label>
+                          )}{" "}
+                          <div className="mb-2 flex flex-wrap gap-2">
+                            {nextSpots.data
+                              .filter((spot) => spot.forTwitter)
+                              .map((spot) => (
+                                <Button
+                                  variant={
+                                    selectedSpots.some((s) => s.id === spot.id)
+                                      ? "default"
+                                      : "outline"
+                                  }
+                                  onClick={() => {
+                                    setScheduleDate("");
+                                    setSelectedSpots((prev) => {
+                                      if (prev.some((s) => s.id === spot.id)) {
+                                        return prev.filter(
+                                          (s) => s.id !== spot.id,
+                                        );
+                                      }
+
+                                      if (
+                                        prev.some(
+                                          (s) =>
+                                            s.provider === EProviders.Twitter,
+                                        )
+                                      ) {
+                                        return [
+                                          ...prev.filter(
+                                            (s) =>
+                                              s.provider !== EProviders.Twitter,
+                                          ),
+                                          {
+                                            id: spot.id,
+                                            provider: EProviders.Twitter,
+                                          },
+                                        ];
+                                      } else {
+                                        return [
+                                          ...prev,
+                                          {
+                                            id: spot.id,
+                                            provider: EProviders.Twitter,
+                                          },
+                                        ];
+                                      }
+                                    });
+                                  }}
+                                >
+                                  <Iconify
+                                    icon="simple-icons:x"
+                                    className="mr-2"
+                                    fontSize={16}
+                                  />
+
+                                  {format(
+                                    new Date(spot.start ?? ""),
+                                    "dd MMM yyyy, HH:mm",
+                                  )}
+                                </Button>
+                              ))}
+                          </div>
+                          {form.getValues("onLinkedIn") && (
+                            <Label className="mb-2">LinkedIn Spots</Label>
+                          )}
+                          <div className="flex flex-wrap gap-2">
+                            {nextSpots.data
+                              .filter((spot) => spot.forLinkedIn)
+                              .map((spot) => (
+                                <Button
+                                  variant={
+                                    selectedSpots.some((s) => s.id === spot.id)
+                                      ? "default"
+                                      : "outline"
+                                  }
+                                  onClick={() => {
+                                    setScheduleDate("");
+                                    setSelectedSpots((prev) => {
+                                      if (prev.some((s) => s.id === spot.id)) {
+                                        return prev.filter(
+                                          (s) => s.id !== spot.id,
+                                        );
+                                      }
+
+                                      if (
+                                        prev.some(
+                                          (s) =>
+                                            s.provider === EProviders.Linkedin,
+                                        )
+                                      ) {
+                                        return [
+                                          ...prev.filter(
+                                            (s) =>
+                                              s.provider !==
+                                              EProviders.Linkedin,
+                                          ),
+                                          {
+                                            id: spot.id,
+                                            provider: EProviders.Linkedin,
+                                          },
+                                        ];
+                                      } else {
+                                        return [
+                                          ...prev,
+                                          {
+                                            id: spot.id,
+                                            provider: EProviders.Linkedin,
+                                          },
+                                        ];
+                                      }
+                                    });
+                                  }}
+                                >
+                                  <Iconify
+                                    icon="simple-icons:linkedin"
+                                    className="mr-2"
+                                    fontSize={16}
+                                  />
+
+                                  {format(
+                                    new Date(spot.start ?? ""),
+                                    "dd MMM yyyy, HH:mm",
+                                  )}
+                                </Button>
+                              ))}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flex h-24 items-center justify-center text-destructive">
+                          <p>No spots available</p>
+                        </div>
+                      )}
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        type="button"
+                        onClick={handleSchedulePostToSpot}
+                        disabled={
+                          selectedSpots.length === 0 || !form.formState.isValid
+                        }
+                      >
+                        Schedule
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              ) : (
+                <Drawer
+                  open={isQueueDialogOpen}
+                  onOpenChange={(open) => setIsQueueDialogOpen(open)}
+                >
+                  <DrawerTrigger asChild>
+                    <Button
+                      type="button"
+                      disabled={
+                        isPostingNowOrScheduling ||
+                        isAddingPostToSpot ||
+                        isAddingRecurringPost
+                      }
+                    >
+                      Add to queue
+                    </Button>
+                  </DrawerTrigger>
+                  <DrawerContent className="sm:max-w-[425px]">
+                    <DrawerHeader>
+                      <DrawerTitle>Pick a time</DrawerTitle>
+                      <DrawerDescription>
+                        Choose a time to post your content
+                      </DrawerDescription>
+                    </DrawerHeader>
+                    <div className="space-y-2 p-4">
+                      <Form {...form}>
+                        <FormField
+                          control={form.control}
+                          name={`posts.0.text`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="Add a caption"
+                                  rows={4}
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                {field.value.length} / 280
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <FormField
+                            control={form.control}
+                            name={`onTwitter`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="onTwitter"
+                                    disabled={
+                                      !hasAccount(
+                                        EProviders.Twitter,
+                                        session.data?.user.accounts,
+                                      ) ||
+                                      (!form.getValues("onLinkedIn") &&
+                                        field.value)
+                                    }
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="onTwitter">X (Twitter)</Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`onLinkedIn`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="onLinkedIn"
+                                    disabled={
+                                      !hasAccount(
+                                        EProviders.Linkedin,
+                                        session.data?.user.accounts,
+                                      ) ||
+                                      (!form.getValues("onTwitter") &&
+                                        field.value)
+                                    }
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="onLinkedIn">LinkedIn</Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`asEvergreen`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="asEvergreen"
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="asEvergreen">
+                                    Set as evergreen
+                                  </Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`addFinisher`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="addFinisher"
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="addFinisher">
+                                    Add finisher
+                                  </Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />{" "}
+                          {form.getValues("onTwitter") && (
+                            <FormField
+                              control={form.control}
+                              name={`posts.0.twitterDirectLink`}
+                              render={({ field }) => (
+                                <FormControl>
+                                  <div className="flex items-center space-x-2">
+                                    <Switch
+                                      id={`posts.0.twitterDirectLink`}
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                    />{" "}
+                                    <Label
+                                      htmlFor={`posts.0.twitterDirectLink`}
+                                    >
+                                      Add a "DM me" Button
+                                    </Label>
+                                  </div>
+                                </FormControl>
+                              )}
+                            />
+                          )}
+                        </div>
+                      </Form>
+                      {isSpotsLoading ? (
+                        <div className="flex h-24 items-center justify-center">
+                          <Spinner />
+                        </div>
+                      ) : isSpotsSuccess && nextSpots?.data.length > 0 ? (
+                        <>
+                          {form.getValues("onTwitter") && (
+                            <Label className="mb-2">Twitter Spots</Label>
+                          )}{" "}
+                          <div className="mb-2 flex flex-wrap gap-2">
+                            {nextSpots.data
+                              .filter((spot) => spot.forTwitter)
+                              .map((spot) => (
+                                <Button
+                                  variant={
+                                    selectedSpots.some((s) => s.id === spot.id)
+                                      ? "default"
+                                      : "outline"
+                                  }
+                                  onClick={() => {
+                                    setScheduleDate("");
+                                    setSelectedSpots((prev) => {
+                                      if (prev.some((s) => s.id === spot.id)) {
+                                        return prev.filter(
+                                          (s) => s.id !== spot.id,
+                                        );
+                                      }
+
+                                      if (
+                                        prev.some(
+                                          (s) =>
+                                            s.provider === EProviders.Twitter,
+                                        )
+                                      ) {
+                                        return [
+                                          ...prev.filter(
+                                            (s) =>
+                                              s.provider !== EProviders.Twitter,
+                                          ),
+                                          {
+                                            id: spot.id,
+                                            provider: EProviders.Twitter,
+                                          },
+                                        ];
+                                      } else {
+                                        return [
+                                          ...prev,
+                                          {
+                                            id: spot.id,
+                                            provider: EProviders.Twitter,
+                                          },
+                                        ];
+                                      }
+                                    });
+                                  }}
+                                >
+                                  <Iconify
+                                    icon="simple-icons:x"
+                                    className="mr-2"
+                                    fontSize={16}
+                                  />
+
+                                  {format(
+                                    new Date(spot.start ?? ""),
+                                    "dd MMM yyyy, HH:mm",
+                                  )}
+                                </Button>
+                              ))}
+                          </div>
+                          {form.getValues("onLinkedIn") && (
+                            <Label className="mb-2">LinkedIn Spots</Label>
+                          )}
+                          <div className="flex flex-wrap gap-2">
+                            {nextSpots.data
+                              .filter((spot) => spot.forLinkedIn)
+                              .map((spot) => (
+                                <Button
+                                  variant={
+                                    selectedSpots.some((s) => s.id === spot.id)
+                                      ? "default"
+                                      : "outline"
+                                  }
+                                  onClick={() => {
+                                    setScheduleDate("");
+                                    setSelectedSpots((prev) => {
+                                      if (prev.some((s) => s.id === spot.id)) {
+                                        return prev.filter(
+                                          (s) => s.id !== spot.id,
+                                        );
+                                      }
+
+                                      if (
+                                        prev.some(
+                                          (s) =>
+                                            s.provider === EProviders.Linkedin,
+                                        )
+                                      ) {
+                                        return [
+                                          ...prev.filter(
+                                            (s) =>
+                                              s.provider !==
+                                              EProviders.Linkedin,
+                                          ),
+                                          {
+                                            id: spot.id,
+                                            provider: EProviders.Linkedin,
+                                          },
+                                        ];
+                                      } else {
+                                        return [
+                                          ...prev,
+                                          {
+                                            id: spot.id,
+                                            provider: EProviders.Linkedin,
+                                          },
+                                        ];
+                                      }
+                                    });
+                                  }}
+                                >
+                                  <Iconify
+                                    icon="simple-icons:linkedin"
+                                    className="mr-2"
+                                    fontSize={16}
+                                  />
+
+                                  {format(
+                                    new Date(spot.start ?? ""),
+                                    "dd MMM yyyy, HH:mm",
+                                  )}
+                                </Button>
+                              ))}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flex h-24 items-center justify-center text-destructive">
+                          <p>No spots available</p>
+                        </div>
+                      )}
+                    </div>
+                    <DrawerFooter>
+                      <Button
+                        type="button"
+                        onClick={handleSchedulePostToSpot}
+                        disabled={
+                          selectedSpots.length === 0 || !form.formState.isValid
+                        }
+                      >
+                        Schedule
+                      </Button>
+                    </DrawerFooter>
+                  </DrawerContent>
+                </Drawer>
+              )}
+              {isDesktop ? (
+                <Dialog
+                  open={isPostNowDialogOpen}
+                  onOpenChange={(open) => setIsPostNowDialogOpen(open)}
+                >
+                  <DialogTrigger asChild>
+                    <Button
+                      type="button"
+                      disabled={
+                        isPostingNowOrScheduling ||
+                        isAddingPostToSpot ||
+                        isAddingRecurringPost
+                      }
+                    >
+                      Post now
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Post this note</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-2">
+                      <Form {...form}>
+                        <FormField
+                          control={form.control}
+                          name={`posts.0.text`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="Add a caption"
+                                  rows={4}
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                {field.value.length} / 280
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <FormField
+                            control={form.control}
+                            name={`onTwitter`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="onTwitter"
+                                    disabled={
+                                      !hasAccount(
+                                        EProviders.Twitter,
+                                        session.data?.user.accounts,
+                                      ) ||
+                                      (!form.getValues("onLinkedIn") &&
+                                        field.value)
+                                    }
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="onTwitter">X (Twitter)</Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`onLinkedIn`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="onLinkedIn"
+                                    disabled={
+                                      !hasAccount(
+                                        EProviders.Linkedin,
+                                        session.data?.user.accounts,
+                                      ) ||
+                                      (!form.getValues("onTwitter") &&
+                                        field.value)
+                                    }
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="onLinkedIn">LinkedIn</Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`asEvergreen`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="asEvergreen"
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="asEvergreen">
+                                    Set as evergreen
+                                  </Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`addFinisher`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="addFinisher"
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="addFinisher">
+                                    Add finisher
+                                  </Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />{" "}
+                          {form.getValues("onTwitter") && (
+                            <FormField
+                              control={form.control}
+                              name={`posts.0.twitterDirectLink`}
+                              render={({ field }) => (
+                                <FormControl>
+                                  <div className="flex items-center space-x-2">
+                                    <Switch
+                                      id={`posts.0.twitterDirectLink`}
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                    />{" "}
+                                    <Label
+                                      htmlFor={`posts.0.twitterDirectLink`}
+                                    >
+                                      Add a "DM me" Button
+                                    </Label>
+                                  </div>
+                                </FormControl>
+                              )}
+                            />
+                          )}
+                        </div>
+                      </Form>
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        type="button"
+                        onClick={handlePostNow}
+                        disabled={!form.formState.isValid}
+                      >
+                        Post
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              ) : (
+                <Drawer
+                  open={isPostNowDialogOpen}
+                  onOpenChange={(open) => setIsPostNowDialogOpen(open)}
+                >
+                  <DrawerTrigger asChild>
+                    <Button
+                      type="button"
+                      disabled={
+                        isPostingNowOrScheduling ||
+                        isAddingPostToSpot ||
+                        isAddingRecurringPost
+                      }
+                    >
+                      Post now
+                    </Button>
+                  </DrawerTrigger>
+                  <DrawerContent className="sm:max-w-[425px]">
+                    <DrawerHeader>
+                      <DrawerTitle>Post this note</DrawerTitle>
+                    </DrawerHeader>
+                    <div className="space-y-2 p-4">
+                      <Form {...form}>
+                        <FormField
+                          control={form.control}
+                          name={`posts.0.text`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="Add a caption"
+                                  rows={4}
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                {field.value.length} / 280
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <FormField
+                            control={form.control}
+                            name={`onTwitter`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="onTwitter"
+                                    disabled={
+                                      !hasAccount(
+                                        EProviders.Twitter,
+                                        session.data?.user.accounts,
+                                      ) ||
+                                      (!form.getValues("onLinkedIn") &&
+                                        field.value)
+                                    }
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="onTwitter">X (Twitter)</Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`onLinkedIn`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="onLinkedIn"
+                                    disabled={
+                                      !hasAccount(
+                                        EProviders.Linkedin,
+                                        session.data?.user.accounts,
+                                      ) ||
+                                      (!form.getValues("onTwitter") &&
+                                        field.value)
+                                    }
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="onLinkedIn">LinkedIn</Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`asEvergreen`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="asEvergreen"
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="asEvergreen">
+                                    Set as evergreen
+                                  </Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`addFinisher`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    id="addFinisher"
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />{" "}
+                                  <Label htmlFor="addFinisher">
+                                    Add finisher
+                                  </Label>
+                                </div>
+                              </FormControl>
+                            )}
+                          />{" "}
+                          {form.getValues("onTwitter") && (
+                            <FormField
+                              control={form.control}
+                              name={`posts.0.twitterDirectLink`}
+                              render={({ field }) => (
+                                <FormControl>
+                                  <div className="flex items-center space-x-2">
+                                    <Switch
+                                      id={`posts.0.twitterDirectLink`}
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                    />{" "}
+                                    <Label
+                                      htmlFor={`posts.0.twitterDirectLink`}
+                                    >
+                                      Add a "DM me" Button
+                                    </Label>
+                                  </div>
+                                </FormControl>
+                              )}
+                            />
+                          )}
+                        </div>
+                      </Form>
+                    </div>
+                    <DrawerFooter>
+                      <Button
+                        type="button"
+                        onClick={handlePostNow}
+                        disabled={!form.formState.isValid}
+                      >
+                        Post
+                      </Button>
+                    </DrawerFooter>
+                  </DrawerContent>
+                </Drawer>
+              )}
             </div>
           </BottomButtons>
         </div>

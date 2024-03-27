@@ -68,9 +68,12 @@ export default function PreviewSheet({
                       <Avatar>
                         <AvatarImage
                           src={
-                            currentAccount?.photoUrl
-                              ? currentAccount?.photoUrl
-                              : session.data?.user.profilePicture ?? ""
+                            session.data?.user?.accounts?.find(
+                              (account) =>
+                                account.accountType === EProviders.Twitter,
+                            )?.photoUrl ??
+                            session.data?.user.profilePicture ??
+                            ""
                           }
                           alt={`@${currentAccount?.username}`}
                           className="object-cover"
@@ -162,7 +165,7 @@ export default function PreviewSheet({
                     <Avatar>
                       <AvatarImage
                         src={
-                          session.data?.user.accounts.find(
+                          session.data?.user?.accounts?.find(
                             (account) =>
                               account.accountType === EProviders.Linkedin,
                           )?.photoUrl ??

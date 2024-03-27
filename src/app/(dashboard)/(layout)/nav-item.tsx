@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 // next
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -11,6 +11,7 @@ import Iconify from "../../../components/ui/icon";
 // utils
 import { cn } from "@/lib/utils";
 import { closeMobileSidebar, type TNavItem } from "@/redux/slices/layoutSlice";
+import { useMediaQuery } from "usehooks-ts";
 import {
   Tooltip,
   TooltipContent,
@@ -21,9 +22,14 @@ import {
 export default function NavItem({ icon, name, path }: TNavItem) {
   const pathname = usePathname();
 
-  const isActive = pathname?.includes(path);
+  const paths = useMemo(() => pathname.split("/").filter(Boolean), [pathname]);
+
+  const isActive = useMemo(() => {
+    return paths.includes(path.split("/")[1] ?? "");
+  }, [paths]);
 
   const { isCollapsed } = useAppSelector((state) => state.layout);
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const [showName, setShowName] = useState(true);
 
   const dispatch = useAppDispatch();
@@ -33,7 +39,7 @@ export default function NavItem({ icon, name, path }: TNavItem) {
   }, []);
 
   useEffect(() => {
-    if (isCollapsed) {
+    if (isCollapsed && !isMobile) {
       setTimeout(() => {
         setShowName(false);
       }, 500);
@@ -54,20 +60,20 @@ export default function NavItem({ icon, name, path }: TNavItem) {
               isActive
                 ? "bg-primary/20 text-primary hover:bg-primary/30"
                 : "text-foreground/80 hover:bg-accent",
-              !showName && "aspect-square justify-center p-1",
+              !showName && !isMobile && "aspect-square justify-center p-1",
             )}
           >
             <Iconify
               icon={icon}
-              height={isCollapsed ? 26 : 20}
+              height={!isMobile && isCollapsed ? 26 : 20}
               className="transition-all"
             />
             <span
               className={cn(
                 "origin-left truncate",
                 isActive && "font-semibold",
-                isCollapsed ? "scale-0" : "scale-100",
-                showName ? "block" : "hidden",
+                !isMobile && isCollapsed ? "scale-0" : "scale-100",
+                showName || isMobile ? "block" : "hidden",
               )}
             >
               {name}
@@ -75,7 +81,10 @@ export default function NavItem({ icon, name, path }: TNavItem) {
           </Link>
         </TooltipTrigger>
 
-        <TooltipContent side="right" className={cn(!isCollapsed && "hidden")}>
+        <TooltipContent
+          side="right"
+          className={cn(!isMobile && !isCollapsed && "hidden")}
+        >
           <h1 className="p-1 text-[16px] font-semibold">{name}</h1>
         </TooltipContent>
       </Tooltip>

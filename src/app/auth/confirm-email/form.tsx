@@ -1,10 +1,10 @@
 "use client";
 
-import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useBoolean } from "usehooks-ts";
-import { useRouter, useSearchParams } from "next/navigation";
+import * as z from "zod";
 // components
 import { Button } from "@/components/ui/button";
 import {
@@ -15,12 +15,18 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import Iconify from "@/components/ui/icon";
+import { Input } from "@/components/ui/input";
 // utils
-import { ROUTES } from "@/routes";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import { env } from "@/env";
-import { useCallback, useEffect } from "react";
+import { ROUTES } from "@/routes";
+import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
+import { useCallback } from "react";
 
 export const confirmEmailSchema = z.object({
   email: z.string().email(),
@@ -96,10 +102,6 @@ export default function ConfirmEmailForm() {
     }
   }, [form, urlEmail]);
 
-  useEffect(() => {
-    form.handleSubmit(onSubmit);
-  }, [urlEmail, urlCode]);
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
@@ -122,9 +124,22 @@ export default function ConfirmEmailForm() {
           name="code"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Code</FormLabel>
+              <FormLabel>One-Time Password</FormLabel>
               <FormControl>
-                <Input placeholder="Enter the 6 digit code" {...field} />
+                <InputOTP
+                  maxLength={6}
+                  pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+                  {...field}
+                >
+                  <InputOTPGroup>
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                    <InputOTPSlot index={3} />
+                    <InputOTPSlot index={4} />
+                    <InputOTPSlot index={5} />
+                  </InputOTPGroup>
+                </InputOTP>
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
-import { format, isAfter } from "date-fns";
 import { Spinner } from "@/components/ui/Spinner";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -10,13 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  useCancelSubscriptionMutation,
-  useGetSubscriptionSettingsQuery,
-  useUpgradeSubscriptionMutation,
-} from "@/redux/api/user/subscription/apiSlice";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -27,16 +19,34 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  useCancelSubscriptionMutation,
+  useGetSubscriptionSettingsQuery,
+  useUpgradeSubscriptionMutation,
+} from "@/redux/api/user/subscription/apiSlice";
 import { ETiers } from "@/types/ETiers";
-import { useBoolean } from "usehooks-ts";
 import { type TErrorResponse } from "@/types/TErrorResponse";
+import { format, isAfter } from "date-fns";
 import { isArray } from "lodash";
+import { useCallback, useState } from "react";
+import { toast } from "sonner";
+import { useBoolean, useMediaQuery } from "usehooks-ts";
 
 const PLANS = [
   {
@@ -60,6 +70,8 @@ export default function SubscriptionForm() {
     isSuccess: isSubscriptionSettingsSuccess,
     refetch,
   } = useGetSubscriptionSettingsQuery();
+
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const [cancelSubscription, { isLoading: isCancelLoading }] =
     useCancelSubscriptionMutation();
@@ -176,52 +188,111 @@ export default function SubscriptionForm() {
             </div>
           )}
           <div className="flex items-center justify-end gap-4">
-            {subscriptionSettings?.data.tier !== ETiers.Expert && (
-              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline">Upgrade</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Upgrade Plan</DialogTitle>
-                    <DialogDescription>
-                      Choose the plan that you want to upgrade to
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div>
-                    <Select
-                      onValueChange={(value) =>
-                        setNewTier(parseInt(value) as ETiers)
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select the plan" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {PLANS.filter(
-                          (plan) =>
-                            parseInt(plan.value.toString()) >
-                            parseInt(subscriptionSettings.data.tier.toString()),
-                        ).map((plan, index) => (
-                          <SelectItem key={index} value={plan.value.toString()}>
-                            {plan.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <DialogFooter>
-                    <Button
-                      onClick={handleUpgradePlan}
-                      disabled={isUpgrading}
-                      loading={isUpgrading}
-                    >
-                      Upgrade
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            )}
+            {subscriptionSettings?.data.tier !== ETiers.Expert &&
+              (isDesktop ? (
+                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">Upgrade</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Upgrade Plan</DialogTitle>
+                      <DialogDescription>
+                        Choose the plan that you want to upgrade to
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div>
+                      <Select
+                        onValueChange={(value) =>
+                          setNewTier(parseInt(value) as ETiers)
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select the plan" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PLANS.filter(
+                            (plan) =>
+                              parseInt(plan.value.toString()) >
+                              parseInt(
+                                subscriptionSettings.data.tier.toString(),
+                              ),
+                          ).map((plan, index) => (
+                            <SelectItem
+                              key={index}
+                              value={plan.value.toString()}
+                            >
+                              {plan.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        onClick={handleUpgradePlan}
+                        disabled={isUpgrading}
+                        loading={isUpgrading}
+                      >
+                        Upgrade
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              ) : (
+                <Drawer open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                  <DrawerTrigger asChild>
+                    <Button variant="outline">Upgrade</Button>
+                  </DrawerTrigger>
+                  <DrawerContent>
+                    <DrawerHeader>
+                      <DrawerTitle>Upgrade Plan</DrawerTitle>
+                      <DrawerDescription>
+                        Choose the plan that you want to upgrade to
+                      </DrawerDescription>
+                    </DrawerHeader>
+                    <div className="p-4">
+                      <Select
+                        onValueChange={(value) =>
+                          setNewTier(parseInt(value) as ETiers)
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select the plan" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PLANS.filter(
+                            (plan) =>
+                              parseInt(plan.value.toString()) >
+                              parseInt(
+                                subscriptionSettings.data.tier.toString(),
+                              ),
+                          ).map((plan, index) => (
+                            <SelectItem
+                              key={index}
+                              value={plan.value.toString()}
+                            >
+                              {plan.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <DrawerFooter>
+                      <Button
+                        onClick={handleUpgradePlan}
+                        disabled={isUpgrading}
+                        loading={isUpgrading}
+                      >
+                        Upgrade
+                      </Button>
+                      <DrawerClose asChild>
+                        <Button variant="ghost">Close</Button>
+                      </DrawerClose>
+                    </DrawerFooter>
+                  </DrawerContent>
+                </Drawer>
+              ))}
             {!subscriptionSettings?.data.isPendingDeletion &&
               isAfter(
                 new Date(),

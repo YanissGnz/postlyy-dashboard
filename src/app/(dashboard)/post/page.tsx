@@ -20,6 +20,16 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import {
   Form,
   FormControl,
   FormDescription,
@@ -58,6 +68,7 @@ import {
   useAddPostToSpotMutation,
   useAddRecurringPostMutation,
   useDeleteDraftImageMutation,
+  useGetBestPostByIdMutation,
   useGetDraftMutation,
   useGetTemplateMutation,
   useUpdateDraftMutation,
@@ -78,6 +89,7 @@ import { type TenorImage } from "gif-picker-react";
 import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import dynamic from "next/dynamic";
+import { useSearchParams } from "next/navigation";
 import {
   Fragment,
   useCallback,
@@ -89,8 +101,9 @@ import {
 import { useForm } from "react-hook-form";
 import ImageUploading, { type ImageListType } from "react-images-uploading";
 import { toast } from "sonner";
-import { useBoolean } from "usehooks-ts";
+import { useBoolean, useMediaQuery } from "usehooks-ts";
 import { DAYS_OF_WEEK } from "../calendar/add-edit-event-form";
+import BestPostsSheet from "./best-posts-sheet";
 import DraftSheet from "./draft-sheet";
 import Note from "./note";
 import NotesSheet from "./notes-sheet";
@@ -216,6 +229,11 @@ export default function PostPage() {
   const { currentAccount } = useAppSelector((state) => state.auth);
   const session = useSession();
   const { theme, systemTheme } = useTheme();
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+
+  const searchParams = useSearchParams();
+
+  const withInspiration = searchParams.get("inspiration") === "true";
 
   const {
     data: recurringSpots,
@@ -231,6 +249,7 @@ export default function PostPage() {
     useAddRecurringPostMutation();
 
   const [getDraft] = useGetDraftMutation();
+  const [getBestPost] = useGetBestPostByIdMutation();
   const [updatedDraft] = useUpdateDraftMutation();
   const [getTemplate] = useGetTemplateMutation();
   const [deleteDraftImage] = useDeleteDraftImageMutation();
@@ -265,6 +284,8 @@ export default function PostPage() {
   const { value: isDraftDialogOpen, setValue: setIsDraftDialogOpen } =
     useBoolean(false);
   const { value: isDraftSheetOpen, setValue: setIsDraftSheetOpen } =
+    useBoolean(false);
+  const { value: isBestPostsSheetOpen, setValue: setIsBestPostsSheetOpen } =
     useBoolean(false);
   const { value: isTemplateSheetOpen, setValue: setIsTemplateSheetOpen } =
     useBoolean(false);
@@ -407,66 +428,64 @@ export default function PostPage() {
     }
   }, [form.getValues("onTwitter")]);
 
+  const splitText = useCallback((text: string, i: number): string[] => {
+    if (text.length > TWITTER_TEXT_MAX_LENGTH) {
+      const remainingText = text.slice(TWITTER_TEXT_MAX_LENGTH);
+
+      const newTexts: string[] = [
+        text.slice(0, TWITTER_TEXT_MAX_LENGTH),
+
+        ...splitText(remainingText, i + 1),
+      ];
+      return newTexts;
+    } else return [text];
+  }, []);
+
   const handleTextChange = useCallback(
     (index: number) => (e: ChangeEvent<HTMLTextAreaElement>) => {
-      const text = e.target.value.slice(0, 280);
-      const extraText = e.target.value.slice(280);
+      const text = e.target.value;
 
-      if (
-        extraText.length > 0 &&
-        index === form.getValues("posts").length - 1
-      ) {
-        const newThread = {
-          index: index + 1,
-          text: extraText,
+      if (text.length > TWITTER_TEXT_MAX_LENGTH) {
+        const newTexts = splitText(text, index);
+
+        const newThreads = newTexts.map((text, i) => ({
+          index: index + i,
+          text,
           gif: null,
           images: [],
           poll: null,
           twitterDirectLink: false,
           gifLink: "",
           imageLinks: [],
-        };
+        }));
+        void new Promise((resolve) => {
+          form.setValue(
+            "posts",
+            [
+              ...form.getValues("posts").slice(0, index),
+              ...newThreads,
+              ...form.getValues("posts").slice(index + 1),
+            ].map((thread, i) => ({ ...thread, index: i })),
+          );
 
-        const newThreads = [
-          ...form.getValues("posts").slice(0, index + 1),
-          newThread,
-          ...form.getValues("posts").slice(index + 1),
-        ];
-
-        form.setValue(
-          "posts",
-          newThreads.map((thread, i) => ({ ...thread, index: i })),
-        );
-
-        form.setFocus(`posts.${index + 1}.text`);
-
-        setPostsContent((prev) =>
-          [
-            ...prev.slice(0, index + 1),
-            {
-              index,
-              images: [],
-            },
-            ...prev.slice(index + 1),
-          ].map((post, i) => ({ ...post, index: i })),
-        );
-      } else {
-        const newThreads = form.getValues("posts").map((thread, i) => {
-          if (i === index) {
-            return {
-              ...thread,
-              text,
-            };
-          }
-
-          return thread;
+          setPostsContent((prev) =>
+            [
+              ...prev.slice(0, index),
+              ...newThreads.map((thread, i) => ({
+                index: index + i,
+                images: [],
+              })),
+              ...prev.slice(index + 1),
+            ].map((post, i) => ({ ...post, index: i })),
+          );
+          resolve(null);
+        }).then(() => {
+          form.setFocus(`posts.${index + 1}.text`, {
+            shouldSelect: true,
+          });
         });
-
-        form.setValue("posts", newThreads);
-
-        void (async () => {
-          await form.trigger("posts");
-        })();
+      } else {
+        form.setValue(`posts.${index}.text`, text);
       }
     },
     [form],
@@ -925,6 +944,40 @@ export default function PostPage() {
     [],
   );
 
+  useEffect(() => {
+    if (withInspiration) {
+      const inspiration = localStorage.getItem("inspiration");
+
+      if (inspiration) {
+        const promise = new Promise<TPost[]>((resolve) => {
+          const texts = splitText(inspiration, 0);
+
+          const newThreads = texts.map((text, i) => ({
+            index: i,
+            text,
+            gif: null,
+            images: [],
+            poll: null,
+            twitterDirectLink: false,
+            gifLink: "",
+            imageLinks: [],
+          }));
+
+          resolve(newThreads);
+        });
+
+        toast.promise(promise, {
+          loading: "Adding inspiration...",
+          success: (newThreads) => {
+            form.setValue(`posts`, newThreads);
+            return "Added inspiration!";
+          },
+          error: "Something went wrong",
+        });
+      }
+    }
+  }, [withInspiration, form]);
+
   // Posting
 
   const handlePostNow = useCallback(async () => {
@@ -983,8 +1036,8 @@ export default function PostPage() {
       setIsScheduleDialogOpen(false);
       setIsQueueDialogOpen(false);
 
-      selectedSpots.forEach(async (slot) => {
-        if (slot.provider === EProviders.Linkedin) {
+      selectedSpots.forEach(async (spot) => {
+        if (spot.provider === EProviders.Linkedin) {
           data.append("onLinkedIn", "true");
           data.delete("onTwitter");
         } else {
@@ -994,7 +1047,7 @@ export default function PostPage() {
 
         const schedulePostPromise = addPostToSpot({
           body: data,
-          slotId: slot.id,
+          spotId: spot.id,
         }).unwrap();
         toast.promise(schedulePostPromise, {
           loading: "Scheduling post...",
@@ -1013,7 +1066,7 @@ export default function PostPage() {
         });
       });
     } else {
-      toast.error("Please select a date or a slot");
+      toast.error("Please select a date or a spot");
     }
     setScheduleDate("");
     calendarApiUtil.invalidateTags(["Events", "Spot"]);
@@ -1030,10 +1083,10 @@ export default function PostPage() {
 
     const data = await generateFormData(form.getValues());
 
-    selectedSpots.forEach(async (slot) => {
+    selectedSpots.forEach(async (spot) => {
       const addRecurringPostPromise = addRecurringPost({
         body: data,
-        recurringId: slot.id,
+        recurringId: spot.id,
       }).unwrap();
       toast.promise(addRecurringPostPromise, {
         loading: "Adding recurring post...",
@@ -1057,7 +1110,6 @@ export default function PostPage() {
   }, [selectedSpots, form]);
 
   // Draft
-
   const handleSaveDraft = useCallback(async () => {
     if (form.getValues("posts").length === 0 && !form.formState.isValid) {
       await form.trigger();
@@ -1072,7 +1124,9 @@ export default function PostPage() {
     data.append("isTemplate", "false");
     data.append(
       "ScheduleDate",
-      scheduleDate ? scheduleDate : addDays(new Date(), 7).toISOString(),
+      scheduleDate
+        ? convertToUTC(scheduleDate)
+        : convertToUTC(addDays(new Date(), 7).toISOString()),
     );
 
     const saveDraftPromise = postNowOrSchedule(data).unwrap();
@@ -1110,7 +1164,9 @@ export default function PostPage() {
     data.append("isTemplate", "false");
     data.append(
       "ScheduleDate",
-      scheduleDate ? scheduleDate : form.getValues("scheduleDate"),
+      scheduleDate
+        ? convertToUTC(scheduleDate)
+        : convertToUTC(form.getValues("scheduleDate")),
     );
 
     form.getValues("posts").forEach((post, index) => {
@@ -1160,8 +1216,8 @@ export default function PostPage() {
           asEvergreen: data.data.asEvergreen,
           isDraft: data.data.isDraft,
           isTemplate: data.data.isTemplate,
-          onLinkedIn: data.data.onLinkedIn,
-          onTwitter: data.data.onTwitter,
+          onLinkedIn: form.getValues("onLinkedIn"),
+          onTwitter: form.getValues("onTwitter"),
           scheduleDate: data.data.scheduleDate,
           posts: newPosts,
         };
@@ -1171,15 +1227,8 @@ export default function PostPage() {
             form.reset(data);
             setIsDraftSheetOpen(false);
           })
-          .catch((err) => {
-            console.log("🚀 ~ success: ~ err:", err);
-            form.reset(defaultValues);
-            setPostsContent([
-              {
-                index: 0,
-                images: [],
-              },
-            ]);
+          .catch(() => {
+            toast.error("Failed to fetch draft");
 
             setIsDraftSheetOpen(false);
           });
@@ -1190,7 +1239,6 @@ export default function PostPage() {
   }, []);
 
   // Template
-
   const handleSaveTemplate = useCallback(async () => {
     if (form.getValues("posts").length === 0 && !form.formState.isValid) {
       await form.trigger();
@@ -1237,8 +1285,8 @@ export default function PostPage() {
           asEvergreen: data.data.asEvergreen,
           isDraft: data.data.isDraft,
           isTemplate: data.data.isTemplate,
-          onLinkedIn: data.data.onLinkedIn,
-          onTwitter: data.data.onTwitter,
+          onLinkedIn: form.getValues("onLinkedIn"),
+          onTwitter: form.getValues("onTwitter"),
           scheduleDate: data.data.scheduleDate ?? "",
           posts: newPosts,
         };
@@ -1246,17 +1294,16 @@ export default function PostPage() {
           .parseAsync(newForm)
           .then((data) => {
             form.reset(data);
-            setIsTemplateSheetOpen(false);
-          })
-          .catch((err) => {
-            console.log("🚀 ", err);
-            form.reset(defaultValues);
             setPostsContent([
               {
                 index: 0,
                 images: [],
               },
             ]);
+            setIsTemplateSheetOpen(false);
+          })
+          .catch(() => {
+            toast.error("Failed to fetch template");
 
             setIsTemplateSheetOpen(false);
           });
@@ -1275,6 +1322,52 @@ export default function PostPage() {
   const handleCloseNote = useCallback(() => {
     setNoteId(null);
   }, []);
+
+  // Best Posts
+
+  const handleUseBestPost = useCallback(
+    (id: string) => {
+      setIsBestPostsSheetOpen(false);
+      const getBestPostPromise = getBestPost(id).unwrap();
+
+      toast.promise(getBestPostPromise, {
+        loading: "Fetching best post...",
+        success: async (data) => {
+          const newPosts = data.data.posts.map((post) => ({
+            ...post,
+            pull: post.poll ?? null,
+            imageLinks: post.imageLinks ?? [],
+            gif: post.gifLink ?? null,
+            images: [],
+          }));
+
+          const newForm: TPostForm = {
+            addFinisher: data.data.addFinisher,
+            asEvergreen: data.data.asEvergreen,
+            isDraft: data.data.isDraft,
+            isTemplate: data.data.isTemplate,
+            onLinkedIn: form.getValues("onLinkedIn"),
+            onTwitter: form.getValues("onTwitter"),
+            scheduleDate: data.data.scheduleDate ?? "",
+            posts: newPosts,
+          };
+
+          postFormSchema
+            .parseAsync(newForm)
+            .then((data) => {
+              form.reset(data);
+            })
+            .catch(() => {
+              toast.error("Something went wrong");
+            });
+
+          return "Fetched best post!";
+        },
+        error: "Failed to fetch best post",
+      });
+    },
+    [form],
+  );
 
   return (
     <>
@@ -1314,77 +1407,143 @@ export default function PostPage() {
                           <PopoverTrigger asChild>
                             <Button size="icon" type="button" variant="ghost">
                               <Iconify
-                                icon="solar:tuning-2-bold-duotone"
+                                icon="solar:settings-bold-duotone"
                                 className="text-foreground/80"
                                 fontSize={26}
                               />
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent side="bottom" className="space-y-3">
-                            <FormField
-                              control={form.control}
-                              name={`onTwitter`}
-                              render={({ field }) => (
-                                <FormControl>
-                                  <div className="flex items-center space-x-2">
-                                    <Switch
-                                      id="onTwitter"
-                                      disabled={
-                                        !hasAccount(
-                                          EProviders.Linkedin,
-                                          session.data?.user.accounts,
-                                        ) ||
-                                        (!form.getValues("onLinkedIn") &&
-                                          field.value)
-                                      }
-                                      checked={field.value}
-                                      onCheckedChange={field.onChange}
-                                    />{" "}
-                                    <Label htmlFor="onTwitter">
-                                      X (Twitter)
-                                    </Label>
-                                  </div>
-                                </FormControl>
+                            <div className="space-y-3">
+                              <h6>Socials</h6>
+                              {hasAccount(
+                                EProviders.Twitter,
+                                session.data?.user.accounts,
+                              ) && (
+                                <FormField
+                                  control={form.control}
+                                  name={`onTwitter`}
+                                  render={({ field }) => (
+                                    <FormControl>
+                                      <div className="flex items-center space-x-2">
+                                        <Switch
+                                          id="onTwitter"
+                                          disabled={
+                                            !hasAccount(
+                                              EProviders.Linkedin,
+                                              session.data?.user.accounts,
+                                            ) ||
+                                            (!form.getValues("onLinkedIn") &&
+                                              field.value)
+                                          }
+                                          checked={field.value}
+                                          onCheckedChange={field.onChange}
+                                        />{" "}
+                                        <Label htmlFor="onTwitter">
+                                          X (Twitter)
+                                        </Label>
+                                      </div>
+                                    </FormControl>
+                                  )}
+                                />
                               )}
-                            />
-                            {hasAccount(
-                              EProviders.Linkedin,
-                              session.data?.user.accounts,
-                            ) && (
+                              {hasAccount(
+                                EProviders.Linkedin,
+                                session.data?.user.accounts,
+                              ) && (
+                                <FormField
+                                  control={form.control}
+                                  name={`onLinkedIn`}
+                                  render={({ field }) => (
+                                    <FormControl>
+                                      <div className="flex items-center space-x-2">
+                                        <Switch
+                                          id="onLinkedIn"
+                                          disabled={
+                                            !hasAccount(
+                                              EProviders.Twitter,
+                                              session.data?.user.accounts,
+                                            ) ||
+                                            (!form.getValues("onTwitter") &&
+                                              field.value)
+                                          }
+                                          checked={field.value}
+                                          onCheckedChange={field.onChange}
+                                        />{" "}
+                                        <Label htmlFor="onLinkedIn">
+                                          LinkedIn
+                                        </Label>
+                                      </div>
+                                    </FormControl>
+                                  )}
+                                />
+                              )}
+                            </div>
+                            <div className="space-y-3">
+                              <h6>Options</h6>
                               <FormField
                                 control={form.control}
-                                name={`onLinkedIn`}
+                                name="asEvergreen"
                                 render={({ field }) => (
                                   <FormControl>
                                     <div className="flex items-center space-x-2">
                                       <Switch
-                                        id="onLinkedIn"
-                                        disabled={
-                                          !hasAccount(
-                                            EProviders.Twitter,
-                                            session.data?.user.accounts,
-                                          ) ||
-                                          (!form.getValues("onTwitter") &&
-                                            field.value)
-                                        }
+                                        id="asEvergreen"
                                         checked={field.value}
                                         onCheckedChange={field.onChange}
                                       />{" "}
-                                      <Label htmlFor="onLinkedIn">
-                                        LinkedIn
+                                      <Label htmlFor="asEvergreen">
+                                        Evergreen
                                       </Label>
                                     </div>
                                   </FormControl>
                                 )}
                               />
-                            )}
+                              <FormField
+                                control={form.control}
+                                name="addFinisher"
+                                render={({ field }) => (
+                                  <FormControl>
+                                    <div className="flex items-center space-x-2">
+                                      <Switch
+                                        id="addFinisher"
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                      />{" "}
+                                      <Label htmlFor="addFinisher">
+                                        Add Finisher
+                                      </Label>
+                                    </div>
+                                  </FormControl>
+                                )}
+                              />
+                            </div>
                           </PopoverContent>
                         </Popover>
                       </TooltipTrigger>
                       <TooltipContent side="bottom">
-                        <p className="text-center">Socials</p>
+                        <p className="text-center">Settings</p>
                       </TooltipContent>
                     </Tooltip>{" "}
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Button
+                          size="icon"
+                          type="button"
+                          variant="ghost"
+                          onClick={() => setIsBestPostsSheetOpen(true)}
+                        >
+                          <Iconify
+                            icon="solar:stars-bold-duotone"
+                            className="text-foreground/80"
+                            fontSize={26}
+                          />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom">
+                        <p className="text-center">Best Posts</p>
+                      </TooltipContent>
+                    </Tooltip>
                     <Tooltip>
                       <TooltipTrigger>
                         <Button
@@ -1432,7 +1591,7 @@ export default function PostPage() {
                           onClick={() => setIsNotesSheetOpen(true)}
                         >
                           <Iconify
-                            icon="solar:notebook-bold-duotone"
+                            icon="solar:document-add-bold-duotone"
                             className="text-foreground/80"
                             fontSize={26}
                           />
@@ -1472,6 +1631,22 @@ export default function PostPage() {
                         All threads and images (up to 20) will be posted as a
                         single post on LinkedIn
                         <br /> (Polls are not supported on LinkedIn)
+                      </AlertDescription>
+                    </Alert>
+                  </p>
+                )}
+                {withInspiration && (
+                  <p>
+                    <Alert>
+                      <InfoCircledIcon className="h-4 w-4" />
+                      <AlertTitle>Note</AlertTitle>
+                      <AlertDescription>
+                        The auto-generated threads are based on the inspiration
+                        you have selected. You can edit, delete, or add more
+                        threads. <br />
+                        (Some threads may be split into multiple threads due to
+                        the character limit on Twitter make sure to check all
+                        the threads before posting)
                       </AlertDescription>
                     </Alert>
                   </p>
@@ -1551,7 +1726,7 @@ export default function PostPage() {
                             <div className="mb-2 flex w-full flex-wrap items-center gap-2">
                               {form
                                 .getValues(`posts.${post.index}.imageLinks`)
-                                .map((image, index) => (
+                                ?.map((image, index) => (
                                   <div
                                     key={index}
                                     className="group relative w-fit overflow-hidden rounded"
@@ -2151,50 +2326,6 @@ export default function PostPage() {
                                             )}
                                           />
                                         )}
-                                        {post.index === 0 && (
-                                          <FormField
-                                            control={form.control}
-                                            name={`asEvergreen`}
-                                            render={({ field }) => (
-                                              <FormControl>
-                                                <div className="flex items-center space-x-2">
-                                                  <Switch
-                                                    id="asEvergreen"
-                                                    checked={field.value}
-                                                    onCheckedChange={
-                                                      field.onChange
-                                                    }
-                                                  />{" "}
-                                                  <Label htmlFor="asEvergreen">
-                                                    Set as evergreen
-                                                  </Label>
-                                                </div>
-                                              </FormControl>
-                                            )}
-                                          />
-                                        )}
-                                        {post.index === 0 && (
-                                          <FormField
-                                            control={form.control}
-                                            name={`addFinisher`}
-                                            render={({ field }) => (
-                                              <FormControl>
-                                                <div className="flex items-center space-x-2">
-                                                  <Switch
-                                                    id="addFinisher"
-                                                    checked={field.value}
-                                                    onCheckedChange={
-                                                      field.onChange
-                                                    }
-                                                  />{" "}
-                                                  <Label htmlFor="addFinisher">
-                                                    Add finisher
-                                                  </Label>
-                                                </div>
-                                              </FormControl>
-                                            )}
-                                          />
-                                        )}
                                       </PopoverContent>
                                     </Popover>
                                   </TooltipTrigger>
@@ -2213,59 +2344,118 @@ export default function PostPage() {
                   <BottomButtons>
                     <div className="flex  items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Dialog
-                          open={isDraftDialogOpen}
-                          onOpenChange={(open) => {
-                            if (!open) setScheduleDate("");
-                            setIsDraftDialogOpen(open);
-                          }}
-                        >
-                          <DialogTrigger asChild>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              disabled={
-                                !form.formState.isValid ||
-                                isPostingNowOrScheduling ||
-                                isAddingPostToSpot
-                              }
-                            >
-                              {selectedDraftId
-                                ? "Update draft"
-                                : "Save as draft"}
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="sm:max-w-[425px]">
-                            <DialogHeader>
-                              <DialogTitle>Set a reminder</DialogTitle>
-                            </DialogHeader>
-                            <div className="">
-                              <div className="mt-3 grid w-full max-w-sm items-center gap-1.5">
-                                <Label htmlFor="custom-date">
-                                  Reminder date
-                                </Label>
-                                <Input
-                                  id="custom-date"
-                                  type="datetime-local"
-                                  value={scheduleDate}
-                                  onChange={handleCustomDateChange}
-                                />
-                              </div>
-                            </div>
-                            <DialogFooter>
+                        {isDesktop ? (
+                          <Dialog
+                            open={isDraftDialogOpen}
+                            onOpenChange={(open) => {
+                              if (!open) setScheduleDate("");
+                              setIsDraftDialogOpen(open);
+                            }}
+                          >
+                            <DialogTrigger asChild>
                               <Button
                                 type="button"
-                                onClick={
-                                  selectedDraftId
-                                    ? handleUpdateDraft
-                                    : handleSaveDraft
+                                variant="outline"
+                                disabled={
+                                  !form.formState.isValid ||
+                                  isPostingNowOrScheduling ||
+                                  isAddingPostToSpot
                                 }
                               >
-                                Save draft
+                                {selectedDraftId
+                                  ? "Update draft"
+                                  : "Save as draft"}
                               </Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[425px]">
+                              <DialogHeader>
+                                <DialogTitle>Set a reminder</DialogTitle>
+                              </DialogHeader>
+                              <div className="">
+                                <div className="mt-3 grid w-full max-w-sm items-center gap-1.5">
+                                  <Label htmlFor="custom-date">
+                                    Reminder date
+                                  </Label>
+                                  <Input
+                                    id="custom-date"
+                                    type="datetime-local"
+                                    value={scheduleDate}
+                                    onChange={handleCustomDateChange}
+                                  />
+                                </div>
+                              </div>
+                              <DialogFooter>
+                                <Button
+                                  type="button"
+                                  onClick={
+                                    selectedDraftId
+                                      ? handleUpdateDraft
+                                      : handleSaveDraft
+                                  }
+                                >
+                                  Save draft
+                                </Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                        ) : (
+                          <Drawer
+                            open={isDraftDialogOpen}
+                            onOpenChange={(open) => {
+                              if (!open) setScheduleDate("");
+                              setIsDraftDialogOpen(open);
+                            }}
+                          >
+                            <DrawerTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                disabled={
+                                  !form.formState.isValid ||
+                                  isPostingNowOrScheduling ||
+                                  isAddingPostToSpot
+                                }
+                              >
+                                {selectedDraftId
+                                  ? "Update draft"
+                                  : "Save as draft"}
+                              </Button>
+                            </DrawerTrigger>
+                            <DrawerContent>
+                              <DrawerHeader>
+                                <DrawerTitle>Set a reminder</DrawerTitle>
+                              </DrawerHeader>
+                              <div className="p-4">
+                                <div className="mt-3 grid w-full max-w-sm items-center gap-1.5">
+                                  <Label htmlFor="custom-date">
+                                    Reminder date
+                                  </Label>
+                                  <Input
+                                    id="custom-date"
+                                    type="datetime-local"
+                                    value={scheduleDate}
+                                    onChange={handleCustomDateChange}
+                                  />
+                                </div>
+                              </div>
+                              <DrawerFooter>
+                                <Button
+                                  type="button"
+                                  onClick={
+                                    selectedDraftId
+                                      ? handleUpdateDraft
+                                      : handleSaveDraft
+                                  }
+                                >
+                                  Save draft
+                                </Button>{" "}
+                                <DrawerClose asChild>
+                                  <Button variant="ghost">Close</Button>
+                                </DrawerClose>
+                              </DrawerFooter>
+                            </DrawerContent>
+                          </Drawer>
+                        )}
                         <Button
                           type="button"
                           variant="outline"
@@ -2280,177 +2470,372 @@ export default function PostPage() {
                         </Button>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Dialog
-                          open={isRecurringDialogOpen}
-                          onOpenChange={(open) => {
-                            setIsRecurringDialogOpen(open);
-                            if (!open) setSelectedSpots([]);
-                          }}
-                        >
-                          <DialogTrigger asChild>
-                            <Button
-                              type="button"
-                              disabled={
-                                !form.formState.isValid ||
-                                isPostingNowOrScheduling ||
-                                isAddingPostToSpot ||
-                                isAddingRecurringPost
-                              }
-                            >
-                              Pick recurring slot
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="sm:max-w-[425px]">
-                            <DialogHeader>
-                              <DialogTitle>Pick a slot</DialogTitle>
-                              <DialogDescription>
-                                Choose a recurring slot to post your content
-                              </DialogDescription>
-                            </DialogHeader>
-                            <div className="">
-                              {isRecurringSpotsLoading ? (
-                                <div className="flex h-24 items-center justify-center">
-                                  <Spinner />
-                                </div>
-                              ) : isRecurringSpotSuccess &&
-                                recurringSpots?.data.length > 0 ? (
-                                <>
-                                  <Label className="mb-2">
-                                    Recurring Spots
-                                  </Label>
-                                  <div className="flex flex-wrap gap-2">
-                                    {recurringSpots.data.map((slot) => (
-                                      <Button
-                                        variant={
-                                          selectedSpots.some(
-                                            (s) => s.id === slot.id,
-                                          )
-                                            ? "default"
-                                            : "outline"
-                                        }
-                                        onClick={() => {
-                                          setScheduleDate("");
-                                          setSelectedSpots((prev) => {
-                                            if (
-                                              prev.some((s) => s.id === slot.id)
-                                            ) {
-                                              return prev.filter(
-                                                (s) => s.id !== slot.id,
-                                              );
-                                            }
-
-                                            if (
-                                              prev.some(
-                                                (s) =>
-                                                  s.provider ===
-                                                  EProviders.Twitter,
-                                              )
-                                            ) {
-                                              return [
-                                                ...prev.filter(
-                                                  (s) =>
-                                                    s.provider !==
-                                                    EProviders.Twitter,
-                                                ),
-                                                {
-                                                  id: slot.id,
-                                                  provider: EProviders.Twitter,
-                                                },
-                                              ];
-                                            } else {
-                                              return [
-                                                ...prev,
-                                                {
-                                                  id: slot.id,
-                                                  provider: EProviders.Twitter,
-                                                },
-                                              ];
-                                            }
-                                          });
-                                        }}
-                                      >
-                                        {slot.days
-                                          ?.map(
-                                            (day) =>
-                                              DAYS_OF_WEEK.find(
-                                                (d) => d.value === day,
-                                              )?.label,
-                                          )
-                                          .join(", ")}{" "}
-                                        at{" "}
-                                        {format(
-                                          new Date(slot.startTime ?? ""),
-                                          "HH:mm",
-                                        )}
-                                      </Button>
-                                    ))}
+                        {isDesktop ? (
+                          <Dialog
+                            open={isRecurringDialogOpen}
+                            onOpenChange={(open) => {
+                              setIsRecurringDialogOpen(open);
+                              if (!open) setSelectedSpots([]);
+                            }}
+                          >
+                            <DialogTrigger asChild>
+                              <Button
+                                type="button"
+                                disabled={
+                                  !form.formState.isValid ||
+                                  isPostingNowOrScheduling ||
+                                  isAddingPostToSpot ||
+                                  isAddingRecurringPost
+                                }
+                              >
+                                Pick recurring spot
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[425px]">
+                              <DialogHeader>
+                                <DialogTitle>Pick a spot</DialogTitle>
+                                <DialogDescription>
+                                  Choose a recurring spot to post your content
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="">
+                                {isRecurringSpotsLoading ? (
+                                  <div className="flex h-24 items-center justify-center">
+                                    <Spinner />
                                   </div>
-                                </>
-                              ) : (
-                                <div className="flex h-24 items-center justify-center text-destructive">
-                                  <p>No slots available</p>
-                                </div>
-                              )}
-                            </div>
-                            <DialogFooter>
-                              <Button
-                                type="button"
-                                onClick={handleAddRecurringPost}
-                                disabled={selectedSpots.length === 0}
-                              >
-                                Schedule
-                              </Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
-                        <Dialog
-                          open={isScheduleDialogOpen}
-                          onOpenChange={(open) => {
-                            setIsScheduleDialogOpen(open);
-                            if (!open) setScheduleDate("");
-                          }}
-                        >
-                          <DialogTrigger asChild>
-                            <Button
-                              type="button"
-                              disabled={
-                                !form.formState.isValid ||
-                                isPostingNowOrScheduling ||
-                                isAddingPostToSpot
-                              }
-                            >
-                              Pick a time
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="sm:max-w-[425px]">
-                            <DialogHeader>
-                              <DialogTitle>Pick a time</DialogTitle>
-                              <DialogDescription>
-                                Choose a time to post your content
-                              </DialogDescription>
-                            </DialogHeader>
-                            <div className="">
-                              <div className="mt-3 grid w-full max-w-sm items-center gap-1.5">
-                                <Label htmlFor="custom-date">Custom date</Label>
-                                <Input
-                                  id="custom-date"
-                                  type="datetime-local"
-                                  value={scheduleDate}
-                                  onChange={handleCustomDateChange}
-                                />
+                                ) : isRecurringSpotSuccess &&
+                                  recurringSpots?.data.length > 0 ? (
+                                  <>
+                                    <Label className="mb-2">
+                                      Recurring Spots
+                                    </Label>
+                                    <div className="flex flex-wrap gap-2">
+                                      {recurringSpots.data.map((spot) => (
+                                        <Button
+                                          variant={
+                                            selectedSpots.some(
+                                              (s) => s.id === spot.id,
+                                            )
+                                              ? "default"
+                                              : "outline"
+                                          }
+                                          onClick={() => {
+                                            setScheduleDate("");
+                                            setSelectedSpots((prev) => {
+                                              if (
+                                                prev.some(
+                                                  (s) => s.id === spot.id,
+                                                )
+                                              ) {
+                                                return prev.filter(
+                                                  (s) => s.id !== spot.id,
+                                                );
+                                              }
+
+                                              if (
+                                                prev.some(
+                                                  (s) =>
+                                                    s.provider ===
+                                                    EProviders.Twitter,
+                                                )
+                                              ) {
+                                                return [
+                                                  ...prev.filter(
+                                                    (s) =>
+                                                      s.provider !==
+                                                      EProviders.Twitter,
+                                                  ),
+                                                  {
+                                                    id: spot.id,
+                                                    provider:
+                                                      EProviders.Twitter,
+                                                  },
+                                                ];
+                                              } else {
+                                                return [
+                                                  ...prev,
+                                                  {
+                                                    id: spot.id,
+                                                    provider:
+                                                      EProviders.Twitter,
+                                                  },
+                                                ];
+                                              }
+                                            });
+                                          }}
+                                        >
+                                          {spot.days
+                                            ?.map(
+                                              (day) =>
+                                                DAYS_OF_WEEK.find(
+                                                  (d) => d.value === day,
+                                                )?.label,
+                                            )
+                                            .join(", ")}{" "}
+                                          at{" "}
+                                          {format(
+                                            new Date(spot.startTime ?? ""),
+                                            "HH:mm",
+                                          )}
+                                        </Button>
+                                      ))}
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div className="flex h-24 items-center justify-center text-destructive">
+                                    <p>No spots available</p>
+                                  </div>
+                                )}
                               </div>
-                            </div>
-                            <DialogFooter>
+                              <DialogFooter>
+                                <Button
+                                  type="button"
+                                  onClick={handleAddRecurringPost}
+                                  disabled={selectedSpots.length === 0}
+                                >
+                                  Schedule
+                                </Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                        ) : (
+                          <Drawer
+                            open={isRecurringDialogOpen}
+                            onOpenChange={(open) => {
+                              setIsRecurringDialogOpen(open);
+                              if (!open) setSelectedSpots([]);
+                            }}
+                          >
+                            <DrawerTrigger asChild>
                               <Button
                                 type="button"
-                                onClick={handleSchedulePost}
-                                disabled={!scheduleDate}
+                                disabled={
+                                  !form.formState.isValid ||
+                                  isPostingNowOrScheduling ||
+                                  isAddingPostToSpot ||
+                                  isAddingRecurringPost
+                                }
                               >
-                                Schedule
+                                Pick recurring spot
                               </Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
+                            </DrawerTrigger>
+                            <DrawerContent>
+                              <DrawerHeader>
+                                <DrawerTitle>Pick a spot</DrawerTitle>
+                                <DrawerDescription>
+                                  Choose a recurring spot to post your content
+                                </DrawerDescription>
+                              </DrawerHeader>
+                              <div className="p-4">
+                                {isRecurringSpotsLoading ? (
+                                  <div className="flex h-24 items-center justify-center">
+                                    <Spinner />
+                                  </div>
+                                ) : isRecurringSpotSuccess &&
+                                  recurringSpots?.data.length > 0 ? (
+                                  <>
+                                    <Label className="mb-2">
+                                      Recurring Spots
+                                    </Label>
+                                    <div className="flex flex-wrap gap-2">
+                                      {recurringSpots.data.map((spot) => (
+                                        <Button
+                                          variant={
+                                            selectedSpots.some(
+                                              (s) => s.id === spot.id,
+                                            )
+                                              ? "default"
+                                              : "outline"
+                                          }
+                                          onClick={() => {
+                                            setScheduleDate("");
+                                            setSelectedSpots((prev) => {
+                                              if (
+                                                prev.some(
+                                                  (s) => s.id === spot.id,
+                                                )
+                                              ) {
+                                                return prev.filter(
+                                                  (s) => s.id !== spot.id,
+                                                );
+                                              }
+
+                                              if (
+                                                prev.some(
+                                                  (s) =>
+                                                    s.provider ===
+                                                    EProviders.Twitter,
+                                                )
+                                              ) {
+                                                return [
+                                                  ...prev.filter(
+                                                    (s) =>
+                                                      s.provider !==
+                                                      EProviders.Twitter,
+                                                  ),
+                                                  {
+                                                    id: spot.id,
+                                                    provider:
+                                                      EProviders.Twitter,
+                                                  },
+                                                ];
+                                              } else {
+                                                return [
+                                                  ...prev,
+                                                  {
+                                                    id: spot.id,
+                                                    provider:
+                                                      EProviders.Twitter,
+                                                  },
+                                                ];
+                                              }
+                                            });
+                                          }}
+                                        >
+                                          {spot.days
+                                            ?.map(
+                                              (day) =>
+                                                DAYS_OF_WEEK.find(
+                                                  (d) => d.value === day,
+                                                )?.label,
+                                            )
+                                            .join(", ")}{" "}
+                                          at{" "}
+                                          {format(
+                                            new Date(spot.startTime ?? ""),
+                                            "HH:mm",
+                                          )}
+                                        </Button>
+                                      ))}
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div className="flex h-24 items-center justify-center text-destructive">
+                                    <p>No spots available</p>
+                                  </div>
+                                )}
+                              </div>
+                              <DrawerFooter>
+                                <Button
+                                  type="button"
+                                  onClick={handleAddRecurringPost}
+                                  disabled={selectedSpots.length === 0}
+                                >
+                                  Schedule
+                                </Button>{" "}
+                                <DrawerClose asChild>
+                                  <Button variant="ghost">Close</Button>
+                                </DrawerClose>
+                              </DrawerFooter>
+                            </DrawerContent>
+                          </Drawer>
+                        )}
+                        {isDesktop ? (
+                          <Dialog
+                            open={isScheduleDialogOpen}
+                            onOpenChange={(open) => {
+                              setIsScheduleDialogOpen(open);
+                              if (!open) setScheduleDate("");
+                            }}
+                          >
+                            <DialogTrigger asChild>
+                              <Button
+                                type="button"
+                                disabled={
+                                  !form.formState.isValid ||
+                                  isPostingNowOrScheduling ||
+                                  isAddingPostToSpot
+                                }
+                              >
+                                Pick a time
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[425px]">
+                              <DialogHeader>
+                                <DialogTitle>Pick a time</DialogTitle>
+                                <DialogDescription>
+                                  Choose a time to post your content
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="">
+                                <div className="mt-3 grid w-full max-w-sm items-center gap-1.5">
+                                  <Label htmlFor="custom-date">
+                                    Custom date
+                                  </Label>
+                                  <Input
+                                    id="custom-date"
+                                    type="datetime-local"
+                                    value={scheduleDate}
+                                    onChange={handleCustomDateChange}
+                                  />
+                                </div>
+                              </div>
+                              <DialogFooter>
+                                <Button
+                                  type="button"
+                                  onClick={handleSchedulePost}
+                                  disabled={!scheduleDate}
+                                >
+                                  Schedule
+                                </Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                        ) : (
+                          <Drawer
+                            open={isScheduleDialogOpen}
+                            onOpenChange={(open) => {
+                              setIsScheduleDialogOpen(open);
+                              if (!open) setScheduleDate("");
+                            }}
+                          >
+                            <DrawerTrigger asChild>
+                              <Button
+                                type="button"
+                                disabled={
+                                  !form.formState.isValid ||
+                                  isPostingNowOrScheduling ||
+                                  isAddingPostToSpot
+                                }
+                              >
+                                Pick a time
+                              </Button>
+                            </DrawerTrigger>
+                            <DrawerContent>
+                              <DrawerHeader>
+                                <DrawerTitle>Pick a time</DrawerTitle>
+                                <DrawerDescription>
+                                  Choose a time to post your content
+                                </DrawerDescription>
+                              </DrawerHeader>
+                              <div className="p-4">
+                                <div className="mt-3 grid w-full max-w-sm items-center gap-1.5">
+                                  <Label htmlFor="custom-date">
+                                    Custom date
+                                  </Label>
+                                  <Input
+                                    id="custom-date"
+                                    type="datetime-local"
+                                    value={scheduleDate}
+                                    onChange={handleCustomDateChange}
+                                  />
+                                </div>
+                              </div>
+                              <DrawerFooter>
+                                <Button
+                                  type="button"
+                                  onClick={handleSchedulePost}
+                                  disabled={!scheduleDate}
+                                >
+                                  Schedule
+                                </Button>{" "}
+                                <DrawerClose asChild>
+                                  <Button variant="ghost">Close</Button>
+                                </DrawerClose>
+                              </DrawerFooter>
+                            </DrawerContent>
+                          </Drawer>
+                        )}
 
                         <Button
                           type="button"
@@ -2464,214 +2849,428 @@ export default function PostPage() {
                         >
                           Post now
                         </Button>
-                        <Dialog
-                          open={isQueueDialogOpen}
-                          onOpenChange={(open) => {
-                            setIsQueueDialogOpen(open);
-                            if (!open) setSelectedSpots([]);
-                          }}
-                        >
-                          <DialogTrigger asChild>
-                            <Button
-                              type="button"
-                              disabled={
-                                !form.formState.isValid ||
-                                isPostingNowOrScheduling ||
-                                isAddingPostToSpot ||
-                                isAddingRecurringPost
-                              }
-                            >
-                              Add to queue
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="sm:max-w-[425px]">
-                            <DialogHeader>
-                              <DialogTitle>Pick a time</DialogTitle>
-                              <DialogDescription>
-                                Choose a time to post your content
-                              </DialogDescription>
-                            </DialogHeader>
-                            <div className="">
-                              {isSpotsLoading ? (
-                                <div className="flex h-24 items-center justify-center">
-                                  <Spinner />
-                                </div>
-                              ) : isSuccess && nextSpots?.data.length > 0 ? (
-                                <>
-                                  {form.getValues("onTwitter") && (
-                                    <div className="space-y-2">
-                                      <Label className="mb-2">
-                                        Twitter Spots
-                                      </Label>
-
-                                      <div className="mb-2 flex flex-wrap gap-2">
-                                        {nextSpots.data
-                                          .filter((slot) => slot.forTwitter)
-                                          .map((slot) => (
-                                            <Button
-                                              variant={
-                                                selectedSpots.some(
-                                                  (s) => s.id === slot.id,
-                                                )
-                                                  ? "default"
-                                                  : "outline"
-                                              }
-                                              onClick={() => {
-                                                setScheduleDate("");
-                                                setSelectedSpots((prev) => {
-                                                  if (
-                                                    prev.some(
-                                                      (s) => s.id === slot.id,
-                                                    )
-                                                  ) {
-                                                    return prev.filter(
-                                                      (s) => s.id !== slot.id,
-                                                    );
-                                                  }
-
-                                                  if (
-                                                    prev.some(
-                                                      (s) =>
-                                                        s.provider ===
-                                                        EProviders.Twitter,
-                                                    )
-                                                  ) {
-                                                    return [
-                                                      ...prev.filter(
-                                                        (s) =>
-                                                          s.provider !==
-                                                          EProviders.Twitter,
-                                                      ),
-                                                      {
-                                                        id: slot.id,
-                                                        provider:
-                                                          EProviders.Twitter,
-                                                      },
-                                                    ];
-                                                  } else {
-                                                    return [
-                                                      ...prev,
-                                                      {
-                                                        id: slot.id,
-                                                        provider:
-                                                          EProviders.Twitter,
-                                                      },
-                                                    ];
-                                                  }
-                                                });
-                                              }}
-                                            >
-                                              <Iconify
-                                                icon="simple-icons:x"
-                                                className="mr-2"
-                                                fontSize={16}
-                                              />
-
-                                              {format(
-                                                new Date(slot.start ?? ""),
-                                                "dd MMM yyyy, HH:mm",
-                                              )}
-                                            </Button>
-                                          ))}
-                                      </div>
-                                    </div>
-                                  )}{" "}
-                                  {form.getValues("onLinkedIn") && (
-                                    <div className="space-y-2">
-                                      {" "}
-                                      <Label className="mb-2">
-                                        LinkedIn Spots
-                                      </Label>
-                                      <div className="flex flex-wrap gap-2">
-                                        {nextSpots.data
-                                          .filter((slot) => slot.forLinkedIn)
-                                          .map((slot) => (
-                                            <Button
-                                              variant={
-                                                selectedSpots.some(
-                                                  (s) => s.id === slot.id,
-                                                )
-                                                  ? "default"
-                                                  : "outline"
-                                              }
-                                              onClick={() => {
-                                                setScheduleDate("");
-                                                setSelectedSpots((prev) => {
-                                                  if (
-                                                    prev.some(
-                                                      (s) => s.id === slot.id,
-                                                    )
-                                                  ) {
-                                                    return prev.filter(
-                                                      (s) => s.id !== slot.id,
-                                                    );
-                                                  }
-
-                                                  if (
-                                                    prev.some(
-                                                      (s) =>
-                                                        s.provider ===
-                                                        EProviders.Linkedin,
-                                                    )
-                                                  ) {
-                                                    return [
-                                                      ...prev.filter(
-                                                        (s) =>
-                                                          s.provider !==
-                                                          EProviders.Linkedin,
-                                                      ),
-                                                      {
-                                                        id: slot.id,
-                                                        provider:
-                                                          EProviders.Linkedin,
-                                                      },
-                                                    ];
-                                                  } else {
-                                                    return [
-                                                      ...prev,
-                                                      {
-                                                        id: slot.id,
-                                                        provider:
-                                                          EProviders.Linkedin,
-                                                      },
-                                                    ];
-                                                  }
-                                                });
-                                              }}
-                                            >
-                                              <Iconify
-                                                icon="simple-icons:linkedin"
-                                                className="mr-2"
-                                                fontSize={16}
-                                              />
-
-                                              {format(
-                                                new Date(slot.start ?? ""),
-                                                "dd MMM yyyy, HH:mm",
-                                              )}
-                                            </Button>
-                                          ))}
-                                      </div>
-                                    </div>
-                                  )}
-                                </>
-                              ) : (
-                                <div className="flex h-24 items-center justify-center text-destructive">
-                                  <p>No slots available</p>
-                                </div>
-                              )}
-                            </div>
-                            <DialogFooter>
+                        {isDesktop ? (
+                          <Dialog
+                            open={isQueueDialogOpen}
+                            onOpenChange={(open) => {
+                              setIsQueueDialogOpen(open);
+                              if (!open) setSelectedSpots([]);
+                            }}
+                          >
+                            <DialogTrigger asChild>
                               <Button
                                 type="button"
-                                onClick={handleSchedulePost}
-                                disabled={selectedSpots.length === 0}
+                                disabled={
+                                  !form.formState.isValid ||
+                                  isPostingNowOrScheduling ||
+                                  isAddingPostToSpot ||
+                                  isAddingRecurringPost
+                                }
                               >
-                                Schedule
+                                Add to queue
                               </Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[425px]">
+                              <DialogHeader>
+                                <DialogTitle>Pick a time</DialogTitle>
+                                <DialogDescription>
+                                  Choose a time to post your content
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="">
+                                {isSpotsLoading ? (
+                                  <div className="flex h-24 items-center justify-center">
+                                    <Spinner />
+                                  </div>
+                                ) : isSuccess && nextSpots?.data.length > 0 ? (
+                                  <>
+                                    {form.getValues("onTwitter") && (
+                                      <div className="space-y-2">
+                                        <Label className="mb-2">
+                                          Twitter Spots
+                                        </Label>
+
+                                        <div className="mb-2 flex flex-wrap gap-2">
+                                          {nextSpots.data
+                                            .filter((spot) => spot.forTwitter)
+                                            .map((spot) => (
+                                              <Button
+                                                variant={
+                                                  selectedSpots.some(
+                                                    (s) => s.id === spot.id,
+                                                  )
+                                                    ? "default"
+                                                    : "outline"
+                                                }
+                                                onClick={() => {
+                                                  setScheduleDate("");
+                                                  setSelectedSpots((prev) => {
+                                                    if (
+                                                      prev.some(
+                                                        (s) => s.id === spot.id,
+                                                      )
+                                                    ) {
+                                                      return prev.filter(
+                                                        (s) => s.id !== spot.id,
+                                                      );
+                                                    }
+
+                                                    if (
+                                                      prev.some(
+                                                        (s) =>
+                                                          s.provider ===
+                                                          EProviders.Twitter,
+                                                      )
+                                                    ) {
+                                                      return [
+                                                        ...prev.filter(
+                                                          (s) =>
+                                                            s.provider !==
+                                                            EProviders.Twitter,
+                                                        ),
+                                                        {
+                                                          id: spot.id,
+                                                          provider:
+                                                            EProviders.Twitter,
+                                                        },
+                                                      ];
+                                                    } else {
+                                                      return [
+                                                        ...prev,
+                                                        {
+                                                          id: spot.id,
+                                                          provider:
+                                                            EProviders.Twitter,
+                                                        },
+                                                      ];
+                                                    }
+                                                  });
+                                                }}
+                                              >
+                                                <Iconify
+                                                  icon="simple-icons:x"
+                                                  className="mr-2"
+                                                  fontSize={16}
+                                                />
+
+                                                {format(
+                                                  new Date(spot.start ?? ""),
+                                                  "dd MMM yyyy, HH:mm",
+                                                )}
+                                              </Button>
+                                            ))}
+                                        </div>
+                                      </div>
+                                    )}{" "}
+                                    {form.getValues("onLinkedIn") && (
+                                      <div className="space-y-2">
+                                        {" "}
+                                        <Label className="mb-2">
+                                          LinkedIn Spots
+                                        </Label>
+                                        <div className="flex flex-wrap gap-2">
+                                          {nextSpots.data
+                                            .filter((spot) => spot.forLinkedIn)
+                                            .map((spot) => (
+                                              <Button
+                                                variant={
+                                                  selectedSpots.some(
+                                                    (s) => s.id === spot.id,
+                                                  )
+                                                    ? "default"
+                                                    : "outline"
+                                                }
+                                                onClick={() => {
+                                                  setScheduleDate("");
+                                                  setSelectedSpots((prev) => {
+                                                    if (
+                                                      prev.some(
+                                                        (s) => s.id === spot.id,
+                                                      )
+                                                    ) {
+                                                      return prev.filter(
+                                                        (s) => s.id !== spot.id,
+                                                      );
+                                                    }
+
+                                                    if (
+                                                      prev.some(
+                                                        (s) =>
+                                                          s.provider ===
+                                                          EProviders.Linkedin,
+                                                      )
+                                                    ) {
+                                                      return [
+                                                        ...prev.filter(
+                                                          (s) =>
+                                                            s.provider !==
+                                                            EProviders.Linkedin,
+                                                        ),
+                                                        {
+                                                          id: spot.id,
+                                                          provider:
+                                                            EProviders.Linkedin,
+                                                        },
+                                                      ];
+                                                    } else {
+                                                      return [
+                                                        ...prev,
+                                                        {
+                                                          id: spot.id,
+                                                          provider:
+                                                            EProviders.Linkedin,
+                                                        },
+                                                      ];
+                                                    }
+                                                  });
+                                                }}
+                                              >
+                                                <Iconify
+                                                  icon="simple-icons:linkedin"
+                                                  className="mr-2"
+                                                  fontSize={16}
+                                                />
+
+                                                {format(
+                                                  new Date(spot.start ?? ""),
+                                                  "dd MMM yyyy, HH:mm",
+                                                )}
+                                              </Button>
+                                            ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </>
+                                ) : (
+                                  <div className="flex h-24 items-center justify-center text-destructive">
+                                    <p>No spots available</p>
+                                  </div>
+                                )}
+                              </div>
+                              <DialogFooter>
+                                <Button
+                                  type="button"
+                                  onClick={handleSchedulePost}
+                                  disabled={selectedSpots.length === 0}
+                                >
+                                  Schedule
+                                </Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                        ) : (
+                          <Drawer
+                            open={isQueueDialogOpen}
+                            onOpenChange={(open) => {
+                              setIsQueueDialogOpen(open);
+                              if (!open) setSelectedSpots([]);
+                            }}
+                          >
+                            <DrawerTrigger asChild>
+                              <Button
+                                type="button"
+                                disabled={
+                                  !form.formState.isValid ||
+                                  isPostingNowOrScheduling ||
+                                  isAddingPostToSpot ||
+                                  isAddingRecurringPost
+                                }
+                              >
+                                Add to queue
+                              </Button>
+                            </DrawerTrigger>
+                            <DrawerContent>
+                              <DrawerHeader>
+                                <DrawerTitle>Pick a time</DrawerTitle>
+                                <DrawerDescription>
+                                  Choose a time to post your content
+                                </DrawerDescription>
+                              </DrawerHeader>
+                              <div className="p-4">
+                                {isSpotsLoading ? (
+                                  <div className="flex h-24 items-center justify-center">
+                                    <Spinner />
+                                  </div>
+                                ) : isSuccess && nextSpots?.data.length > 0 ? (
+                                  <>
+                                    {form.getValues("onTwitter") && (
+                                      <div className="space-y-2">
+                                        <Label className="mb-2">
+                                          Twitter Spots
+                                        </Label>
+
+                                        <div className="mb-2 flex flex-wrap gap-2">
+                                          {nextSpots.data
+                                            .filter((spot) => spot.forTwitter)
+                                            .map((spot) => (
+                                              <Button
+                                                variant={
+                                                  selectedSpots.some(
+                                                    (s) => s.id === spot.id,
+                                                  )
+                                                    ? "default"
+                                                    : "outline"
+                                                }
+                                                onClick={() => {
+                                                  setScheduleDate("");
+                                                  setSelectedSpots((prev) => {
+                                                    if (
+                                                      prev.some(
+                                                        (s) => s.id === spot.id,
+                                                      )
+                                                    ) {
+                                                      return prev.filter(
+                                                        (s) => s.id !== spot.id,
+                                                      );
+                                                    }
+
+                                                    if (
+                                                      prev.some(
+                                                        (s) =>
+                                                          s.provider ===
+                                                          EProviders.Twitter,
+                                                      )
+                                                    ) {
+                                                      return [
+                                                        ...prev.filter(
+                                                          (s) =>
+                                                            s.provider !==
+                                                            EProviders.Twitter,
+                                                        ),
+                                                        {
+                                                          id: spot.id,
+                                                          provider:
+                                                            EProviders.Twitter,
+                                                        },
+                                                      ];
+                                                    } else {
+                                                      return [
+                                                        ...prev,
+                                                        {
+                                                          id: spot.id,
+                                                          provider:
+                                                            EProviders.Twitter,
+                                                        },
+                                                      ];
+                                                    }
+                                                  });
+                                                }}
+                                              >
+                                                <Iconify
+                                                  icon="simple-icons:x"
+                                                  className="mr-2"
+                                                  fontSize={16}
+                                                />
+
+                                                {format(
+                                                  new Date(spot.start ?? ""),
+                                                  "dd MMM yyyy, HH:mm",
+                                                )}
+                                              </Button>
+                                            ))}
+                                        </div>
+                                      </div>
+                                    )}{" "}
+                                    {form.getValues("onLinkedIn") && (
+                                      <div className="space-y-2">
+                                        {" "}
+                                        <Label className="mb-2">
+                                          LinkedIn Spots
+                                        </Label>
+                                        <div className="flex flex-wrap gap-2">
+                                          {nextSpots.data
+                                            .filter((spot) => spot.forLinkedIn)
+                                            .map((spot) => (
+                                              <Button
+                                                variant={
+                                                  selectedSpots.some(
+                                                    (s) => s.id === spot.id,
+                                                  )
+                                                    ? "default"
+                                                    : "outline"
+                                                }
+                                                onClick={() => {
+                                                  setScheduleDate("");
+                                                  setSelectedSpots((prev) => {
+                                                    if (
+                                                      prev.some(
+                                                        (s) => s.id === spot.id,
+                                                      )
+                                                    ) {
+                                                      return prev.filter(
+                                                        (s) => s.id !== spot.id,
+                                                      );
+                                                    }
+
+                                                    if (
+                                                      prev.some(
+                                                        (s) =>
+                                                          s.provider ===
+                                                          EProviders.Linkedin,
+                                                      )
+                                                    ) {
+                                                      return [
+                                                        ...prev.filter(
+                                                          (s) =>
+                                                            s.provider !==
+                                                            EProviders.Linkedin,
+                                                        ),
+                                                        {
+                                                          id: spot.id,
+                                                          provider:
+                                                            EProviders.Linkedin,
+                                                        },
+                                                      ];
+                                                    } else {
+                                                      return [
+                                                        ...prev,
+                                                        {
+                                                          id: spot.id,
+                                                          provider:
+                                                            EProviders.Linkedin,
+                                                        },
+                                                      ];
+                                                    }
+                                                  });
+                                                }}
+                                              >
+                                                <Iconify
+                                                  icon="simple-icons:linkedin"
+                                                  className="mr-2"
+                                                  fontSize={16}
+                                                />
+
+                                                {format(
+                                                  new Date(spot.start ?? ""),
+                                                  "dd MMM yyyy, HH:mm",
+                                                )}
+                                              </Button>
+                                            ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </>
+                                ) : (
+                                  <div className="flex h-24 items-center justify-center text-destructive">
+                                    <p>No spots available</p>
+                                  </div>
+                                )}
+                              </div>
+                              <DrawerFooter>
+                                <Button
+                                  type="button"
+                                  onClick={handleSchedulePost}
+                                  disabled={selectedSpots.length === 0}
+                                >
+                                  Schedule
+                                </Button>
+                                <DrawerClose asChild>
+                                  <Button variant="ghost">Close</Button>
+                                </DrawerClose>
+                              </DrawerFooter>
+                            </DrawerContent>
+                          </Drawer>
+                        )}
                       </div>
                     </div>
                   </BottomButtons>
@@ -2701,6 +3300,11 @@ export default function PostPage() {
         isOpen={isNotesSheetOpen}
         setIsOpen={setIsNotesSheetOpen}
         openNote={handleOpenNote}
+      />
+      <BestPostsSheet
+        isOpen={isBestPostsSheetOpen}
+        setIsOpen={setIsBestPostsSheetOpen}
+        importPost={handleUseBestPost}
       />
     </>
   );

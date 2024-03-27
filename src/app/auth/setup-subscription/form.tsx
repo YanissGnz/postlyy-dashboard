@@ -9,9 +9,12 @@ import { useCallback, useMemo, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { env } from "@/env";
+import { ROUTES } from "@/routes";
 import { type TResponse } from "@/types/TResponse";
+import { isArray } from "lodash";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { useBoolean } from "usehooks-ts";
 
 export default function SetupForm() {
@@ -32,7 +35,7 @@ export default function SetupForm() {
 
   const session = useSession();
 
-  const { replace, refresh } = useRouter();
+  const { replace } = useRouter();
 
   const handlePayment = useCallback(
     (tier: number) => async () => {
@@ -51,18 +54,25 @@ export default function SetupForm() {
         }),
       })
         .then((res) => res.json())
-        .then((res: TResponse<{ url: string; hasToPay: boolean }>) => {
+        .then(async (res: TResponse<{ url: string; hasToPay: boolean }>) => {
           if (res.data.hasToPay) {
             setCurrentStep(2);
             setTimeout(() => {
               replace(res.data.url);
             }, 3000);
           } else {
-            refresh();
+            await session.update();
+            replace(ROUTES.home);
           }
         })
-        .catch(() => {
-          refresh();
+        .catch(async (error: string[]) => {
+          if (isArray(error)) {
+            toast.error(error[0]);
+            if (error.includes("Subscription Already Setup")) {
+              replace(ROUTES.payment);
+            }
+            await session.update();
+          }
         });
       setFalse();
     },
@@ -122,33 +132,38 @@ export default function SetupForm() {
       {currentStep === 1 && (
         <>
           <div className="mb-4 flex items-center justify-center">
-            <div className="flex items-center space-x-2">
-              <Label
-                htmlFor="payment-mode"
-                className={cn(isYearly && "text-muted-foreground")}
-              >
-                Monthly
-              </Label>
-              <Switch
-                id="payment-mode"
-                onCheckedChange={handlePaymentModeChange}
-              />
-              <Label
-                htmlFor="payment-mode"
-                className={cn(!isYearly && "text-muted-foreground")}
-              >
-                Yearly
-              </Label>
+            <div className="mb-4 flex items-center gap-2">
+              <div className="flex items-center gap-2">
+                <Label
+                  htmlFor="payment-mode"
+                  className={cn(isYearly && "text-muted-foreground")}
+                >
+                  Monthly
+                </Label>
+                <Switch
+                  id="payment-mode"
+                  onCheckedChange={handlePaymentModeChange}
+                />
+                <Label
+                  htmlFor="payment-mode"
+                  className={cn(!isYearly && "text-muted-foreground")}
+                >
+                  Yearly
+                </Label>
+              </div>
+              <div className=" flex items-center justify-center gap-2">
+                <Button size="icon" variant="ghost" onClick={handleRemoveSeat}>
+                  <Iconify
+                    icon="solar:minus-circle-bold-duotone"
+                    fontSize={22}
+                  />
+                </Button>
+                <p className="rounded border p-2">{seatsBought} seats</p>
+                <Button size="icon" variant="ghost" onClick={handleAddSeat}>
+                  <Iconify icon="solar:add-circle-bold-duotone" fontSize={22} />
+                </Button>
+              </div>
             </div>
-          </div>
-          <div className="mb-4 flex items-center justify-center gap-2">
-            <Button size="icon" variant="ghost" onClick={handleRemoveSeat}>
-              <Iconify icon="solar:minus-circle-bold-duotone" fontSize={22} />
-            </Button>
-            <p className="rounded border p-2">{seatsBought} seats</p>
-            <Button size="icon" variant="ghost" onClick={handleAddSeat}>
-              <Iconify icon="solar:add-circle-bold-duotone" fontSize={22} />
-            </Button>
           </div>
           <div className="grid w-full grid-cols-1 gap-10 md:grid-cols-3">
             {" "}
@@ -187,7 +202,7 @@ export default function SetupForm() {
                   </p>
                 </div>
                 <ul className="mt-5 flex flex-col gap-4 border-t p-3">
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -198,7 +213,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Schedule X (Twitter) / Linkedin Posts
                   </li>
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -209,7 +224,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Create Recurring & Evergreen LinkedIn & Twitter Posts
                   </li>
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -220,7 +235,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Calendar Management
                   </li>{" "}
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -231,7 +246,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Custom Dashboard and Content Analytics
                   </li>{" "}
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -288,7 +303,7 @@ export default function SetupForm() {
                   </p>
                 </div>
                 <ul className="mt-5 flex flex-col gap-4 border-t p-3">
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -299,7 +314,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Schedule X (Twitter) / Linkedin Posts
                   </li>{" "}
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -310,7 +325,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Create Recurring & Evergreen LinkedIn & Twitter Posts
                   </li>{" "}
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -321,7 +336,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Calendar Management
                   </li>
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -332,7 +347,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Custom Dashboard and Content Analytics
                   </li>
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -343,7 +358,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Complimentary Manager Overview with 5+ seats
                   </li>{" "}
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -399,7 +414,7 @@ export default function SetupForm() {
                   </p>
                 </div>
                 <ul className="mt-5 flex flex-col gap-4 border-t p-3">
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -410,7 +425,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Schedule X (Twitter) / Linkedin Posts
                   </li>{" "}
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -421,7 +436,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Create Recurring & Evergreen LinkedIn & Twitter Posts
                   </li>{" "}
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -432,7 +447,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Calendar Management
                   </li>
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -443,7 +458,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Custom Dashboard and Content Analytics
                   </li>
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -454,7 +469,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Complimentary Manager Overview with 5+ seats
                   </li>{" "}
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"
@@ -465,7 +480,7 @@ export default function SetupForm() {
                     </div>{" "}
                     Text to Image Converter
                   </li>
-                  <li className="flex items-center gap-2 text-gray-600">
+                  <li className="flex items-center gap-2 text-foreground">
                     <div className="p-1">
                       <Iconify
                         icon="ph:check-circle-fill"

@@ -1,11 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useBoolean } from "usehooks-ts";
-import Link from "next/link";
+import * as z from "zod";
 // components
 import { Button } from "@/components/ui/button";
 import {
@@ -16,10 +16,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import Iconify from "@/components/ui/icon";
-import { ROUTES } from "@/routes";
+import { Input } from "@/components/ui/input";
 import { env } from "@/env";
+import { ROUTES } from "@/routes";
+import { toast } from "sonner";
 
 export const registerSchema = z
   .object({
@@ -49,7 +50,7 @@ export default function RegisterForm() {
   async function onSubmit(values: z.infer<typeof registerSchema>) {
     const { email, password, fullName } = values;
     setTrue();
-    const response = await fetch(
+    const response = (await fetch(
       `${env.NEXT_PUBLIC_API_BASE_URL}/api/Authentication/Register`,
       {
         method: "POST",
@@ -58,12 +59,22 @@ export default function RegisterForm() {
         },
         body: JSON.stringify({ email, password, fullName }),
       },
-    );
+    )
+      .then((res) => res.json())
+      .catch(() => null)) as string[] | null;
 
-    if (response.ok) {
-      push(`${ROUTES.confirmEmail}?email=${email}`);
+    if (response) {
+      if (
+        response &&
+        Array.isArray(response) &&
+        response.includes("User Created Successfully")
+      ) {
+        push(`${ROUTES.confirmEmail}?email=${email}`);
+      } else {
+        toast.error(response[0]);
+      }
     } else {
-      alert("Something went wrong");
+      toast.error("Failed to register");
     }
 
     setFalse();

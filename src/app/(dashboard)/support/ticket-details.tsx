@@ -1,4 +1,5 @@
 import ErrorCard from "@/components/error-card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
   SheetContent,
@@ -84,83 +85,89 @@ export default function TicketDetails() {
               "Ticket Details"
             )}
           </SheetTitle>
-          {isLoading ? (
-            <div className="space-y-2">
-              <Skeleton className="h-6" />
-              <Skeleton className="h-6" />
-              <Skeleton className="h-6" />
-              <Skeleton className="h-6" />
-              <Skeleton className="h-6" />
-            </div>
-          ) : isSuccess ? (
-            <div className="space-y-2">
-              <div className="flex items-center gap-5">
-                <p className="font-medium">Type:</p>
-                <div className="flex items-center gap-1">
-                  <span>{getTicketTypeText(ticket.data.type)}</span>
-                </div>
-              </div>{" "}
-              <div className="flex items-center gap-5">
-                <p className="font-medium">Created at:</p>
-                <div className="flex items-center gap-1">
-                  <span>
-                    {format(convertToLocalDate(ticket.data.createdAt), "PPp")}
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center gap-5">
-                <p className="font-medium">Last update:</p>
-                <div className="flex items-center gap-1">
-                  <span>
-                    {format(
-                      convertToLocalDate(ticket.data.lastUpdateAt),
-                      "PPp",
-                    )}
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center gap-5">
-                <p className="font-medium">Status:</p>
-                <div className="flex items-center gap-1">
-                  <span>{getTicketStatusText(ticket.data.status)}</span>
-                </div>
-              </div>
+          <ScrollArea
+            style={{
+              height: "calc(100vh - 70px)",
+            }}
+          >
+            {isLoading ? (
               <div className="space-y-2">
-                <p className="font-medium">Context:</p>
-                <div className="flex items-center gap-1">
-                  <span>{ticket.data.context}</span>
-                </div>
+                <Skeleton className="h-6" />
+                <Skeleton className="h-6" />
+                <Skeleton className="h-6" />
+                <Skeleton className="h-6" />
+                <Skeleton className="h-6" />
               </div>
+            ) : isSuccess ? (
               <div className="space-y-2">
-                <p className="font-medium">Respones:</p>
-                {ticket.data.responses.length === 0 ? (
-                  <div className="flex h-16 items-center justify-center">
-                    <p className="text-destructive">No responses yet</p>
+                <div className="flex items-center gap-5">
+                  <p className="font-medium">Type:</p>
+                  <div className="flex items-center gap-1">
+                    <span>{getTicketTypeText(ticket.data.type)}</span>
                   </div>
-                ) : (
-                  ticket.data.responses.map((response) => (
-                    <div key={response.id} className="rounded border p-2">
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium">{response.writtenBy}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {format(
-                            convertToLocalDate(response.writtenAt),
-                            "PPp",
-                          )}
-                        </p>
-                      </div>
-                      <p>{response.response}</p>
+                </div>{" "}
+                <div className="flex items-center gap-5">
+                  <p className="font-medium">Created at:</p>
+                  <div className="flex items-center gap-1">
+                    <span>
+                      {format(convertToLocalDate(ticket.data.createdAt), "PPp")}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-5">
+                  <p className="font-medium">Last update:</p>
+                  <div className="flex items-center gap-1">
+                    <span>
+                      {format(
+                        convertToLocalDate(ticket.data.lastUpdateAt),
+                        "PPp",
+                      )}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-5">
+                  <p className="font-medium">Status:</p>
+                  <div className="flex items-center gap-1">
+                    <span>{getTicketStatusText(ticket.data.status)}</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <p className="font-medium">Context:</p>
+                  <div className="flex items-center gap-1">
+                    <span>{ticket.data.context}</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <p className="font-medium">Respones:</p>
+                  {ticket.data.responses.length === 0 ? (
+                    <div className="flex h-16 items-center justify-center">
+                      <p className="text-destructive">No responses yet</p>
                     </div>
-                  ))
-                )}
+                  ) : (
+                    ticket.data.responses.map((response) => (
+                      <div key={response.id} className="rounded border p-2">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium">{response.writtenBy}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {format(
+                              convertToLocalDate(response.writtenAt),
+                              "PPp",
+                            )}
+                          </p>
+                        </div>
+                        <p>{response.response}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
-            </div>
-          ) : (
-            <ErrorCard
-              title="Failed to load ticket details"
-              refetchFunction={refetch}
-            />
-          )}
+            ) : (
+              <ErrorCard
+                title="Failed to load ticket details"
+                refetchFunction={refetch}
+              />
+            )}
+          </ScrollArea>
         </SheetHeader>
       </SheetContent>
     </Sheet>

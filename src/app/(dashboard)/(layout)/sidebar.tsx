@@ -10,7 +10,14 @@ import { toggleCollapseSidebar } from "@/redux/slices/layoutSlice";
 // constants
 import { LAYOUT } from "@/lib/constants";
 // components
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useLocalStorage } from "usehooks-ts";
 import { Button } from "../../../components/ui/button";
 import Iconify from "../../../components/ui/icon";
 import AccountPopover from "./account-popover";
@@ -20,6 +27,10 @@ export default function Sidebar() {
   const session = useSession();
 
   const { navItems, isCollapsed } = useAppSelector((state) => state.layout);
+
+  const [collapsed, setCollapsed] = useLocalStorage<string[]>("collapsed", [
+    "0",
+  ]);
 
   const dispatch = useAppDispatch();
 
@@ -60,41 +71,73 @@ export default function Sidebar() {
           fontSize={20}
         />
       </Button>
-      <div className="mb-4 p-3 pb-0">
+      <div className="mb-2 flex items-center gap-2 p-3 pb-0">
         <Image
           src="/icons/logo-transparent.png"
           alt="logo"
-          width="64"
-          height="64"
+          width={isCollapsed ? "64" : 50}
+          height={isCollapsed ? "64" : 50}
         />
+        <h1
+          className={cn(
+            "origin-left text-2xl font-bold text-foreground transition-all duration-500",
+            isCollapsed ? "scale-0" : "scale-100",
+          )}
+        >
+          Postlyy
+        </h1>
       </div>
       <ScrollArea
-        className="px-3"
+        className="mb-2 px-3"
         style={{
           height: "calc(100% - 100px)",
         }}
       >
-        <div className="flex flex-1 flex-col gap-2">
-          {navItems.map((item) => (
-            <div className="w-full space-y-2">
-              {!isCollapsed && <h6>{item.name}</h6>}
-              <div className="w-full space-y-1">
-                {item.children.map((nav) => (
-                  <div className={cn("w-full", !isCollapsed && "ml-2")}>
-                    {nav.needAccount
-                      ? nav.roles.includes(session.data.user.userType) &&
-                        session.data.user.accounts.length > 0 && (
-                          <NavItem key={nav.path} {...nav} />
-                        )
-                      : nav.roles.includes(session.data.user.userType) && (
-                          <NavItem key={nav.path} {...nav} />
-                        )}
-                  </div>
-                ))}
-              </div>
+        <Accordion
+          type="multiple"
+          value={
+            isCollapsed
+              ? Array.from({ length: navItems.length }, (_, i) => i.toString())
+              : collapsed
+          }
+          onValueChange={setCollapsed}
+        >
+          {navItems.map((item, groupIndex) => (
+            <div key={item.name} className="w-full space-y-2">
+              <AccordionItem
+                value={groupIndex.toString()}
+                className="border-none"
+              >
+                {!isCollapsed && (
+                  <AccordionTrigger className="w-full hover:no-underline">
+                    <div
+                      className={cn(
+                        "flex w-full items-center justify-between",
+                        "text-muted-foreground",
+                      )}
+                    >
+                      <h6 className="mb-1 font-semibold ">{item.name}</h6>
+                    </div>
+                  </AccordionTrigger>
+                )}
+                <AccordionContent className="w-full space-y-1 pb-1">
+                  {item.children.map((nav) => (
+                    <div className={cn("w-full", !isCollapsed && "pl-2")}>
+                      {nav.needAccount
+                        ? nav.roles.includes(session.data.user.userType) &&
+                          session.data.user.accounts.length > 0 && (
+                            <NavItem key={nav.path} {...nav} />
+                          )
+                        : nav.roles.includes(session.data.user.userType) && (
+                            <NavItem key={nav.path} {...nav} />
+                          )}
+                    </div>
+                  ))}
+                </AccordionContent>
+              </AccordionItem>
             </div>
           ))}
-        </div>
+        </Accordion>
       </ScrollArea>
       <div className="px-3 pb-3">
         <AccountPopover />

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 declare module "@editorjs/embed" {
@@ -79,3 +80,57 @@ declare module "editorjs-text-color-plugin" {
   const ColorPlugin: any;
   export = ColorPlugin;
 }
+// import { TypeAnimation } from "react-type-animation";
+
+type TypeAnimationProps = {
+  sequence: string[];
+  wrapper?: string;
+  speed?:
+    | number
+    | {
+        type: "keyStrokeDelayInMs";
+        value: number;
+      };
+  deletionSpeed?:
+    | number
+    | {
+        type: "keyStrokeDelayInMs";
+        value: number;
+      };
+  omitDeletionAnimation?: boolean;
+  repeat?: boolean;
+  cursor?: boolean;
+  preRenderFirstString?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
+  ref?: React.Ref<any>;
+  splitter?: (text: string) => string[];
+};
+declare module "react-type-animation" {
+  function TypeAnimation(props: TypeAnimationProps): JSX.Element;
+
+  export { TypeAnimation };
+}
+
+type DrawerProps = {
+  isOpen: boolean;
+  onOpenChange: (isOpen: boolean) => void;
+  children: React.ReactNode;
+};
+
+// declare module "" {
+//   type DrawerRootProps = {
+//     isOpen: boolean;
+//     onOpenChange: (isOpen: boolean) => void;
+//     children: React.ReactNode;
+//   };
+
+//   export const Drawer: {
+//     Root: (props: DrawerRootProps) => JSX.Element;
+//     Trigger: (props: React.ComponentProps<"button">) => JSX.Element;
+//     Content: (props: React.ComponentProps<"div">) => JSX.Element;
+//     Close: (props: React.ComponentProps<"button">) => JSX.Element;
+//     Overlay: (props: React.ComponentProps<"div">) => JSX.Element;
+//     Portal: (props: { children: React.ReactNode }) => JSX.Element;
+//   };
+// }

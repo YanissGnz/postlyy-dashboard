@@ -20,10 +20,13 @@ type LayoutState = {
 };
 
 const initialState = {
-  isCollapsed: false,
+  isCollapsed:
+    typeof window !== "undefined"
+      ? localStorage.getItem("isCollapsed") === "true" ?? false
+      : false,
   navItems: [
     {
-      name: "Management",
+      name: "General",
       children: [
         {
           name: "Home",
@@ -44,6 +47,13 @@ const initialState = {
           roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
           needAccount: true,
         },
+        {
+          name: "Post history",
+          path: "/post-history",
+          icon: "solar:history-bold-duotone",
+          roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
+          needAccount: true,
+        },
       ],
     },
     {
@@ -53,6 +63,13 @@ const initialState = {
           name: "Post",
           path: "/post",
           icon: "solar:pen-new-square-bold-duotone",
+          roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
+          needAccount: true,
+        },
+        {
+          name: "Inspiration",
+          path: "/inspiration",
+          icon: "solar:stars-minimalistic-bold-duotone",
           roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
           needAccount: true,
         },
@@ -74,13 +91,6 @@ const initialState = {
           name: "Drafts",
           path: "/drafts",
           icon: "solar:file-text-bold-duotone",
-          roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
-          needAccount: true,
-        },
-        {
-          name: "Inspiration",
-          path: "/inspiration",
-          icon: "solar:stars-minimalistic-bold-duotone",
           roles: [EUserType.Manager, EUserType.TeamMember, EUserType.Owner],
           needAccount: true,
         },
@@ -114,6 +124,8 @@ export const layout = createSlice({
   initialState,
   reducers: {
     toggleCollapseSidebar: (state) => {
+      typeof window !== undefined &&
+        localStorage.setItem("isCollapsed", (!state.isCollapsed).toString());
       state.isCollapsed = !state.isCollapsed;
     },
     openMobileSidebar: (state) => {
