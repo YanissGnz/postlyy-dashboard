@@ -191,7 +191,7 @@ export default function InspirationResponse({ text }: { text: string }) {
           </Avatar>
           <div className="flex-1 space-y-1">
             <p className="text-sm font-semibold">
-              {session.data?.user.fullName}
+              {session.data?.user.fullName ?? currentAccount?.username}
             </p>
             <p className="text-xs text-gray-500">
               @{currentAccount?.username.toLowerCase().replace(/\s/g, "")}
