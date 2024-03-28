@@ -18,6 +18,9 @@ const config = withPWA({
 
 export default config({
   reactStrictMode: false,
+  // experimental: {
+  //   appDir: true,
+  // },
   images: {
     remotePatterns: [
       {

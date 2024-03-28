@@ -1,21 +1,21 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 // components
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 // forms
-import ProfileForm from "./profile-form";
-import NotificationsForm from "./notifications-form";
-import PasswordForm from "./password-form";
-import LayoutForm from "./layout-form";
-import { useRouter, useSearchParams } from "next/navigation";
 import { ROUTES } from "@/routes";
+import { useRouter, useSearchParams } from "next/navigation";
 import FeedbackForm from "./feedback-form";
 import FinisherForm from "./finisher-form";
+import LayoutForm from "./layout-form";
+import NotificationsForm from "./notifications-form";
+import PasswordForm from "./password-form";
+import ProfileForm from "./profile-form";
 
 export default function Settings() {
   const searchParams = useSearchParams();
-  const currentTab = searchParams.get("tab");
+  const currentTab = searchParams?.get("tab");
 
   const [tab, setTab] = useState(currentTab ?? "profile");
 

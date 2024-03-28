@@ -22,10 +22,10 @@ import {
 export default function NavItem({ icon, name, path }: TNavItem) {
   const pathname = usePathname();
 
-  const paths = useMemo(() => pathname.split("/").filter(Boolean), [pathname]);
+  const paths = useMemo(() => pathname?.split("/").filter(Boolean), [pathname]);
 
   const isActive = useMemo(() => {
-    return paths.includes(path.split("/")[1] ?? "");
+    return paths?.includes(path.split("/")[1] ?? "");
   }, [paths]);
 
   const { isCollapsed } = useAppSelector((state) => state.layout);
