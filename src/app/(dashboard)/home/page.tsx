@@ -28,7 +28,9 @@ import StatCard from "./StatCard";
 import AddCardDialog from "./add-card-dialog";
 import EditLayoutButton from "./edit-layout-button";
 import { DashboardRangePicker } from "./range-picker";
-const GridLayout = dynamic(() => import("react-grid-layout"), { ssr: false });
+const GridLayout = dynamic(() => import("react-grid-layout"), {
+  ssr: false,
+});
 
 export default function HomePage() {
   const dispatch = useAppDispatch();
