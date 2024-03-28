@@ -19,7 +19,7 @@ export default function ConfirmEmail() {
       </div>
 
       <div className="col-span-12 h-full px-2 py-10 md:col-span-6">
-        <div className="flex flex-col px-8 py-10 sm:px-16 md:px-16 lg:px-20">
+        <div className="flex h-full flex-col items-center justify-center px-8 py-10 sm:px-16 md:px-16 lg:px-20">
           <h6 className="mb-2 text-4xl font-bold">Confirm email</h6>
           <ConfirmEmailForm />
         </div>

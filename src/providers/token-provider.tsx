@@ -1,10 +1,11 @@
 "use client";
 
+import { Spinner } from "@/components/ui/Spinner";
 import { useAppSelector } from "@/redux/hooks";
 import { setAccount, setToken } from "@/redux/slices/authSlice";
 import { ROUTES } from "@/routes";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
@@ -16,6 +17,7 @@ export default function TokenProvider({
   const session = useSession();
   const dispatch = useDispatch();
   const { push } = useRouter();
+  const pathname = usePathname();
 
   const currentAccount = useAppSelector((state) => state.auth.currentAccount);
 
@@ -34,12 +36,21 @@ export default function TokenProvider({
           dispatch(setAccount(session.data.user.accounts[0]));
         }
 
-        
-      } else {
+        if (pathname?.split("/")[1] === "auth") {
+          push(ROUTES.home);
+        }
+      } else if (pathname?.split("/")[1] !== "auth") {
         push(ROUTES.login);
       }
     }
   }, [session, currentAccount]);
+
+  if (session?.status === "loading")
+    return (
+      <div className="flex h-screen w-screen items-center justify-center">
+        <Spinner />
+      </div>
+    );
 
   return <>{children}</>;
 }
