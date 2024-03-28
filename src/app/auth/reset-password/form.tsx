@@ -1,9 +1,9 @@
 "use client";
 
-import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 // components
 import { Button } from "@/components/ui/button";
 import {
@@ -14,14 +14,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import Iconify from "@/components/ui/icon";
+import { Input } from "@/components/ui/input";
 // utils
 
-import { useEffect } from "react";
-import { toast } from "sonner";
 import { useResetForgottenPasswordMutation } from "@/redux/api/user/auth/apiSlice";
 import { ROUTES } from "@/routes";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 export const confirmEmailSchema = z
   .object({
@@ -43,8 +43,8 @@ export default function ResetPasswordForm() {
 
   const searchParams = useSearchParams();
 
-  const urlEmail = searchParams.get("email");
-  const urlCode = searchParams.get("code");
+  const urlEmail = searchParams?.get("email");
+  const urlCode = searchParams?.get("code");
 
   const form = useForm<z.infer<typeof confirmEmailSchema>>({
     resolver: zodResolver(confirmEmailSchema),

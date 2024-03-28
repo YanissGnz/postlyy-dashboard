@@ -233,7 +233,7 @@ export default function PostPage() {
 
   const searchParams = useSearchParams();
 
-  const withInspiration = searchParams.get("inspiration") === "true";
+  const withInspiration = searchParams?.get("inspiration") === "true";
 
   const {
     data: recurringSpots,

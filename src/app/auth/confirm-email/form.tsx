@@ -39,8 +39,8 @@ export default function ConfirmEmailForm() {
   const searchParams = useSearchParams();
   const { push } = useRouter();
 
-  const urlEmail = searchParams.get("email");
-  const urlCode = searchParams.get("code");
+  const urlEmail = searchParams?.get("email");
+  const urlCode = searchParams?.get("code");
 
   const form = useForm<z.infer<typeof confirmEmailSchema>>({
     resolver: zodResolver(confirmEmailSchema),

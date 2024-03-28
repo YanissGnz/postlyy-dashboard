@@ -14,10 +14,10 @@ const TWITTER_AUTH_URL = `${env.NEXT_PUBLIC_AUTH_BASEURL}/auth/twitter`;
 
 export default function index() {
   const searchParams = useSearchParams();
-  const token = searchParams.get("token");
-  const success = searchParams.get("success") === "true";
-  const error = searchParams.get("error");
-  const provider = Number(searchParams.get("provider")) as EProviders;
+  const token = searchParams?.get("token");
+  const success = searchParams?.get("success") === "true";
+  const error = searchParams?.get("error");
+  const provider = Number(searchParams?.get("provider")) as EProviders;
   const [hash, setHash] = useState<string>("");
 
   useEffect(() => {
