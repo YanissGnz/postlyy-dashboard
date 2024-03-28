@@ -2282,27 +2282,27 @@ export default function PostPage() {
                                     </p>
                                   </TooltipContent>
                                 </Tooltip>
-                                <Tooltip>
-                                  <TooltipTrigger>
-                                    <Popover>
-                                      <PopoverTrigger asChild>
-                                        <Button
-                                          size="icon"
-                                          type="button"
-                                          variant="ghost"
+                                {form.getValues("onTwitter") && (
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <Popover>
+                                        <PopoverTrigger asChild>
+                                          <Button
+                                            size="icon"
+                                            type="button"
+                                            variant="ghost"
+                                          >
+                                            <Iconify
+                                              icon="solar:menu-dots-square-bold-duotone"
+                                              className="text-foreground/80"
+                                              fontSize={26}
+                                            />
+                                          </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent
+                                          side="bottom"
+                                          className="space-y-3"
                                         >
-                                          <Iconify
-                                            icon="solar:menu-dots-square-bold-duotone"
-                                            className="text-foreground/80"
-                                            fontSize={26}
-                                          />
-                                        </Button>
-                                      </PopoverTrigger>
-                                      <PopoverContent
-                                        side="bottom"
-                                        className="space-y-3"
-                                      >
-                                        {form.getValues("onTwitter") && (
                                           <FormField
                                             control={form.control}
                                             name={`posts.${post.index}.twitterDirectLink`}
@@ -2325,14 +2325,16 @@ export default function PostPage() {
                                               </FormControl>
                                             )}
                                           />
-                                        )}
-                                      </PopoverContent>
-                                    </Popover>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="bottom">
-                                    <p className="text-center">More options</p>
-                                  </TooltipContent>
-                                </Tooltip>
+                                        </PopoverContent>
+                                      </Popover>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="bottom">
+                                      <p className="text-center">
+                                        More options
+                                      </p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
                               </div>
                             </div>
                           </div>
