@@ -37,8 +37,8 @@ export default function EnterpriseLoginForm() {
 
   const searchParams = useSearchParams();
 
-  const callbackUrl = searchParams.get("callbackUrl");
-  const urlEmail = searchParams.get("email");
+  const callbackUrl = searchParams?.get("callbackUrl");
+  const urlEmail = searchParams?.get("email");
 
   const { replace } = useRouter();
 
