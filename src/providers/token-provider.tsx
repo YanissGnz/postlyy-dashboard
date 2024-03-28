@@ -39,7 +39,14 @@ export default function TokenProvider({
         if (pathname?.split("/")[1] === "auth") {
           push(ROUTES.home);
         }
-      } else if (pathname?.split("/")[1] !== "auth") {
+      } else if (
+        ![
+          ROUTES.register,
+          ROUTES.login,
+          ROUTES.recoverPassword,
+          ROUTES.confirmEmail,
+        ].includes(pathname ?? "")
+      ) {
         push(ROUTES.login);
       }
     }
