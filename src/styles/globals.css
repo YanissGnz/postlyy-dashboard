@@ -58,7 +58,7 @@
   --fc-bg-event-opacity: 0.3;
   --fc-highlight-color: rgba(188, 232, 241, 0.3);
   --fc-now-indicator-color: red;
-  --fc-list-event-hover-bg-color: hsl(var(--muted));
+  --fc-list-event-hover-bg-color: hsl(var(--accent));
 }
 
 :root.dark {
@@ -116,6 +116,7 @@
   --fc-bg-event-opacity: 0.3;
   --fc-highlight-color: rgba(188, 232, 241, 0.3);
   --fc-now-indicator-color: red;
+  --fc-list-event-hover-bg-color: hsl(var(--accent));
 }
 
 * {
