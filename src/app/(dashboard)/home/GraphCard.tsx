@@ -30,7 +30,9 @@ export default function GraphCard({
   provider: EProviders;
 }) {
   const { currentAccount } = useAppSelector((state) => state.auth);
-  const { endDate, startDate } = useAppSelector((state) => state.dashboard);
+  const { endDate, startDate, userIds } = useAppSelector(
+    (state) => state.dashboard,
+  );
 
   const { data, isLoading, isError, refetch } = useGetGraphQuery(
     {
@@ -38,12 +40,15 @@ export default function GraphCard({
       statType: query,
       startDate,
       endDate,
+      userIds: userIds.length > 0 ? userIds : undefined,
     },
     { refetchOnMountOrArgChange: true },
   );
 
+  const baseOptions = BaseOptionChart();
+
   const chartOptions = useMemo(() => {
-    return merge(BaseOptionChart(), {
+    return merge(baseOptions, {
       labels: data?.data.category ?? [],
       tooltip: {
         shared: true,

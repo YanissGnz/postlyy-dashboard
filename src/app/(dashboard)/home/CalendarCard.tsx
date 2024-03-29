@@ -16,7 +16,7 @@ import { EPostSpotType } from "@/types/EPostSpotType";
 import { EProviders } from "@/types/EProviders";
 import { type EventInput } from "@fullcalendar/core/index.js";
 import listPlugin from "@fullcalendar/list";
-import { addHours, format } from "date-fns";
+import { format } from "date-fns";
 import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import dynamic from "next/dynamic";
@@ -49,7 +49,6 @@ export default function CalendarCard({
         )
         .map((event) => ({
           ...event,
-          end: addHours(new Date(event.start), 1),
           backgroundColor:
             event.postId !== DEFAULT_POST_ID
               ? getEventBackgroundColor(event.type, theme === "dark")
@@ -106,7 +105,6 @@ export default function CalendarCard({
               duration: { days: 1 },
             },
           }}
-          allDaySlot={false}
           contentHeight="100%"
           dayHeaderClassNames="font-bold bg-background text-foreground"
           visibleRange={(currentDate) => {
