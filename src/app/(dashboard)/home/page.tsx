@@ -28,6 +28,7 @@ import StatCard from "./StatCard";
 import AddCardDialog from "./add-card-dialog";
 import EditLayoutButton from "./edit-layout-button";
 import { DashboardRangePicker } from "./range-picker";
+import UserSelect from "./user-select";
 const GridLayout = dynamic(() => import("react-grid-layout"), {
   ssr: false,
 });
@@ -109,7 +110,8 @@ export default function HomePage() {
     <div className="flex h-screen flex-col space-y-2 px-4">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-2 px-4 py-4 md:px-4">
         <h2 className="text-2xl font-bold">Home</h2>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 md:flex-nowrap">
+          <UserSelect />
           <DashboardRangePicker />
           {(layout.length === 0 || isEdit) && <AddCardDialog />}
           {layout.length > 0 && (

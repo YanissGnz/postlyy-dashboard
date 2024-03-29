@@ -5,7 +5,10 @@ export type TTeamMember = {
   fullName: string;
   photoUrl: string;
   userType: EUserType;
-  subbordinates: Array<unknown>;
+  subbordinates: Array<{
+    id: string;
+    fullName: string;
+  }>;
   email: string;
   manager: string | null;
 };

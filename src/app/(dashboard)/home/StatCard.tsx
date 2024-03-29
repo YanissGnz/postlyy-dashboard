@@ -34,14 +34,17 @@ export default function StatCard({
   provider: EProviders;
 }) {
   const { currentAccount } = useAppSelector((state) => state.auth);
-  const { endDate, startDate } = useAppSelector((state) => state.dashboard);
+  const { endDate, startDate, userIds } = useAppSelector(
+    (state) => state.dashboard,
+  );
+  console.log("🚀 ~ userIds:", userIds);
 
   const aggregationText = useMemo(() => {
     switch (aggregation) {
       case EAggregation.Average:
         return "Average";
       case EAggregation.Sum:
-        return "Total of priod";
+        return "Total of period";
       case EAggregation.Total:
         return "All time Total";
       default:
@@ -56,6 +59,7 @@ export default function StatCard({
       statType: query,
       startDate,
       endDate,
+      userIds: userIds.length > 0 ? userIds : undefined,
     },
     { refetchOnMountOrArgChange: true },
   );
