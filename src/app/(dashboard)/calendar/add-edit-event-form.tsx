@@ -331,10 +331,10 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
                       <PopoverContent className="w-[200px] p-0">
                         <Command>
                           <CommandInput
-                            placeholder="Search framework..."
+                            placeholder="Search days..."
                             className="h-9"
                           />
-                          <CommandEmpty>No framework found.</CommandEmpty>
+                          <CommandEmpty>No days found.</CommandEmpty>
                           <CommandGroup>
                             {DAYS_OF_WEEK.map((day) => (
                               <CommandItem
