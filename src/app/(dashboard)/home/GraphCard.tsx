@@ -49,7 +49,7 @@ export default function GraphCard({
 
   const chartOptions = useMemo(() => {
     return merge(baseOptions, {
-      labels: data?.data.category ?? [],
+      labels: data?.data.category,
       tooltip: {
         shared: true,
         intersect: false,
@@ -93,7 +93,12 @@ export default function GraphCard({
         <CardContent className="h-full w-full min-w-[300px] p-1">
           <ReactApexChart
             type="line"
-            series={data?.data.series ?? []}
+            series={
+              data?.data.series.map((item) => ({
+                name: item.name,
+                data: item.data.map((d) => (Math.round(d) * 100) / 100),
+              })) ?? []
+            }
             options={chartOptions}
             height="100%"
             width="100%"
