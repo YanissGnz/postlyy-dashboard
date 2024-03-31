@@ -6,16 +6,17 @@ import Iconify from "@/components/ui/icon";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getProviderIcon } from "@/lib/utils";
 import { useGetStatQuery } from "@/redux/api/dashboard/apiSlice";
+import { useGetAllMembersQuery } from "@/redux/api/user/team/apiSlice";
 import { useAppSelector } from "@/redux/hooks";
 import { EAggregation } from "@/types/EAggregation";
 import { EProviders } from "@/types/EProviders";
 import { type EStatType } from "@/types/EStatType";
+import { capitalCase } from "change-case";
 import CardDropdown from "./card-dropdown";
 
 export default function StatCard({
   title,
   description,
-  unit,
   i,
   handleRemoveCard,
   query,
@@ -25,7 +26,6 @@ export default function StatCard({
 }: {
   title: string;
   query: EStatType;
-  unit?: string;
   description?: string;
   aggregation: EAggregation;
   i: string;
@@ -37,7 +37,6 @@ export default function StatCard({
   const { endDate, startDate, userIds } = useAppSelector(
     (state) => state.dashboard,
   );
-  console.log("🚀 ~ userIds:", userIds);
 
   const aggregationText = useMemo(() => {
     switch (aggregation) {
@@ -64,9 +63,21 @@ export default function StatCard({
     { refetchOnMountOrArgChange: true },
   );
 
-  if (isLoading) return <Skeleton className="h-full w-full" />;
+  const {
+    data: membersData,
+    isLoading: membersIsLoading,
+    isError: membersIsError,
+  } = useGetAllMembersQuery();
 
-  if (isError)
+  const getMemberFullName = (userId: string) => {
+    const member = membersData?.data.find((m) => m.id === userId);
+    return member?.fullName ?? userId;
+  };
+
+  if (isLoading || membersIsLoading)
+    return <Skeleton className="h-full w-full" />;
+
+  if (isError || membersIsError)
     return (
       <ErrorCard
         refetchFunction={refetch}
@@ -98,9 +109,14 @@ export default function StatCard({
       </CardHeader>
 
       <CardContent>
-        <div className="text-2xl font-bold">
-          {Math.round((data?.data.value ?? 0) * 100) / 100} {unit}
-        </div>
+        {data?.data?.map((stat) => (
+          <p key={stat.userId}>
+            {capitalCase(getMemberFullName(stat.userId))}:{" "}
+            <span className="font-bold">
+              {Math.round(stat.value * 100) / 100}
+            </span>
+          </p>
+        ))}
       </CardContent>
     </Card>
   );
