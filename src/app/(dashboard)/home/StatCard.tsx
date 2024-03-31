@@ -1,8 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { useMemo } from "react";
 
 import ErrorCard from "@/components/error-card";
 import Iconify from "@/components/ui/icon";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getProviderIcon } from "@/lib/utils";
 import { useGetStatQuery } from "@/redux/api/dashboard/apiSlice";
@@ -108,7 +109,7 @@ export default function StatCard({
         />
       </CardHeader>
 
-      <CardContent>
+      <ScrollArea className="h-full w-full px-4">
         {data?.data?.map((stat) => (
           <p key={stat.userId}>
             {capitalCase(getMemberFullName(stat.userId))}:{" "}
@@ -116,8 +117,8 @@ export default function StatCard({
               {Math.round(stat.value * 100) / 100}
             </span>
           </p>
-        ))}
-      </CardContent>
+        ))}{" "}
+      </ScrollArea>
     </Card>
   );
 }
