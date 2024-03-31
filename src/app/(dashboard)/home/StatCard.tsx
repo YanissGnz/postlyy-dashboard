@@ -109,15 +109,17 @@ export default function StatCard({
         />
       </CardHeader>
 
-      <ScrollArea className="h-full w-full px-4">
-        {data?.data?.map((stat) => (
-          <p key={stat.userId}>
-            {capitalCase(getMemberFullName(stat.userId))}:{" "}
-            <span className="font-bold">
-              {Math.round(stat.value * 100) / 100}
-            </span>
-          </p>
-        ))}{" "}
+      <ScrollArea className="max-h-full w-full px-4">
+        <div className="mb-4 flex h-full flex-col justify-end">
+          {data?.data?.map((stat) => (
+            <p key={stat.userId}>
+              {capitalCase(getMemberFullName(stat.userId))}:{" "}
+              <span className="font-bold">
+                {Math.round(stat.value * 100) / 100}
+              </span>
+            </p>
+          ))}
+        </div>
       </ScrollArea>
     </Card>
   );
