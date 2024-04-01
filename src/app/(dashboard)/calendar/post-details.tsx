@@ -201,7 +201,9 @@ export default function PostDetails() {
                       </TabsTrigger>
                     )}{" "}
                     {postData.data.onLinkedIn && (
-                      <TabsTrigger value="linkedin">Linkedin</TabsTrigger>
+                      <TabsTrigger value="linkedin" className="flex-1">
+                        Linkedin
+                      </TabsTrigger>
                     )}
                   </TabsList>
                   <Button
