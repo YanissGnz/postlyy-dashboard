@@ -349,5 +349,8 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
+  pages: {
+    signIn: "/auth/login",
+  },
 };
 export const getServerAuthSession = () => getServerSession(authOptions);

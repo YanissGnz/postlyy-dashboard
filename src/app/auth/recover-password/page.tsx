@@ -18,14 +18,16 @@ export default function RecoverPassword() {
         </svg>
       </div>
 
-      <div className="col-span-12 h-full px-2 py-10 md:col-span-6">
-        <div className="flex h-full flex-col justify-center px-8 py-10 sm:px-16 md:px-16 lg:px-20">
-          <h6 className="mb-2 text-4xl font-bold">Recover password</h6>
+      <div className="col-span-12 flex h-full w-full items-center justify-center px-2 py-10 md:col-span-6">
+        <div className="flex w-full max-w-xl flex-col px-8 py-10 sm:px-16 md:px-16 lg:px-20">
+          <h6 className="mb-4 text-center text-4xl font-bold">
+            Recover password
+          </h6>
           <RecoverPasswordForm />
         </div>
       </div>
-      <div className=" hidden h-full p-8 md:col-span-6 md:block">
-        <div className="h-full rounded-xl bg-[url(/images/login-image.png)] bg-cover bg-no-repeat shadow-xl"></div>
+      <div className="hidden h-full md:col-span-6 md:block">
+        <div className="h-full bg-[url(/images/login-image.png)] bg-cover bg-no-repeat shadow-xl"></div>
       </div>
     </div>
   );

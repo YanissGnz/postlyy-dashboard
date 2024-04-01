@@ -128,11 +128,12 @@ export default function ConfirmEmailForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>One-Time Password</FormLabel>
-              <FormControl>
+              <FormControl className="w-fit ">
                 <InputOTP
                   maxLength={6}
                   pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
                   inputMode="text"
+                  onComplete={form.handleSubmit(onSubmit)}
                   {...field}
                 >
                   <InputOTPGroup>
