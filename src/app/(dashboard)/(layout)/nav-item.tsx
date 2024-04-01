@@ -83,7 +83,7 @@ export default function NavItem({ icon, name, path }: TNavItem) {
 
         <TooltipContent
           side="right"
-          className={cn(!isMobile && !isCollapsed && "hidden")}
+          className={cn((isMobile || !isCollapsed) && "z-50 hidden")}
         >
           <h1 className="p-1 text-[16px] font-semibold">{name}</h1>
         </TooltipContent>

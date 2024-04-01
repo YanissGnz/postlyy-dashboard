@@ -11,8 +11,8 @@ import LinkedInProvider from "next-auth/providers/linkedin";
 import TwitterProvider from "next-auth/providers/twitter";
 
 import { env } from "@/env";
+import { getUTCOffset } from "@/lib/utils";
 import { type TDBUser } from "@/types/TDBUser";
-import { formatISO } from "date-fns";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -93,6 +93,8 @@ async function refreshUser(refreshToken: string) {
 export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, account, profile, user }) {
+      const offset = getUTCOffset();
+
       if (account)
         if (account.provider === "credentials") {
           return {
@@ -109,7 +111,7 @@ export const authOptions: NextAuthOptions = {
             email: profile?.email,
             userName: profile?.screen_name,
             picture: user.profilePicture ?? "Images/Default.jpeg",
-            date: formatISO(new Date().toString()),
+            offset,
           });
           const response = await fetch(
             `${env.API_BASE_URL}/api/Authentication/External`,
@@ -154,7 +156,7 @@ export const authOptions: NextAuthOptions = {
             email: profile?.email,
             userName: profile?.name,
             picture: user.profilePicture ?? "Images/Default.jpeg",
-            date: formatISO(new Date().toString()),
+            offset,
           });
 
           const response = await fetch(
@@ -314,6 +316,8 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
+        const offset = getUTCOffset();
+
         const response = await fetch(
           `${env.API_BASE_URL}/api/Authentication/Login`,
           {
@@ -324,7 +328,7 @@ export const authOptions: NextAuthOptions = {
             body: JSON.stringify({
               email: credentials?.email ?? "",
               password: credentials?.password ?? "",
-              date: formatISO(new Date().toString()),
+              offset,
             }),
           },
         );
@@ -345,8 +349,5 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
-  // pages: {
-  //   signIn: "/login",
-  // },
 };
 export const getServerAuthSession = () => getServerSession(authOptions);

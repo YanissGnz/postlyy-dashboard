@@ -12,12 +12,16 @@ export type Props = {
   layout: DashboardConfig[];
   startDate: string;
   endDate: string;
+  userIds: string[];
 };
 
 const initialState = {
   layout: [],
   startDate: subDays(new Date(), 30).toISOString(),
   endDate: new Date().toISOString(),
+  userIds: localStorage?.getItem("userIds")
+    ? (JSON.parse(localStorage.getItem("userIds")!) as string[])
+    : [],
 } as Props;
 
 export const dashboard = createSlice({
@@ -53,6 +57,10 @@ export const dashboard = createSlice({
       state.startDate = action.payload.startDate;
       state.endDate = action.payload.endDate;
     },
+    changeDashboardUserIds: (state, action: PayloadAction<string[]>) => {
+      localStorage.setItem("userIds", JSON.stringify(action.payload));
+      state.userIds = action.payload;
+    },
   },
 });
 
@@ -62,5 +70,6 @@ export const {
   removeCard,
   changeLayout,
   changeDashboardDateRange,
+  changeDashboardUserIds,
 } = dashboard.actions;
 export default dashboard.reducer;

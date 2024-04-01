@@ -27,6 +27,7 @@ import { env } from "@/env";
 import { ROUTES } from "@/routes";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { useCallback } from "react";
+import { toast } from "sonner";
 
 export const confirmEmailSchema = z.object({
   email: z.string().email(),
@@ -67,7 +68,9 @@ export default function ConfirmEmailForm() {
     if (response.ok) {
       push(`${ROUTES.login}?email=${email}`);
     } else {
-      alert("Something went wrong");
+      const error = (await response.json()) as string[];
+
+      toast.error(error[0]);
     }
 
     setFalse();
@@ -129,6 +132,7 @@ export default function ConfirmEmailForm() {
                 <InputOTP
                   maxLength={6}
                   pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+                  inputMode="text"
                   {...field}
                 >
                   <InputOTPGroup>
