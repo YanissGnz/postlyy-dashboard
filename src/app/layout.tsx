@@ -19,16 +19,43 @@ const font = Outfit({
   variable: "--font-sans",
 });
 
+const APP_NAME = "Postlyy";
+const APP_DEFAULT_TITLE = "Postlyy";
+const APP_TITLE_TEMPLATE = "%s - Postlyy";
+const APP_DESCRIPTION = "Your Content, Planned, Analyzed & Supercharged.";
+
 export const metadata: Metadata = {
-  title: "Postlyy: Your Content, Planned, Analyzed & Supercharged.",
+  applicationName: APP_NAME,
+  title: {
+    default: APP_DEFAULT_TITLE,
+    template: APP_TITLE_TEMPLATE,
+  },
   metadataBase: new URL("https://postlyy.com"),
   twitter: {
     card: "summary_large_image",
     site: "@postlyy",
     creator: "@postlyy",
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: APP_DEFAULT_TITLE,
+  },
   assets: ["/favicon.ico"],
-  description: "Your Content, Planned, Analyzed & Supercharged.",
+  formatDetection: {
+    telephone: false,
+  },
+  description: APP_DESCRIPTION,
+  openGraph: {
+    type: "website",
+    siteName: APP_NAME,
+    title: {
+      default: APP_DEFAULT_TITLE,
+      template: APP_TITLE_TEMPLATE,
+    },
+    description: APP_DESCRIPTION,
+  },
+  robots: "index, follow",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
   keywords: [
     "postlyy",
@@ -45,7 +72,7 @@ export const metadata: Metadata = {
     "twitter",
     "linkedin",
   ],
-  // manifest: "/manifest.json",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({

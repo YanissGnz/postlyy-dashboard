@@ -49,6 +49,7 @@ export default function InspirationResponse({ text }: { text: string }) {
   const { value: isDraftDialogOpen, setValue: setIsDraftDialogOpen } =
     useBoolean(false);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, copy] = useCopyToClipboard();
 
   const [addNote] = useAddNoteMutation();

@@ -15,16 +15,16 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useGetAllMembersQuery } from "@/redux/api/user/team/apiSlice";
-import { useAppDispatch } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { changeDashboardUserIds } from "@/redux/slices/dashboardSlice";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import { CheckIcon } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 
 export default function UserSelect() {
   const { data, isLoading, isSuccess } = useGetAllMembersQuery();
   const dispatch = useAppDispatch();
-  const [userIds, setUserIds] = useState<string[]>([]);
+  const { userIds } = useAppSelector((state) => state.dashboard);
 
   const members = useMemo(() => {
     return (
@@ -38,16 +38,12 @@ export default function UserSelect() {
 
   const handleSelect = useCallback(
     (value: string) => {
-      setUserIds((prev) => {
-        if (prev.includes(value)) {
-          dispatch(changeDashboardUserIds(prev.filter((id) => id !== value)));
-          return prev.filter((id) => id !== value);
-        }
-        dispatch(changeDashboardUserIds([...prev, value]));
-        return [...prev, value];
-      });
+      const updatedUserIds = userIds.includes(value)
+        ? userIds.filter((id) => id !== value)
+        : [...userIds, value];
+      dispatch(changeDashboardUserIds(updatedUserIds));
     },
-    [dispatch, setUserIds],
+    [dispatch],
   );
 
   if (isLoading) return <Skeleton className="h-10 w-36" />;

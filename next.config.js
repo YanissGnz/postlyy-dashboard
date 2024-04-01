@@ -5,18 +5,14 @@
  */
 await import("./src/env.js");
 
+import withPWA from "@ducanh2912/next-pwa";
+import {
+  PHASE_DEVELOPMENT_SERVER,
+  PHASE_PRODUCTION_BUILD,
+} from "next/constants.js";
+
 /** @type {import("next").NextConfig} */
-
-import withPWA from "next-pwa";
-
-const config = withPWA({
-  dest: "public",
-  register: true,
-  skipWaiting: true,
-  disable: true,
-});
-
-export default config({
+const nextConfig = {
   reactStrictMode: false,
   images: {
     remotePatterns: [
@@ -35,4 +31,17 @@ export default config({
       permanent: true,
     },
   ],
+};
+
+const config = withPWA({
+  dest: "public",
 });
+
+const nextConfigFunction = async (/** @type {string} */ phase) => {
+  if (phase === PHASE_DEVELOPMENT_SERVER || phase === PHASE_PRODUCTION_BUILD) {
+    return config(nextConfig);
+  }
+  return nextConfig;
+};
+
+export default nextConfigFunction;
