@@ -14,6 +14,7 @@ import { ROUTES } from "@/routes";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import AlertsProvider from "../../providers/alerts-provider";
+import SupportButton from "./support-button";
 
 export default function DashboardLayout({
   children,
@@ -74,6 +75,7 @@ export default function DashboardLayout({
           {children}
         </main>
       </div>
+      <SupportButton />
     </AlertsProvider>
   );
 }

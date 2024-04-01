@@ -1,7 +1,23 @@
-import { type PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+
+export type PossibleModalIds =
+  | "delete-account-modal"
+  | "delete-calendar-spot-modal"
+  | "edit-calendar-spot-modal"
+  | "add-calendar-spot-modal"
+  | "delete-draft-modal"
+  | "delete-note-modal"
+  | "delete-template-modal"
+  | "self-retweet"
+  | "twitter-autoplug"
+  | "twitter-auto-retweet"
+  | "add-ticket-response-modal"
+  | "ticket-details-modal"
+  | "add-ticket-modal"
+  | "calendar-post-details-modal";
 
 export type TModal = {
-  id: string;
+  id: PossibleModalIds;
   data: unknown;
 };
 

@@ -19,7 +19,7 @@ const initialState = {
   layout: [],
   startDate: subDays(new Date(), 30).toISOString(),
   endDate: new Date().toISOString(),
-  userIds: localStorage.getItem("userIds")
+  userIds: localStorage?.getItem("userIds")
     ? (JSON.parse(localStorage.getItem("userIds")!) as string[])
     : [],
 } as Props;
@@ -69,6 +69,7 @@ export const {
   addCard,
   removeCard,
   changeLayout,
-  changeDashboardDateRange,changeDashboardUserIds,
+  changeDashboardDateRange,
+  changeDashboardUserIds,
 } = dashboard.actions;
 export default dashboard.reducer;

@@ -25,6 +25,7 @@ export default function BottomButtons({
 
   return (
     <div
+      id="bottom-buttons"
       className={cn(
         "fixed bottom-0 z-50 flex w-full items-center gap-2 bg-background transition-all duration-500",
         className,
