@@ -134,3 +134,7 @@ export const convertToLocalDate = (utcDate: string) => {
 
   return new Date(new Date(utcDate).getTime() - offset * 60 * 1000);
 };
+
+export const getUTCOffset = () => {
+  return new Date().getTimezoneOffset();
+};
