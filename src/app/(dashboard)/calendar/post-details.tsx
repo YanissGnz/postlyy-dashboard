@@ -48,7 +48,6 @@ export default function PostDetails() {
     refetch: refetchPostData,
   } = useGetScheduledPostByIdQuery(postId!, {
     skip: !postId || postId === DEFAULT_POST_ID,
-    refetchOnMountOrArgChange: true,
   });
 
   const [previewSocial, setPreviewSocial] = useState(
@@ -311,7 +310,7 @@ export default function PostDetails() {
                     </div>
                   </TabsContent>
                 )}
-                {postData.data.onTwitter && (
+                {postData.data.onLinkedIn && (
                   <TabsContent value="linkedin">
                     <div className="space-y-2 divide-y">
                       <div>
