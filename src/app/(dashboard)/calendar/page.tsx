@@ -480,9 +480,9 @@ export default function Calender() {
               <div
                 className={cn(
                   "flex h-12 w-full items-center gap-2 rounded px-2 text-foreground",
-                  event.extendedProps.postId !== DEFAULT_POST_ID
-                    ? backgroundColor
-                    : "border border-foreground",
+                  event.extendedProps.postId === DEFAULT_POST_ID &&
+                    "border border-foreground hover:bg-accent",
+                  event.start && event.start < new Date() && "opacity-70",
                 )}
               >
                 <Iconify
@@ -517,6 +517,9 @@ export default function Calender() {
                 "flex h-12 w-full items-center gap-2 rounded px-2 text-foreground",
                 event.extendedProps.postId === DEFAULT_POST_ID &&
                   "border border-foreground hover:bg-accent",
+                event.start &&
+                  event.start < new Date() &&
+                  "border-none opacity-70",
               )}
             >
               <Iconify
