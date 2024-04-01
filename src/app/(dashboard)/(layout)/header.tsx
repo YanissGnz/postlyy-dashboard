@@ -32,7 +32,7 @@ export default function Header() {
   );
 
   const [collapsed, setCollapsed] = useLocalStorage<string[]>("collapsed", [
-    "1",
+    "0",
   ]);
 
   const session = useSession();
