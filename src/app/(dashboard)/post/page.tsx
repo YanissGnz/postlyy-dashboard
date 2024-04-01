@@ -226,8 +226,15 @@ const generateFormData = async (data: TPostForm) => {
 };
 
 export default function PostPage() {
-  const { currentAccount } = useAppSelector((state) => state.auth);
   const session = useSession();
+
+  const { currentAccount } = useAppSelector((state) => state.auth);
+
+  const accounts = useMemo(
+    () => session.data?.user.accounts ?? [],
+    [session.data],
+  );
+
   const { theme, systemTheme } = useTheme();
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -317,8 +324,12 @@ export default function PostPage() {
     return {
       asEvergreen: false,
       isDraft: false,
-      onLinkedIn: currentAccount?.accountType === EProviders.Linkedin,
-      onTwitter: currentAccount?.accountType === EProviders.Twitter,
+      onLinkedIn: accounts.some(
+        (account) => account.accountType === EProviders.Linkedin,
+      ),
+      onTwitter: accounts.some(
+        (account) => account.accountType === EProviders.Twitter,
+      ),
       scheduleDate: new Date().toISOString(),
       isTemplate: false,
       addFinisher: false,
@@ -358,16 +369,6 @@ export default function PostPage() {
       refetchOnMountOrArgChange: true,
     },
   );
-
-  useEffect(() => {
-    if (
-      currentAccount &&
-      !form.getValues().onLinkedIn &&
-      !form.getValues().onTwitter
-    ) {
-      form.reset(defaultValues);
-    }
-  }, [currentAccount]);
 
   function processThread(thread: TPost): TPost[] {
     if (thread.text.length > TWITTER_TEXT_MAX_LENGTH) {
