@@ -19,9 +19,12 @@ const initialState = {
   layout: [],
   startDate: subDays(new Date(), 30).toISOString(),
   endDate: new Date().toISOString(),
-  userIds: localStorage?.getItem("userIds")
-    ? (JSON.parse(localStorage.getItem("userIds")!) as string[])
-    : [],
+  userIds:
+    typeof window !== "undefined"
+      ? localStorage?.getItem("userIds")
+        ? (JSON.parse(localStorage.getItem("userIds")!) as string[])
+        : []
+      : [],
 } as Props;
 
 export const dashboard = createSlice({
@@ -58,7 +61,8 @@ export const dashboard = createSlice({
       state.endDate = action.payload.endDate;
     },
     changeDashboardUserIds: (state, action: PayloadAction<string[]>) => {
-      localStorage.setItem("userIds", JSON.stringify(action.payload));
+      typeof window !== "undefined" &&
+        localStorage.setItem("userIds", JSON.stringify(action.payload));
       state.userIds = action.payload;
     },
   },
