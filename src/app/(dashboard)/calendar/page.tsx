@@ -100,6 +100,12 @@ export default function Calender() {
             event.postId !== DEFAULT_POST_ID
               ? getEventBackgroundColor(event.type, theme === "dark")
               : "#0000",
+          color:
+            event.postId !== DEFAULT_POST_ID
+              ? getEventBackgroundColor(event.type, theme === "dark")
+              : theme === "dark"
+                ? "#da5b5b"
+                : "#ef4444",
           textColor: getEventTextColor(event.type),
           editable: true,
           eventDurationEditable: false,
