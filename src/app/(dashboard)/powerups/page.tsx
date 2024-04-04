@@ -2,13 +2,13 @@
 
 import { useMemo } from "react";
 
-import { useAppSelector } from "@/redux/hooks";
-import { useGetPowerupsQuery } from "@/redux/api/user/powerups/apiSlice";
 import ErrorCard from "@/components/error-card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useGetPowerupsQuery } from "@/redux/api/user/powerups/apiSlice";
+import { useAppSelector } from "@/redux/hooks";
+import SelfRetweet from "./self-retweet";
 import TwitterAutoPlug from "./twitter-auto-plug";
 import TwitterAutoRetweet from "./twitter-auto-retweet";
-import SelfRetweet from "./self-retweet";
 
 export default function PowerupsPage() {
   const { currentAccount } = useAppSelector((state) => state.auth);
@@ -24,6 +24,10 @@ export default function PowerupsPage() {
     skip: !accountId,
     refetchOnMountOrArgChange: true,
   });
+
+  if (!accountId) {
+    return null;
+  }
 
   return isLoading ? (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
