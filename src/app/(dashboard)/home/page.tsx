@@ -133,10 +133,11 @@ export default function HomePage() {
             <Skeleton className="h-40" />
           </div>
         ) : layout.length === 0 ? (
-          <div className="flex h-64 w-full items-center justify-center">
-            <h1 className="text-2xl font-bold text-muted-foreground">
-              No cards to show
-            </h1>
+          <div className="flex h-full min-h-[16rem] w-full flex-col items-center justify-center gap-2">
+            <h1 className="text-2xl font-bold">No cards to show</h1>
+            <p className="text-muted-foreground">
+              Click on the "Add Card" button to add a card to your dashboard
+            </p>
           </div>
         ) : (
           <ScrollArea className="h-fit w-full ">
