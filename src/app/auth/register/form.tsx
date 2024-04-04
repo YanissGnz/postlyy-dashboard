@@ -19,6 +19,7 @@ import {
 import Iconify from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { env } from "@/env";
+import { cn } from "@/lib/utils";
 import { ROUTES } from "@/routes";
 import { toast } from "sonner";
 
@@ -123,6 +124,74 @@ export default function RegisterForm() {
                   {...field}
                 />
               </FormControl>
+              {field.value.length > 0 && (
+                <ul className="space-y-1">
+                  <li className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Iconify
+                      icon={
+                        field.value.length >= 6
+                          ? "solar:check-circle-bold-duotone"
+                          : "solar:close-circle-bold-duotone"
+                      }
+                      className={cn(
+                        field.value.length >= 6
+                          ? "text-green-500"
+                          : "text-red-500",
+                      )}
+                      fontSize={18}
+                    />
+                    Password should be at least 6 characters
+                  </li>
+                  <li className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Iconify
+                      icon={
+                        field.value.match(/[a-z]/)
+                          ? "solar:check-circle-bold-duotone"
+                          : "solar:close-circle-bold-duotone"
+                      }
+                      className={cn(
+                        field.value.match(/[a-z]/)
+                          ? "text-green-500"
+                          : "text-red-500",
+                      )}
+                      fontSize={18}
+                    />
+                    Password should have at least one lower letter
+                  </li>{" "}
+                  <li className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Iconify
+                      icon={
+                        field.value.match(/[A-Z]/)
+                          ? "solar:check-circle-bold-duotone"
+                          : "solar:close-circle-bold-duotone"
+                      }
+                      className={cn(
+                        field.value.match(/[A-Z]/)
+                          ? "text-green-500"
+                          : "text-red-500",
+                      )}
+                      fontSize={18}
+                    />
+                    Password should have at least one uppercase letter
+                  </li>
+                  <li className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Iconify
+                      icon={
+                        field.value.match(/[0-9]/)
+                          ? "solar:check-circle-bold-duotone"
+                          : "solar:close-circle-bold-duotone"
+                      }
+                      className={cn(
+                        field.value.match(/[0-9]/)
+                          ? "text-green-500"
+                          : "text-red-500",
+                      )}
+                      fontSize={18}
+                    />
+                    Password should have at least one number
+                  </li>
+                </ul>
+              )}
               <FormMessage />
             </FormItem>
           )}
