@@ -102,6 +102,7 @@
     "react-grid-layout": "^1.4.4",
     "react-hook-form": "^7.48.2",
     "react-images-uploading": "^3.1.7",
+    "react-joyride": "^2.8.0",
     "react-lazy-load-image-component": "^1.6.0",
     "react-oauth-popup": "^1.0.5",
     "react-redux": "^8.1.3",
