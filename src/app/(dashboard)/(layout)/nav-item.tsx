@@ -69,7 +69,6 @@ export default function NavItem({ icon, name, path, needAccount }: TNavItem) {
                 ? "bg-primary/20 text-primary hover:bg-primary/30"
                 : "text-foreground/80 hover:bg-accent",
               !showName && !isMobile && "aspect-square justify-center p-1",
-              needAccount && !hasAccount && "opacity-50",
             )}
           >
             <Iconify

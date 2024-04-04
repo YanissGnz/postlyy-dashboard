@@ -44,7 +44,7 @@ export default function SupportButton() {
         <TooltipTrigger asChild>
           <Button
             className={cn(
-              "fixed right-6 h-10 w-10 rounded-full p-4 transition-all duration-300",
+              "fixed right-6 z-50 h-10 w-10 rounded-full p-4 transition-all duration-300",
               withBottomButtons ? "bottom-16" : "bottom-6",
             )}
             size={"icon"}
