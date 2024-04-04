@@ -37,6 +37,7 @@ import {
   InspirationTypeOptions,
 } from "@/types/EInspiration";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { sentenceCase } from "change-case";
 import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -78,7 +79,20 @@ export default function Inspiration() {
 
   async function onSubmit(values: z.infer<typeof inspirationSchema>) {
     window.scrollTo(0, document.body.scrollHeight);
-    await generateInspiration(values).unwrap();
+    await generateInspiration(values)
+      .unwrap()
+      .then((response) => {
+        if (!response.succeeded) {
+          toast.error(
+            sentenceCase(
+              response.errors[0] ?? "Failed to generate inspiration",
+            ),
+          );
+        }
+      })
+      .catch(() => {
+        toast.error("Failed to generate inspiration");
+      });
   }
 
   const handleImportPost = useCallback(
@@ -359,9 +373,9 @@ export default function Inspiration() {
               Generating inspiration based on the provided informations 🙌...
             </p>
           </div>
-        ) : isSuccess ? (
+        ) : isSuccess && data?.succeeded ? (
           <div className="flex h-full flex-col space-y-2 divide-y">
-            {data?.data.content.map((content, index) => (
+            {data?.data?.content?.map((content, index) => (
               <InspirationResponse key={index} text={content ?? ""} />
             ))}
           </div>
