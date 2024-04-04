@@ -123,14 +123,9 @@ export default function Sidebar() {
                 <AccordionContent className="w-full space-y-1 pb-1">
                   {item.children.map((nav) => (
                     <div className={cn("w-full", !isCollapsed && "pl-2")}>
-                      {nav.needAccount
-                        ? nav.roles.includes(session.data.user.userType) &&
-                          session.data.user.accounts.length > 0 && (
-                            <NavItem key={nav.path} {...nav} />
-                          )
-                        : nav.roles.includes(session.data.user.userType) && (
-                            <NavItem key={nav.path} {...nav} />
-                          )}
+                      {nav.roles.includes(session.data.user.userType) && (
+                        <NavItem key={nav.path} {...nav} />
+                      )}
                     </div>
                   ))}
                 </AccordionContent>

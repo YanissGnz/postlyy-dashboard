@@ -21,6 +21,14 @@ export default function ConfirmEmail() {
       <div className="col-span-12 flex h-full w-full items-center justify-center px-2 py-10 md:col-span-6">
         <div className="flex w-full max-w-xl flex-col px-8 py-10 sm:px-16 md:px-16 lg:px-20">
           <h6 className="mb-4 text-center text-4xl font-bold">Confirm email</h6>
+          <p className="mb-4 text-center text-sm text-muted-foreground">
+            We have sent you an email with a confirmation link. Please check
+            your email inbox and click on the link to confirm your email
+            address. <br />
+            <br />
+            Note: If you don't see the email in your inbox, please check your
+            spam folder and mark it as not spam.
+          </p>
           <ConfirmEmailForm />
         </div>
       </div>
