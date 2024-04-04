@@ -67,7 +67,7 @@ export default function RoleBasedGuard({
             <Button variant="link">Connect Account</Button>
           </Link>
         </div>
-        <div className="opacity-80">{children}</div>
+        <div className="pointer-events-none opacity-80">{children}</div>
       </div>
     );
   }
