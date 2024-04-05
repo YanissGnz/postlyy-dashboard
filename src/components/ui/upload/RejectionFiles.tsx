@@ -1,7 +1,7 @@
 import { type FileRejection } from "react-dropzone";
 // utils
 import { fData } from "@/lib/formatNumber";
-import { Card } from "../card";
+import { Alert } from "../alert";
 // ----------------------------------------------------------------------
 
 interface RejectionFilesProps {
@@ -12,15 +12,12 @@ export default function RejectionFiles({
   fileRejections,
 }: RejectionFilesProps) {
   return (
-    <Card className="mt-1 border-red-500 bg-red-500/10 px-[2px] py-px">
+    <Alert variant="destructive" className="max-w-sm">
       {fileRejections.map(({ file, errors }) => {
         const { webkitRelativePath, size } = file;
 
         return (
-          <div
-            key={webkitRelativePath}
-            className="my-px text-red-500 dark:text-red-400"
-          >
+          <div key={webkitRelativePath}>
             <p className="text-sm">
               {webkitRelativePath} - {fData(size)}
             </p>
@@ -33,6 +30,6 @@ export default function RejectionFiles({
           </div>
         );
       })}
-    </Card>
+    </Alert>
   );
 }

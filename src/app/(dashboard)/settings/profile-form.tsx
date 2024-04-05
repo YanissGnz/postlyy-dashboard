@@ -1,19 +1,19 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
 // api
 import {
+  useChangeProfileImageMutation,
   useGetProfileQuery,
   useUpdateProfileMutation,
-  useChangeProfileImageMutation,
 } from "@/redux/api/user/profile/apiSlice";
 // types
 import { profileSchema, type TProfile } from "@/types/TProfile";
 // components
-import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -23,10 +23,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
+import { Spinner } from "@/components/ui/Spinner";
 import { UploadAvatar } from "@/components/ui/upload";
 import { fData } from "@/lib/formatNumber";
-import { Card, CardContent } from "@/components/ui/card";
+import { isString } from "lodash";
+import { toast } from "sonner";
 
 export default function profileForm() {
   const {
@@ -88,9 +89,8 @@ export default function profileForm() {
         .then(() => {
           toast.success("Profile picture updated successfully");
         })
-        .catch((err) => {
+        .catch(() => {
           toast.error("Something went wrong");
-          console.log(err);
         });
     }
   };
@@ -118,14 +118,17 @@ export default function profileForm() {
         </div>
       ) : (
         <CardContent className="p-4">
-          <div className="flex w-full flex-col items-center justify-center">
+          <div className="flex w-full flex-col items-center justify-center gap-1">
             <UploadAvatar
               file={profilePic!}
               maxSize={3145728}
               onDrop={handleDrop}
+              accept={{
+                image: ["image/jpeg", "image/jpg", "image/png"],
+              }}
               helperText={
                 <p className="mx-auto mb-6 mt-3 block flex-1 text-center text-sm text-gray-600 dark:text-gray-400">
-                  Allowed *.jpeg, *.jpg, *.png, *.gif
+                  Allowed *.jpeg, *.jpg, *.png
                   <br /> max size of {fData(3145728)}
                 </p>
               }
@@ -133,7 +136,11 @@ export default function profileForm() {
             <Button
               onClick={handleUpdateImage}
               loading={isChangingProfileImageLoading}
-              disabled={isChangingProfileImageLoading}
+              disabled={
+                isChangingProfileImageLoading ||
+                !profilePic ||
+                isString(profilePic)
+              }
             >
               Update Profile Picture
             </Button>
