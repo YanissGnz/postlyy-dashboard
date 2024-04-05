@@ -44,7 +44,7 @@ export default function Sidebar() {
 
   return (
     <div
-      className="fixed left-0 top-0 flex h-screen flex-col border-r bg-card transition-all duration-500"
+      className="fixed left-0 top-0 z-50 flex h-screen flex-col border-r bg-card transition-all duration-500"
       style={{
         width: isCollapsed
           ? LAYOUT.COLLAPSED_SIDEBAR_WIDTH

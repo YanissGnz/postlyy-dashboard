@@ -55,8 +55,8 @@ export default function RoleBasedGuard({
   if (needAccount && !hasAccount) {
     return (
       <div className="relative">
-        <div className="absolute z-10 flex h-screen w-full flex-col items-center justify-center gap-4 bg-background/80 p-10 text-center">
-          <h1 className="text-4xl font-bold">
+        <div className="fixed z-[1] flex h-screen w-full flex-col items-center justify-center gap-4 bg-background/80 p-10 text-center">
+          <h1 className="max-w-xl text-4xl font-bold">
             You do not have any account associated with your profile
           </h1>
           <p className="text-lg ">
