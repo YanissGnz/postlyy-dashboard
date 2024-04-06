@@ -94,7 +94,7 @@ export default function AccountPopoverContent() {
         </Link>
       </DropdownMenuItem>
       <DropdownMenuSeparator />
-      <DropdownMenuGroup>
+      <DropdownMenuGroup id="accounts-button">
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
             <Iconify

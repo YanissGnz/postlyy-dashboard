@@ -1,18 +1,16 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-// constant
-import { LAYOUT } from "@/lib/constants";
-// hooks
-import { useMediaQuery } from "usehooks-ts";
-// components
 import Header from "@/app/(dashboard)/(layout)/header";
 import Sidebar from "@/app/(dashboard)/(layout)/sidebar";
 import { Spinner } from "@/components/ui/Spinner";
+import { LAYOUT } from "@/lib/constants";
+import AppTourProvider from "@/providers/app-tour-provider";
 import { useAppSelector } from "@/redux/hooks";
 import { ROUTES } from "@/routes";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useMediaQuery } from "usehooks-ts";
 import AlertsProvider from "../../providers/alerts-provider";
 import SupportButton from "./support-button";
 
@@ -60,22 +58,24 @@ export default function DashboardLayout({
 
   return (
     <AlertsProvider>
-      <div className="flex flex-col">
-        {isMobile ? <Header /> : <Sidebar />}
-        <main
-          className="transition-all duration-500"
-          style={{
-            paddingLeft: isMobile
-              ? 0
-              : isCollapsed
-                ? LAYOUT.COLLAPSED_SIDEBAR_WIDTH
-                : LAYOUT.SIDEBAR_WIDTH,
-          }}
-        >
-          {children}
-        </main>
-      </div>
-      <SupportButton />
+      <AppTourProvider>
+        <div className="flex flex-col">
+          {isMobile ? <Header /> : <Sidebar />}
+          <main
+            className="transition-all duration-500"
+            style={{
+              paddingLeft: isMobile
+                ? 0
+                : isCollapsed
+                  ? LAYOUT.COLLAPSED_SIDEBAR_WIDTH
+                  : LAYOUT.SIDEBAR_WIDTH,
+            }}
+          >
+            {children}
+          </main>
+        </div>
+        <SupportButton />
+      </AppTourProvider>
     </AlertsProvider>
   );
 }
