@@ -10,7 +10,7 @@ import Joyride, {
   type CallBackProps,
   type Step,
 } from "react-joyride";
-import { useIsMounted, useLocalStorage } from "usehooks-ts";
+import { useIsMounted, useLocalStorage, useMediaQuery } from "usehooks-ts";
 
 type State = {
   run: boolean;
@@ -32,6 +32,8 @@ function AppTourProvider({ children }: { children: React.ReactNode }) {
   const { data: accounts } = useGetAccountsQuery();
   const [didAppTour, setDidAppTour] = useLocalStorage("app-tour", false);
 
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+
   const pathname = usePathname();
   const { push } = useRouter();
 
@@ -44,7 +46,7 @@ function AppTourProvider({ children }: { children: React.ReactNode }) {
   const mounted = useIsMounted();
 
   useEffect(() => {
-    if (mounted()) {
+    if (mounted() && isDesktop) {
       setState({
         run: !didAppTour,
         steps: [
@@ -188,7 +190,7 @@ function AppTourProvider({ children }: { children: React.ReactNode }) {
         stepIndex: 0,
       });
     }
-  }, [mounted, accounts, didAppTour]);
+  }, [mounted, accounts, didAppTour, isDesktop]);
 
   const handleJoyrideCallback = useCallback(
     (data: CallBackProps) => {
