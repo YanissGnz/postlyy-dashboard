@@ -110,9 +110,9 @@ function getCardTitle(type: EDashboardCardType, value?: number) {
       DASHBOARD_QUERIES.find((query) => query.value === value)?.name ?? "Card"
     );
   } else if (type === EDashboardCardType.PostsStats) {
-    return "Latest Posts Stats";
+    return "Best Posts Stats";
   } else if (type === EDashboardCardType.EventsCalendar) {
-    return "Events Calendar";
+    return "Today's Schedule";
   }
 
   return "Card";
