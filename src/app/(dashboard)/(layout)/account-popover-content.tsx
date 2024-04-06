@@ -58,7 +58,7 @@ export default function AccountPopoverContent() {
   }, []);
 
   return (
-    <DropdownMenuContent className="w-56">
+    <DropdownMenuContent className="w-56" id="account-popover">
       <DropdownMenuGroup>
         <DropdownMenuItem asChild>
           <Link href={ROUTES.settings} className="text-foreground">

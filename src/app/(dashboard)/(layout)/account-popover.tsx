@@ -32,7 +32,7 @@ export default function AccountPopover() {
     >
       <DropdownMenuTrigger asChild disabled={status !== "authenticated"}>
         <div
-          id="account-popover"
+          id="account-popover-trigger"
           className={cn(
             "flex w-full cursor-pointer items-center gap-2 rounded border p-2 hover:bg-accent ",
             isCollapsed && "aspect-square",
