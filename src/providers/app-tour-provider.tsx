@@ -27,8 +27,6 @@ const stepStyles = {
   zIndex: 1000000,
 };
 
-const accountStepIndex = 4;
-
 function AppTourProvider({ children }: { children: React.ReactNode }) {
   const { isAccountPopoverOpen } = useAppSelector((state) => state.layout);
   const { data: accounts } = useGetAccountsQuery();
@@ -127,7 +125,6 @@ function AppTourProvider({ children }: { children: React.ReactNode }) {
             target: "#account-popover",
             placement: "top",
           },
-
           {
             title: "Managing your accounts",
             content: (
@@ -193,25 +190,11 @@ function AppTourProvider({ children }: { children: React.ReactNode }) {
     }
   }, [mounted, accounts, didAppTour]);
 
-  useEffect(() => {
-    if (pathname === ROUTES.accounts.root) {
-      setState((prev) => ({
-        ...prev,
-        stepIndex: accountStepIndex + 2,
-      }));
-    } else if (isAccountPopoverOpen) {
-      setState((prev) => ({
-        ...prev,
-        stepIndex: accountStepIndex + 1,
-      }));
-    }
-  }, [isAccountPopoverOpen, pathname, accounts]);
-
   const handleJoyrideCallback = useCallback(
     (data: CallBackProps) => {
       const { action, index, status, type } = data;
 
-      if (([STATUS.FINISHED, STATUS.SKIPPED] as string[]).includes(status)) {
+      if (([STATUS.FINISHED] as string[]).includes(status)) {
         if (accounts?.data.length && accounts?.data.length > 0) {
           push(ROUTES.post.create);
         }
@@ -229,7 +212,6 @@ function AppTourProvider({ children }: { children: React.ReactNode }) {
       ) {
         const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
 
-        // Update state to advance the tour
         setState((prev) => ({
           ...prev,
           stepIndex: nextStepIndex,
@@ -243,20 +225,26 @@ function AppTourProvider({ children }: { children: React.ReactNode }) {
     if (pathname === ROUTES.accounts.root) {
       setState((prev) => ({
         ...prev,
-        stepIndex: accountStepIndex + 1,
-      }));
-      accountStepIndex;
-    } else if (
-      !isAccountPopoverOpen &&
-      stepIndex > accountStepIndex - 1 &&
-      stepIndex <= accountStepIndex
-    ) {
-      setState((prev) => ({
-        ...prev,
-        stepIndex: accountStepIndex - 1,
+        stepIndex: 4,
       }));
     }
-  }, [isAccountPopoverOpen, pathname, accounts]);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (pathname !== ROUTES.accounts.root) {
+      if (!isAccountPopoverOpen && stepIndex === 4) {
+        setState((prev) => ({
+          ...prev,
+          stepIndex: 3,
+        }));
+      } else if (isAccountPopoverOpen && stepIndex === 3) {
+        setState((prev) => ({
+          ...prev,
+          stepIndex: 4,
+        }));
+      }
+    }
+  }, [isAccountPopoverOpen, pathname]);
 
   return (
     <>
