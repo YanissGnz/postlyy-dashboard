@@ -20,6 +20,7 @@ import { max } from "lodash";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { type Layout } from "react-grid-layout";
+
 import { useBoolean, useResizeObserver } from "usehooks-ts";
 import CalendarCard from "./CalendarCard";
 import GraphCard from "./GraphCard";
@@ -38,6 +39,8 @@ export default function HomePage() {
   const [changeConfig] = useChangeDashboardConfigMutation();
   const { layout } = useAppSelector((state) => state.dashboard);
   const { toggle: toggleEditValue, value: isEdit } = useBoolean(false);
+
+  const { setValue, value: isOpen } = useBoolean(false);
 
   const {
     data: dashboardConfig,
@@ -113,7 +116,9 @@ export default function HomePage() {
         <div className="flex flex-wrap items-center gap-2 md:flex-nowrap">
           <UserSelect />
           <DashboardRangePicker />
-          {(layout.length === 0 || isEdit) && <AddCardDialog />}
+          {(layout.length === 0 || isEdit) && (
+            <AddCardDialog isOpen={isOpen} setValue={setValue} />
+          )}
           {layout.length > 0 && (
             <EditLayoutButton
               handleToggleEditLayout={handleToggleEditLayout}

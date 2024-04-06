@@ -1,4 +1,5 @@
 import RoleBasedGuard from "@/guard/RoleBasedGuard";
+import PostTourProvider from "@/providers/post-tour-provider";
 import { type Metadata } from "next";
 import Modals from "./modals";
 
@@ -16,7 +17,7 @@ export default function CalendarLayout({ children }: CalendarLayoutProps) {
       <div className="flex h-screen flex-col space-y-2 px-4 py-4 md:px-8">
         <h2 className="mb-5 text-2xl font-bold tracking-tight">Post</h2>
         <div className="flex-1">
-          {children}
+          <PostTourProvider>{children}</PostTourProvider>
           <Modals />
         </div>
       </div>

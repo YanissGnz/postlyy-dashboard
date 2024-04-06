@@ -1378,7 +1378,10 @@ export default function PostPage() {
             <CardContent className="mx-auto max-w-5xl flex-1 transition-all">
               <div className="space-y-2 border-b py-4">
                 <div className="flex items-center justify-between ">
-                  <div className="flex items-center gap-3">
+                  <div
+                    id="selected-socials"
+                    className="flex items-center gap-3"
+                  >
                     {form.getValues("onTwitter") && (
                       <Badge className="p-2" variant="outline">
                         <Iconify
@@ -1406,7 +1409,12 @@ export default function PostPage() {
                       <TooltipTrigger>
                         <Popover>
                           <PopoverTrigger asChild>
-                            <Button size="icon" type="button" variant="ghost">
+                            <Button
+                              id="post-settings"
+                              size="icon"
+                              type="button"
+                              variant="ghost"
+                            >
                               <Iconify
                                 icon="solar:settings-bold-duotone"
                                 className="text-foreground/80"
@@ -1530,6 +1538,7 @@ export default function PostPage() {
                       <TooltipTrigger>
                         <Button
                           size="icon"
+                          id="best-posts"
                           type="button"
                           variant="ghost"
                           onClick={() => setIsBestPostsSheetOpen(true)}
@@ -1548,6 +1557,7 @@ export default function PostPage() {
                     <Tooltip>
                       <TooltipTrigger>
                         <Button
+                          id="post-templates"
                           size="icon"
                           type="button"
                           variant="ghost"
@@ -1567,6 +1577,7 @@ export default function PostPage() {
                     <Tooltip>
                       <TooltipTrigger>
                         <Button
+                          id="post-drafts"
                           size="icon"
                           type="button"
                           variant="ghost"
@@ -1586,6 +1597,7 @@ export default function PostPage() {
                     <Tooltip>
                       <TooltipTrigger>
                         <Button
+                          id="post-notes"
                           size="icon"
                           type="button"
                           variant="ghost"
@@ -1605,6 +1617,7 @@ export default function PostPage() {
                     <Tooltip>
                       <TooltipTrigger>
                         <Button
+                          id="post-preview"
                           size="icon"
                           type="button"
                           variant="ghost"
@@ -1984,6 +1997,7 @@ export default function PostPage() {
                                 <Tooltip>
                                   <TooltipTrigger>
                                     <Button
+                                      id="add-thread"
                                       size="icon"
                                       type="button"
                                       variant="ghost"
@@ -2004,6 +2018,7 @@ export default function PostPage() {
                                   <Tooltip>
                                     <TooltipTrigger>
                                       <Button
+                                        id="delete-thread"
                                         variant="ghost"
                                         type="button"
                                         size="icon"
@@ -2070,6 +2085,7 @@ export default function PostPage() {
                                         {({ onImageUpload, imageList }) => (
                                           <div className="upload__image-wrapper">
                                             <Button
+                                              id="upload-images"
                                               size="icon"
                                               type="button"
                                               variant="ghost"
@@ -2134,6 +2150,7 @@ export default function PostPage() {
                                       <PopoverTrigger asChild>
                                         <Button
                                           size="icon"
+                                          id="upload-gif"
                                           type="button"
                                           variant="ghost"
                                           disabled={
@@ -2197,6 +2214,7 @@ export default function PostPage() {
                                   <Tooltip>
                                     <TooltipTrigger>
                                       <Button
+                                        id="add-poll"
                                         size="icon"
                                         type="button"
                                         variant="ghost"
@@ -2242,6 +2260,7 @@ export default function PostPage() {
                                     <Popover>
                                       <PopoverTrigger asChild>
                                         <Button
+                                          id="add-emoji"
                                           size="icon"
                                           type="button"
                                           variant="ghost"
@@ -2289,6 +2308,7 @@ export default function PostPage() {
                                       <Popover>
                                         <PopoverTrigger asChild>
                                           <Button
+                                            id="thread-settings"
                                             size="icon"
                                             type="button"
                                             variant="ghost"
@@ -2344,7 +2364,7 @@ export default function PostPage() {
                     </div>
                   </div>
 
-                  <BottomButtons>
+                  <BottomButtons id="post-buttons">
                     <div className="flex  items-center justify-between">
                       <div className="flex items-center gap-2">
                         {isDesktop ? (

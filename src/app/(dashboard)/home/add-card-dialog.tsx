@@ -48,9 +48,9 @@ import { EStatType } from "@/types/EStatType";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { useCallback } from "react";
+import { useCallback, type Dispatch, type SetStateAction } from "react";
 import { useForm } from "react-hook-form";
-import { useBoolean, useMediaQuery } from "usehooks-ts";
+import { useMediaQuery } from "usehooks-ts";
 import { z } from "zod";
 
 const DASHBOARD_QUERIES = [
@@ -110,9 +110,9 @@ function getCardTitle(type: EDashboardCardType, value?: number) {
       DASHBOARD_QUERIES.find((query) => query.value === value)?.name ?? "Card"
     );
   } else if (type === EDashboardCardType.PostsStats) {
-    return "Latest Posts Stats";
+    return "Best Posts Stats";
   } else if (type === EDashboardCardType.EventsCalendar) {
-    return "Events Calendar";
+    return "Today's Schedule";
   }
 
   return "Card";
@@ -150,13 +150,16 @@ const formSchema = z
     },
   );
 
-export default function AddCardDialog() {
+type Props = {
+  isOpen: boolean;
+  setValue: Dispatch<SetStateAction<boolean>>;
+};
+
+export default function AddCardDialog({ isOpen, setValue }: Props) {
   const { data } = useSession();
   const dispatch = useAppDispatch();
   const session = useSession();
   const isDesktop = useMediaQuery("(min-width: 768px)");
-
-  const { setValue, value: isOpen } = useBoolean(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -196,9 +199,9 @@ export default function AddCardDialog() {
     return (
       <Dialog open={isOpen} onOpenChange={handleOpenChange}>
         <DialogTrigger asChild>
-          <Button>Add Card</Button>
+          <Button className="step-1">Add Card</Button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="step-2">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <DialogHeader>

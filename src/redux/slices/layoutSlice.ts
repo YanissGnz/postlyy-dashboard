@@ -1,5 +1,5 @@
 import { EUserType } from "@/types/EUserType";
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 export type TNavItem = {
   name: string;
@@ -17,6 +17,7 @@ type LayoutState = {
     children: TNavItem[];
   }[];
   isMobileSidebarOpen: boolean;
+  isAccountPopoverOpen: boolean;
 };
 
 const initialState = {
@@ -117,6 +118,7 @@ const initialState = {
     },
   ],
   isMobileSidebarOpen: false,
+  isAccountPopoverOpen: false,
 } as LayoutState;
 
 export const layout = createSlice({
@@ -134,9 +136,16 @@ export const layout = createSlice({
     closeMobileSidebar: (state) => {
       state.isMobileSidebarOpen = false;
     },
+    changeAccountPopoverOpen: (state, action: PayloadAction<boolean>) => {
+      state.isAccountPopoverOpen = action.payload;
+    },
   },
 });
 
-export const { toggleCollapseSidebar, closeMobileSidebar, openMobileSidebar } =
-  layout.actions;
+export const {
+  toggleCollapseSidebar,
+  closeMobileSidebar,
+  openMobileSidebar,
+  changeAccountPopoverOpen,
+} = layout.actions;
 export default layout.reducer;

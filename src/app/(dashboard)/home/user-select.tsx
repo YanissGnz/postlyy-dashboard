@@ -47,7 +47,7 @@ export default function UserSelect() {
         ),
       );
     },
-    [dispatch],
+    [dispatch, userIds],
   );
 
   if (isLoading) return <Skeleton className="h-10 w-36" />;
