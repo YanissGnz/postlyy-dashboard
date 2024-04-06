@@ -135,7 +135,7 @@ export default function HomePage() {
         ) : layout.length === 0 ? (
           <div className="flex h-full min-h-[16rem] w-full flex-col items-center justify-center gap-2">
             <h1 className="text-2xl font-bold">No cards to show</h1>
-            <p className="text-muted-foreground">
+            <p className="text-balance text-center text-muted-foreground">
               Click on the "Add Card" button to add a card to your dashboard
             </p>
           </div>
