@@ -52,6 +52,7 @@ export default function Sidebar() {
       }}
     >
       <Button
+        id="menu-collapse"
         variant="outline"
         size="icon"
         onClick={handleToggleCollapse}
