@@ -27,7 +27,7 @@ const stepStyles = {
   zIndex: 1000000,
 };
 
-const accountPopoverStepIndex = 2;
+const accountStepIndex = 4;
 
 function AppTourProvider({ children }: { children: React.ReactNode }) {
   const { isAccountPopoverOpen } = useAppSelector((state) => state.layout);
@@ -62,7 +62,7 @@ function AppTourProvider({ children }: { children: React.ReactNode }) {
             placement: "center",
           },
           {
-            title: "The Menu",
+            title: "Menu",
             content: (
               <p className="text-sm">
                 This is the navigation menu. You can access all the features of
@@ -74,13 +74,26 @@ function AppTourProvider({ children }: { children: React.ReactNode }) {
             placement: "auto",
           },
           {
+            title: "Collapse Menu",
+            content: (
+              <p className="text-sm">
+                You can collapse and expand the menu by clicking on this button.
+              </p>
+            ),
+            disableBeacon: true,
+            spotlightClicks: true,
+            styles: {
+              options: {
+                arrowColor: "transparent",
+              },
+            },
+            target: "#menu-collapse",
+            placement: "auto",
+          },
+          {
             title: "Account Menu",
             content: (
               <div>
-                <p className="text-sm">
-                  This is the account menu. You can access your settings, and
-                  log out from here.
-                </p>
                 <p className="mt-2 font-bold">
                   Click on the account menu to open it.
                 </p>
@@ -89,34 +102,32 @@ function AppTourProvider({ children }: { children: React.ReactNode }) {
             spotlightClicks: true,
             hideFooter: true,
             disableBeacon: true,
-            event: "hover",
-            target: "#account-popover",
+            target: "#account-popover-trigger",
             placement: "top",
+            isFixed: true,
           },
           {
-            title: "Accounts",
+            title: "Account Menu",
             content: (
               <div>
                 <p className="text-sm">
-                  You can manage your accounts from here.
+                  You can access settings, billing, support, change app theme,
+                  and logout from here.
                 </p>
                 <p className="mt-2 font-bold">
                   Hover over " Accounts " and click " Manage accounts "
                 </p>
               </div>
             ),
-            disableBeacon: true,
             spotlightClicks: true,
-            hideFooter: true,
+            disableBeacon: true,
             disableOverlay: true,
-            styles: {
-              spotlight: {
-                width: "400",
-              },
-            },
-            target: "#accounts-button",
+            hideFooter: true,
+
+            target: "#account-popover",
             placement: "top",
           },
+
           {
             title: "Managing your accounts",
             content: (
@@ -186,12 +197,12 @@ function AppTourProvider({ children }: { children: React.ReactNode }) {
     if (pathname === ROUTES.accounts.root) {
       setState((prev) => ({
         ...prev,
-        stepIndex: accountPopoverStepIndex + 2,
+        stepIndex: accountStepIndex + 2,
       }));
     } else if (isAccountPopoverOpen) {
       setState((prev) => ({
         ...prev,
-        stepIndex: accountPopoverStepIndex + 1,
+        stepIndex: accountStepIndex + 1,
       }));
     }
   }, [isAccountPopoverOpen, pathname, accounts]);
@@ -228,6 +239,25 @@ function AppTourProvider({ children }: { children: React.ReactNode }) {
     [accounts],
   );
 
+  useEffect(() => {
+    if (pathname === ROUTES.accounts.root) {
+      setState((prev) => ({
+        ...prev,
+        stepIndex: accountStepIndex + 1,
+      }));
+      accountStepIndex;
+    } else if (
+      !isAccountPopoverOpen &&
+      stepIndex > accountStepIndex - 1 &&
+      stepIndex <= accountStepIndex
+    ) {
+      setState((prev) => ({
+        ...prev,
+        stepIndex: accountStepIndex - 1,
+      }));
+    }
+  }, [isAccountPopoverOpen, pathname, accounts]);
+
   return (
     <>
       <Joyride
@@ -242,6 +272,10 @@ function AppTourProvider({ children }: { children: React.ReactNode }) {
         steps={steps}
         styles={{
           options: { ...stepStyles },
+          overlay: {
+            minHeight: "100vh",
+            position: "fixed",
+          },
         }}
         locale={{
           back: "Back",
