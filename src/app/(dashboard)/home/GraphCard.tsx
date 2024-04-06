@@ -6,6 +6,7 @@ import { ScrollBar } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getProviderIcon } from "@/lib/utils";
 import { useGetGraphQuery } from "@/redux/api/dashboard/apiSlice";
+import { useGetAllMembersQuery } from "@/redux/api/user/team/apiSlice";
 import { useAppSelector } from "@/redux/hooks";
 import { EProviders } from "@/types/EProviders";
 import { type EStatType } from "@/types/EStatType";
@@ -34,13 +35,24 @@ export default function GraphCard({
     (state) => state.dashboard,
   );
 
+  const { data: membersData } = useGetAllMembersQuery();
+
   const { data, isLoading, isError, refetch } = useGetGraphQuery(
     {
       provider: provider ?? currentAccount?.accountType ?? EProviders.Twitter,
       statType: query,
       startDate,
       endDate,
-      userIds: userIds.length > 0 ? userIds : undefined,
+      userIds:
+        userIds.length > 0
+          ? userIds.filter(
+              (id) =>
+                membersData?.data?.find(
+                  (m) =>
+                    m.id === id || m.subbordinates?.find((s) => s.id === id),
+                ),
+            )
+          : undefined,
     },
     { refetchOnMountOrArgChange: true },
   );

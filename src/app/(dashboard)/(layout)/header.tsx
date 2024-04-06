@@ -55,7 +55,7 @@ export default function Header() {
   return (
     <>
       <header
-        className="flex w-full items-center justify-between border-b px-4"
+        className="sticky top-0 z-40 flex w-full items-center justify-between border-b bg-background px-4"
         style={{
           height: LAYOUT.HEADER_HEIGHT,
         }}

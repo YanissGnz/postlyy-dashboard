@@ -1,11 +1,11 @@
-import React from "react";
-import isString from "lodash/isString";
-import { type DropzoneProps, useDropzone } from "react-dropzone";
 import clsx from "clsx";
+import isString from "lodash/isString";
+import React from "react";
+import { useDropzone, type DropzoneProps } from "react-dropzone";
 // components
 import { Icon as Iconify } from "@iconify/react";
-import RejectionFiles from "./RejectionFiles";
 import Image from "../image";
+import RejectionFiles from "./RejectionFiles";
 
 export interface UploadAvatarProps extends DropzoneProps {
   error?: boolean;

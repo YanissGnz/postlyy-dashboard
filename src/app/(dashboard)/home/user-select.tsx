@@ -41,7 +41,11 @@ export default function UserSelect() {
       const updatedUserIds = userIds.includes(value)
         ? userIds.filter((id) => id !== value)
         : [...userIds, value];
-      dispatch(changeDashboardUserIds(updatedUserIds));
+      dispatch(
+        changeDashboardUserIds(
+          updatedUserIds.filter((id) => members.find((m) => m.id === id)),
+        ),
+      );
     },
     [dispatch],
   );
@@ -62,11 +66,13 @@ export default function UserSelect() {
           >
             {userIds?.length ? (
               <div className="flex flex-1 flex-wrap items-center gap-2">
-                {userIds.map((id) => (
-                  <Badge variant="outline">
-                    {members?.find((m) => m.id === id)?.label ?? "Unknown"}
-                  </Badge>
-                ))}
+                {userIds
+                  .filter((id) => members.find((m) => m.id === id))
+                  .map((id) => (
+                    <Badge variant="outline">
+                      {members?.find((m) => m.id === id)?.label ?? "Unknown"}
+                    </Badge>
+                  ))}
               </div>
             ) : (
               "Select members..."

@@ -52,6 +52,12 @@ export default function StatCard({
     }
   }, [aggregation]);
 
+  const {
+    data: membersData,
+    isLoading: membersIsLoading,
+    isError: membersIsError,
+  } = useGetAllMembersQuery();
+
   const { data, isLoading, isError, refetch } = useGetStatQuery(
     {
       provider: provider ?? currentAccount?.accountType ?? EProviders.Twitter,
@@ -59,16 +65,19 @@ export default function StatCard({
       statType: query,
       startDate,
       endDate,
-      userIds: userIds.length > 0 ? userIds : undefined,
+      userIds:
+        userIds.length > 0
+          ? userIds.filter(
+              (id) =>
+                membersData?.data?.find(
+                  (m) =>
+                    m.id === id || m.subbordinates?.find((s) => s.id === id),
+                ),
+            )
+          : undefined,
     },
     { refetchOnMountOrArgChange: true },
   );
-
-  const {
-    data: membersData,
-    isLoading: membersIsLoading,
-    isError: membersIsError,
-  } = useGetAllMembersQuery();
 
   const getMemberFullName = (userId: string) => {
     const member = membersData?.data.find((m) => m.id === userId);

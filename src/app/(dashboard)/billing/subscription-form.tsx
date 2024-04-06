@@ -134,7 +134,7 @@ export default function SubscriptionForm() {
               {Math.round(subscriptionSettings.data.subscriptionPrice * 100) /
                 100}{" "}
               ${subscriptionSettings?.data.yearly ? "/year" : "/month"}
-              {subscriptionSettings?.data.isTrial && " (Free trail)"}
+              {subscriptionSettings?.data.isTrial && " (Free trial)"}
             </p>
           </div>
           <div className="grid w-full grid-cols-3">

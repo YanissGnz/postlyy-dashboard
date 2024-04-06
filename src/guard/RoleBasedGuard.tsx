@@ -54,12 +54,12 @@ export default function RoleBasedGuard({
 
   if (needAccount && !hasAccount) {
     return (
-      <div className="relative">
-        <div className="absolute z-10 flex h-screen w-full flex-col items-center justify-center gap-4 bg-background/80 p-10 text-center">
-          <h1 className="text-4xl font-bold">
-            You do not have any account associated with your profile
+      <div className="relative w-full">
+        <div className="absolute z-[1] flex h-full min-h-screen w-full flex-col items-center justify-center gap-4 bg-background/80 p-10 text-center">
+          <h1 className="max-w-xl text-balance text-4xl font-bold">
+            Looks like you don't have any account connected yet!
           </h1>
-          <p className="text-lg ">
+          <p className="text-balance text-lg">
             {" "}
             Please connect an account to access this page.
           </p>
@@ -78,9 +78,9 @@ export default function RoleBasedGuard({
       !accessibleTiers?.includes(session?.data?.user.tier))
   ) {
     return (
-      <div className="flex h-screen w-full flex-col items-center justify-center gap-4 p-10">
-        <h1 className="text-4xl font-bold">Permission Denied</h1>
-        <p className="text-lg">
+      <div className="fixed z-[1] flex h-screen w-full flex-col items-center justify-center gap-4 bg-background p-10 text-center">
+        <h1 className="text-balance text-4xl font-bold">Permission Denied</h1>
+        <p className="text-balance text-lg">
           {" "}
           You do not have permission to access this page
         </p>
