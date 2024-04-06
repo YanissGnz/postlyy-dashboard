@@ -27,6 +27,7 @@ import { type TNewAccount } from "@/types/TNewAccount";
 import useMessage from "@rottitime/react-hook-message-event";
 import { sentenceCase } from "change-case";
 import { decode, type JwtPayload } from "jsonwebtoken";
+import { useSession } from "next-auth/react";
 import { useBoolean } from "usehooks-ts";
 
 export default function AccountsPage() {
@@ -38,6 +39,8 @@ export default function AccountsPage() {
   } = useGetAccountsQuery();
 
   const dispatch = useAppDispatch();
+
+  const session = useSession();
 
   const {
     value: isLoading,
@@ -85,7 +88,8 @@ export default function AccountsPage() {
           if (res.ok) {
             toast.success("Account connected successfully");
             accountApiUtil.invalidateTags(["Accounts"]);
-            void refetch();
+            await refetch();
+            await session.update();
           } else {
             const error = (await res.json()) as { message: string } | string[];
 

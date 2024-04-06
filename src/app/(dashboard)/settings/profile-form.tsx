@@ -27,6 +27,7 @@ import { Spinner } from "@/components/ui/Spinner";
 import { UploadAvatar } from "@/components/ui/upload";
 import { fData } from "@/lib/formatNumber";
 import { isString } from "lodash";
+import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
 export default function profileForm() {
@@ -39,6 +40,8 @@ export default function profileForm() {
     useUpdateProfileMutation();
   const [changeProfileImage, { isLoading: isChangingProfileImageLoading }] =
     useChangeProfileImageMutation();
+
+  const session = useSession();
 
   const [profilePic, setProfilePic] = useState<
     (File & { preview: string }) | string | null
@@ -67,12 +70,13 @@ export default function profileForm() {
     }
   }, [profile, isProfileLoading, isProfileFetching]);
 
-  function onSubmit(values: TProfile) {
+  async function onSubmit(values: TProfile) {
     updateProfile(values)
       .unwrap()
-      .then(() => {
+      .then(async () => {
         form.reset(values);
         toast.success("Profile updated successfully");
+        await session.update();
       })
       .catch((err) => {
         toast.error("Something went wrong");
@@ -80,14 +84,15 @@ export default function profileForm() {
       });
   }
 
-  const handleUpdateImage = () => {
+  const handleUpdateImage = async () => {
     if (profilePic !== null) {
       const data = new FormData();
       data.append("ProfilePicture", profilePic);
       changeProfileImage(data)
         .unwrap()
-        .then(() => {
+        .then(async () => {
           toast.success("Profile picture updated successfully");
+          await session.update();
         })
         .catch(() => {
           toast.error("Something went wrong");
