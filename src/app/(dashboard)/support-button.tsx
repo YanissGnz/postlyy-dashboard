@@ -34,7 +34,7 @@ export default function SupportButton() {
   }, [dispatch]);
 
   useEffect(() => {
-    const bottomButtons = document.getElementById("bottom-buttons");
+    const bottomButtons = document.getElementsByClassName("bottom-buttons")[0];
     setWithBottomButtons(!!bottomButtons);
   }, [pathname]);
 
