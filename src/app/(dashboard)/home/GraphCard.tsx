@@ -37,22 +37,22 @@ export default function GraphCard({
 
   const { data: membersData } = useGetAllMembersQuery();
 
+  const filteredUserIds = useMemo(() => {
+    return userIds.filter(
+      (id) =>
+        membersData?.data?.find(
+          (m) => m.id === id || m.subbordinates?.find((s) => s.id === id),
+        ),
+    );
+  }, [membersData, userIds]);
+
   const { data, isLoading, isError, refetch } = useGetGraphQuery(
     {
       provider: provider ?? currentAccount?.accountType ?? EProviders.Twitter,
       statType: query,
       startDate,
       endDate,
-      userIds:
-        userIds.length > 0
-          ? userIds.filter(
-              (id) =>
-                membersData?.data?.find(
-                  (m) =>
-                    m.id === id || m.subbordinates?.find((s) => s.id === id),
-                ),
-            )
-          : undefined,
+      userIds: filteredUserIds.length > 0 ? filteredUserIds : undefined,
     },
     { refetchOnMountOrArgChange: true },
   );
