@@ -196,6 +196,8 @@ function AppTourProvider({ children }: { children: React.ReactNode }) {
     (data: CallBackProps) => {
       const { action, index, status, type } = data;
 
+      if (status === STATUS.SKIPPED) setDidAppTour(true);
+
       if (([STATUS.FINISHED] as string[]).includes(status)) {
         if (accounts?.data.length && accounts?.data.length > 0) {
           push(ROUTES.post.create);
