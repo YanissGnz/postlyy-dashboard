@@ -149,7 +149,7 @@ function AppTourProvider({ children }: { children: React.ReactNode }) {
                   content: (
                     <div>
                       <p className="text-sm">
-                        Now that you connect your account you can't create your
+                        Now that you connect your account you can create your
                         first post
                       </p>
                     </div>
