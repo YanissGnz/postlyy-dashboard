@@ -1,6 +1,8 @@
 "use client";
 
 import { Spinner } from "@/components/ui/Spinner";
+import { getUTCOffset } from "@/lib/utils";
+import { useSetOffsetMutation } from "@/redux/api/user/dashboard/apiSlice";
 import { useAppSelector } from "@/redux/hooks";
 import { setAccount, setToken } from "@/redux/slices/authSlice";
 import { ROUTES } from "@/routes";
@@ -21,6 +23,8 @@ export default function TokenProvider({
 
   const currentAccount = useAppSelector((state) => state.auth.currentAccount);
 
+  const [setOffset] = useSetOffsetMutation();
+
   useEffect(() => {
     if (session) {
       if (session.status === "loading") return;
@@ -28,6 +32,8 @@ export default function TokenProvider({
       if (session.data?.user) {
         dispatch(setToken(session.data.user.accessToken));
         localStorage.setItem("token", session.data.user.accessToken);
+        const offset = getUTCOffset();
+        void setOffset({ offset });
         if (
           session.data.user.accounts.length > 0 &&
           session.data.user.accounts[0] &&

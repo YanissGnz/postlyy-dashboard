@@ -42,8 +42,25 @@ export const dashboardApi = createApi({
       }),
       invalidatesTags: ["DashboardConfig"],
     }),
+    setOffset: builder.mutation<void, { offset: number }>({
+      query: (body) => ({
+        url: "/api/UserSettings/GenerateCalendar",
+        method: "POST",
+        body,
+      }),
+    }),
+    doneTour: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/api/UserSettings/Tour/Done/${id}`,
+        method: "POST",
+      }),
+    }),
   }),
 });
 
-export const { useGetDashboardConfigQuery, useChangeDashboardConfigMutation } =
-  dashboardApi;
+export const {
+  useGetDashboardConfigQuery,
+  useChangeDashboardConfigMutation,
+  useSetOffsetMutation,
+  useDoneTourMutation,
+} = dashboardApi;
