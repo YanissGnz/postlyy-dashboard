@@ -214,7 +214,7 @@ const generateFormData = async (data: TPostForm) => {
     if (post.poll) {
       formData.append(
         `Posts[${index}].poll.DurationMins`,
-        post.poll.durationMins.toString(),
+        (post.poll.durationMins * 60).toString(),
       );
       post.poll.options.forEach((option, i) => {
         formData.append(`Posts[${index}].poll.Options[${i}]`, option);
@@ -1963,7 +1963,7 @@ export default function PostPage() {
                                             className="w-full"
                                             onChange={(e) =>
                                               field.onChange(
-                                                Number(e.target.value) * 60,
+                                                Number(e.target.value),
                                               )
                                             }
                                           />
