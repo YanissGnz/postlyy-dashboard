@@ -1953,17 +1953,17 @@ export default function PostPage() {
                                     render={({ field }) => (
                                       <FormItem>
                                         <FormLabel>
-                                          Poll duration in minutes
+                                          Poll duration in hours
                                         </FormLabel>
                                         <FormControl>
                                           <Input
                                             {...field}
                                             type="number"
-                                            placeholder="Poll duration in minutes (0 for no duration)"
+                                            placeholder="Poll duration in hours (0 for no duration)"
                                             className="w-full"
                                             onChange={(e) =>
                                               field.onChange(
-                                                Number(e.target.value),
+                                                Number(e.target.value) * 60,
                                               )
                                             }
                                           />
