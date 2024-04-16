@@ -4,7 +4,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -144,9 +143,7 @@ export default function Inspiration() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormDescription>
-                    This will determine the length of the post
-                  </FormDescription>
+
                   <FormMessage />
                 </FormItem>
               )}
@@ -176,9 +173,7 @@ export default function Inspiration() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormDescription>
-                    This will determine the formality of the post
-                  </FormDescription>
+
                   <FormMessage />
                 </FormItem>
               )}
@@ -208,9 +203,7 @@ export default function Inspiration() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormDescription>
-                    This will determine the tone of the post
-                  </FormDescription>
+
                   <FormMessage />
                 </FormItem>
               )}
@@ -240,9 +233,7 @@ export default function Inspiration() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormDescription>
-                    This will determine the source of the post generation
-                  </FormDescription>
+
                   <FormMessage />
                 </FormItem>
               )}
@@ -272,9 +263,7 @@ export default function Inspiration() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormDescription>
-                    This will determine the target audience of the post
-                  </FormDescription>
+
                   <FormMessage />
                 </FormItem>
               )}
@@ -328,10 +317,6 @@ export default function Inspiration() {
                   {...field}
                   placeholder="Enter context of the post here..."
                 />
-                <FormDescription>
-                  Please enter as much context as possible to help with the post
-                  generation
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
