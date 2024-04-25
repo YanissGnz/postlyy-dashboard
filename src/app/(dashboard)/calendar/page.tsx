@@ -48,6 +48,7 @@ import listPlugin from "@fullcalendar/list";
 import FullCalendar from "@fullcalendar/react";
 import timeGridWeekPlugin from "@fullcalendar/timegrid";
 import { addDays, format, isAfter, isBefore } from "date-fns";
+import { max, min } from "lodash";
 import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import React, {
@@ -84,12 +85,16 @@ export default function Calender() {
   const [updateSpot, { isLoading: isUpdating }] = useUpdateSpotMutation();
 
   const [updateRecurringSpot] = useUpdateRecurringPostMutation();
+  console.log("🚀 :", {
+    startHour,
+    endHour,
+  });
 
   const events: EventInput[] = useMemo(() => {
     if (data?.data) {
-      let minStartHour = new Date();
+      const minStartHour = new Date();
       minStartHour.setHours(7, 0, 0, 0);
-      let maxEndHour = new Date();
+      const maxEndHour = new Date();
       maxEndHour.setHours(24, 0, 0, 0);
 
       return data.data
@@ -101,17 +106,17 @@ export default function Calender() {
               hasAccount(EProviders.Twitter, session.data?.user.accounts)),
         )
         .map((event) => {
-          if (minStartHour.getHours() < new Date(event.start).getHours()) {
-            minStartHour = new Date(event.start);
+          if (minStartHour.getHours() > new Date(event.start).getHours()) {
+            minStartHour.setHours(new Date(event.start).getHours());
           }
 
-          if (maxEndHour.getHours() > new Date(event.start).getHours()) {
-            maxEndHour = new Date(event.start);
+          if (maxEndHour.getHours() < new Date(event.start).getHours()) {
+            maxEndHour.setHours(new Date(event.start).getHours() + 2);
           }
 
-          setStartHour(minStartHour.getHours() + ":0:0");
+          setStartHour(min([minStartHour.getHours(), 7]) + ":00:00");
 
-          setEndHour(maxEndHour.getHours() + ":0:0");
+          setEndHour(max([maxEndHour.getHours(), 21]) + ":00:00");
 
           return {
             ...event,
