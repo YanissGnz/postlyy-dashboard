@@ -144,6 +144,7 @@ export default function Modals() {
       });
     }
     dispatch(closeModal("delete-calendar-spot-modal"));
+    dispatch(closeModal("calendar-post-details-modal"));
   }, [list]);
 
   return (
