@@ -22,7 +22,6 @@ import {
   cn,
   getEventBackgroundColor,
   getEventIcon,
-  getEventTWBackgroundColor,
   getEventTextColor,
   hasAccount,
 } from "@/lib/utils";
@@ -71,6 +70,9 @@ export default function Calender() {
     calenderRef.current?.getApi().view.title ?? "",
   );
 
+  const [startHour, setStartHour] = useState("07:00:00");
+  const [endHour, setEndHour] = useState("24:00:00");
+
   useEffect(() => {
     if (calenderRef.current) {
       setTitle(calenderRef.current?.getApi().view.title ?? "");
@@ -85,6 +87,11 @@ export default function Calender() {
 
   const events: EventInput[] = useMemo(() => {
     if (data?.data) {
+      let minStartHour = new Date();
+      minStartHour.setHours(7, 0, 0, 0);
+      let maxEndHour = new Date();
+      maxEndHour.setHours(24, 0, 0, 0);
+
       return data.data
         .filter(
           (event) =>
@@ -93,32 +100,46 @@ export default function Calender() {
             (event.forTwitter &&
               hasAccount(EProviders.Twitter, session.data?.user.accounts)),
         )
-        .map((event) => ({
-          ...event,
-          // end: addHours(new Date(event.start), 1),
-          backgroundColor:
-            event.postId !== DEFAULT_POST_ID
-              ? getEventBackgroundColor(event.type, theme === "dark")
-              : "#0000",
-          color:
-            event.postId !== DEFAULT_POST_ID
-              ? getEventBackgroundColor(event.type, theme === "dark")
-              : theme === "dark"
-                ? "#da5b5b"
-                : "#ef4444",
-          textColor: getEventTextColor(event.type),
-          editable: true,
-          eventDurationEditable: false,
-          eventResizableFromStart: false,
-          extendedProps: {
-            icon: getEventIcon(event.type),
+        .map((event) => {
+          if (minStartHour.getHours() < new Date(event.start).getHours()) {
+            minStartHour = new Date(event.start);
+          }
+
+          if (maxEndHour.getHours() > new Date(event.start).getHours()) {
+            maxEndHour = new Date(event.start);
+          }
+
+          setStartHour(minStartHour.getHours() + ":0:0");
+
+          setEndHour(maxEndHour.getHours() + ":0:0");
+
+          return {
             ...event,
-          },
-          ...(event.type === EPostSpotType.Recurring && {
-            daysOfWeek: event.days,
-            startTime: format(new Date(event.startTime), "HH:mm"),
-          }),
-        }));
+            // end: addHours(new Date(event.start), 1),
+            backgroundColor:
+              event.postId !== DEFAULT_POST_ID
+                ? getEventBackgroundColor(event.type, theme === "dark")
+                : "#0000",
+            color:
+              event.postId !== DEFAULT_POST_ID
+                ? getEventBackgroundColor(event.type, theme === "dark")
+                : theme === "dark"
+                  ? "#da5b5b"
+                  : "#ef4444",
+            textColor: getEventTextColor(event.type),
+            editable: true,
+            eventDurationEditable: false,
+            eventResizableFromStart: false,
+            extendedProps: {
+              icon: getEventIcon(event.type),
+              ...event,
+            },
+            ...(event.type === EPostSpotType.Recurring && {
+              daysOfWeek: event.days,
+              startTime: format(new Date(event.startTime), "HH:mm"),
+            }),
+          };
+        });
     }
     return [];
   }, [data?.data, isLoading, theme]);
@@ -376,8 +397,8 @@ export default function Calender() {
         events={[...events, ...emptyDays]}
         initialView="timeGridWeek"
         height="auto"
-        slotMinTime="07:00:00"
-        slotMaxTime="24:00:00"
+        slotMinTime={startHour}
+        slotMaxTime={endHour}
         eventClick={(info) => {
           info.jsEvent.preventDefault();
           if (info.event.display === "background") return;
@@ -412,11 +433,6 @@ export default function Calender() {
         slotLaneClassNames="!h-14"
         eventContent={(eventInfo) => {
           const { event } = eventInfo;
-
-          const backgroundColor = getEventTWBackgroundColor(
-            event.extendedProps.type as EPostSpotType,
-            theme === "dark",
-          );
 
           if (calenderRef.current?.getApi().view.type === "list")
             return (
