@@ -10,12 +10,55 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { env } from "@/env";
 import { ROUTES } from "@/routes";
+import { ETiers } from "@/types/ETiers";
 import { type TResponse } from "@/types/TResponse";
-import { isArray } from "lodash";
+import { isArray, round } from "lodash";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useBoolean } from "usehooks-ts";
+
+const PLANS = [
+  {
+    title: "Basic",
+    features: [
+      "Schedule X (Twitter) / Linkedin Posts",
+      "Create Recurring & Evergreen LinkedIn & Twitter Posts",
+      "Calendar Management",
+      "Custom Dashboard and Content Analytics",
+      "Complimentary Manager Overview with 5+ seats",
+    ],
+    tier: ETiers.Basic,
+    price: env.NEXT_PUBLIC_BASIC_MONTHLY_PRICE,
+  },
+  {
+    title: "Pro",
+    features: [
+      "Schedule X (Twitter) / Linkedin Posts",
+      "Create Recurring & Evergreen LinkedIn & Twitter Posts",
+      "Calendar Management",
+      "Custom Dashboard and Content Analytics",
+      "Complimentary Manager Overview with 5+ seats",
+      "Text to Image Converter",
+    ],
+    tier: ETiers.Pro,
+    price: env.NEXT_PUBLIC_PRO_MONTHLY_PRICE,
+  },
+  {
+    title: "Expert",
+    features: [
+      "Schedule X (Twitter) / Linkedin Posts",
+      "Create Recurring & Evergreen LinkedIn & Twitter Posts",
+      "Calendar Management",
+      "Custom Dashboard and Content Analytics",
+      "Complimentary Manager Overview with 5+ seats",
+      "Text to Image Converter",
+      "AI Content Generation",
+    ],
+    tier: ETiers.Expert,
+    price: env.NEXT_PUBLIC_EXPERT_MONTHLY_PRICE,
+  },
+];
 
 export default function SetupForm() {
   const { value: isLoading, setFalse, setTrue } = useBoolean(false);
@@ -25,13 +68,6 @@ export default function SetupForm() {
   const [seatsBought, setSeatsBought] = useState(1);
 
   const [currentStep, setCurrentStep] = useState(1);
-
-  const percentage = useMemo(() => {
-    if (seatsBought === 1) return 1;
-    if (seatsBought <= 9) return 0.95;
-    if (seatsBought <= 20) return 0.925;
-    return 0.9;
-  }, [seatsBought, isYearly]);
 
   const session = useSession();
 
@@ -54,11 +90,13 @@ export default function SetupForm() {
         }),
       })
         .then((res) => res.json())
-        .then(async (res: TResponse<{ url: string; hasToPay: boolean }>) => {
+        .then(async (res: TResponse<{ link: string; hasToPay: boolean }>) => {
           if (res.data.hasToPay) {
             setCurrentStep(2);
             setTimeout(() => {
-              replace(res.data.url);
+              // TODO: revert
+              // replace(res.data.link);
+              replace(ROUTES.payment);
             }, 3000);
           } else {
             await session.update();
@@ -165,348 +203,120 @@ export default function SetupForm() {
               </div>
             </div>
           </div>
-          <div className="grid w-full grid-cols-1 gap-10 md:grid-cols-3">
+          <div className="grid w-full grid-cols-1 gap-10 lg:grid-cols-3">
             {" "}
-            <Card className="h-full border shadow-none">
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold">Basic</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <p className="text-4xl font-semibold">
-                    <span className="mr-1 text-2xl text-foreground/60"> $</span>
-                    {Math.round(
-                      (isYearly
-                        ? env.NEXT_PUBLIC_BASIC_YEARLY_PRICE
-                        : env.NEXT_PUBLIC_BASIC_MONTHLY_PRICE) * percentage,
-                    )}
-                    <span className="ml-1 mr-1 text-xl text-foreground/60">
-                      Per seat / {isYearly ? "year" : "month"}
-                    </span>
-                  </p>
-                </div>
-                <div className="mt-2 flex items-center justify-between">
-                  <p className="text-4xl font-semibold">
-                    <span className="mr-1 text-2xl text-foreground/60">=</span>
-                    <span className="mr-1 text-2xl text-foreground/60"> $</span>
-                    {Math.round(
-                      seatsBought *
-                        percentage *
-                        (isYearly
-                          ? env.NEXT_PUBLIC_BASIC_YEARLY_PRICE
-                          : env.NEXT_PUBLIC_BASIC_MONTHLY_PRICE),
-                    )}
-                    <span className="ml-1 mr-1 text-xl text-foreground/60">
-                      / {isYearly ? "year" : "month"}
-                    </span>
-                  </p>
-                </div>
-                <ul className="mt-5 flex flex-col gap-4 border-t p-3">
-                  <li className="flex items-center gap-2 text-foreground">
-                    <div className="p-1">
-                      <Iconify
-                        icon="ph:check-circle-fill"
-                        height={20}
-                        width={20}
-                        className="text-primary"
-                      />
-                    </div>{" "}
-                    Schedule X (Twitter) / Linkedin Posts
-                  </li>
-                  <li className="flex items-center gap-2 text-foreground">
-                    <div className="p-1">
-                      <Iconify
-                        icon="ph:check-circle-fill"
-                        height={20}
-                        width={20}
-                        className="text-primary"
-                      />{" "}
-                    </div>{" "}
-                    Create Recurring & Evergreen LinkedIn & Twitter Posts
-                  </li>
-                  <li className="flex items-center gap-2 text-foreground">
-                    <div className="p-1">
-                      <Iconify
-                        icon="ph:check-circle-fill"
-                        height={20}
-                        width={20}
-                        className="text-primary"
-                      />{" "}
-                    </div>{" "}
-                    Calendar Management
-                  </li>{" "}
-                  <li className="flex items-center gap-2 text-foreground">
-                    <div className="p-1">
-                      <Iconify
-                        icon="ph:check-circle-fill"
-                        height={20}
-                        width={20}
-                        className="text-primary"
-                      />{" "}
-                    </div>{" "}
-                    Custom Dashboard and Content Analytics
-                  </li>{" "}
-                  <li className="flex items-center gap-2 text-foreground">
-                    <div className="p-1">
-                      <Iconify
-                        icon="ph:check-circle-fill"
-                        height={20}
-                        width={20}
-                        className="text-primary"
-                      />{" "}
-                    </div>{" "}
-                    Complimentary Manager Overview with 5+ seats
-                  </li>
-                </ul>
-                <Button
-                  className="mt-5 w-full"
-                  onClick={handlePayment(0)}
-                  disabled={isLoading}
-                >
-                  Choose Basic {!isYearly && "(1 month free trial)"}
-                </Button>
-              </CardContent>
-            </Card>
-            <Card className="border shadow-none">
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold">Pro</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <p className="text-4xl font-semibold">
-                    <span className="mr-1 text-2xl text-foreground/60"> $</span>
-                    {Math.round(
-                      (isYearly
-                        ? env.NEXT_PUBLIC_PRO_YEARLY_PRICE
-                        : env.NEXT_PUBLIC_PRO_MONTHLY_PRICE) * percentage,
-                    )}
-
-                    <span className="ml-1 mr-1 text-xl text-foreground/60">
-                      Per seat / {isYearly ? "year" : "month"}
-                    </span>
-                  </p>
-                </div>
-                <div className="mt-2 flex items-center justify-between">
-                  <p className="text-4xl font-semibold">
-                    <span className="mr-1 text-2xl text-foreground/60">=</span>
-                    <span className="mr-1 text-2xl text-foreground/60"> $</span>
-                    {Math.round(
-                      seatsBought *
-                        percentage *
-                        (isYearly
-                          ? env.NEXT_PUBLIC_PRO_YEARLY_PRICE
-                          : env.NEXT_PUBLIC_PRO_MONTHLY_PRICE),
-                    )}
-                    <span className="ml-1 mr-1 text-xl text-foreground/60">
-                      / {isYearly ? "year" : "month"}
-                    </span>
-                  </p>
-                </div>
-                <ul className="mt-5 flex flex-col gap-4 border-t p-3">
-                  <li className="flex items-center gap-2 text-foreground">
-                    <div className="p-1">
-                      <Iconify
-                        icon="ph:check-circle-fill"
-                        height={20}
-                        width={20}
-                        className="text-primary"
-                      />
-                    </div>{" "}
-                    Schedule X (Twitter) / Linkedin Posts
-                  </li>{" "}
-                  <li className="flex items-center gap-2 text-foreground">
-                    <div className="p-1">
-                      <Iconify
-                        icon="ph:check-circle-fill"
-                        height={20}
-                        width={20}
-                        className="text-primary"
-                      />
-                    </div>{" "}
-                    Create Recurring & Evergreen LinkedIn & Twitter Posts
-                  </li>{" "}
-                  <li className="flex items-center gap-2 text-foreground">
-                    <div className="p-1">
-                      <Iconify
-                        icon="ph:check-circle-fill"
-                        height={20}
-                        width={20}
-                        className="text-primary"
-                      />
-                    </div>{" "}
-                    Calendar Management
-                  </li>
-                  <li className="flex items-center gap-2 text-foreground">
-                    <div className="p-1">
-                      <Iconify
-                        icon="ph:check-circle-fill"
-                        height={20}
-                        width={20}
-                        className="text-primary"
-                      />{" "}
-                    </div>{" "}
-                    Custom Dashboard and Content Analytics
-                  </li>
-                  <li className="flex items-center gap-2 text-foreground">
-                    <div className="p-1">
-                      <Iconify
-                        icon="ph:check-circle-fill"
-                        height={20}
-                        width={20}
-                        className="text-primary"
-                      />{" "}
-                    </div>{" "}
-                    Complimentary Manager Overview with 5+ seats
-                  </li>{" "}
-                  <li className="flex items-center gap-2 text-foreground">
-                    <div className="p-1">
-                      <Iconify
-                        icon="ph:check-circle-fill"
-                        height={20}
-                        width={20}
-                        className="text-primary"
-                      />{" "}
-                    </div>{" "}
-                    Text to Image Converter
-                  </li>
-                </ul>
-                <Button
-                  className="mt-5 w-full"
-                  onClick={handlePayment(1)}
-                  disabled={isLoading}
-                >
-                  Choose Pro {!isYearly && "(1 month free trial)"}
-                </Button>
-              </CardContent>
-            </Card>
-            <Card className="border shadow-none">
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold">Expert</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <p className="text-4xl font-semibold">
-                    <span className="mr-1 text-2xl text-foreground/60"> $</span>
-                    {Math.round(
-                      (isYearly
-                        ? env.NEXT_PUBLIC_EXPERT_YEARLY_PRICE
-                        : env.NEXT_PUBLIC_EXPERT_MONTHLY_PRICE) * percentage,
-                    )}
-                    <span className="ml-1 mr-1 text-xl text-foreground/60">
-                      Per seat / {isYearly ? "year" : "month"}
-                    </span>
-                  </p>
-                </div>
-                <div className="mt-2 flex items-center justify-between">
-                  <p className="text-4xl font-semibold">
-                    <span className="mr-1 text-2xl text-foreground/60">=</span>
-                    <span className="mr-1 text-2xl text-foreground/60"> $</span>
-                    {Math.round(
-                      seatsBought *
-                        percentage *
-                        (isYearly
-                          ? env.NEXT_PUBLIC_EXPERT_YEARLY_PRICE
-                          : env.NEXT_PUBLIC_EXPERT_MONTHLY_PRICE),
-                    )}
-                    <span className="ml-1 mr-1 text-xl text-foreground/60">
-                      / {isYearly ? "year" : "month"}
-                    </span>
-                  </p>
-                </div>
-                <ul className="mt-5 flex flex-col gap-4 border-t p-3">
-                  <li className="flex items-center gap-2 text-foreground">
-                    <div className="p-1">
-                      <Iconify
-                        icon="ph:check-circle-fill"
-                        height={20}
-                        width={20}
-                        className="text-primary"
-                      />
-                    </div>{" "}
-                    Schedule X (Twitter) / Linkedin Posts
-                  </li>{" "}
-                  <li className="flex items-center gap-2 text-foreground">
-                    <div className="p-1">
-                      <Iconify
-                        icon="ph:check-circle-fill"
-                        height={20}
-                        width={20}
-                        className="text-primary"
-                      />
-                    </div>{" "}
-                    Create Recurring & Evergreen LinkedIn & Twitter Posts
-                  </li>{" "}
-                  <li className="flex items-center gap-2 text-foreground">
-                    <div className="p-1">
-                      <Iconify
-                        icon="ph:check-circle-fill"
-                        height={20}
-                        width={20}
-                        className="text-primary"
-                      />
-                    </div>{" "}
-                    Calendar Management
-                  </li>
-                  <li className="flex items-center gap-2 text-foreground">
-                    <div className="p-1">
-                      <Iconify
-                        icon="ph:check-circle-fill"
-                        height={20}
-                        width={20}
-                        className="text-primary"
-                      />{" "}
-                    </div>{" "}
-                    Custom Dashboard and Content Analytics
-                  </li>
-                  <li className="flex items-center gap-2 text-foreground">
-                    <div className="p-1">
-                      <Iconify
-                        icon="ph:check-circle-fill"
-                        height={20}
-                        width={20}
-                        className="text-primary"
-                      />{" "}
-                    </div>{" "}
-                    Complimentary Manager Overview with 5+ seats
-                  </li>{" "}
-                  <li className="flex items-center gap-2 text-foreground">
-                    <div className="p-1">
-                      <Iconify
-                        icon="ph:check-circle-fill"
-                        height={20}
-                        width={20}
-                        className="text-primary"
-                      />{" "}
-                    </div>{" "}
-                    Text to Image Converter
-                  </li>
-                  <li className="flex items-center gap-2 text-foreground">
-                    <div className="p-1">
-                      <Iconify
-                        icon="ph:check-circle-fill"
-                        height={20}
-                        width={20}
-                        className="text-primary"
-                      />{" "}
-                    </div>{" "}
-                    AI Content Generation
-                  </li>{" "}
-                </ul>
-                <Button
-                  className="mt-5 w-full"
-                  onClick={handlePayment(2)}
-                  disabled={isLoading}
-                >
-                  Choose Expert {!isYearly && "(1 month free trial)"}
-                </Button>
-              </CardContent>
-            </Card>
+            {PLANS.map((plan) => (
+              <PlanCard
+                key={plan.title}
+                isYearly={isYearly}
+                seatsBought={seatsBought}
+                isLoading={isLoading}
+                handlePayment={handlePayment}
+                title={plan.title}
+                features={plan.features}
+                tier={plan.tier}
+                price={plan.price}
+              />
+            ))}
           </div>
         </>
       )}
       {currentStep === 2 && (
-        <div>You will be redirected to the payment page</div>
+        <div className="flex h-56 items-center justify-center text-center">
+          You will be redirected to the payment page
+        </div>
       )}
     </div>
   );
 }
+
+type PlanCardProps = {
+  isYearly: boolean;
+  seatsBought: number;
+  isLoading: boolean;
+  handlePayment: (tier: number) => () => void;
+  title: string;
+  features: string[];
+  tier: ETiers;
+  price: number;
+};
+
+const PlanCard = ({
+  isYearly,
+  seatsBought,
+  isLoading,
+  handlePayment,
+  title,
+  features,
+  tier,
+  price,
+}: PlanCardProps) => {
+  const percentage = useMemo(() => {
+    if (seatsBought === 1) return 1;
+    if (seatsBought <= 9) return 0.95;
+    if (seatsBought <= 20) return 0.925;
+
+    return 0.9;
+  }, [seatsBought, isYearly]);
+
+  const calculatedPrice = useMemo(() => {
+    const monthlyPrice = round(price * percentage);
+
+    if (isYearly) {
+      return round(monthlyPrice * 12 * 0.85);
+    }
+
+    return monthlyPrice;
+  }, [isYearly, percentage]);
+
+  return (
+    <Card className="flex h-full flex-col border shadow-none">
+      <CardHeader>
+        <CardTitle className="text-2xl font-bold">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-1 grow flex-col">
+        <div className="flex items-center justify-between">
+          <p className="text-4xl font-semibold">
+            <span className="mr-1 text-2xl text-foreground/60"> $</span>
+            {calculatedPrice}
+            <span className="ml-1 mr-1 text-xl text-foreground/60">
+              Per seat / {isYearly ? "year" : "month"}
+            </span>
+          </p>
+        </div>
+        <div className="mt-2 flex items-center justify-between">
+          <p className="text-4xl font-semibold">
+            <span className="mr-1 text-2xl text-foreground/60">=</span>
+            <span className="mr-1 text-2xl text-foreground/60"> $</span>
+            {calculatedPrice * seatsBought}
+            <span className="ml-1 mr-1 text-xl text-foreground/60">
+              / {isYearly ? "year" : "month"}
+            </span>
+          </p>
+        </div>
+        <ul className="mt-5 flex flex-1 grow flex-col gap-4 border-t p-3">
+          {features.map((feature, i) => (
+            <li className="flex items-center gap-2 text-foreground" key={i}>
+              <div className="p-1">
+                <Iconify
+                  icon="ph:check-circle-fill"
+                  height={20}
+                  width={20}
+                  className="text-primary"
+                />
+              </div>{" "}
+              {feature}
+            </li>
+          ))}
+        </ul>
+        <Button
+          className="mt-5 w-full"
+          onClick={handlePayment(tier)}
+          disabled={isLoading}
+        >
+          Choose {title}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+};
