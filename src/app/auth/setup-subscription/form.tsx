@@ -6,6 +6,7 @@ import Iconify from "@/components/ui/icon";
 import { cn } from "@/lib/utils";
 import { useCallback, useMemo, useState } from "react";
 
+import SignOutButton from "@/components/sign-out-button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { env } from "@/env";
@@ -129,6 +130,9 @@ export default function SetupForm() {
 
   return (
     <div className="flex flex-col">
+      <div className="fixed left-2 top-2 z-50 md:left-10 md:top-10 ">
+        <SignOutButton />
+      </div>
       <div className="mb-3 inline-flex w-full items-center justify-center gap-5">
         {[1, 2].map((step) => (
           <>
