@@ -94,9 +94,7 @@ export default function SetupForm() {
           if (res.data.hasToPay) {
             setCurrentStep(2);
             setTimeout(() => {
-              // TODO: revert
-              // replace(res.data.link);
-              replace(ROUTES.payment);
+              replace(res.data.link);
             }, 3000);
           } else {
             await session.update();
