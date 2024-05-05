@@ -60,7 +60,7 @@ const Editor = ({
   };
 
   return (
-    <div className={cn("w-full rounded border", containerClassName)}>
+    <div className={cn("w-full rounded border", containerClassName)} >
       <div
         id={EDITOR_HOLDER_ID}
         className={cn(
