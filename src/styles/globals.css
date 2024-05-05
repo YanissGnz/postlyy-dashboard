@@ -270,6 +270,10 @@ html[class*="dark"] .ce-popover {
   --color-background-item-confirm-hover: hsl(var(--destructive));
 }
 
+::selection {
+  @apply bg-primary/20 text-black
+}
+
 .ce-popover-item__icon {
   @apply bg-popover text-foreground;
 }
@@ -288,6 +292,22 @@ html[class*="dark"] .ce-popover {
 
 .ce-inline-tool {
   @apply !fill-foreground hover:bg-accent;
+}
+
+.ce-inline-toolbar__dropdown{
+  @apply bg-popover text-foreground hover:bg-accent
+}
+
+.ce-conversion-toolbar{
+  @apply bg-popover text-foreground;
+}
+
+.ce-conversion-tool__icon{
+  @apply !fill-foreground bg-popover;
+}
+
+.ce-conversion-tool{
+  @apply bg-popover text-foreground hover:bg-accent;
 }
 
 #color-left-btn #color-btn-text svg {
