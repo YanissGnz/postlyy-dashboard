@@ -45,7 +45,9 @@ export default function CreateNotePage() {
           />
 
           <BottomButtons>
-            <Button onClick={handleExportToJpeg}>Export to png</Button>
+            <Button onClick={handleExportToJpeg} id="export-image-button">
+              Export to png
+            </Button>
           </BottomButtons>
         </div>
       </div>
