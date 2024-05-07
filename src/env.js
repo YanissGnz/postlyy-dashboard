@@ -47,6 +47,7 @@ export const env = createEnv({
     NEXT_PUBLIC_GOOGLE_ID: z.string(),
     NEXT_PUBLIC_TENOR_API_KEY: z.string(),
     NEXT_PUBLIC_ENVIRONMENT: z.string(),
+    NEXT_PUBLIC_REFERSION_PUBLIC_KEY: z.string(),
   },
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
@@ -83,6 +84,8 @@ export const env = createEnv({
     NEXT_PUBLIC_GOOGLE_ID: process.env.NEXT_PUBLIC_GOOGLE_ID,
     NEXT_PUBLIC_TENOR_API_KEY: process.env.NEXT_PUBLIC_TENOR_API_KEY,
     NEXT_PUBLIC_ENVIRONMENT: process.env.NEXT_PUBLIC_ENVIRONMENT,
+    NEXT_PUBLIC_REFERSION_PUBLIC_KEY:
+      process.env.NEXT_PUBLIC_REFERSION_PUBLIC_KEY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
