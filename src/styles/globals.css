@@ -270,10 +270,6 @@ html[class*="dark"] .ce-popover {
   --color-background-item-confirm-hover: hsl(var(--destructive));
 }
 
-::selection {
-  @apply bg-primary/20 text-black
-}
-
 .ce-popover-item__icon {
   @apply bg-popover text-foreground;
 }

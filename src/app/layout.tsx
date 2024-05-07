@@ -12,6 +12,8 @@ import TokenProvider from "@/providers/token-provider";
 // components
 import { env } from "@/env";
 import { Toaster } from "sonner";
+import GoogleAnalytics from "./GoogleAnalytics";
+import Refersion from "./Refersion";
 import ComingSoon from "./coming-soon";
 
 const font = Outfit({
@@ -99,6 +101,8 @@ export default function RootLayout({
             </ThemeProvider>
           </ReduxProvider>
         </AuthProvider>
+        <Refersion />
+        <GoogleAnalytics />
       </body>
     </html>
   );
