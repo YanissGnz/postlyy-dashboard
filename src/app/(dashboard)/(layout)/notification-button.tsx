@@ -4,10 +4,14 @@ import Iconify from "@/components/ui/icon";
 import { useGetNotificationsQuery } from "@/redux/api/notifications/apiSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { setNotificationsSheet } from "@/redux/slices/layoutSlice";
+import { useMediaQuery } from "usehooks-ts";
 
 export default function NotificationButton() {
   const dispatch = useAppDispatch();
   const { isNotificationsSheetOpen } = useAppSelector((state) => state.layout);
+
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
   const { data: notifications } = useGetNotificationsQuery(
     { page: 0 },
     { pollingInterval: 60000 },
@@ -16,7 +20,7 @@ export default function NotificationButton() {
   return (
     <Button
       className="aspect-square h-full max-h-14 max-w-full "
-      variant="outline"
+      variant={isMobile ? "ghost" : "outline"}
       onClick={() => {
         dispatch(setNotificationsSheet(!isNotificationsSheetOpen));
       }}

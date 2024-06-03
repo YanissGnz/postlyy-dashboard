@@ -25,6 +25,7 @@ import {
 } from "../../../components/ui/sheet";
 import MobileAccountPopover from "./mobile-account-popover";
 import NavItem from "./nav-item";
+import NotificationButton from "./notification-button";
 
 export default function Header() {
   const { navItems, isMobileSidebarOpen } = useAppSelector(
@@ -134,7 +135,10 @@ export default function Header() {
             </div>
           </SheetContent>
         </Sheet>
-        <MobileAccountPopover />
+        <div className="flex items-center justify-center gap-2">
+          <NotificationButton />
+          <MobileAccountPopover />
+        </div>
       </header>
     </>
   );
