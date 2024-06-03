@@ -22,6 +22,7 @@ import { Button } from "../../../components/ui/button";
 import Iconify from "../../../components/ui/icon";
 import AccountPopover from "./account-popover";
 import NavItem from "./nav-item";
+import NotificationButton from "./notification-button";
 
 export default function Sidebar() {
   const session = useSession();
@@ -135,8 +136,14 @@ export default function Sidebar() {
           ))}
         </Accordion>
       </ScrollArea>
-      <div className="px-3 pb-3">
+      <div
+        className={cn(
+          "flex items-center gap-2 px-3 pb-3",
+          isCollapsed && "flex-wrap",
+        )}
+      >
         <AccountPopover />
+        <NotificationButton />
       </div>
     </div>
   );

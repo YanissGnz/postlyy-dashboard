@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useMediaQuery } from "usehooks-ts";
 import AlertsProvider from "../../providers/alerts-provider";
+import NotificationsSheet from "./notifications-sheet";
 import SupportButton from "./support-button";
 
 export default function DashboardLayout({
@@ -75,6 +76,7 @@ export default function DashboardLayout({
           </main>
         </div>
         <SupportButton />
+        <NotificationsSheet />
       </AppTourProvider>
     </AlertsProvider>
   );

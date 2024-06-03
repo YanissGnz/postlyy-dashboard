@@ -5,6 +5,7 @@ import { dashboardStatsApi } from "./api/dashboard/apiSlice";
 import { inspirationApi } from "./api/inspiration/apiSlice";
 import { newsLetterApi } from "./api/newsLetterApi";
 import { notesApi } from "./api/notes/apiSlice";
+import { notificationsApi } from "./api/notifications/apiSlice";
 import { postApi } from "./api/post/apiSlice";
 import { supportApi } from "./api/support/apiSlice";
 import { accountApi } from "./api/user/account/apiSlice";
@@ -43,6 +44,7 @@ export const store = configureStore({
     [dashboardStatsApi.reducerPath]: dashboardStatsApi.reducer,
     [supportApi.reducerPath]: supportApi.reducer,
     [inspirationApi.reducerPath]: inspirationApi.reducer,
+    [notificationsApi.reducerPath]: notificationsApi.reducer,
   },
   devTools: process.env.NODE_ENV !== "production",
   middleware: (getDefaultMiddleware) =>
@@ -61,7 +63,8 @@ export const store = configureStore({
       .concat(dashboardApi.middleware)
       .concat(dashboardStatsApi.middleware)
       .concat(supportApi.middleware)
-      .concat(inspirationApi.middleware),
+      .concat(inspirationApi.middleware)
+      .concat(notificationsApi.middleware),
 });
 
 setupListeners(store.dispatch);
