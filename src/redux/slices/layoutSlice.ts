@@ -18,6 +18,7 @@ type LayoutState = {
   }[];
   isMobileSidebarOpen: boolean;
   isAccountPopoverOpen: boolean;
+  isNotificationsSheetOpen: boolean;
 };
 
 const initialState = {
@@ -119,6 +120,7 @@ const initialState = {
   ],
   isMobileSidebarOpen: false,
   isAccountPopoverOpen: false,
+  isNotificationsSheetOpen: false,
 } as LayoutState;
 
 export const layout = createSlice({
@@ -139,6 +141,9 @@ export const layout = createSlice({
     changeAccountPopoverOpen: (state, action: PayloadAction<boolean>) => {
       state.isAccountPopoverOpen = action.payload;
     },
+    setNotificationsSheet: (state, action: PayloadAction<boolean>) => {
+      state.isNotificationsSheetOpen = action.payload;
+    },
   },
 });
 
@@ -147,5 +152,6 @@ export const {
   closeMobileSidebar,
   openMobileSidebar,
   changeAccountPopoverOpen,
+  setNotificationsSheet,
 } = layout.actions;
 export default layout.reducer;
