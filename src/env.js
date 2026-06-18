@@ -26,6 +26,7 @@ export const env = createEnv({
     LINKEDIN_CLIENT_ID: z.string(),
     LINKEDIN_CLIENT_SECRET: z.string(),
     API_BASE_URL: z.string().url(),
+    DUMMY_BACKEND: z.enum(["true", "false"]).default("false"),
   },
 
   /**
@@ -48,6 +49,7 @@ export const env = createEnv({
     NEXT_PUBLIC_TENOR_API_KEY: z.string(),
     NEXT_PUBLIC_ENVIRONMENT: z.string(),
     NEXT_PUBLIC_REFERSION_PUBLIC_KEY: z.string(),
+    NEXT_PUBLIC_DUMMY_BACKEND_ENABLED: z.string().optional(),
   },
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
@@ -58,6 +60,7 @@ export const env = createEnv({
     LINKEDIN_CLIENT_ID: process.env.LINKEDIN_CLIENT_ID,
     LINKEDIN_CLIENT_SECRET: process.env.LINKEDIN_CLIENT_SECRET,
     API_BASE_URL: process.env.API_BASE_URL,
+    DUMMY_BACKEND: process.env.DUMMY_BACKEND,
     NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
     NEXT_PUBLIC_AUTH_BASEURL: process.env.NEXT_PUBLIC_AUTH_BASEURL,
     NEXT_PUBLIC_JWT_AUTH_SECRET_KEY:
@@ -86,6 +89,8 @@ export const env = createEnv({
     NEXT_PUBLIC_ENVIRONMENT: process.env.NEXT_PUBLIC_ENVIRONMENT,
     NEXT_PUBLIC_REFERSION_PUBLIC_KEY:
       process.env.NEXT_PUBLIC_REFERSION_PUBLIC_KEY,
+    NEXT_PUBLIC_DUMMY_BACKEND_ENABLED:
+      process.env.NEXT_PUBLIC_DUMMY_BACKEND_ENABLED,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.

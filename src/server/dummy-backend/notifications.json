@@ -1,0 +1,52 @@
+[
+  {
+    "id": "notif-1",
+    "type": "post_published",
+    "title": "Post Published Successfully",
+    "message": "Your post 'Just launched our new product!' was published on Twitter.",
+    "isRead": true,
+    "userId": "demo-user-1",
+    "relatedPostId": "post-1",
+    "createdAt": "2026-06-15T14:00:00Z"
+  },
+  {
+    "id": "notif-2",
+    "type": "post_scheduled",
+    "title": "Post Scheduled",
+    "message": "Your post has been scheduled for June 20, 2026 at 4:00 PM.",
+    "isRead": false,
+    "userId": "demo-user-1",
+    "relatedPostId": "post-3",
+    "createdAt": "2026-06-17T12:00:00Z"
+  },
+  {
+    "id": "notif-3",
+    "type": "engagement",
+    "title": "New Engagement",
+    "message": "Your post received 128 likes and 34 replies on LinkedIn.",
+    "isRead": false,
+    "userId": "demo-user-2",
+    "relatedPostId": "post-2",
+    "createdAt": "2026-06-16T15:00:00Z"
+  },
+  {
+    "id": "notif-4",
+    "type": "subscription",
+    "title": "Subscription Reminder",
+    "message": "Your trial period ends in 7 days. Upgrade to continue using all features.",
+    "isRead": false,
+    "userId": "demo-user-3",
+    "relatedPostId": null,
+    "createdAt": "2026-06-18T00:00:00Z"
+  },
+  {
+    "id": "notif-5",
+    "type": "system",
+    "title": "System Update",
+    "message": "New features have been added to Postlyy. Check out what's new!",
+    "isRead": false,
+    "userId": "demo-user-1",
+    "relatedPostId": null,
+    "createdAt": "2026-06-17T08:00:00Z"
+  }
+]

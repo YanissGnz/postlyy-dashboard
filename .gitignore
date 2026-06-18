@@ -50,6 +50,6 @@ swe-worker-*
 .sentryclirc
 
 # BMAD
-.bmad
-.bmad-output
+_bmad
+_bmad-output
 .cline

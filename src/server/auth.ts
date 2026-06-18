@@ -4,6 +4,7 @@ import {
   getServerSession,
   type DefaultSession,
   type NextAuthOptions,
+  type User,
 } from "next-auth";
 // providers
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -55,6 +56,16 @@ declare module "next-auth" {
 }
 
 async function refreshUser(refreshToken: string) {
+  const isDummyBackend = env.NEXT_PUBLIC_DUMMY_BACKEND_ENABLED === "true";
+
+  if (isDummyBackend) {
+    // For dummy backend, the refresh token is valid and doesn't need API call
+    return {
+      refreshTokenExpires: Date.now() + 1000 * 60 * 60 * 3,
+      accessTokenExpires: Date.now() + 1000 * 60 * 60 * 3,
+    };
+  }
+
   try {
     const response = await fetch(
       `${env.API_BASE_URL}/api/Authentication/RefreshToken`,
@@ -316,6 +327,50 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
+        const isDummyBackend = env.NEXT_PUBLIC_DUMMY_BACKEND_ENABLED === "true";
+
+        if (isDummyBackend) {
+          // Use dummy backend directly via NextAuth
+          const { findUserByEmailPassword } = await import(
+            "@/server/dummy-backend/users"
+          );
+
+          const user = findUserByEmailPassword(
+            credentials?.email ?? "",
+            credentials?.password ?? ""
+          );
+
+          if (!user) {
+            return null;
+          }
+
+          // Generate mock tokens for dummy backend
+          const accessToken = `mock_access_token_${user.id}_${Date.now()}`;
+          const refreshToken = `mock_refresh_token_${user.id}_${Date.now()}`;
+
+          return {
+            id: user.id,
+            email: user.email,
+            fullName: user.fullName,
+            profilePicture: user.profilePicture,
+            hasChosenSubscription: user.hasChosenSubscription,
+            hasPaidSubscription: user.hasPaidSubscription,
+            hasToChangePassword: user.hasToChangePassword,
+            hasSetupEmail: user.hasSetupEmail,
+            hasSetupUsers: user.hasSetupUsers,
+            isTrial: user.isTrial,
+            tier: user.tier,
+            userType: user.userType,
+            accounts: user.accounts,
+            username: user.accounts?.[0]?.username ?? "",
+            accessToken,
+            refreshToken,
+            accessTokenExpires: Date.now() + 1000 * 60 * 60 * 3,
+            refreshTokenExpires: Date.now() + 1000 * 60 * 60 * 24 * 30,
+          } as unknown as User | null;
+        }
+
+        // Use real backend API
         const offset = getUTCOffset();
 
         const response = await fetch(
