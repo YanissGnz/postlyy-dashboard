@@ -48,3 +48,8 @@ workbox-*
 swe-worker-*
 # Sentry Config File
 .sentryclirc
+
+# BMAD
+.bmad
+.bmad-output
+.cline
