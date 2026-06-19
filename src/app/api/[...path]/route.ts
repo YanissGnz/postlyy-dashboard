@@ -1558,8 +1558,8 @@ async function handleDashboardLayoutRoutes(method: string, body: unknown) {
   const db = getDB();
 
   if (method === "GET") {
-    const config = JSON.parse(db.dashboardConfig) as Record<string, unknown>[];
-    return NextResponse.json(successResponse(config));
+    // Return as string since frontend's transformResponse does JSON.parse(response.data)
+    return NextResponse.json(successResponse(db.dashboardConfig));
   }
 
   if (method === "PUT") {

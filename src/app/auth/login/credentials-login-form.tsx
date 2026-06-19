@@ -1,6 +1,5 @@
 "use client";
 
-import { env } from "@/env";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
@@ -42,27 +41,13 @@ interface TDemoCredential {
 const demoCredentials: TDemoCredential[] = [
   {
     email: "demo@postlyy.com",
-    password: "demo123",
+    password: "Demo123!",
     label: "Demo Account (Pro)",
     tier: "Pro"
   },
-  {
-    email: "admin@postlyy.com",
-    password: "admin123",
-    label: "Admin Account (Expert)",
-    tier: "Expert"
-  },
-  {
-    email: "basic@postlyy.com",
-    password: "basic123",
-    label: "Basic Account",
-    tier: "Basic"
-  }
 ];
 
-const isDummyBackendEnabled = env.NEXT_PUBLIC_DUMMY_BACKEND_ENABLED === "true";
-
-export default function EnterpriseLoginForm() {
+  export default function EnterpriseLoginForm() {
   const { setFalse, setTrue, value: isLoading } = useBoolean(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -181,65 +166,63 @@ export default function EnterpriseLoginForm() {
         </form>
       </Form>
 
-      {isDummyBackendEnabled && (
-        <div className="mt-6">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                Or sign in with a demo account
-              </span>
-            </div>
+      <div className="mt-6">
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
           </div>
-
-          <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
-            {demoCredentials.map((cred) => (
-              <Button
-                key={cred.email}
-                variant="outline"
-                className="w-full"
-                onClick={async () => {
-                  setTrue();
-                  setError(null);
-                  const response = await signIn("credentials", {
-                    email: cred.email,
-                    password: cred.password,
-                    redirect: false,
-                  });
-
-                  if (response?.ok) {
-                    replace(callbackUrl ?? ROUTES.home);
-                  } else {
-                    setError(
-                      response?.error ?? "Failed to sign in with demo account"
-                    );
-                  }
-
-                  setFalse();
-                }}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <Iconify
-                    icon="ph:spinner-bold"
-                    className="h-4 w-4 animate-spin"
-                  />
-                ) : (
-                  <span className="text-xs">
-                    {cred.label}
-                    <br />
-                    <span className="text-[10px] opacity-60">
-                      {cred.email} / {cred.password}
-                    </span>
-                  </span>
-                )}
-              </Button>
-            ))}
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Or sign in with a demo account
+            </span>
           </div>
         </div>
-      )}
+
+        <div className="mt-4">
+          {demoCredentials.map((cred) => (
+            <Button
+              key={cred.email}
+              variant="outline"
+              className="w-full"
+              onClick={async () => {
+                setTrue();
+                setError(null);
+                const response = await signIn("credentials", {
+                  email: cred.email,
+                  password: cred.password,
+                  redirect: false,
+                });
+
+                if (response?.ok) {
+                  replace(callbackUrl ?? ROUTES.home);
+                } else {
+                  setError(
+                    response?.error ?? "Failed to sign in with demo account"
+                  );
+                }
+
+                setFalse();
+              }}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Iconify
+                  icon="ph:spinner-bold"
+                  className="h-4 w-4 animate-spin"
+                />
+              ) : (
+                <span className="text-xs">
+                  {cred.label}
+                  <br />
+                  <span className="text-[10px] opacity-60">
+                    {cred.email} / {cred.password}
+                  </span>
+                </span>
+              )}
+            </Button>
+          ))}
+        </div>
+      </div>
 
       <div className="mt-2 text-center">
         <p className="text-sm text-gray-500">

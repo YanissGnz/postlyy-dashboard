@@ -330,44 +330,40 @@ export const authOptions: NextAuthOptions = {
         const isDummyBackend = env.NEXT_PUBLIC_DUMMY_BACKEND_ENABLED === "true";
 
         if (isDummyBackend) {
-          // Use dummy backend directly via NextAuth
-          const { findUserByEmailPassword } = await import(
-            "@/server/dummy-backend/users"
-          );
+          // Use the mock API route directly (same origin)
+          const baseUrl = process.env.VERCEL
+            ? `https://${process.env.VERCEL_URL}`
+            : `http://localhost:${process.env.PORT ?? "3010"}`;
 
-          const user = findUserByEmailPassword(
-            credentials?.email ?? "",
-            credentials?.password ?? ""
-          );
+          try {
+            const response = await fetch(
+              `${baseUrl}/api/Authentication/Login`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  email: credentials?.email ?? "",
+                  password: credentials?.password ?? "",
+                }),
+              },
+            );
 
-          if (!user) {
+            if (!response.ok) {
+              return null;
+            }
+
+            const user = (await response.json()) as TDBUser;
+
+            return {
+              ...user,
+              id: user.accounts?.[0]?.id ?? "user_1",
+              username: user.accounts?.[0]?.username ?? "",
+              accessTokenExpires: Date.now() + 1000 * 60 * 60 * 3,
+              refreshTokenExpires: Date.now() + 1000 * 60 * 60 * 24 * 30,
+            } as unknown as User;
+          } catch {
             return null;
           }
-
-          // Generate mock tokens for dummy backend
-          const accessToken = `mock_access_token_${user.id}_${Date.now()}`;
-          const refreshToken = `mock_refresh_token_${user.id}_${Date.now()}`;
-
-          return {
-            id: user.id,
-            email: user.email,
-            fullName: user.fullName,
-            profilePicture: user.profilePicture,
-            hasChosenSubscription: user.hasChosenSubscription,
-            hasPaidSubscription: user.hasPaidSubscription,
-            hasToChangePassword: user.hasToChangePassword,
-            hasSetupEmail: user.hasSetupEmail,
-            hasSetupUsers: user.hasSetupUsers,
-            isTrial: user.isTrial,
-            tier: user.tier,
-            userType: user.userType,
-            accounts: user.accounts,
-            username: user.accounts?.[0]?.username ?? "",
-            accessToken,
-            refreshToken,
-            accessTokenExpires: Date.now() + 1000 * 60 * 60 * 3,
-            refreshTokenExpires: Date.now() + 1000 * 60 * 60 * 24 * 30,
-          } as unknown as User | null;
         }
 
         // Use real backend API
