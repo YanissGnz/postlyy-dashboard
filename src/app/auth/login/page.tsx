@@ -1,17 +1,15 @@
-// next-auth
-import { getProviders } from "next-auth/react";
 // components
-import { getServerAuthSession } from "@/server/auth";
+import { getProviders, getServerAuthSession } from "@/server/auth-server";
 import { redirect } from "next/navigation";
 import CredentialsLoginForm from "./credentials-login-form";
 import ProviderLoginButton from "./provider-login-button";
 
 export default async function Login() {
   const session = await getServerAuthSession();
-
+console.log("session", session);
   const providers = await getProviders();
 
-  if (session) {
+  if (session?.status === "authenticated") {
     redirect("/");
   }
 

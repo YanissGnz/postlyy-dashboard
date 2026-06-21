@@ -56,6 +56,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { env } from "@/env";
+import { useAuth } from "@/lib/auth/client";
 import { fData } from "@/lib/formatNumber";
 import { cn, convertToUTC, hasAccount } from "@/lib/utils";
 import {
@@ -86,7 +87,6 @@ import {
   type Theme,
 } from "emoji-picker-react";
 import { type TenorImage } from "gif-picker-react";
-import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
@@ -226,13 +226,13 @@ const generateFormData = async (data: TPostForm) => {
 };
 
 export default function PostPage() {
-  const session = useSession();
+  const { data: session } = useAuth();
 
   const { currentAccount } = useAppSelector((state) => state.auth);
 
   const accounts = useMemo(
-    () => session.data?.user.accounts ?? [],
-    [session.data],
+    () => session?.accounts ?? [],
+    [session?.accounts],
   );
 
   const { theme, systemTheme } = useTheme();
@@ -1427,7 +1427,7 @@ export default function PostPage() {
                               <h6>Socials</h6>
                               {hasAccount(
                                 EProviders.Twitter,
-                                session.data?.user.accounts,
+                                session?.accounts,
                               ) && (
                                 <FormField
                                   control={form.control}
@@ -1440,7 +1440,7 @@ export default function PostPage() {
                                           disabled={
                                             !hasAccount(
                                               EProviders.Linkedin,
-                                              session.data?.user.accounts,
+                                              session?.accounts,
                                             ) ||
                                             (!form.getValues("onLinkedIn") &&
                                               field.value)
@@ -1458,7 +1458,7 @@ export default function PostPage() {
                               )}
                               {hasAccount(
                                 EProviders.Linkedin,
-                                session.data?.user.accounts,
+                                session?.accounts,
                               ) && (
                                 <FormField
                                   control={form.control}
@@ -1471,7 +1471,7 @@ export default function PostPage() {
                                           disabled={
                                             !hasAccount(
                                               EProviders.Twitter,
-                                              session.data?.user.accounts,
+                                              session?.accounts,
                                             ) ||
                                             (!form.getValues("onTwitter") &&
                                               field.value)
@@ -1678,7 +1678,7 @@ export default function PostPage() {
                                 src={
                                   currentAccount?.photoUrl
                                     ? currentAccount?.photoUrl
-                                    : session.data?.user.profilePicture ?? ""
+                                    : session?.profilePicture ?? ""
                                 }
                                 alt={`@${currentAccount?.username}`}
                                 className="object-cover"
@@ -1687,14 +1687,14 @@ export default function PostPage() {
                                 {currentAccount?.username
                                   ?.slice(0, 2)
                                   .toUpperCase() ??
-                                  session.data?.user.fullName
+                                  session?.fullName
                                     ?.slice(0, 2)
                                     .toUpperCase()}
                               </AvatarFallback>
                             </Avatar>
                             <div className="flex-1 space-y-1">
                               <p className="text-sm font-semibold">
-                                {session.data?.user.fullName}
+                                {session?.fullName}
                               </p>
                               <p className="text-xs text-gray-500">
                                 @

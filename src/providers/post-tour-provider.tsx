@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/lib/auth/client";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Joyride, {
   ACTIONS,
@@ -29,11 +29,11 @@ const stepStyles = {
 function PostTourProvider({ children }: { children: React.ReactNode }) {
   const [didPostTour, setDidPostTour] = useLocalStorage("post-tour", false);
   const [didAppTour] = useLocalStorage("app-tour", false);
-  const session = useSession();
+  const { data: session } = useAuth();
 
   const accounts = useMemo(() => {
-    return session.data?.user.accounts;
-  }, [session.data]);
+    return session?.accounts;
+  }, [session]);
 
   const [{ run, stepIndex, steps }, setState] = useState<State>({
     run: false,

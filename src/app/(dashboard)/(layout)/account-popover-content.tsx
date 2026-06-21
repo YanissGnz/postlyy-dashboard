@@ -1,6 +1,6 @@
 "use client";
 
-import { signOut, useSession } from "next-auth/react";
+import { useAuth } from "@/lib/auth/client";
 import { useTheme } from "next-themes";
 import { useCallback } from "react";
 // redux
@@ -32,7 +32,7 @@ import { useDispatch } from "react-redux";
 
 export default function AccountPopoverContent() {
   const { theme, setTheme } = useTheme();
-  const { data: session } = useSession();
+  const { data: session } = useAuth();
   const { data: accounts, isLoading, isSuccess } = useGetAccountsQuery();
 
   const dispatch = useDispatch();
@@ -53,9 +53,10 @@ export default function AccountPopoverContent() {
     [],
   );
 
+  const { signOut } = useAuth();
   const handleLogout = useCallback(async () => {
     await signOut();
-  }, []);
+  }, [signOut]);
 
   return (
     <DropdownMenuContent className="w-56" id="account-popover">
@@ -70,7 +71,7 @@ export default function AccountPopoverContent() {
             Settings
           </Link>
         </DropdownMenuItem>
-        {session?.user && [EUserType.Owner].includes(session.user.userType) && (
+        {session && [EUserType.Owner].includes(session.userType) && (
           <DropdownMenuItem asChild>
             <Link href={ROUTES.billing} className="text-foreground">
               <Iconify

@@ -1,20 +1,20 @@
 "use client";
 
 import { env } from "@/env";
+import { useAuth } from "@/lib/auth/client";
 import { ROUTES } from "@/routes";
 import { isArray } from "lodash";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function Payment() {
-  const session = useSession();
+  const { data: session } = useAuth();
   const { replace } = useRouter();
 
   useEffect(() => {
-    if (!session?.data?.user.hasChosenSubscription) {
+    if (!session?.hasChosenSubscription) {
       replace(ROUTES.setupSubscription);
-    } else if (session?.data?.user.hasPaidSubscription) {
+    } else if (session?.hasPaidSubscription) {
       replace(ROUTES.home);
     }
 
@@ -22,25 +22,21 @@ export default function Payment() {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${session.data?.user.accessToken}`,
+        Authorization: `Bearer ${session?.accessToken}`,
       },
     })
       .then((res) => res.json())
       .then(async (data: { data: { link: string } } | string[]) => {
         if (data && isArray(data)) {
-          await session.update().then(() => {
-            replace(ROUTES.login);
-          });
+          replace(ROUTES.login);
           return;
         }
 
         replace(data.data.link);
         return;
       })
-      .catch(async () => {
-        await session.update().then(() => {
-          replace(ROUTES.login);
-        });
+      .catch(() => {
+        replace(ROUTES.login);
       });
   }, [session]);
 

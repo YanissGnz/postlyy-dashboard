@@ -1,12 +1,15 @@
 "use client";
 
-import React, { useCallback } from "react";
-import { signIn, type ClientSafeProvider } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import Iconify from "@/components/ui/icon";
+import { useCallback } from "react";
 
-interface Props {
-  provider: ClientSafeProvider;
+export interface MockProvider {
+  name: string;
+  label: string;
+  signInUrl: string;
+  id: string;
+  type: "oauth" | "credentials";
 }
 
 const getProviderIcon = (name: string) => {
@@ -20,10 +23,13 @@ const getProviderIcon = (name: string) => {
   }
 };
 
-export default function ProviderLoginButton({ provider }: Props) {
+export default function ProviderLoginButton({ provider }: { provider: MockProvider }) {
   const handleSignIn = useCallback(async () => {
-    await signIn(provider.id);
+    // For mock auth, we redirect to the login flow for the provider
+    // In a real app, this would initiate OAuth flow
+    window.location.href = `/auth/oauth?provider=${provider.id}`;
   }, [provider.id]);
+
   return (
     <Button variant="outline" className="w-full" onClick={handleSignIn}>
       <Iconify icon={getProviderIcon(provider.name)} className="mr-2 h-5 w-5" />

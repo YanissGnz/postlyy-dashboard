@@ -37,6 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useAuth } from "@/lib/auth/client";
 import { hasAccount } from "@/lib/utils";
 import { useAppDispatch } from "@/redux/hooks";
 import { addCard } from "@/redux/slices/dashboardSlice";
@@ -46,7 +47,6 @@ import { EDashboardCardType } from "@/types/EDashboardCardType";
 import { EProviders } from "@/types/EProviders";
 import { EStatType } from "@/types/EStatType";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useCallback, type Dispatch, type SetStateAction } from "react";
 import { useForm } from "react-hook-form";
@@ -156,9 +156,8 @@ type Props = {
 };
 
 export default function AddCardDialog({ isOpen, setValue }: Props) {
-  const { data } = useSession();
+  const { data: session } = useAuth();
   const dispatch = useAppDispatch();
-  const session = useSession();
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -237,13 +236,13 @@ export default function AddCardDialog({ isOpen, setValue }: Props) {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {(hasAccount(
+                        {(hasAccount(
                             EProviders.Linkedin,
-                            session.data?.user.accounts,
+                            session?.accounts,
                           ) ||
                             hasAccount(
                               EProviders.Twitter,
-                              session.data?.user.accounts,
+                              session?.accounts,
                             )) && (
                             <>
                               <SelectItem value="stat">Stat</SelectItem>
@@ -286,7 +285,7 @@ export default function AddCardDialog({ isOpen, setValue }: Props) {
                             <SelectContent>
                               {hasAccount(
                                 EProviders.Twitter,
-                                data?.user.accounts,
+                                session?.accounts,
                               ) && (
                                 <SelectItem
                                   value={EProviders.Twitter.toString()}
@@ -296,7 +295,7 @@ export default function AddCardDialog({ isOpen, setValue }: Props) {
                               )}
                               {hasAccount(
                                 EProviders.Linkedin,
-                                data?.user.accounts,
+                                session?.accounts,
                               ) && (
                                 <SelectItem
                                   value={EProviders.Linkedin.toString()}
@@ -420,13 +419,13 @@ export default function AddCardDialog({ isOpen, setValue }: Props) {
                       </FormControl>
                       <SelectContent>
                         {(hasAccount(
-                          EProviders.Linkedin,
-                          session.data?.user.accounts,
-                        ) ||
-                          hasAccount(
-                            EProviders.Twitter,
-                            session.data?.user.accounts,
-                          )) && (
+                            EProviders.Linkedin,
+                            session?.accounts,
+                          ) ||
+                            hasAccount(
+                              EProviders.Twitter,
+                              session?.accounts,
+                            )) && (
                           <>
                             <SelectItem value="stat">Stat</SelectItem>
                             <SelectItem value="graph">Graph</SelectItem>
@@ -468,7 +467,7 @@ export default function AddCardDialog({ isOpen, setValue }: Props) {
                           <SelectContent>
                             {hasAccount(
                               EProviders.Twitter,
-                              data?.user.accounts,
+                              session?.accounts,
                             ) && (
                               <SelectItem value={EProviders.Twitter.toString()}>
                                 Twitter
@@ -476,7 +475,7 @@ export default function AddCardDialog({ isOpen, setValue }: Props) {
                             )}
                             {hasAccount(
                               EProviders.Linkedin,
-                              data?.user.accounts,
+                              session?.accounts,
                             ) && (
                               <SelectItem
                                 value={EProviders.Linkedin.toString()}

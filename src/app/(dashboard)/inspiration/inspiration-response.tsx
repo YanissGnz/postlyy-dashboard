@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/lib/auth/client";
 import { convertToUTC } from "@/lib/utils";
 import { useAddNoteMutation } from "@/redux/api/notes/apiSlice";
 import { useAddPostNowMutation } from "@/redux/api/post/apiSlice";
@@ -28,7 +29,6 @@ import { ROUTES } from "@/routes";
 import { type TPost } from "@/types/TPostForm";
 import { type IParser } from "@alkhipce/editorjs-react/dist/types/ParserData";
 import { addDays } from "date-fns";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { TypeAnimation } from "react-type-animation";
@@ -40,7 +40,7 @@ const TWITTER_TEXT_MAX_LENGTH = 280;
 export default function InspirationResponse({ text }: { text: string }) {
   const currentAccount = useAppSelector((state) => state.auth.currentAccount);
   const isDesktop = useMediaQuery("(min-width: 768px)");
-  const session = useSession();
+  const { data: session } = useAuth();
   const { push } = useRouter();
   const [name, setName] = useState("");
   const [scheduleDate, setScheduleDate] = useState<string | null>(null);
@@ -177,22 +177,22 @@ export default function InspirationResponse({ text }: { text: string }) {
             <AvatarImage
               src={
                 currentAccount?.photoUrl ??
-                session.data?.user.profilePicture ??
+                session?.profilePicture ??
                 ""
               }
               alt={`@${
-                currentAccount?.username ?? session.data?.user.fullName
+                currentAccount?.username ?? session?.fullName
               }`}
               className="object-cover"
             />
             <AvatarFallback>
               {currentAccount?.username?.slice(0, 2).toUpperCase() ??
-                session.data?.user.fullName?.slice(0, 2).toUpperCase()}
+                session?.fullName?.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 space-y-1">
             <p className="text-sm font-semibold">
-              {session.data?.user.fullName ?? currentAccount?.username}
+              {session?.fullName ?? currentAccount?.username}
             </p>
             <p className="text-xs text-gray-500">
               @{currentAccount?.username.toLowerCase().replace(/\s/g, "")}

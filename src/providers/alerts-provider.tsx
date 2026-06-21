@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/lib/auth/client";
 import { useEffect } from "react";
 
 import { useBoolean } from "usehooks-ts";
@@ -22,26 +22,26 @@ export default function AlertsProvider({
   const { value: seatsAlertOpen, setValue: setSeatsAlertOpen } =
     useBoolean(false);
 
-  const session = useSession();
+  const { data: session, status } = useAuth();
 
   useEffect(() => {
     if (
-      session.status === "authenticated" &&
-      !session.data?.user.hasSetupEmail
+      status === "authenticated" &&
+      !session?.hasSetupEmail
     ) {
       setEmailAlertOpen(true);
     } else if (
-      session.status === "authenticated" &&
-      session.data?.user.hasToChangePassword
+      status === "authenticated" &&
+      session?.hasToChangePassword
     ) {
       setPasswordAlertOpen(true);
     } else if (
-      session.status === "authenticated" &&
-      !session.data?.user.hasSetupUsers
+      status === "authenticated" &&
+      !session?.hasSetupUsers
     ) {
       setSeatsAlertOpen(true);
     }
-  }, [session]);
+  }, [session, status]);
 
   return (
     <>

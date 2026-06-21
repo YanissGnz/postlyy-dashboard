@@ -5,6 +5,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useAuth } from "@/lib/auth/client";
 import { LAYOUT } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
@@ -12,7 +13,6 @@ import {
   closeMobileSidebar,
   openMobileSidebar,
 } from "@/redux/slices/layoutSlice";
-import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useCallback } from "react";
 import { useLocalStorage } from "usehooks-ts";
@@ -36,7 +36,7 @@ export default function Header() {
     "0",
   ]);
 
-  const session = useSession();
+  const { data: session } = useAuth();
 
   const dispatch = useAppDispatch();
 
@@ -49,7 +49,7 @@ export default function Header() {
     else dispatch(closeMobileSidebar());
   }, []);
 
-  if (!session.data) {
+  if (!session) {
     return null;
   }
 
@@ -121,9 +121,7 @@ export default function Header() {
                         <AccordionContent className="w-full space-y-1 pb-1">
                           {item.children.map((nav) => (
                             <div className={cn("w-full pl-2")}>
-                              {nav.roles.includes(
-                                session.data.user.userType,
-                              ) && <NavItem key={nav.path} {...nav} />}
+                              {nav.roles.includes(session.userType) && <NavItem key={nav.path} {...nav} />}
                             </div>
                           ))}
                         </AccordionContent>

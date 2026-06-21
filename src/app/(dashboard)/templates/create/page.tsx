@@ -3,6 +3,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 "use client";
 
+import { useAuth } from "@/lib/auth/client";
+import dynamic from "next/dynamic";
 import {
   type ChangeEvent,
   Fragment,
@@ -11,29 +13,16 @@ import {
   useMemo,
   useState,
 } from "react";
-import dynamic from "next/dynamic";
-import { useSession } from "next-auth/react";
 
 import { useAppSelector } from "@/redux/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import { CardContent } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import Iconify from "@/components/ui/icon";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -43,34 +32,45 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import Iconify from "@/components/ui/icon";
+import Image from "@/components/ui/image";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Spinner } from "@/components/ui/Spinner";
-import { type TPostForm, postFormSchema, type TPost } from "@/types/TPostForm";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { env } from "@/env";
+import { LAYOUT } from "@/lib/constants";
+import { fData } from "@/lib/formatNumber";
+import { cn } from "@/lib/utils";
+import { useAddPostNowMutation } from "@/redux/api/post/apiSlice";
+import { EProviders } from "@/types/EProviders";
+import { postFormSchema, type TPost, type TPostForm } from "@/types/TPostForm";
+import { InfoCircledIcon } from "@radix-ui/react-icons";
 import {
   type EmojiClickData,
   EmojiStyle,
   SkinTonePickerLocation,
   type Theme,
 } from "emoji-picker-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
+import { type TenorImage } from "gif-picker-react";
 import { useTheme } from "next-themes";
 import ImageUploading, { type ImageListType } from "react-images-uploading";
-import Image from "@/components/ui/image";
 import { toast } from "sonner";
-import { fData } from "@/lib/formatNumber";
-import { env } from "@/env";
-import { type TenorImage } from "gif-picker-react";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { InfoCircledIcon } from "@radix-ui/react-icons";
-import { useAddPostNowMutation } from "@/redux/api/post/apiSlice";
 import { useBoolean, useMediaQuery } from "usehooks-ts";
 import PreviewSheet from "./preview-sheet";
-import { LAYOUT } from "@/lib/constants";
-import { EProviders } from "@/types/EProviders";
 const EmojiPicker = dynamic(
   () => {
     return import("emoji-picker-react");
@@ -191,7 +191,7 @@ export default function PostPage() {
   const { currentAccount } = useAppSelector((state) => state.auth);
   const { isCollapsed } = useAppSelector((state) => state.layout);
   const isMobile = useMediaQuery("(max-width: 768px)");
-  const session = useSession();
+  const { data: session } = useAuth();
   const { theme, systemTheme } = useTheme();
 
   const [postNowOrSchedule, { isLoading: isPostingNowOrScheduling }] =
@@ -225,12 +225,12 @@ export default function PostPage() {
   const hasAccount = useCallback(
     (accountType: EProviders) => {
       return Boolean(
-        session.data?.user.accounts.find(
-          (account) => account.accountType === accountType,
+        session?.accounts?.find(
+          (account: { accountType: EProviders }) => account.accountType === accountType,
         ),
       );
     },
-    [session.data?.user.accounts],
+    [session?.accounts],
   );
 
   const getPostContent = useCallback(
@@ -979,7 +979,7 @@ export default function PostPage() {
                                 src={
                                   currentAccount?.photoUrl
                                     ? currentAccount?.photoUrl
-                                    : session.data?.user.profilePicture ?? ""
+                                    : session?.profilePicture ?? ""
                                 }
                                 alt={`@${currentAccount?.username}`}
                                 className="object-cover"
@@ -988,14 +988,14 @@ export default function PostPage() {
                                 {currentAccount?.username
                                   ?.slice(0, 2)
                                   .toUpperCase() ??
-                                  session.data?.user.fullName
+                                  session?.fullName
                                     ?.slice(0, 2)
                                     .toUpperCase()}
                               </AvatarFallback>
                             </Avatar>
                             <div className="flex-1 space-y-1">
                               <p className="text-sm font-semibold">
-                                {session.data?.user.fullName}
+                                {session?.fullName}
                               </p>
                               <p className="text-xs text-gray-500">
                                 @

@@ -2,10 +2,10 @@
 
 import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth/client";
 import { ROUTES } from "@/routes";
 import { ETiers } from "@/types/ETiers";
 import { EUserType } from "@/types/EUserType";
-import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import forbidden from "public/images/403.png";
@@ -24,22 +24,22 @@ export default function RoleBasedGuard({
   needAccount,
   children,
 }: RoleBasedGuardProp) {
-  const session = useSession();
+  const { data: session, status } = useAuth();
 
   const hasAccount = useMemo(() => {
-    return session.data?.user?.accounts?.length
-      ? session.data?.user?.accounts?.length > 0
+    return session?.accounts?.length
+      ? session.accounts.length > 0
       : false;
   }, [session]);
 
-  if (!session || session.status === "loading")
+  if (!session || status === "loading")
     return (
       <div className="flex h-screen w-screen items-center justify-center">
         <Spinner />
       </div>
     );
 
-  if (!session?.data?.user) {
+   if (!session) {
     return (
       <div className="flex h-full w-full flex-col items-center justify-center gap-4">
         <h1 className="text-4xl font-bold">Permission Denied</h1>
@@ -72,11 +72,11 @@ export default function RoleBasedGuard({
     );
   }
 
-  if (
-    Boolean(session?.data?.user) &&
-    (!accessibleRoles?.includes(session?.data?.user.userType) ||
-      !accessibleTiers?.includes(session?.data?.user.tier))
-  ) {
+   if (
+     Boolean(session) &&
+     (!accessibleRoles?.includes(session.userType) ||
+       !accessibleTiers?.includes(session.tier))
+   ) {
     return (
       <div className="fixed z-[1] flex h-screen w-full flex-col items-center justify-center gap-4 bg-background p-10 text-center">
         <h1 className="text-balance text-4xl font-bold">Permission Denied</h1>

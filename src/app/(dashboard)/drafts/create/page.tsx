@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/lib/auth/client";
 import dynamic from "next/dynamic";
 import {
   Fragment,
@@ -191,7 +191,7 @@ export default function PostPage() {
   const { currentAccount } = useAppSelector((state) => state.auth);
   const { isCollapsed } = useAppSelector((state) => state.layout);
   const isMobile = useMediaQuery("(max-width: 768px)");
-  const session = useSession();
+  const { data: session } = useAuth();
   const { theme, systemTheme } = useTheme();
 
   const [saveDraft, { isLoading: isPostingNowOrScheduling }] =
@@ -225,12 +225,12 @@ export default function PostPage() {
   const hasAccount = useCallback(
     (accountType: EProviders) => {
       return Boolean(
-        session.data?.user.accounts.find(
-          (account) => account.accountType === accountType,
+        session?.accounts?.find(
+          (account: { accountType: EProviders }) => account.accountType === accountType,
         ),
       );
     },
-    [session.data?.user.accounts],
+    [session?.accounts],
   );
 
   const getPostContent = useCallback(
@@ -979,7 +979,7 @@ export default function PostPage() {
                                 src={
                                   currentAccount?.photoUrl
                                     ? currentAccount?.photoUrl
-                                    : session.data?.user.profilePicture ?? ""
+                                    : session?.profilePicture ?? ""
                                 }
                                 alt={`@${currentAccount?.username}`}
                                 className="object-cover"
@@ -988,14 +988,14 @@ export default function PostPage() {
                                 {currentAccount?.username
                                   ?.slice(0, 2)
                                   .toUpperCase() ??
-                                  session.data?.user.fullName
+                                  session?.fullName
                                     ?.slice(0, 2)
                                     .toUpperCase()}
                               </AvatarFallback>
                             </Avatar>
                             <div className="flex-1 space-y-1">
                               <p className="text-sm font-semibold">
-                                {session.data?.user.fullName}
+                                {session?.fullName}
                               </p>
                               <p className="text-xs text-gray-500">
                                 @

@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -20,6 +19,7 @@ import {
 } from "@/components/ui/form";
 import Iconify from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
+import { useAuth } from '@/lib/auth/client';
 import { ROUTES } from "@/routes";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { sentenceCase } from "change-case";
@@ -56,7 +56,9 @@ const demoCredentials: TDemoCredential[] = [
   const callbackUrl = searchParams?.get("callbackUrl");
   const urlEmail = searchParams?.get("email");
 
-  const { replace } = useRouter();
+    const { replace } = useRouter();
+    
+    const { signIn } = useAuth();
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -74,7 +76,7 @@ const demoCredentials: TDemoCredential[] = [
       email,
       password,
       redirect: false,
-    });
+    }) as { ok?: boolean; error?: string } | undefined;
 
     if (response?.ok) {
       replace(callbackUrl ?? ROUTES.home);
@@ -191,7 +193,7 @@ const demoCredentials: TDemoCredential[] = [
                   email: cred.email,
                   password: cred.password,
                   redirect: false,
-                });
+                }) as { ok?: boolean; error?: string } | undefined;
 
                 if (response?.ok) {
                   replace(callbackUrl ?? ROUTES.home);

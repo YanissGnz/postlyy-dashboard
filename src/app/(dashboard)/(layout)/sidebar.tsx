@@ -1,7 +1,7 @@
 "use client";
 
+import { useAuth } from "@/lib/auth/client";
 import { cn } from "@/lib/utils";
-import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useCallback } from "react";
 // redux
@@ -25,7 +25,7 @@ import NavItem from "./nav-item";
 import NotificationButton from "./notification-button";
 
 export default function Sidebar() {
-  const session = useSession();
+  const { data: session } = useAuth();
 
   const { navItems, isCollapsed } = useAppSelector((state) => state.layout);
 
@@ -39,7 +39,7 @@ export default function Sidebar() {
     dispatch(toggleCollapseSidebar());
   }, []);
 
-  if (!session.data) {
+  if (!session) {
     return null;
   }
 
@@ -125,7 +125,7 @@ export default function Sidebar() {
                 <AccordionContent className="w-full space-y-1 pb-1">
                   {item.children.map((nav) => (
                     <div className={cn("w-full", !isCollapsed && "pl-2")}>
-                      {nav.roles.includes(session.data.user.userType) && (
+                      {nav.roles.includes(session.userType) && (
                         <NavItem key={nav.path} {...nav} />
                       )}
                     </div>

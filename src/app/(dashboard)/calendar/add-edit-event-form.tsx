@@ -30,6 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useAuth } from "@/lib/auth/client";
 import { cn, getEventIcon, hasAccount } from "@/lib/utils";
 import {
   calendarApiUtil,
@@ -46,7 +47,6 @@ import { type TCalendarSpot } from "@/types/TCalendarSpot";
 import { type TRecurringPost } from "@/types/TRecurringPost";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { format, setHours } from "date-fns";
-import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { type UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
@@ -90,7 +90,7 @@ export const DAYS_OF_WEEK = [
 ];
 
 export default function AddEditEventForm({ form, isEdit, id }: Props) {
-  const { data } = useSession();
+  const { data: session } = useAuth();
 
   const [addSpot, { isLoading: isAddSpotLoading }] = useAddSpotMutation();
   const [updateSpot, { isLoading: isUpdateSpotLoading }] =
@@ -402,7 +402,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
               )}
             />
           )}
-          {hasAccount(EProviders.Twitter, data?.user.accounts) && (
+          {hasAccount(EProviders.Twitter, session?.accounts) && (
             <FormField
               control={form.control}
               name="forTwitter"
@@ -421,7 +421,7 @@ export default function AddEditEventForm({ form, isEdit, id }: Props) {
               )}
             />
           )}
-          {hasAccount(EProviders.Linkedin, data?.user.accounts) && (
+          {hasAccount(EProviders.Linkedin, session?.accounts) && (
             <FormField
               control={form.control}
               name="forLinkedIn"

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import Iconify from "@/components/ui/icon";
 import { SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/lib/auth/client";
 import { getEventIcon, getTypeName } from "@/lib/utils";
 import { useGetScheduledPostByIdQuery } from "@/redux/api/post/apiSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
@@ -14,7 +15,6 @@ import { EPostSpotType } from "@/types/EPostSpotType";
 import { EProviders } from "@/types/EProviders";
 import { type TCalendarEvent } from "@/types/TCalendarEvent";
 import { format } from "date-fns";
-import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -25,7 +25,7 @@ export const DEFAULT_POST_ID = "00000000-0000-0000-0000-000000000000";
 export default function PostDetails() {
   const { list } = useAppSelector((state) => state.modals);
   const { currentAccount } = useAppSelector((state) => state.auth);
-  const session = useSession();
+  const { data: session } = useAuth();
   const dispatch = useAppDispatch();
   const { push } = useRouter();
 
@@ -233,7 +233,7 @@ export default function PostDetails() {
                                 src={
                                   currentAccount?.photoUrl
                                     ? currentAccount?.photoUrl
-                                    : session.data?.user.profilePicture ?? ""
+                                    : session?.profilePicture ?? ""
                                 }
                                 alt={`@${currentAccount?.username}`}
                                 className="object-cover"
@@ -242,14 +242,14 @@ export default function PostDetails() {
                                 {currentAccount?.username
                                   ?.slice(0, 2)
                                   .toUpperCase() ??
-                                  session.data?.user.fullName
+                                  session?.fullName
                                     ?.slice(0, 2)
                                     .toUpperCase()}
                               </AvatarFallback>
                             </Avatar>
                             <div className="flex-1 space-y-1">
                               <p className="text-sm font-semibold">
-                                {session.data?.user.fullName}
+                                {session?.fullName}
                               </p>
                               <p className="text-xs text-gray-500">
                                 @
@@ -320,15 +320,15 @@ export default function PostDetails() {
                           <Avatar>
                             <AvatarImage
                               src={
-                                session.data?.user.accounts.find(
-                                  (account) =>
+                                session?.accounts?.find(
+                                  (account: { accountType: EProviders }) =>
                                     account.accountType === EProviders.Linkedin,
                                 )?.photoUrl ??
-                                session.data?.user.profilePicture ??
+                                session?.profilePicture ??
                                 ""
                               }
-                              alt={`@${session.data?.user.accounts.find(
-                                (account) =>
+                              alt={`@${session?.accounts?.find(
+                                (account: { accountType: EProviders }) =>
                                   account.accountType === EProviders.Linkedin,
                               )?.username}`}
                               className="object-cover"
@@ -337,14 +337,14 @@ export default function PostDetails() {
                               {currentAccount?.username
                                 ?.slice(0, 2)
                                 .toUpperCase() ??
-                                session.data?.user.fullName
+                                session?.fullName
                                   ?.slice(0, 2)
                                   .toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1 space-y-1">
                             <p className="text-sm font-semibold">
-                              {session.data?.user.fullName}
+                              {session?.fullName}
                             </p>
                             <p className="text-xs text-gray-500">
                               @

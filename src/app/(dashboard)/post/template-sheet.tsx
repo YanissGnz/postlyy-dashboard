@@ -1,29 +1,29 @@
-import React, { useCallback, type Dispatch, type SetStateAction } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import Iconify from "@/components/ui/icon";
+import Image from "@/components/ui/image";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { useGetTemplatesQuery } from "@/redux/api/post/apiSlice";
-import { usePagination } from "../../../hooks/usePagination";
 import { Spinner } from "@/components/ui/Spinner";
-import ErrorCard from "../../../components/error-card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { useSession } from "next-auth/react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import Iconify from "@/components/ui/icon";
-import { Button } from "@/components/ui/button";
-import { openModal } from "@/redux/slices/modalsSlice";
 import { env } from "@/env";
-import Image from "@/components/ui/image";
+import { useAuth } from "@/lib/auth/client";
+import { useGetTemplatesQuery } from "@/redux/api/post/apiSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { openModal } from "@/redux/slices/modalsSlice";
 import { format } from "date-fns";
+import { useCallback, type Dispatch, type SetStateAction } from "react";
+import ErrorCard from "../../../components/error-card";
+import { usePagination } from "../../../hooks/usePagination";
 
 type Props = {
   isOpen: boolean;
@@ -37,7 +37,7 @@ export default function TemplateSheet({
   useTemplate,
 }: Props) {
   const dispatch = useAppDispatch();
-  const session = useSession();
+  const { data: session } = useAuth();
   const { currentAccount } = useAppSelector((state) => state.auth);
   const { pageNumber, pageSize } = usePagination();
 
@@ -146,7 +146,7 @@ export default function TemplateSheet({
                                 src={
                                   currentAccount?.photoUrl
                                     ? currentAccount?.photoUrl
-                                    : session.data?.user.profilePicture ?? ""
+                                    : session?.profilePicture ?? ""
                                 }
                                 alt={`@${currentAccount?.username}`}
                                 className="object-cover"
@@ -155,14 +155,14 @@ export default function TemplateSheet({
                                 {currentAccount?.username
                                   ?.slice(0, 2)
                                   .toUpperCase() ??
-                                  session.data?.user.fullName
+                                  session?.fullName
                                     ?.slice(0, 2)
                                     .toUpperCase()}
                               </AvatarFallback>
                             </Avatar>
                             <div className="flex-1 space-y-1">
                               <p className="text-sm font-semibold">
-                                {session.data?.user.fullName}
+                                {session?.fullName}
                               </p>
                               <p className="text-xs text-gray-500">
                                 @

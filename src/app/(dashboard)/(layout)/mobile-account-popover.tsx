@@ -1,20 +1,20 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/lib/auth/client";
 // redux
 import { useAppSelector } from "@/redux/hooks";
 // components
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
 import AccountPopoverContent from "./account-popover-content";
 
 export default function MobileAccountPopover() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useAuth();
 
   const { currentAccount } = useAppSelector((state) => state.auth);
 
@@ -30,14 +30,14 @@ export default function MobileAccountPopover() {
                 src={
                   currentAccount?.photoUrl
                     ? currentAccount?.photoUrl
-                    : session?.user.profilePicture ?? ""
+                    : session?.profilePicture ?? ""
                 }
                 alt={`@${currentAccount?.username}`}
                 className="object-cover"
               />
               <AvatarFallback>
                 {currentAccount?.username?.slice(0, 2).toUpperCase() ??
-                  session?.user.fullName?.slice(0, 2).toUpperCase()}
+                  session?.fullName?.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
           )}

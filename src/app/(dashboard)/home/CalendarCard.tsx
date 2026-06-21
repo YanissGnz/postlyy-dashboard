@@ -5,6 +5,7 @@ import ErrorCard from "@/components/error-card";
 import Iconify from "@/components/ui/icon";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/lib/auth/client";
 import {
   getEventBackgroundColor,
   getEventIcon,
@@ -17,7 +18,6 @@ import { EProviders } from "@/types/EProviders";
 import { type EventInput } from "@fullcalendar/core/index.js";
 import listPlugin from "@fullcalendar/list";
 import { format } from "date-fns";
-import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import dynamic from "next/dynamic";
 import { DEFAULT_POST_ID } from "../calendar/post-details";
@@ -35,7 +35,7 @@ export default function CalendarCard({
 }) {
   const { data, isLoading, isError, refetch } = useGetEventsQuery();
   const { theme } = useTheme();
-  const session = useSession();
+  const { data: session } = useAuth();
 
   const events: EventInput[] = useMemo(() => {
     if (data?.data) {
@@ -43,9 +43,9 @@ export default function CalendarCard({
         .filter(
           (event) =>
             (event.forLinkedIn &&
-              hasAccount(EProviders.Linkedin, session.data?.user.accounts)) ||
+              hasAccount(EProviders.Linkedin, session?.accounts)) ||
             (event.forTwitter &&
-              hasAccount(EProviders.Twitter, session.data?.user.accounts)),
+              hasAccount(EProviders.Twitter, session?.accounts)),
         )
         .map((event) => ({
           ...event,

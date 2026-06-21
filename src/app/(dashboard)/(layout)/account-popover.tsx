@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/lib/auth/client";
 // redux
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 // components
@@ -17,7 +17,7 @@ import { changeAccountPopoverOpen } from "@/redux/slices/layoutSlice";
 import AccountPopoverContent from "./account-popover-content";
 
 export default function AccountPopover() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useAuth();
   const dispatch = useAppDispatch();
 
   const { isCollapsed, isAccountPopoverOpen } = useAppSelector(
@@ -46,14 +46,14 @@ export default function AccountPopover() {
                 src={
                   currentAccount?.photoUrl
                     ? currentAccount?.photoUrl
-                    : session?.user.profilePicture ?? ""
+                    : session?.profilePicture ?? ""
                 }
                 alt={`@${currentAccount?.username}`}
                 className="object-cover"
               />
               <AvatarFallback>
                 {currentAccount?.username?.slice(0, 2).toUpperCase() ??
-                  session?.user.fullName?.slice(0, 2).toUpperCase()}
+                  session?.fullName?.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
           )}
@@ -67,14 +67,13 @@ export default function AccountPopover() {
               <Skeleton className="h-4 w-20" />
             ) : (
               <span className="text-sm font-semibold">
-                {session?.user.fullName}
+                {session?.fullName}
               </span>
             )}
             {status === "loading" ? (
               <Skeleton className="h-4 w-28" />
             ) : (
-              currentAccount?.username &&
-              currentAccount?.username?.length > 0 && (
+              currentAccount?.username && currentAccount?.username?.length > 0 && (
                 <span className="text-xs text-accent-foreground/60">
                   @{currentAccount?.username}
                 </span>

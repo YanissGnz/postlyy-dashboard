@@ -1,5 +1,5 @@
 import { env } from "@/env";
-import { getServerAuthSession } from "@/server/auth";
+import { getServerAuthSession } from "@/server/auth-server";
 import { type TNewAccount } from "@/types/TNewAccount";
 
 export async function POST(request: Request) {

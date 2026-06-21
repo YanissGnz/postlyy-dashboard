@@ -10,11 +10,11 @@ import SignOutButton from "@/components/sign-out-button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { env } from "@/env";
+import { useAuth } from "@/lib/auth/client";
 import { ROUTES } from "@/routes";
 import { ETiers } from "@/types/ETiers";
 import { type TResponse } from "@/types/TResponse";
 import { isArray, round } from "lodash";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useBoolean } from "usehooks-ts";
@@ -70,7 +70,7 @@ export default function SetupForm() {
 
   const [currentStep, setCurrentStep] = useState(1);
 
-  const session = useSession();
+  const { data: session } = useAuth();
 
   const { replace } = useRouter();
 
@@ -82,7 +82,7 @@ export default function SetupForm() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer " + session?.data?.user.accessToken,
+            Authorization: "Bearer " + session?.accessToken,
         },
         body: JSON.stringify({
           tier,
@@ -98,7 +98,7 @@ export default function SetupForm() {
               replace(res.data.link);
             }, 3000);
           } else {
-            await session.update();
+            // Session update handled by re-mounting or manual refresh
             replace(ROUTES.home);
           }
         })
@@ -108,12 +108,12 @@ export default function SetupForm() {
             if (error.includes("Subscription Already Setup")) {
               replace(ROUTES.payment);
             }
-            await session.update();
+            // Session update handled by re-mounting or manual refresh
           }
         });
       setFalse();
     },
-    [isYearly, seatsBought, session?.data?.user.accessToken],
+    [isYearly, seatsBought, session?.accessToken],
   );
 
   const handleAddSeat = useCallback(() => {

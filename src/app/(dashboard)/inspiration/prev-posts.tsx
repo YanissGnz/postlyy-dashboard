@@ -14,9 +14,9 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { usePagination } from "@/hooks/usePagination";
+import { useAuth } from "@/lib/auth/client";
 import { useGetBestPostsQuery } from "@/redux/api/post/apiSlice";
 import { useAppSelector } from "@/redux/hooks";
-import { useSession } from "next-auth/react";
 import Image from "next/image";
 
 type Props = {
@@ -25,7 +25,7 @@ type Props = {
 };
 
 export default function PrevPosts({ handleImportPost, skip }: Props) {
-  const session = useSession();
+  const { data: session } = useAuth();
 
   const currentAccount = useAppSelector((state) => state.auth.currentAccount);
 
@@ -84,7 +84,7 @@ export default function PrevPosts({ handleImportPost, skip }: Props) {
                           <div className="flex-1 space-y-1">
                             <p className="text-sm font-semibold">
                               {" "}
-                              {session.data?.user.fullName ??
+                              {session?.fullName ??
                                 currentAccount?.username}
                             </p>
                             <p className="text-xs text-gray-500">

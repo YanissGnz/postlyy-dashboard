@@ -18,6 +18,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useAuth } from "@/lib/auth/client";
 import {
   cn,
   getEventBackgroundColor,
@@ -49,7 +50,6 @@ import FullCalendar from "@fullcalendar/react";
 import timeGridWeekPlugin from "@fullcalendar/timegrid";
 import { addDays, format, isAfter, isBefore } from "date-fns";
 import { max, min } from "lodash";
-import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import React, {
   useCallback,
@@ -64,7 +64,7 @@ import { DEFAULT_POST_ID } from "./post-details";
 export default function Calender() {
   const calenderRef = useRef<FullCalendar>(null);
   const dispatch = useAppDispatch();
-  const session = useSession();
+  const { data: session } = useAuth();
   const { theme } = useTheme();
 
   const [title, setTitle] = useState(
@@ -101,9 +101,9 @@ export default function Calender() {
         .filter(
           (event) =>
             (event.forLinkedIn &&
-              hasAccount(EProviders.Linkedin, session.data?.user.accounts)) ||
+              hasAccount(EProviders.Linkedin, session?.accounts)) ||
             (event.forTwitter &&
-              hasAccount(EProviders.Twitter, session.data?.user.accounts)),
+              hasAccount(EProviders.Twitter, session?.accounts)),
         )
         .map((event) => {
           if (minStartHour.getHours() > new Date(event.start).getHours()) {
@@ -152,12 +152,12 @@ export default function Calender() {
   const emptyDays: EventInput[] = useMemo(() => {
     const availableDays =
       data?.data
-        .filter(
+      .filter(
           (event) =>
             (event.forLinkedIn &&
-              hasAccount(EProviders.Linkedin, session.data?.user.accounts)) ||
+              hasAccount(EProviders.Linkedin, session?.accounts)) ||
             (event.forTwitter &&
-              hasAccount(EProviders.Twitter, session.data?.user.accounts)),
+              hasAccount(EProviders.Twitter, session?.accounts)),
         )
         .map((event) => {
           const start = new Date(event.start);

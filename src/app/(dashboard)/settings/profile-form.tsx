@@ -25,9 +25,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/Spinner";
 import { UploadAvatar } from "@/components/ui/upload";
+import { useAuth } from "@/lib/auth/client";
 import { fData } from "@/lib/formatNumber";
 import { isString } from "lodash";
-import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
 export default function profileForm() {
@@ -41,7 +41,7 @@ export default function profileForm() {
   const [changeProfileImage, { isLoading: isChangingProfileImageLoading }] =
     useChangeProfileImageMutation();
 
-  const session = useSession();
+  const { data: session } = useAuth();
 
   const [profilePic, setProfilePic] = useState<
     (File & { preview: string }) | string | null
@@ -76,7 +76,8 @@ export default function profileForm() {
       .then(async () => {
         form.reset(values);
         toast.success("Profile updated successfully");
-        await session.update();
+        localStorage.removeItem("token");
+        window.location.href = "/auth/login";
       })
       .catch((err) => {
         toast.error("Something went wrong");
@@ -92,7 +93,8 @@ export default function profileForm() {
         .unwrap()
         .then(async () => {
           toast.success("Profile picture updated successfully");
-          await session.update();
+          localStorage.removeItem("token");
+          window.location.href = "/auth/login";
         })
         .catch(() => {
           toast.error("Something went wrong");

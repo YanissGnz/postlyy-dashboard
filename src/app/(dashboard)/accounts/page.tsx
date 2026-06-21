@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/lib/auth/client";
 import {
   accountApiUtil,
   useGetAccountsQuery,
@@ -27,7 +28,6 @@ import { type TNewAccount } from "@/types/TNewAccount";
 import useMessage from "@rottitime/react-hook-message-event";
 import { sentenceCase } from "change-case";
 import { decode, type JwtPayload } from "jsonwebtoken";
-import { useSession } from "next-auth/react";
 import { useBoolean } from "usehooks-ts";
 
 export default function AccountsPage() {
@@ -40,7 +40,7 @@ export default function AccountsPage() {
 
   const dispatch = useAppDispatch();
 
-  const session = useSession();
+  const { data: session } = useAuth();
 
   const {
     value: isLoading,
@@ -89,7 +89,8 @@ export default function AccountsPage() {
             toast.success("Account connected successfully");
             accountApiUtil.invalidateTags(["Accounts"]);
             await refetch();
-            await session.update();
+            localStorage.removeItem("token");
+            window.location.href = ROUTES.login;
           } else {
             const error = (await res.json()) as { message: string } | string[];
 

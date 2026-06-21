@@ -9,10 +9,10 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/lib/auth/client";
 import { useAppSelector } from "@/redux/hooks";
 import { EProviders } from "@/types/EProviders";
 import { type TPostForm } from "@/types/TPostForm";
-import { useSession } from "next-auth/react";
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { type UseFormReturn } from "react-hook-form";
 
@@ -28,7 +28,7 @@ export default function PreviewSheet({
   form,
 }: Props) {
   const { currentAccount } = useAppSelector((state) => state.auth);
-  const session = useSession();
+  const { data: session } = useAuth();
   const [previewSocial, setPreviewSocial] = useState(
     form.getValues("onTwitter") ? "twitter" : "linkedin",
   );
@@ -68,11 +68,11 @@ export default function PreviewSheet({
                       <Avatar>
                         <AvatarImage
                           src={
-                            session.data?.user?.accounts?.find(
-                              (account) =>
+                            session?.accounts?.find(
+                              (account: { accountType: EProviders }) =>
                                 account.accountType === EProviders.Twitter,
                             )?.photoUrl ??
-                            session.data?.user.profilePicture ??
+                            session?.profilePicture ??
                             ""
                           }
                           alt={`@${currentAccount?.username}`}
@@ -82,14 +82,14 @@ export default function PreviewSheet({
                           {currentAccount?.username
                             ?.slice(0, 2)
                             .toUpperCase() ??
-                            session.data?.user.fullName
+                            session?.fullName
                               ?.slice(0, 2)
                               .toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 space-y-1">
                         <p className="text-sm font-semibold">
-                          {session.data?.user.fullName}
+                          {session?.fullName}
                         </p>
                         <p className="text-xs text-gray-500">
                           @
@@ -165,29 +165,29 @@ export default function PreviewSheet({
                     <Avatar>
                       <AvatarImage
                         src={
-                          session.data?.user?.accounts?.find(
-                            (account) =>
+                          session?.accounts?.find(
+                            (account: { accountType: EProviders }) =>
                               account.accountType === EProviders.Linkedin,
                           )?.photoUrl ??
-                          session.data?.user.profilePicture ??
+                          session?.profilePicture ??
                           ""
                         }
-                        alt={`@${session.data?.user.accounts.find(
-                          (account) =>
+                        alt={`@${session?.accounts?.find(
+                          (account: { accountType: EProviders }) =>
                             account.accountType === EProviders.Linkedin,
                         )?.username}`}
                         className="object-cover"
                       />
                       <AvatarFallback>
                         {currentAccount?.username?.slice(0, 2).toUpperCase() ??
-                          session.data?.user.fullName
+                          session?.fullName
                             ?.slice(0, 2)
                             .toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 space-y-1">
                       <p className="text-sm font-semibold">
-                        {session.data?.user.fullName}
+                        {session?.fullName}
                       </p>
                       <p className="text-xs text-gray-500">
                         @

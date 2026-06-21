@@ -9,9 +9,9 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 // components
 import Iconify from "../../../components/ui/icon";
 // utils
+import { useAuth } from "@/lib/auth/client";
 import { cn } from "@/lib/utils";
 import { closeMobileSidebar, type TNavItem } from "@/redux/slices/layoutSlice";
-import { useSession } from "next-auth/react";
 import { useMediaQuery } from "usehooks-ts";
 import {
   Tooltip,
@@ -22,11 +22,11 @@ import {
 
 export default function NavItem({ icon, name, path, needAccount }: TNavItem) {
   const pathname = usePathname();
-  const session = useSession();
+  const { data: session } = useAuth();
 
   const hasAccount = useMemo(() => {
-    return session.data?.user?.accounts?.length
-      ? session.data?.user?.accounts?.length > 0
+    return session?.accounts?.length
+      ? session.accounts?.length > 0
       : false;
   }, [session]);
 

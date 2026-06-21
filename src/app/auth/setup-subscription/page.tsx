@@ -1,42 +1,42 @@
 "use client";
 
 import { Spinner } from "@/components/ui/Spinner";
+import { useAuth } from "@/lib/auth/client";
 import { ROUTES } from "@/routes";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import SetupForm from "./form";
 
 export default function SetupSubscription() {
-  const session = useSession();
+  const { data: session, status } = useAuth();
   const { replace } = useRouter();
 
   useEffect(() => {
-    if (session.status === "unauthenticated") {
+    if (status === "unauthenticated") {
       replace(ROUTES.login);
       return;
     }
 
     if (
-      session.status === "authenticated" &&
-      session.data?.user.hasChosenSubscription &&
-      session.data?.user.hasPaidSubscription
+      status === "authenticated" &&
+      session?.hasChosenSubscription &&
+      session?.hasPaidSubscription
     ) {
       replace(ROUTES.home);
       return;
     }
 
     if (
-      session.status === "authenticated" &&
-      session.data?.user.hasChosenSubscription &&
-      !session.data?.user.hasPaidSubscription
+      status === "authenticated" &&
+      session?.hasChosenSubscription &&
+      !session?.hasPaidSubscription
     ) {
       replace(ROUTES.payment);
       return;
     }
-  }, [session]);
+  }, [session, status]);
 
-  if (session.status === "loading")
+  if (status === "loading")
     return (
       <div className="h-screen w-screen">
         <Spinner />

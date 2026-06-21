@@ -5,9 +5,9 @@ import LoadingCard from "@/components/loading-card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { env } from "@/env";
+import { useAuth } from "@/lib/auth/client";
 import { useGetTemplateByIdQuery } from "@/redux/api/post/apiSlice";
 import { EProviders } from "@/types/EProviders";
-import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -21,11 +21,11 @@ export default function page({ params: { id } }: { params: { id: string } }) {
     refetchOnMountOrArgChange: true,
   });
 
-  const { data } = useSession();
+  const { data: session } = useAuth();
 
   const accounts = useMemo(() => {
-    return data?.user.accounts ?? [];
-  }, [data?.user.accounts]);
+    return session?.accounts ?? [];
+  }, [session?.accounts]);
 
   const getAccount = useCallback(
     (type: EProviders) => {
@@ -84,7 +84,7 @@ export default function page({ params: { id } }: { params: { id: string } }) {
                           src={
                             getAccount(EProviders.Twitter)
                               ? getAccount(EProviders.Twitter)?.photoUrl
-                              : data?.user.profilePicture ?? ""
+                              : session?.profilePicture ?? ""
                           }
                           alt={`@${getAccount(EProviders.Twitter)?.username}`}
                           className="object-cover"
@@ -93,12 +93,12 @@ export default function page({ params: { id } }: { params: { id: string } }) {
                           {getAccount(EProviders.Twitter)
                             ?.username?.slice(0, 2)
                             .toUpperCase() ??
-                            data?.user.fullName?.slice(0, 2).toUpperCase()}
+                            session?.fullName?.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 space-y-1">
                         <p className="text-sm font-semibold">
-                          {data?.user.fullName}
+                          {session?.fullName}
                         </p>
                         <p className="text-xs text-gray-500">
                           @
@@ -164,28 +164,28 @@ export default function page({ params: { id } }: { params: { id: string } }) {
                     <Avatar>
                       <AvatarImage
                         src={
-                          data?.user.accounts.find(
-                            (account) =>
+                          session?.accounts?.find(
+                            (account: { accountType: EProviders }) =>
                               account.accountType === EProviders.Linkedin,
                           )?.photoUrl ??
-                          data?.user.profilePicture ??
+                          session?.profilePicture ??
                           ""
                         }
-                        alt={`@${data?.user.accounts.find(
-                          (account) =>
+                        alt={`@${session?.accounts?.find(
+                          (account: { accountType: EProviders }) =>
                             account.accountType === EProviders.Linkedin,
                         )?.username}`}
                         className="object-cover"
                       />
                       <AvatarFallback>
                         {getAccount(0)?.username?.slice(0, 2).toUpperCase() ??
-                          data?.user.fullName?.slice(0, 2).toUpperCase()}
+                          session?.fullName?.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 space-y-1">
-                      <p className="text-sm font-semibold">
-                        {data?.user.fullName}
-                      </p>
+                        <p className="text-sm font-semibold">
+                          {session?.fullName}
+                        </p>
                       <p className="text-xs text-gray-500">
                         @
                         {getAccount(0)

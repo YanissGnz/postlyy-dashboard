@@ -34,6 +34,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { useAuth } from "@/lib/auth/client";
 import { hasAccount } from "@/lib/utils";
 import {
   useGetNextFiveSpotsQuery,
@@ -52,7 +53,6 @@ import { type IParser } from "@alkhipce/editorjs-react/dist/types/ParserData";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { toBlob } from "html-to-image";
-import { useSession } from "next-auth/react";
 import {
   useCallback,
   useEffect,
@@ -122,7 +122,7 @@ export default function page({ params }: { params: { id: string } }) {
 
   const { currentAccount } = useAppSelector((state) => state.auth);
 
-  const session = useSession();
+  const { data: session } = useAuth();
 
   const defaultValues: TPostForm = useMemo(() => {
     return {
@@ -460,7 +460,7 @@ export default function page({ params }: { params: { id: string } }) {
                                     disabled={
                                       !hasAccount(
                                         EProviders.Linkedin,
-                                        session.data?.user.accounts,
+session?.accounts,
                                       ) ||
                                       (!form.getValues("onLinkedIn") &&
                                         field.value)
@@ -484,7 +484,7 @@ export default function page({ params }: { params: { id: string } }) {
                                     disabled={
                                       !hasAccount(
                                         EProviders.Linkedin,
-                                        session.data?.user.accounts,
+session?.accounts,
                                       ) ||
                                       (!form.getValues("onTwitter") &&
                                         field.value)
@@ -701,7 +701,7 @@ export default function page({ params }: { params: { id: string } }) {
                                     disabled={
                                       !hasAccount(
                                         EProviders.Linkedin,
-                                        session.data?.user.accounts,
+                                        session?.accounts,
                                       ) ||
                                       (!form.getValues("onLinkedIn") &&
                                         field.value)
@@ -725,7 +725,7 @@ export default function page({ params }: { params: { id: string } }) {
                                     disabled={
                                       !hasAccount(
                                         EProviders.Linkedin,
-                                        session.data?.user.accounts,
+                                        session?.accounts,
                                       ) ||
                                       (!form.getValues("onTwitter") &&
                                         field.value)
@@ -946,7 +946,7 @@ export default function page({ params }: { params: { id: string } }) {
                                     disabled={
                                       !hasAccount(
                                         EProviders.Twitter,
-                                        session.data?.user.accounts,
+                                        session?.accounts,
                                       ) ||
                                       (!form.getValues("onLinkedIn") &&
                                         field.value)
@@ -970,7 +970,7 @@ export default function page({ params }: { params: { id: string } }) {
                                     disabled={
                                       !hasAccount(
                                         EProviders.Linkedin,
-                                        session.data?.user.accounts,
+                                        session?.accounts,
                                       ) ||
                                       (!form.getValues("onTwitter") &&
                                         field.value)
@@ -1125,7 +1125,7 @@ export default function page({ params }: { params: { id: string } }) {
                                     disabled={
                                       !hasAccount(
                                         EProviders.Twitter,
-                                        session.data?.user.accounts,
+                                        session?.accounts,
                                       ) ||
                                       (!form.getValues("onLinkedIn") &&
                                         field.value)
@@ -1149,7 +1149,7 @@ export default function page({ params }: { params: { id: string } }) {
                                     disabled={
                                       !hasAccount(
                                         EProviders.Linkedin,
-                                        session.data?.user.accounts,
+                                        session?.accounts,
                                       ) ||
                                       (!form.getValues("onTwitter") &&
                                         field.value)
@@ -1304,7 +1304,7 @@ export default function page({ params }: { params: { id: string } }) {
                                     disabled={
                                       !hasAccount(
                                         EProviders.Twitter,
-                                        session.data?.user.accounts,
+                                        session?.accounts,
                                       ) ||
                                       (!form.getValues("onLinkedIn") &&
                                         field.value)
@@ -1328,7 +1328,7 @@ export default function page({ params }: { params: { id: string } }) {
                                     disabled={
                                       !hasAccount(
                                         EProviders.Linkedin,
-                                        session.data?.user.accounts,
+                                        session?.accounts,
                                       ) ||
                                       (!form.getValues("onTwitter") &&
                                         field.value)
@@ -1612,7 +1612,7 @@ export default function page({ params }: { params: { id: string } }) {
                                     disabled={
                                       !hasAccount(
                                         EProviders.Twitter,
-                                        session.data?.user.accounts,
+                                        session?.accounts,
                                       ) ||
                                       (!form.getValues("onLinkedIn") &&
                                         field.value)
@@ -1636,7 +1636,7 @@ export default function page({ params }: { params: { id: string } }) {
                                     disabled={
                                       !hasAccount(
                                         EProviders.Linkedin,
-                                        session.data?.user.accounts,
+                                        session?.accounts,
                                       ) ||
                                       (!form.getValues("onTwitter") &&
                                         field.value)
@@ -1918,7 +1918,7 @@ export default function page({ params }: { params: { id: string } }) {
                                     disabled={
                                       !hasAccount(
                                         EProviders.Twitter,
-                                        session.data?.user.accounts,
+                                        session?.accounts,
                                       ) ||
                                       (!form.getValues("onLinkedIn") &&
                                         field.value)
@@ -1942,7 +1942,7 @@ export default function page({ params }: { params: { id: string } }) {
                                     disabled={
                                       !hasAccount(
                                         EProviders.Linkedin,
-                                        session.data?.user.accounts,
+                                        session?.accounts,
                                       ) ||
                                       (!form.getValues("onTwitter") &&
                                         field.value)
@@ -2082,7 +2082,7 @@ export default function page({ params }: { params: { id: string } }) {
                                     disabled={
                                       !hasAccount(
                                         EProviders.Twitter,
-                                        session.data?.user.accounts,
+                                        session?.accounts,
                                       ) ||
                                       (!form.getValues("onLinkedIn") &&
                                         field.value)
@@ -2106,7 +2106,7 @@ export default function page({ params }: { params: { id: string } }) {
                                     disabled={
                                       !hasAccount(
                                         EProviders.Linkedin,
-                                        session.data?.user.accounts,
+                                        session?.accounts,
                                       ) ||
                                       (!form.getValues("onTwitter") &&
                                         field.value)
